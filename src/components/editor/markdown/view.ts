@@ -1,5 +1,6 @@
-import { flush, reactive } from '@esportsplus/reactivity';
+import { flush, reactive, untrack } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
+import tooltip from '~/components/tooltip';
 import scrollbar from '~/modifiers/scrollbar';
 import { clamp } from '~/shared/clamp';
 import { mac } from '~/shared/platform';
@@ -19,6 +20,7 @@ import { NativeText } from '../code/projection';
 import { syntaxCache, type Token } from '../code/syntax';
 import { markdownCommand } from './editing';
 import { reach, widen, type Span } from './erase';
+import { clearFormats, formatsAt, setBlockKind, setLink, toggleMark, type BlockKind, type Context, type Formats, type Mark } from './format';
 import { parseInline, type Inline, type References } from './inline';
 import { arrange, cache, MarkdownLayout, unitStart, type Unit } from './layout';
 import {
@@ -35,9 +37,9 @@ import {
 } from './model';
 import { renderer } from './render';
 import { foldable, foldAt, markdownFolds } from './structure';
+import { toolbar, type Tool } from './toolbar';
 import type { Change, EditorDocument, Selection, Snapshot } from '../code/document';
 import type { Callbacks, Controller, Options } from '../code/view';
-import tooltip from '~/components/tooltip';
 
 
 type Decoration = { kind: string; style: string };
@@ -48,13 +50,29 @@ type Gap = { height: number };
 type Item = Gap | Unit;
 
 type MarkdownController = Omit<Controller, 'setDocument' | 'setOptions'> & {
+    // Turns the lines the selection touches into one kind of block.
+    block(kind: BlockKind): boolean;
     bold(): boolean;
+    clearFormats(): boolean;
+    // The marks, link and block kind at the selection, as the toolbar shows them.
+    formats(): Formats;
     italic(): boolean;
+    // Links the selection, or retargets the link it sits in; null takes the link off.
+    link(href: string | null): boolean;
+    mark(mark: Mark): boolean;
     setDocument(document: EditorDocument, options?: MarkdownOptions): void;
     setOptions(options: MarkdownOptions, replace?: boolean): void;
 };
 
-type MarkdownOptions = Options & { spellcheck?: boolean };
+type MarkdownOptions = Options & {
+    // Grows with its text instead of scrolling, without the field's own chrome, to sit within running content.
+    inline?: boolean;
+    // Line breaks typed, pasted or dropped become spaces, and Enter adds none.
+    singleLine?: boolean;
+    spellcheck?: boolean;
+    // The formatting toolbar over a selection, offering these tools; without any it never shows.
+    toolbar?: readonly Tool[];
+};
 
 type Memo = { folds: FoldRange[]; left: number; revision: number; top: number };
 
@@ -85,6 +103,8 @@ const ITEM_TASK = /^[ \t]*(?:[-+*]|\d+[.)])[ \t]+\[ ?\]$/;
 const JOINABLE = new Set<Kind>(['heading', 'list', 'paragraph', 'quote']);
 
 const LINE_BREAK = /[\r\n]/;
+
+const LINE_BREAKS = /\r\n|\r|\n/g;
 
 // Long enough that the hint only shows once the pointer rests on a link, not as it passes over text.
 const LINK_DELAY = 700;
@@ -239,6 +259,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         ui = reactive({
             empty: !model.value,
             fold: false,
+            inline: false,
             label: 'Markdown editor',
             // The platform's modifier is held, so links show they open on a click.
             linking: false,
@@ -247,6 +268,8 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             readonly: false,
             spellcheck: true,
             tabSize: 4,
+            // The toolbar's tools, space separated.
+            tools: '',
             wrap: true
         }),
         units = cache(),
@@ -387,6 +410,45 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
     // Links place the caret on a plain click, so resting on one says how to open it.
     let tip = tooltip.shared({ delay: { open: LINK_DELAY } });
+
+    let formatting: Context = {
+        get blocks() {
+            current();
+            return blocks;
+        },
+        get document() {
+            return model;
+        },
+        tokens: inlineOf
+    };
+
+    let bar = toolbar({
+        block: (kind) => controller.block(kind),
+        clear: () => controller.clearFormats(),
+        copy: () => model.value.slice(model.selection.start, model.selection.end),
+        focus: () => controller.focus(),
+        formats: () => controller.formats(),
+        link: (href) => controller.link(href),
+        mark: (mark) => controller.mark(mark),
+        range: () => {
+            let native = content?.ownerDocument.getSelection(),
+                { end, start } = model.selection;
+
+            if (!content || !native?.rangeCount || content.ownerDocument.activeElement !== content || start === end) {
+                return null;
+            }
+
+            let range = native.getRangeAt(0);
+
+            return range.collapsed || !content.contains(range.commonAncestorContainer) ? null : range;
+        },
+        selected: () => {
+            let { end, start } = model.selection;
+
+            return !!content && start !== end && content.ownerDocument.activeElement === content;
+        },
+        selection: () => model.selection
+    });
 
     let source: Source = {
         breaks: () => NONE,
@@ -1112,6 +1174,11 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             present();
         }
 
+        // Once the native selection is back where the document's is: a unit drawn this frame takes it next frame.
+        if (!unplaced) {
+            bar.refresh();
+        }
+
         markFoldable();
         // Rectangles come from the drawn text; units this frame added draw in the list's own pass, queued before.
         queueMicrotask(() => {
@@ -1704,8 +1771,15 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         return out;
     }
 
+    // One line keeps every break as a space.
+    function single(text: string) {
+        return options.singleLine ? text.replace(LINE_BREAKS, ' ') : text;
+    }
+
     // Typed text, unless it completes a shortcut.
     function typed(text: string) {
+        text = single(text);
+
         return editable(() => shortcut(text) || insertText(model, text, 'input'));
     }
 
@@ -1723,7 +1797,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
             return changed;
         },
+        block: (kind) => editable(() => setBlockKind(formatting, kind)),
         bold: () => editable(() => markdownCommand(model, 'bold', kindAt)),
+        clearFormats: () => editable(() => clearFormats(formatting)),
         closeFind: () => search.close(),
         dispose: () => {
             if (disposed) {
@@ -1807,6 +1883,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             revealing = true;
             controller.focus();
         },
+        formats: () => formatsAt(formatting),
         get host() {
             return host!;
         },
@@ -1814,7 +1891,9 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         insert: (text) => editable(() => insertText(model, text)),
         italic: () => editable(() => markdownCommand(model, 'italic', kindAt)),
         lineCommand: (command) => editable(() => lineCommand(model, command)),
-        newline: () => editable(() => markdownCommand(model, 'enter', kindAt)),
+        link: (href) => editable(() => setLink(formatting, href)),
+        mark: (mark) => editable(() => toggleMark(formatting, mark)),
+        newline: () => !options.singleLine && editable(() => markdownCommand(model, 'enter', kindAt)),
         offsetAt,
         openFind: (replace = false) => {
             if (disposed || ime.busy()) {
@@ -1935,12 +2014,14 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             }
 
             ui.fold = !!options.fold;
+            ui.inline = !!options.inline;
             ui.label = options.label ?? 'Markdown editor';
             ui.minimap = !!options.minimap;
             ui.placeholder = options.placeholder ?? '';
             ui.readonly = !!options.readonly;
             ui.spellcheck = options.spellcheck ?? true;
             ui.tabSize = options.tabSize;
+            ui.tools = (options.toolbar ?? []).join(' ');
             ui.wrap = options.wrap !== false;
             search.status();
 
@@ -2085,7 +2166,10 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                     controller.undo();
                     return;
                 case 'insertLineBreak':
-                    editable(() => insertText(model, model.eol, 'input'));
+                    if (!options.singleLine) {
+                        editable(() => insertText(model, model.eol, 'input'));
+                    }
+
                     return;
                 case 'insertParagraph':
                     controller.newline();
@@ -2157,6 +2241,13 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 return;
             }
 
+            // The toolbar closes first; the next Escape is the editor's.
+            if (e.key === 'Escape' && bar.open) {
+                e.preventDefault();
+                bar.dismiss();
+                return;
+            }
+
             if (e.key === 'Escape') {
                 escapeTab = true;
 
@@ -2178,6 +2269,11 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
             let mod = apple ? e.metaKey : e.ctrlKey,
                 key = e.key.toLowerCase();
+
+            if (bar.shortcut(e)) {
+                e.preventDefault();
+                return;
+            }
 
             if (mod && !e.altKey && !e.shiftKey && (key === 'b' || key === 'i')) {
                 e.preventDefault();
@@ -2220,7 +2316,8 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
             e.preventDefault();
 
-            let text = read(e.clipboardData, model.selections.length);
+            let pasted = read(e.clipboardData, model.selections.length),
+                text = typeof pasted === 'string' ? single(pasted) : pasted.map(single);
 
             editable(() => insertText(model, text, 'paste'));
         },
@@ -2266,6 +2363,11 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         onpointercancel: gestures.end,
         onpointerdown: (e: PointerEvent) => {
             tip.release();
+
+            if (e.button === 0) {
+                bar.press();
+            }
+
             gestures.onpointerdown(e);
         },
         onpointerleave: () => tip.release(),
@@ -2297,14 +2399,13 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             ${attributes}
             ${{
                 class: [
-                    () => ime.state.composing && 'markdown-editor--composing',
                     () => gestures.state.crosshair && 'markdown-editor--crosshair',
                     () => ui.empty && 'markdown-editor--empty',
-                    () => ui.linking && 'markdown-editor--linking',
                     () => ui.fold && 'markdown-editor--fold',
+                    () => ui.inline && 'markdown-editor--inline',
+                    () => ui.linking && 'markdown-editor--linking',
                     () => ui.minimap && 'markdown-editor--minimap',
-                    () => !ui.wrap && 'markdown-editor--nowrap',
-                    () => ui.readonly && 'markdown-editor--readonly'
+                    () => !ui.wrap && 'markdown-editor--nowrap'
                 ],
                 onconnect: (element: HTMLElement) => {
                     host = element;
@@ -2312,6 +2413,10 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                 },
                 ondisconnect: () => controller.dispose(),
                 ondocumentselectionchange: capture,
+                // Read a frame on, once focus has landed: in the toolbar or the text it stays, anywhere else it closes.
+                onfocusout: () => {
+                    requestAnimationFrame(bar.refresh);
+                },
                 // A modifier released in another window never reaches this one.
                 onwindowblur: () => {
                     ui.linking = false;
@@ -2357,6 +2462,12 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             </div>
             <span class='markdown-editor-help' id='${help}'>Press Escape then Tab to move focus out of the editor.</span>
             ${tip.render()}
+            ${() => {
+                let tools = ui.tools;
+
+                // Built untracked: only a change of tools draws the toolbar again, not the state its parts read.
+                return tools && untrack(() => bar.template(tools.split(' ') as Tool[]));
+            }}
         </div>
     `;
 

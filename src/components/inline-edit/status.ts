@@ -1,5 +1,5 @@
-import { html, type Attributes } from '@esportsplus/template';
 import { effect, isPromise, onCleanup, reactive } from '@esportsplus/reactivity';
+import { html, type Attributes } from '@esportsplus/template';
 import icon from '~/components/icon';
 import check from '@esportsplus/ui/svg/check.svg';
 
@@ -179,7 +179,10 @@ const saver = (
         save: (value: string) => {
             state.value = value;
             state.saved = true;
-            report?.(onsave?.(value));
+            // Called whether or not a status shows: an optional call skips its arguments when there is nothing to call.
+            let result = onsave?.(value);
+
+            report?.(result);
             clearTimeout(timer);
             timer = setTimeout(() => {
                 state.saved = false;
@@ -192,4 +195,4 @@ const saver = (
 
 export default { render, saver };
 export { INLINE_EDIT_STATUS };
-export type { Phase, Status };
+export type { Status };

@@ -433,5 +433,5 @@ class MarkdownLayout {
 }
 
 
-export { arrange, cache, MarkdownLayout, SLICE_LINES, unitStart, WINDOW_LIMIT };
+export { arrange, cache, MarkdownLayout, unitStart };
 export type { Unit };

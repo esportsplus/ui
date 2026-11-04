@@ -1,5 +1,5 @@
-import { component, html, type Attributes } from '@esportsplus/template';
 import { flush, reactive } from '@esportsplus/reactivity';
+import { component, html, type Attributes } from '@esportsplus/template';
 import icon from '~/components/icon';
 import input from '~/components/input';
 import textarea from '~/components/textarea';
@@ -36,12 +36,11 @@ type State = {
 };
 
 
-const WHITESPACE = /\s+/g;
-
-
 const INLINE_EDIT_DISPLAY = Symbol.for('@esportsplus/ui/inline-edit.display');
 
 const INLINE_EDIT_FIELD = Symbol.for('@esportsplus/ui/inline-edit.field');
+
+const WHITESPACE = /\s+/g;
 
 
 function template(
@@ -58,6 +57,7 @@ function template(
     }: A
 ) {
     let display: HTMLElement | undefined,
+        // The field's starting value, kept apart from 'local.draft' so typing doesn't render the field again.
         draft = '',
         local = reactive({ draft: '' }),
         parts = { ...this?.attributes?.[INLINE_EDIT_FIELD], ...attributes[INLINE_EDIT_FIELD] },
@@ -156,7 +156,8 @@ function template(
             >
                 <span class='inline-edit-label'>Edit ${label}: </span>
                 ${() => {
-                    // While editing it mirrors the draft so the cell (and a multiline field) grows with it; the trailing space keeps a new empty line from collapsing.
+                    // While editing it mirrors the draft so the cell (and a multiline field) grows with it; the trailing
+                    // space keeps a new empty line from collapsing.
                     if (state.editing) {
                         return `${local.draft} `;
                     }

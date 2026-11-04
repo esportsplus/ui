@@ -280,6 +280,9 @@ const renderer = (host: Host) => {
                 case 'em':
                     out.push(html`<em class='markdown-editor-em'>${content}</em>`);
                     break;
+                case 'highlight':
+                    out.push(html`<mark class='markdown-editor-highlight'>${content}</mark>`);
+                    break;
                 case 'link':
                     out.push(
                         token.href
@@ -444,8 +447,6 @@ const renderer = (host: Host) => {
                         class: [
                             block.level ? `markdown-editor-block--h${block.level}` : '',
                             block.quoteDepth ? 'markdown-editor-block--quoted' : '',
-                            unit.continuation ? 'markdown-editor-block--continuation' : '',
-                            unit.continues ? 'markdown-editor-block--continues' : '',
                             block.task && !unit.continuation ? 'markdown-editor-block--task' : '',
                             unit.raw || unit.fold ? 'markdown-editor-block--raw' : ''
                         ],

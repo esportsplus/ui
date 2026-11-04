@@ -124,4 +124,4 @@ const markdownCommand = (document: EditorDocument, command: Command, kind?: Kind
 
 
 export { markdownCommand };
-export type { Command, KindAt };
+export type { Command };

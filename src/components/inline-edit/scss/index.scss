@@ -1,5 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/font/geist';
 @use 'css-utilities/hidden';
 @use 'css-utilities/icon';
 @use 'variables';
@@ -7,31 +6,40 @@
 .inline-edit {
     color: var(--color);
     display: grid;
+    gap: var(--gap-vertical) var(--gap-horizontal);
     margin-inline: calc(var(--box-padding-start) * -1);
     position: relative;
 
-
-    // Pinned to the root's corner at zero size, so the toolbar is placed in root coordinates without covering the text.
-    // Qualified by the root so it wins over the reused tooltip styles regardless of stylesheet order.
-    & > #{&}-anchor {
-        height: 0;
-        inset: 0 auto auto 0;
-        position: absolute;
-        width: 0;
-    }
 
     &-display,
     &-editor,
     & > #{&}-field {
         border-radius: var(--border-radius);
         grid-area: 1 / 1;
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-start) var(--padding-end);
+        width: 100%;
+    }
+
+    // The rich field's text wraps and lays out as the markdown editor's own, so only the plain boxes clip theirs.
+    &-display,
+    & > #{&}-field {
         overflow: hidden;
         overflow-wrap: var(--overflow-wrap);
-        padding: var(--padding-vertical) var(--padding-end) var(--padding-vertical) var(--padding-start);
         text-align: start;
         text-overflow: var(--text-overflow);
         white-space: var(--white-space);
-        width: 100%;
+    }
+
+    // On one line the field is a native input, which centers its text with its own rounding rather than the line box's,
+    // so the display centers its text the same way within a row held at the line height; swapping them never moves it.
+    &:not(#{&}--multiline) {
+        grid-template-rows: minmax(var(--row-height), auto);
+    }
+
+    &:not(#{&}--multiline) > #{&}-display,
+    &:not(#{&}--multiline) > #{&}-field {
+        line-height: var(--line-height);
     }
 
     // Stays in the cell while editing (hidden), so the field inherits its exact width and starting height.
@@ -60,105 +68,14 @@
         }
     }
 
-    // Always editable, so a click drops the caret where it lands; the field look only shows while editing.
+    // The rich field is the markdown editor itself, always editable, so a click drops the caret where it lands; it
+    // takes the field's look only while editing.
     &-editor {
         background: var(--background);
-        caret-color: currentColor;
-        cursor: text;
-        outline: none;
-        position: relative;
         transition: background-color var(--transition-duration) var(--transition-timing-function);
 
         #{tokens.state(active, '.inline-edit')} > & {
             box-shadow: var(--ring);
-            text-overflow: clip;
-        }
-
-        .inline-edit--empty > &::before {
-            color: var(--placeholder-color);
-            content: attr(data-placeholder);
-            pointer-events: none;
-            position: absolute;
-        }
-
-        > * + * {
-            margin-top: var(--margin-vertical);
-        }
-
-        a {
-            color: inherit;
-            text-decoration: underline;
-            text-decoration-color: var(--underline-color);
-            text-underline-offset: calc(var(--size-100) / 2);
-        }
-
-        blockquote {
-            border-inline-start: var(--border-width) solid var(--border-color);
-            color: var(--color);
-            padding-inline-start: var(--padding-start);
-        }
-
-        blockquote,
-        h1,
-        h2,
-        h3,
-        ol,
-        p,
-        pre,
-        ul {
-            margin: 0;
-        }
-
-        code {
-            border-radius: var(--border-radius-100);
-            padding: var(--padding-vertical) var(--padding-horizontal);
-        }
-
-        code,
-        pre {
-            @extend %font-geist-mono;
-            background: var(--surface-background-default);
-            font-family: var(--font-family);
-            font-size: var(--font-size);
-        }
-
-        h1,
-        h2,
-        h3 {
-            font-size: var(--font-size);
-            font-weight: var(--font-weight-600);
-            line-height: var(--line-height);
-        }
-
-        li[data-checked='true'] {
-            color: var(--color);
-            text-decoration: line-through;
-        }
-
-        mark {
-            background: var(--background);
-            border-radius: var(--border-radius-100);
-            color: inherit;
-        }
-
-        ol,
-        ul {
-            padding-inline-start: var(--padding-start);
-        }
-
-        pre {
-            border-radius: var(--border-radius-400);
-            padding: var(--padding-vertical) var(--padding-horizontal);
-            white-space: pre-wrap;
-        }
-
-        strong {
-            font-weight: var(--font-weight-600);
-        }
-
-        ul[data-task] {
-            list-style: none;
-            padding-inline-start: 0;
         }
     }
 
@@ -185,8 +102,8 @@
         color: var(--color);
         display: grid;
         height: var(--size);
-        inset-block-start: calc(var(--size-100) / 2);
-        inset-inline-end: calc(var(--size-300) / 2);
+        inset-block-start: var(--inset-top);
+        inset-inline-end: var(--inset-end);
         place-items: center;
         pointer-events: none;
         position: absolute;
@@ -237,7 +154,6 @@
         font-size: var(--font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
         grid-area: 2 / 1;
-        margin-top: var(--margin-top);
         padding-inline-start: var(--box-padding-start);
         white-space: nowrap;
         width: var(--width);
@@ -360,89 +276,6 @@
                     }
                 }
             }
-        }
-    }
-
-    // The checklist box: an atomic inline, so the done item's strike-through doesn't run across it.
-    &-task {
-        display: inline-flex;
-        margin-inline-end: var(--spacer);
-        user-select: none;
-        vertical-align: -0.125em;
-    }
-
-    // Shown afresh, it jumps to the selection rather than gliding from where it last was.
-    &-toolbar--instant.tooltip-content {
-        transition: none;
-    }
-
-    &-toolbar-block.select {
-        color: var(--color-text-500);
-    }
-
-    &-toolbar-button {
-        border: 0;
-        flex: none;
-        height: var(--size);
-        outline: none;
-        transition:
-            background-color var(--transition-duration) var(--transition-timing-function),
-            color var(--transition-duration) var(--transition-timing-function);
-        width: var(--size);
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-        }
-
-        &[hidden] {
-            display: none;
-        }
-    }
-
-    &-toolbar-divider {
-        background: var(--background);
-        flex: none;
-        height: var(--height);
-        margin-inline: var(--spacer);
-        width: var(--width);
-    }
-
-    // One pane shows at a time: the buttons, or the link field while a link is being set.
-    &-toolbar-format,
-    &-toolbar-link {
-        align-items: center;
-        display: var(--display);
-        gap: var(--gap-vertical) var(--gap-horizontal);
-    }
-
-    &-toolbar-icon {
-        fill: none;
-        stroke: currentColor;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-width: var(--stroke-width);
-    }
-
-    &-toolbar-url.input {
-        height: var(--height);
-        min-height: 0;
-        outline: none;
-        width: var(--width);
-    }
-
-    // Placed over the selection through '--toolbar-x'/'--toolbar-y', scaling out of it from '--toolbar-origin'.
-    // Visible overflow lets the block select's list hang outside the bar. Only the fade plays under reduced motion.
-    // Qualified so it wins over the reused tooltip styles regardless of stylesheet order.
-    &-toolbar.tooltip-content {
-        left: 0;
-        overflow: visible;
-        padding: var(--padding-vertical) var(--padding-horizontal);
-        top: 0;
-        transform-origin: var(--toolbar-origin);
-        translate: var(--toolbar-x) var(--toolbar-y);
-
-        @media (prefers-reduced-motion: reduce) {
-            transition-property: opacity;
         }
     }
 }

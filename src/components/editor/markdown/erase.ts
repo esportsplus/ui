@@ -6,7 +6,7 @@ type Span = { from: number; to: number };
 
 const LINE_BREAK = /[\r\n]/;
 
-const WIDTHS: Partial<Record<Inline['kind'], number>> = { em: 1, strike: 2, strong: 2 };
+const WIDTHS: Partial<Record<Inline['kind'], number>> = { em: 1, highlight: 2, strike: 2, strong: 2 };
 
 
 let graphemes: Intl.Segmenter | undefined;
@@ -78,8 +78,8 @@ const reach = (text: string, spans: readonly Span[], offset: number, backward: b
         : { from: next.from, to: next.from + grapheme(text, next.from, next.to, false) };
 };
 
-// Widens a deletion that empties emphasis, strikethrough or code to take its delimiters, outward through nesting,
-// so none are left behind as text. Token offsets are relative to 'base'.
+// Widens a deletion that empties emphasis, a highlight, strikethrough or code to take its delimiters, outward through
+// nesting, so none are left behind as text. Token offsets are relative to 'base'.
 const widen = (text: string, tokens: readonly Inline[], base: number, span: Span): Span => {
     let found = true;
 

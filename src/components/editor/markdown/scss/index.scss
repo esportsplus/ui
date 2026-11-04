@@ -1,8 +1,11 @@
+@use '/tokens';
 @use 'css-utilities/font/geist';
 @use 'css-utilities/hidden';
+@use 'css-utilities/reset';
 @use 'css-utilities/surface';
 @use 'variables';
 
+// Inline offsets stay physical (left/right): the layout, minimap and overlay compute in left/top pixels.
 .markdown-editor {
     background: var(--background);
     box-sizing: border-box;
@@ -19,9 +22,11 @@
     tab-size: var(--tab-size);
     width: 100%;
 
-    &--empty &-content::before {
+
+    &--empty .markdown-editor-content::before {
         display: block;
     }
+
 
     &-block {
         cursor: var(--cursor);
@@ -33,8 +38,10 @@
         position: relative;
         white-space: var(--white-space);
 
-        &--h1 {
-            font-size: calc(var(--font-size) * var(--h1-scale));
+        @for $level from 1 through 6 {
+            &--h#{$level} {
+                font-size: calc(var(--font-size) * var(--h#{$level}-scale));
+            }
         }
 
         &--h1,
@@ -42,25 +49,8 @@
             line-height: var(--heading-line-height);
         }
 
-        &--h2 {
-            font-size: calc(var(--font-size) * var(--h2-scale));
-        }
-
-        &--h3 {
-            font-size: calc(var(--font-size) * var(--h3-scale));
-        }
-
-        &--h4 {
-            font-size: calc(var(--font-size) * var(--h4-scale));
-        }
-
-        &--h5 {
-            font-size: calc(var(--font-size) * var(--h5-scale));
-        }
-
         &--h6 {
             color: var(--muted-color);
-            font-size: calc(var(--font-size) * var(--h6-scale));
         }
 
         &--heading {
@@ -91,7 +81,7 @@
         }
 
         &--task {
-            padding-top: var(--padding-vertical);
+            padding-block-start: var(--padding-vertical);
         }
     }
 
@@ -104,7 +94,8 @@
 
     &-cell {
         border: var(--border-width) solid var(--border-color);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
 
         &--head {
             font-weight: var(--heading-weight);
@@ -120,7 +111,8 @@
         font: inherit;
         font-size: var(--font-size);
         margin-left: var(--margin-horizontal);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
     }
 
     &-code {
@@ -129,7 +121,8 @@
         border-radius: var(--border-radius);
         font-family: var(--font-family);
         font-size: var(--font-size);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
 
         &--block {
             background: none;
@@ -151,10 +144,10 @@
             color: var(--placeholder-color);
             content: attr(data-placeholder);
             display: none;
+            inset-block-start: 0;
             left: 0;
             pointer-events: none;
             position: absolute;
-            top: 0;
         }
 
         &::selection,
@@ -175,11 +168,11 @@
         cursor: pointer;
         display: flex;
         height: var(--line-height);
+        inset-block-start: 0;
         justify-content: center;
         left: calc(-1 * var(--fold-width));
         padding: 0;
         position: absolute;
-        top: 0;
         width: var(--fold-width);
 
         &--none {
@@ -201,28 +194,10 @@
         font-weight: var(--heading-weight);
         margin: 0;
 
-        &--h1 {
-            font-size: calc(1em * var(--h1-scale));
-        }
-
-        &--h2 {
-            font-size: calc(1em * var(--h2-scale));
-        }
-
-        &--h3 {
-            font-size: calc(1em * var(--h3-scale));
-        }
-
-        &--h4 {
-            font-size: calc(1em * var(--h4-scale));
-        }
-
-        &--h5 {
-            font-size: calc(1em * var(--h5-scale));
-        }
-
-        &--h6 {
-            font-size: calc(1em * var(--h6-scale));
+        @for $level from 1 through 6 {
+            &--h#{$level} {
+                font-size: calc(1em * var(--h#{$level}-scale));
+            }
         }
     }
 
@@ -230,10 +205,15 @@
         @extend %hidden-visually;
     }
 
+    &-highlight {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        color: inherit;
+    }
+
     &-image {
         max-width: 100%;
     }
-
 
     // A fence's info string, labelling its code.
     &-info {
@@ -247,7 +227,6 @@
 
     // A task's text. Inline, so the strike runs once per wrapped line, as in the tasklist.
     &-label {
-        -webkit-box-decoration-break: clone;
         background-image: linear-gradient(var(--strike-color), var(--strike-color));
         background-position: var(--strike-position);
         background-repeat: no-repeat;
@@ -299,10 +278,10 @@
     }
 
     &-overlay {
+        inset-block-start: 0;
         left: 0;
         pointer-events: none;
         position: absolute;
-        top: 0;
         z-index: 1;
     }
 
@@ -317,7 +296,8 @@
         font-family: var(--font-family);
         margin: 0;
         overflow-x: auto;
-        padding: 0 var(--padding-horizontal);
+        padding-block: 0;
+        padding-inline: var(--padding-horizontal);
     }
 
     &-quote {
@@ -329,15 +309,16 @@
 
     &-rule {
         border: 0;
-        border-top: var(--border-width) solid var(--rule-color);
-        margin: calc(var(--line-height) / 2) 0 calc(var(--line-height) / 2 - var(--border-width));
+        border-block-start: var(--border-width) solid var(--rule-color);
+        margin-block: calc(var(--line-height) / 2) calc(var(--line-height) / 2 - var(--border-width));
+        margin-inline: 0;
     }
 
     &-ruler {
+        inset-block-start: 0;
         left: 0;
         pointer-events: none;
         position: absolute;
-        top: 0;
         visibility: hidden;
         white-space: pre;
     }
@@ -381,7 +362,6 @@
         overflow-anchor: none;
         padding: var(--padding-vertical) var(--padding-horizontal) var(--padding-vertical) calc(var(--padding-horizontal) + var(--gutter-width));
         position: relative;
-        scroll-behavior: auto;
     }
 
     &-table {
@@ -399,7 +379,102 @@
         }
     }
 
-    &:focus-within {
+    // Placed over the selection through '--toolbar-x'/'--toolbar-y', in viewport coordinates, scaling out of it from
+    // '--toolbar-origin'. Visible overflow lets the block select's list hang outside the bar. Only the fade plays under
+    // reduced motion. Qualified so it wins over the reused tooltip styles regardless of stylesheet order.
+    &-toolbar.tooltip-content {
+        left: 0;
+        overflow: visible;
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
+        top: 0;
+        transform-origin: var(--toolbar-origin);
+        translate: var(--toolbar-x) var(--toolbar-y);
+
+        @media (prefers-reduced-motion: reduce) {
+            transition-property: opacity;
+        }
+    }
+
+    // Shown afresh, it jumps to the selection rather than gliding from where it last was.
+    &-toolbar--instant.tooltip-content {
+        transition: none;
+    }
+
+    &-toolbar-button {
+        border: 0;
+        flex: none;
+        height: var(--size);
+        outline: none;
+        transition:
+            background-color var(--transition-duration) var(--transition-timing-function),
+            color var(--transition-duration) var(--transition-timing-function);
+        width: var(--size);
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+
+        &[hidden] {
+            display: none;
+        }
+    }
+
+    &-toolbar-divider {
+        background: var(--background);
+        flex: none;
+        height: var(--height);
+        margin-inline: var(--spacer);
+        width: var(--width);
+    }
+
+    // One pane shows at a time: the buttons, or the link field while a link is being set.
+    &-toolbar-format,
+    &-toolbar-link {
+        align-items: center;
+        display: var(--display);
+        gap: var(--gap-vertical) var(--gap-horizontal);
+    }
+
+    &-toolbar-icon {
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: var(--stroke-width);
+    }
+
+    // The toolbar's popover, pinned to the viewport's corner at no size, so the toolbar inside is placed in viewport
+    // coordinates and stands above everything around the editor; it takes no clicks itself. Qualified so the popover
+    // reset outranks the '.tooltip' it also carries, which loads after it.
+    &-toolbar-layer.tooltip {
+        @extend %reset-popover;
+        height: 0;
+        left: 0;
+        top: 0;
+        width: 0;
+
+        @include tokens.state(active) {
+            > .markdown-editor-toolbar {
+                pointer-events: auto;
+            }
+        }
+    }
+
+    &-toolbar-live {
+        @extend %hidden-visually;
+    }
+
+    &-toolbar-url.input {
+        height: var(--height);
+        min-height: 0;
+        outline: none;
+        width: var(--width);
+    }
+
+
+    // Inline, the text it sits in shows where focus is.
+    &:not(#{&}--inline):focus-within {
         outline: var(--focus-width) solid var(--focus-color);
         outline-offset: var(--focus-offset);
     }

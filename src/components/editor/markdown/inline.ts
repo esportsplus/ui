@@ -2,7 +2,7 @@ type Inline = {
     children?: Inline[];
     from: number;
     href?: string;
-    kind: 'code' | 'em' | 'link' | 'strike' | 'strong' | 'text';
+    kind: 'code' | 'em' | 'highlight' | 'link' | 'strike' | 'strong' | 'text';
     reference?: boolean;
     text: string;
     to: number;
@@ -33,6 +33,9 @@ const MAX_DEPTH = 30;
 const NOT_SPACE = /[^ ]/;
 
 const NO_IMAGE = /^(?:mailto:|tel:)/i;
+
+// Delimiters that only ever pair two at a time: '~~' strikes text through and '==' highlights it.
+const PAIRED = new Set(['=', '~']);
 
 const PUNCTUATION = /[\p{P}\p{S}]/u;
 
@@ -155,7 +158,7 @@ function delimiterEnd(text: string, at: number, length: number, width: number) {
 
             // CommonMark's rule of three: a run that both opens and closes can't pair with one whose total is a
             // multiple of three unless both are.
-            let odd = character !== '~' &&
+            let odd = !PAIRED.has(character) &&
                 (flank.open || flanking(text, at, length).close) &&
                 (length + count) % 3 === 0 &&
                 (length % 3 !== 0 || count % 3 !== 0);
@@ -166,7 +169,7 @@ function delimiterEnd(text: string, at: number, length: number, width: number) {
         }
 
         if (flank.open && (!flank.close || nested.length || remaining < width)) {
-            nested.push(character === '~' ? 2 : count);
+            nested.push(PAIRED.has(character) ? 2 : count);
         }
 
         i += count - 1;
@@ -340,10 +343,10 @@ const parseInline = (source: string, origin = 0, depth = 0, references: Referenc
             }
         }
 
-        if (source[i] === '*' || source[i] === '_' || source.startsWith('~~', i)) {
+        if (source[i] === '*' || source[i] === '_' || source.startsWith('~~', i) || source.startsWith('==', i)) {
             let character = source[i],
                 count = run(source, i),
-                width = character === '~' ? 2 : count % 2 === 1 ? 1 : 2,
+                width = PAIRED.has(character) ? 2 : count % 2 === 1 ? 1 : 2,
                 end = flanking(source, i, count).open ? delimiterEnd(source, i, count, width) : -1;
 
             if (end > i + width) {
@@ -353,7 +356,7 @@ const parseInline = (source: string, origin = 0, depth = 0, references: Referenc
                 result.push({
                     children: parseInline(text, origin + i + width, depth + 1, references),
                     from: origin + i + width,
-                    kind: character === '~' ? 'strike' : width === 2 ? 'strong' : 'em',
+                    kind: character === '~' ? 'strike' : character === '=' ? 'highlight' : width === 2 ? 'strong' : 'em',
                     text,
                     to: origin + end
                 });

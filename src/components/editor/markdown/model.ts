@@ -1,4 +1,4 @@
-import { preferredEol, type Edit, type EditorDocument, type Selection } from '../code/document';
+import { preferredEol, type Edit, type EditorDocument } from '../code/document';
 import { referenceLabel } from './inline';
 
 
@@ -391,18 +391,6 @@ const blockAt = (blocks: readonly MarkdownBlock[], offset: number) => {
     return Math.max(0, lo - 1);
 };
 
-// The blocks [first, last) a selection touches; a caret at the very end belongs to the last block.
-const blocksAt = (blocks: readonly MarkdownBlock[], selection: Pick<Selection, 'end' | 'start'>) => {
-    if (!blocks.length) {
-        return { first: 0, last: 0 };
-    }
-
-    let first = blockAt(blocks, selection.start),
-        last = selection.end > selection.start ? blockAt(blocks, selection.end - 1) : first;
-
-    return { first, last: last + 1 };
-};
-
 // The block's source without its final line break.
 const contentEnd = (text: string, block: MarkdownBlock) => {
     return block.to - (TRAILING_EOL.exec(text.slice(Math.max(block.from, block.to - 2), block.to))?.[0].length ?? 0);
@@ -721,17 +709,14 @@ const toggleTask = (document: EditorDocument, task: Task) => {
 
 export {
     blockAt,
-    blocksAt,
     contentEnd,
-    indentColumns,
     markdownBackspace,
     markdownEnter,
     markdownReferences,
     parseMarkdown,
     quotePrefix,
     reparse,
-    shiftBlock,
     toggleMarkdown,
     toggleTask
 };
-export type { Kind, MarkdownBlock, Row, Splice, Task };
+export type { Kind, MarkdownBlock, Row, Task };

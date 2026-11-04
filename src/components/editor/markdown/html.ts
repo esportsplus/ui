@@ -189,4 +189,4 @@ const sanitizeHtml = (html: string, parser: DOMParser) => sanitize(parser.parseF
 
 
 export { sanitize, sanitizeHtml };
-export type { SafeElement, SafeNode, Source, Tag };
+export type { SafeNode, Source };
