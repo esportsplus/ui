@@ -1,0 +1,27 @@
+@use 'css-utilities/surface';
+
+
+// The shell's root surface with its sidebars set side by side in flow, since the real ones are fixed to the window.
+.shell-demo {
+    @extend %surface-root;
+    background: var(--surface-background-default);
+    border-radius: var(--border-radius-400);
+    display: grid;
+    gap: var(--size-400);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: var(--size-400);
+    width: 100%;
+
+
+    .shell-sidebar {
+        border-radius: var(--border-radius-300);
+        height: 160px;
+        inset: auto;
+        padding: var(--size-400);
+        position: relative;
+        translate: none;
+        visibility: visible;
+        width: auto;
+        z-index: auto;
+    }
+}

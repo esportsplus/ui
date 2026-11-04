@@ -100,13 +100,13 @@ function grip(sides: Sides, peeking: Peeking, frame: Frame, edge: Edge) {
                         open(sides, peeking, edge);
                     }
                 },
+                onconnect: (element: HTMLElement) => {
+                    frame[edge].edge = element;
+                },
                 onpointerenter: () => {
                     if (side.hover && !side.state.active) {
                         peeking[edge] = true;
                     }
-                },
-                onconnect: (element: HTMLElement) => {
-                    frame[edge].edge = element;
                 },
                 onpointerleave: (e: PointerEvent) => leave(side, peeking, frame, edge, e),
                 onpointermove: function(this: HTMLElement, e: PointerEvent) {
@@ -308,7 +308,7 @@ const shell = (sides: Sides, content: Renderable<unknown>) => {
 
     return html`
         <div
-            class='shell ${() => sides.left.state.active && '--left-open'} ${() => sides.right.state.active && '--right-open'}'
+            class='shell ${() => sides.left.state.active && 'shell--left-open'} ${() => sides.right.state.active && 'shell--right-open'}'
             ${{
                 class: () => (frame.left.dragging || frame.right.dragging) && 'shell--dragging',
                 style: () => ({

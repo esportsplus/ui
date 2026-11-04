@@ -21,6 +21,17 @@
         transition: none;
     }
 
+    &--left-open &-edge--left,
+    &--right-open &-edge--right {
+        transition-delay: 0s;
+        visibility: hidden;
+    }
+
+    &--left-open &-edge--left &-handle,
+    &--right-open &-edge--right &-handle {
+        opacity: 0;
+    }
+
 
     // The gaps around the card show the sidebars' surface, so the card reads as set into it.
     &-backdrop,
@@ -35,9 +46,8 @@
     }
 
     &-edge {
-        bottom: 0;
+        inset-block: 0;
         position: fixed;
-        top: 0;
         touch-action: none;
         transition: visibility 0s var(--slide-duration);
         user-select: none;
@@ -61,20 +71,14 @@
     }
 
     // Off the window until the pointer is on the edge, then over the card, just inside its edge.
-    &-edge--left &-handle {
-        left: calc(var(--width) * -1);
-    }
+    @each $side in 'left' 'right' {
+        &-edge--#{$side} &-handle {
+            #{$side}: calc(var(--width) * -1);
+        }
 
-    &-edge--left:is(:active, :hover) &-handle {
-        left: calc(var(--left-gap-horizontal) + var(--inset-horizontal));
-    }
-
-    &-edge--right &-handle {
-        right: calc(var(--width) * -1);
-    }
-
-    &-edge--right:is(:active, :hover) &-handle {
-        right: calc(var(--right-gap-horizontal) + var(--inset-horizontal));
+        &-edge--#{$side}:is(:active, :hover) &-handle {
+            #{$side}: calc(var(--#{$side}-gap-horizontal) + var(--inset-horizontal));
+        }
     }
 
     // Centered on the window until the pointer in the strip moves it; it stays where the pointer leaves it.
@@ -122,12 +126,11 @@
     }
 
     &-sidebar {
-        bottom: 0;
         display: flex;
         flex-direction: column;
+        inset-block: 0;
         overflow: hidden;
         position: fixed;
-        top: 0;
         touch-action: pan-y;
         transition:
             translate var(--slide-duration) var(--slide-timing-function),
@@ -143,14 +146,11 @@
             visibility: visible;
         }
 
-        &--left {
-            left: 0;
-            translate: -100% 0;
-        }
-
-        &--right {
-            right: 0;
-            translate: 100% 0;
+        @each $side, $sign in ('left': -1, 'right': 1) {
+            &--#{$side} {
+                #{$side}: 0;
+                translate: $sign * 100% 0;
+            }
         }
 
         // Peeking shows it over the card, which keeps its place; only an open sidebar makes room.
@@ -180,35 +180,21 @@
 
     &-toggle {
         display: flex;
-        flex-shrink: 0;
         height: var(--size);
         position: fixed;
-        top: var(--size-300);
+        top: var(--inset-vertical);
         width: var(--size);
         z-index: 40;
 
-        &--left {
-            left: var(--size-300);
-        }
-
-        &--right {
-            right: var(--size-300);
+        @each $side in 'left' 'right' {
+            &--#{$side} {
+                #{$side}: var(--inset-horizontal);
+            }
         }
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: var(--focus-offset);
         }
-    }
-
-    &.--left-open &-edge--left &-handle,
-    &.--right-open &-edge--right &-handle {
-        opacity: 0;
-    }
-
-    &.--left-open &-edge--left,
-    &.--right-open &-edge--right {
-        transition-delay: 0s;
-        visibility: hidden;
     }
 }

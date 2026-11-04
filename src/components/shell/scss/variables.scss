@@ -24,6 +24,17 @@
     }
 
 
+    &--left-open {
+        --left-gap-horizontal: 0px;
+        --left-space: var(--space);
+    }
+
+    &--right-open {
+        --right-gap-horizontal: 0px;
+        --right-space: var(--space);
+    }
+
+
     &-edge {
         --width: 24px;
     }
@@ -33,7 +44,7 @@
     }
 
     &-handle {
-        --border-radius: 4px;
+        --border-radius: var(--border-radius-200);
         --color: var(--surface-border-hover);
         --height: 10svh;
         // How far inside the card's edge the handle comes to rest.
@@ -44,10 +55,10 @@
     &-main {
         @extend %surface-raise;
         --border-radius: var(--border-radius-500);
-        // The card draws its shadow on a layer of its own as well, from this.
         --box-shadow: none;
     }
 
+    // Steps a sidebar a level below or above the shell's root surface; raised, it matches the card.
     &-sidebar {
         &--lower {
             @extend %surface-lower;
@@ -68,19 +79,11 @@
         --color-default: var(--color-text-400);
         --color-hover: var(--color-text-400);
         --color-pressed: var(--color-text-500);
+        --inset-horizontal: var(--size-300);
+        --inset-vertical: var(--size-300);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         --size: 32px;
         --width: var(--size);
-    }
-
-    &.--left-open {
-        --left-gap-horizontal: 0px;
-        --left-space: var(--space);
-    }
-
-    &.--right-open {
-        --right-gap-horizontal: 0px;
-        --right-space: var(--space);
     }
 }
