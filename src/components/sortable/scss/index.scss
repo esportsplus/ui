@@ -83,12 +83,13 @@
     }
 
     // The dragged item stays in the list as its own placeholder: its contents fade out behind a dashed outline while
-    // it moves through the list. Leaving the class drops the transition, so they are back at once on landing.
+    // it moves through the list. Leaving the class drops the transition, so they are back at once on landing. Important,
+    // since the item's own styles sit outside the library's layer and would otherwise paint over the placeholder.
     & > &-item--held {
-        background: var(--background);
-        border-color: transparent;
-        box-shadow: none;
-        color: transparent;
+        background: var(--background) !important;
+        border-color: transparent !important;
+        box-shadow: none !important;
+        color: transparent !important;
         outline: var(--border-width) dashed var(--border-color);
         outline-offset: calc(var(--border-width) * -1);
         transition:
