@@ -108,6 +108,18 @@ export default {
                 `;
             },
             title: 'controlled state'
+        },
+        {
+            render: () => select.expand({
+                label: 'Size',
+                options: [
+                    { content: () => 'S', label: 'Small', value: 'small' },
+                    { content: () => 'M', label: 'Medium', value: 'medium' },
+                    { content: () => 'L', label: 'Large', value: 'large' }
+                ],
+                selected: 'medium'
+            }),
+            title: 'expand'
         }
     ]
 };

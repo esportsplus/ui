@@ -4,6 +4,7 @@ import { clamp } from '~/shared/clamp';
 import form from '~/components/form';
 import icon from '~/components/icon';
 import overlay from '~/components/overlay';
+import expand from './expand';
 import place, { ROWS } from './placement';
 import check from '@esportsplus/ui/svg/check.svg';
 import chevronDown from '@esportsplus/ui/svg/chevron-down.svg';
@@ -11,13 +12,6 @@ import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
 import chevrons from '@esportsplus/ui/svg/chevrons-up-down.svg';
 import './scss/index.scss';
 
-
-type State = {
-    active: boolean;
-    error: string;
-    render?: boolean;
-    selected?: number | string;
-};
 
 type A = Attributes & {
     onanimationcancel?: never;
@@ -37,7 +31,6 @@ type A = Attributes & {
     options: Option[] | Record<number | string, Renderable<unknown> | { content: Renderable<unknown>, selected: Renderable<unknown> }>;
 } & ({ selected?: number | string; state?: never } | { selected?: never; state: State });
 
-
 type Option = {
     // Replaces the whole row (check, label and detail); a '.select-menu-option-label' inside it keeps the open panel's
     // text aligned with the trigger's, and a '.select-menu-check' still shows on the chosen row.
@@ -52,11 +45,19 @@ type Option = {
 type Parts = {
     // The first option and its label; every option shares their size and inset.
     label?: HTMLElement;
+    layer?: HTMLElement;
     option?: HTMLElement;
     panel?: HTMLElement;
     scroller?: HTMLElement;
     trigger?: HTMLElement;
     value?: HTMLElement;
+};
+
+type State = {
+    active: boolean;
+    error: string;
+    render?: boolean;
+    selected?: number | string;
 };
 
 
@@ -218,23 +219,28 @@ function template(
         }
     }
 
+    // Into the top layer and placed before it turns active, so the panel lays out to be measured and its entrance
+    // starts from the closed styles.
     function open() {
-        let { label, option, panel, scroller, trigger, value } = parts,
+        let { label, layer, option, panel, scroller, trigger, value } = parts,
             index = selected();
 
         menu.highlight = index;
         state.render = true;
-        state.active = true;
 
-        if (!label || !option || !panel || !scroller || !trigger || !value) {
-            return;
+        if (layer && !layer.matches(':popover-open')) {
+            layer.showPopover();
         }
 
-        let placed = place({ label, option, panel, scroller, trigger, value }, options.length, index);
+        if (label && option && panel && scroller && trigger && value) {
+            let placed = place({ label, option, panel, scroller, trigger, value }, options.length, index);
 
-        menu.placement = placed.style;
-        scroller.scrollTop = placed.scroll;
-        edges(menu, scroller);
+            menu.placement = placed.style;
+            scroller.scrollTop = placed.scroll;
+            edges(menu, scroller);
+        }
+
+        state.active = true;
     }
 
     function scroll(direction: 1 | -1, e: PointerEvent) {
@@ -365,9 +371,10 @@ function template(
     return html`
         <div
             class='select select-menu'
+            style='anchor-name: --${id};'
             ${defaults}
             ${attributes}
-            ${overlay.popup({ state, target: () => parts.panel })}
+            ${overlay.popup({ popover: true, state, target: () => parts.layer })}
         >
             <span class='select-menu-label' id='${id}-label'>${label ?? defaults?.label ?? String(ariaLabel ?? 'Select option')}</span>
             <button
@@ -435,121 +442,132 @@ function template(
                 }}
             />
             <div
-                class='select-menu-panel'
-                ${defaultPanel}
-                ${panelAttributes}
+                class='select-menu-layer'
+                popover='manual'
+                style='position-anchor: --${id};'
                 ${{
-                    class: () => state.active && '--active',
-                    inert: () => !state.active,
-                    onconnect: (element: HTMLElement, on) => {
-                        on(element, 'wheel', wheel, { direct: true, passive: false });
-                        parts.panel = element;
-                    },
-                    // The trigger keeps focus through a press in here, so the keys still drive the menu.
-                    onmousedown: (e: MouseEvent) => {
-                        e.preventDefault();
-                    },
-                    onpointerenter: (e: PointerEvent) => {
-                        if (e.pointerType !== 'touch') {
-                            menu.hover = true;
-                        }
-                    },
-                    onpointerleave: () => {
-                        menu.hover = false;
-                        stop();
-                    },
-                    style: () => menu.placement
+                    onconnect: (element: HTMLElement) => {
+                        parts.layer = element;
+                    }
                 }}
             >
                 <div
-                    class='select-menu-scroller'
+                    class='select-menu-panel'
+                    ${defaultPanel}
+                    ${panelAttributes}
                     ${{
-                        class: [
-                            () => menu.up && 'select-menu-scroller--up',
-                            () => menu.down && 'select-menu-scroller--down'
-                        ],
-                        onconnect: (element: HTMLElement) => {
-                            parts.scroller = element;
+                        class: () => state.active && '--active',
+                        inert: () => !state.active,
+                        onconnect: (element: HTMLElement, on) => {
+                            on(element, 'wheel', wheel, { direct: true, passive: false });
+                            parts.panel = element;
                         },
-                        onscroll: function(this: HTMLElement) {
-                            edges(menu, this);
-                        }
+                        // The trigger keeps focus through a press in here, so the keys still drive the menu.
+                        onmousedown: (e: MouseEvent) => {
+                            e.preventDefault();
+                        },
+                        onpointerenter: (e: PointerEvent) => {
+                            if (e.pointerType !== 'touch') {
+                                menu.hover = true;
+                            }
+                        },
+                        onpointerleave: () => {
+                            menu.hover = false;
+                            stop();
+                        },
+                        style: () => menu.placement
                     }}
                 >
-                    <div aria-labelledby='${id}-label' id='${id}-list' role='listbox'>
-                        ${options.map((option, index) => html`
-                            <div
-                                class='select-menu-option'
-                                id='${id}-option-${index}'
-                                role='option'
-                                ${this?.attributes?.[SELECT_OPTION]}
-                                ${attributes[SELECT_OPTION]}
-                                ${index === 0 && {
-                                    // The first option, and its label once connected ahead of it, stand in for every
-                                    // option when the panel is placed.
-                                    onconnect: (element: HTMLElement) => {
-                                        parts.label ??= element;
-                                        parts.option = element;
-                                    }
-                                }}
-                                ${{
-                                    'aria-selected': () => signal.selector(chosen, option.value) ? 'true' : 'false',
-                                    class: () => signal.selector(highlighted, index) && 'select-menu-option--highlighted',
-                                    onclick: () => choose(index),
-                                    onpointermove: (e: PointerEvent) => {
-                                        // Scrolling under a still cursor can fire synthetic moves; only real movement
-                                        // takes the highlight.
-                                        if (e.pointerType === 'touch' || (last.x === e.clientX && last.y === e.clientY)) {
-                                            return;
+                    <div
+                        class='select-menu-scroller'
+                        ${{
+                            class: [
+                                () => menu.up && 'select-menu-scroller--up',
+                                () => menu.down && 'select-menu-scroller--down'
+                            ],
+                            onconnect: (element: HTMLElement) => {
+                                parts.scroller = element;
+                            },
+                            onscroll: function(this: HTMLElement) {
+                                edges(menu, this);
+                            }
+                        }}
+                    >
+                        <div aria-labelledby='${id}-label' id='${id}-list' role='listbox'>
+                            ${options.map((option, index) => html`
+                                <div
+                                    class='select-menu-option'
+                                    id='${id}-option-${index}'
+                                    role='option'
+                                    ${this?.attributes?.[SELECT_OPTION]}
+                                    ${attributes[SELECT_OPTION]}
+                                    ${index === 0 && {
+                                        // The first option, and its label once connected ahead of it, stand in for every
+                                        // option when the panel is placed.
+                                        onconnect: (element: HTMLElement) => {
+                                            parts.label ??= element;
+                                            parts.option = element;
                                         }
-
-                                        last = { x: e.clientX, y: e.clientY };
-
-                                        if (menu.highlight !== index) {
-                                            menu.highlight = index;
-                                        }
-                                    }
-                                }}
-                            >
-                                ${option.content ?? html`
-                                    ${icon({ 'aria-hidden': 'true', class: 'select-menu-check' }, check)}
-                                    <span
-                                        class='select-menu-option-label'
-                                        ${index === 0 && {
-                                            onconnect: (element: HTMLElement) => {
-                                                parts.label = element;
+                                    }}
+                                    ${{
+                                        'aria-selected': () => signal.selector(chosen, option.value) ? 'true' : 'false',
+                                        class: () => signal.selector(highlighted, index) && 'select-menu-option--highlighted',
+                                        onclick: () => choose(index),
+                                        onpointermove: (e: PointerEvent) => {
+                                            // Scrolling under a still cursor can fire synthetic moves; only real movement
+                                            // takes the highlight.
+                                            if (e.pointerType === 'touch' || (last.x === e.clientX && last.y === e.clientY)) {
+                                                return;
                                             }
-                                        }}
-                                    >
-                                        ${option.label}
-                                    </span>
-                                    ${option.detail && html`<span class='select-menu-option-detail'>${option.detail}</span>`}
-                                `}
-                            </div>
-                        `)}
+
+                                            last = { x: e.clientX, y: e.clientY };
+
+                                            if (menu.highlight !== index) {
+                                                menu.highlight = index;
+                                            }
+                                        }
+                                    }}
+                                >
+                                    ${option.content ?? html`
+                                        ${icon({ 'aria-hidden': 'true', class: 'select-menu-check' }, check)}
+                                        <span
+                                            class='select-menu-option-label'
+                                            ${index === 0 && {
+                                                onconnect: (element: HTMLElement) => {
+                                                    parts.label = element;
+                                                }
+                                            }}
+                                        >
+                                            ${option.label}
+                                        </span>
+                                        ${option.detail && html`<span class='select-menu-option-detail'>${option.detail}</span>`}
+                                    `}
+                                </div>
+                            `)}
+                        </div>
                     </div>
-                </div>
-                <div
-                    aria-hidden='true'
-                    class='select-menu-scroll select-menu-scroll--up'
-                    ${{
-                        class: () => menu.hover && menu.up && '--active',
-                        onpointerenter: (e: PointerEvent) => scroll(-1, e),
-                        onpointerleave: stop
-                    }}
-                >
-                    ${icon({ class: 'select-menu-scroll-icon' }, chevronUp)}
-                </div>
-                <div
-                    aria-hidden='true'
-                    class='select-menu-scroll select-menu-scroll--down'
-                    ${{
-                        class: () => menu.hover && menu.down && '--active',
-                        onpointerenter: (e: PointerEvent) => scroll(1, e),
-                        onpointerleave: stop
-                    }}
-                >
-                    ${icon({ class: 'select-menu-scroll-icon' }, chevronDown)}
+                    <div
+                        aria-hidden='true'
+                        class='select-menu-scroll select-menu-scroll--up'
+                        ${{
+                            class: () => menu.hover && menu.up && '--active',
+                            onpointerenter: (e: PointerEvent) => scroll(-1, e),
+                            onpointerleave: stop
+                        }}
+                    >
+                        ${icon({ class: 'select-menu-scroll-icon' }, chevronUp)}
+                    </div>
+                    <div
+                        aria-hidden='true'
+                        class='select-menu-scroll select-menu-scroll--down'
+                        ${{
+                            class: () => menu.hover && menu.down && '--active',
+                            onpointerenter: (e: PointerEvent) => scroll(1, e),
+                            onpointerleave: stop
+                        }}
+                    >
+                        ${icon({ class: 'select-menu-scroll-icon' }, chevronDown)}
+                    </div>
                 </div>
             </div>
         </div>
@@ -557,5 +575,10 @@ function template(
 }
 
 
-export default component(template, { arrow: SELECT_ARROW, option: SELECT_OPTION, tooltipContent: SELECT_TOOLTIP_CONTENT, trigger: SELECT_TRIGGER });
+const plain = component(template, { arrow: SELECT_ARROW, option: SELECT_OPTION, tooltipContent: SELECT_TOOLTIP_CONTENT, trigger: SELECT_TRIGGER });
+
+const select: typeof plain & { expand: typeof expand } = Object.assign(plain, { expand });
+
+
+export default select;
 export type { Option };

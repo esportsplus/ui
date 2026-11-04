@@ -1,6 +1,7 @@
 @use '/tokens';
 @use 'css-utilities/background';
 @use 'css-utilities/box-shadow';
+@use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 // The trigger is a surface, lifting on hover, settling when pressed and holding the selected fill while open; its panel
@@ -26,6 +27,70 @@
         --z-index: 9;
     }
 
+
+    // A critically damped spring throughout, opening slower than it closes; the trigger's size and rounding are shared,
+    // since the row opens from its box.
+    &-expand {
+        --spring: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
+        --trigger-border-radius: var(--border-radius-400);
+        --trigger-size: 36px;
+
+        // Chained through '.tooltip-content' so it wins over the tooltip's own surface regardless of stylesheet order.
+        &-menu.tooltip-content {
+            --background-default: var(--surface-background-default);
+            --border-radius: var(--trigger-border-radius);
+            --border-width: var(--border-width-400);
+            --gap-horizontal: calc(var(--size-100) / 4);
+            --gap-vertical: calc(var(--size-100) / 4);
+            --landing-timing-function: var(--spring);
+            // The row and its options stay sharp through the morph.
+            --morph-blur: 0px;
+            --option-size: 28px;
+            // The row is exactly the trigger's height, so its options land on the trigger's own pixels rather than
+            // rounding a pixel off them as it opens.
+            --padding-horizontal: var(--padding-vertical);
+            --padding-vertical: calc((var(--trigger-size) - var(--option-size)) / 2 - var(--border-width));
+            --width: max-content;
+            --z-index: 10;
+
+
+            @media (prefers-reduced-motion: reduce) {
+                --morph-close-duration: 0s;
+                --morph-open-duration: 0s;
+            }
+        }
+
+        // The current option takes the filled active background rather than a check. Rounded concentric with the row,
+        // inset from it by the row's border and padding.
+        &-option {
+            --background: transparent;
+            --border-radius: calc(var(--trigger-border-radius) - (var(--trigger-size) - var(--option-size)) / 2);
+            --color: var(--color-text-300);
+            --transition-duration: 130ms;
+            --transition-timing-function: var(--spring);
+
+            @include tokens.state(hover) {
+                --color: var(--color-text-500);
+            }
+
+            &[aria-checked='true'] {
+                --background: var(--surface-background-active);
+                --color: var(--color-text-500);
+            }
+        }
+
+        &-trigger {
+            @extend %color-text;
+            --background-hover: var(--surface-background-hover);
+            --border-color-default: var(--surface-border-default);
+            --border-radius: var(--trigger-border-radius);
+            --border-width: var(--border-width-400);
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
+            --transition-duration: 130ms;
+            --transition-timing-function: var(--spring);
+        }
+    }
 
     &-menu {
         // The icons are chained through '.icon' so they win over its own size and color regardless of stylesheet
@@ -108,7 +173,8 @@
             --fade: 24px;
             --fade-bottom: 0px;
             --fade-top: 0px;
-            --padding: 4px;
+            --padding-horizontal: 4px;
+            --padding-vertical: 4px;
             --row-height: 36px;
 
             &--down {

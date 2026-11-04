@@ -1,6 +1,7 @@
 @use '/tokens';
 @use 'css-utilities/hidden';
 @use 'css-utilities/icon';
+@use 'css-utilities/reset';
 @use 'css-utilities/text';
 @use 'variables';
 
@@ -11,6 +12,64 @@
     width: var(--width);
     z-index: var(--z-index);
 
+
+    &-expand {
+        display: inline-flex;
+
+        // The tooltip morph grows the row out of the trigger and closes it back onto it. Centred on the trigger by
+        // '--c', then moved along the row so the current option sits where the trigger's content was. Raised over the
+        // trigger, unlike a morph tooltip, since it covers it rather than leaving it.
+        &-menu.tooltip-content {
+            border: var(--border-width) solid var(--surface-border-default);
+            display: flex;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
+            translate:
+                calc(50% + ((var(--count) - 1) / 2 - var(--index)) * (var(--option-size) + var(--gap-horizontal)))
+                50%;
+            z-index: var(--z-index);
+
+            // Closing on a pick, the row slides the option onto the trigger as the clip lands around it.
+            .select-expand--landing:not(.--active) > & {
+                transition:
+                    translate var(--morph-close-duration) var(--landing-timing-function),
+                    visibility 0s linear var(--morph-close-duration);
+            }
+        }
+
+        &-option {
+            @extend %reset-button;
+            align-items: center;
+            background: var(--background);
+            border-radius: var(--border-radius);
+            color: var(--color);
+            display: flex;
+            flex: 0 0 var(--option-size);
+            height: var(--option-size);
+            justify-content: center;
+            transition:
+                background-color var(--transition-duration) var(--transition-timing-function),
+                color var(--transition-duration) var(--transition-timing-function);
+
+            &:focus-visible {
+                outline: var(--focus-width) solid var(--focus-color);
+                outline-offset: var(--focus-offset);
+            }
+        }
+
+        // The button's faces carry the blur swap; this only sizes and frames it.
+        &-trigger {
+            border: var(--border-width) solid var(--border-color);
+            height: var(--trigger-size);
+            width: var(--trigger-size);
+
+            // TEMP: the content swaps instantly instead of the faces' blur/fade, while the morph is tuned.
+            .button-face {
+                transition: none;
+            }
+        }
+    }
 
     &-menu {
         &-check {
@@ -25,6 +84,20 @@
 
         &-label {
             @extend %hidden-visually;
+        }
+
+        // The panel's popover, so an open menu stands above every stacking context and clip around it. Anchored over the
+        // select's box, so the panel places against it as it would against the select; it takes no clicks itself.
+        &-layer {
+            @extend %reset-popover;
+            height: anchor-size(height);
+            left: anchor(left);
+            top: anchor(top);
+            width: anchor-size(width);
+
+            > .select-menu-panel {
+                pointer-events: auto;
+            }
         }
 
         &-option {
@@ -112,10 +185,11 @@
 
         &-scroller {
             mask-image: linear-gradient(to bottom, transparent, black var(--fade-top), black calc(100% - var(--fade-bottom)), transparent);
-            max-height: calc(var(--rows) * var(--row-height) + var(--padding) * 2);
+            max-height: calc(var(--rows) * var(--row-height) + var(--padding-vertical) * 2);
             overflow-y: auto;
             overscroll-behavior: contain;
-            padding: var(--padding);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
         }
 
         &-tag {
@@ -123,21 +197,19 @@
         }
 
         &-trigger {
+            @extend %reset-button;
             align-items: center;
             background: var(--background);
-            border: 0;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             color: var(--color);
-            cursor: pointer;
             display: flex;
-            font: inherit;
             gap: var(--gap-vertical) var(--gap-horizontal);
             height: var(--height);
             margin: 0;
             outline: none;
-            padding: 0 var(--padding-end) 0 var(--padding-start);
-            text-align: left;
+            padding-inline: var(--padding-start) var(--padding-end);
+            text-align: start;
             touch-action: manipulation;
             user-select: none;
             width: 100%;
