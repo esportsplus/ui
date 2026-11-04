@@ -1,0 +1,12 @@
+// A dimmed element that no longer reads as pressable, for both the '--disabled' class and native ':disabled' states.
+%disabled {
+    --opacity: 0.4;
+    cursor: default;
+    opacity: var(--opacity);
+
+
+    @media (forced-colors: active) {
+        color: GrayText;
+        opacity: 1;
+    }
+}

@@ -1,0 +1,5 @@
+@use 'css-utilities/disabled';
+
+.--disabled {
+    @extend %disabled;
+}

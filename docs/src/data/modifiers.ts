@@ -7,6 +7,21 @@ import type { Modifier } from 'docs/types';
 
 const modifiers: Modifier[] = [
     {
+        description: 'Dims an element and drops its pointer cursor; add the --disabled class, and --opacity sets how far it fades.',
+        name: 'disabled',
+        variants: [
+            {
+                render: () => html`
+                    <div style='display: flex; gap: var(--size-300);'>
+                        <button class='button button--primary' type='button'>Enabled</button>
+                        <button class='button button--primary --disabled' type='button'>Disabled</button>
+                    </div>
+                `,
+                title: 'disabled'
+            }
+        ]
+    },
+    {
         description: 'Uniform or progressive backdrop blur; glass() adds a uniform overlay, glass(\'progressive\') adds seven masked layers, and --glass-blur sets the blur radius.',
         name: 'glass',
         variants: [

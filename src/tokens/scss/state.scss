@@ -1,47 +1,25 @@
-/**
- *------------------------------------------------------------------------------
- *
- *  Buttons, Links, And Other Modules Display CSS Properties Based On Module
- *  'State' ( :hover, :active, etc. )
- *
- *  Desired Result:
- *  - Default Colors Assigned To Element;
- *  - On 'highlight' Or ':hover', And While Active, Display A Slightly
- *    Brighter Version Of The Default Color;
- *  - On 'pressed' Or ':active' Display Slightly Darker Version Of The
- *    Default Color;
- *
- *  End Product Gives Off The Illusion Of A Static -> Hovering -> Pressed
- *  Button Without Dealing With Transforms To Shift Elements.
- *
- *  Mixin Also Handles Removing Duplicate List Keys
- *
- */
-
 @use 'sass:map';
 @use 'sass:meta';
 @use '../../shared/scss/list';
 @use '../../shared/scss/string';
 
+// The selector each state matches. Hover and pressed brighten and darken the default without moving the element, and
+// '--hover' / '--pressed' let a script mark what the pointer would, such as a key held on the keyboard.
 $state: (
     active: '&.--active',
-    inactive: '&:not(.--active)',
-
+    default: '&:not(.--active):not(:hover, .--hover)',
     disabled: '&.--disabled',
     enabled: '&:not(.--disabled)',
-
-    // '--hover' and '--pressed' let a script mark what the pointer would, such as a key held on the keyboard.
-    default: '&:not(.--active):not(:hover, .--hover)',
     hover: '&:not(.--active):is(:hover, .--hover)',
+    inactive: '&:not(.--active)',
     pressed: '&:not(.--active):is(:active, .--pressed)'
 );
 
 
+// A state's selector, with '&' swapped for '$replace' when given, to match the state on another element.
 @function state($key, $replace: null) {
     $selector: map.get($state, $key);
 
-    // To Avoid Overcomplicating The Responsibility Of This Function Limit
-    // Replace Parameter To String Values Only
     @if $replace {
         @if meta.type-of($replace) != 'string' or meta.type-of($selector) != 'string' {
             @error "'string.replace' Cannot Be Used On A List!";
@@ -54,6 +32,7 @@ $state: (
 }
 
 
+// One rule for any of '$states', duplicates dropped.
 @mixin state($states) {
     $selector: ();
 
@@ -84,15 +63,16 @@ $state: (
             --#{$property}-hover: var(--color-#{$key}-300);
             --#{$property}-pressed: var(--color-#{$key}-500);
 
+
             @if $property == 'color' {
-                [data-theme='dark'] & {
+                :where([data-theme='dark']) & {
                     --#{$property}-active: var(--color-#{$key}-500);
                     --#{$property}-default: var(--color-#{$key}-400);
                     --#{$property}-hover: var(--color-#{$key}-500);
                     --#{$property}-pressed: var(--color-#{$key}-300);
                 }
 
-                [data-theme='light'] & {
+                :where([data-theme='light']) & {
                     --#{$property}-active: var(--color-#{$key}-500);
                     --#{$property}-default: var(--color-#{$key}-400);
                     --#{$property}-hover: var(--color-#{$key}-300);
