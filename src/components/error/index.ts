@@ -1,7 +1,7 @@
 import { component, html, setProperties, type Attributes, type Element as Bound } from '@esportsplus/template';
 import { effect, flush, onCleanup, reactive, root, untrack } from '@esportsplus/reactivity';
-import { morph, morphs, shape } from '../tooltip/utilities';
-import '../tooltip/scss/index.scss';
+import { morph, morphs, shape } from '~/components/tooltip/utilities';
+import '~/components/tooltip/scss/index.scss';
 import './scss/index.scss';
 
 

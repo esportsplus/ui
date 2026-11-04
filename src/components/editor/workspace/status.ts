@@ -1,6 +1,6 @@
 import { effect, peek, reactive, read, root, signal, untrack, write } from '@esportsplus/reactivity';
 import type { Edit, EditorDocument, Language, Options, Selection } from '../code';
-import type { Status } from '../../inline-edit/status';
+import type { Status } from '~/components/inline-edit/status';
 import type { EditorWorkspaceModel, WorkspacePreferences, WorkspaceTab } from './model';
 
 

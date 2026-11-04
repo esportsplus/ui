@@ -1,8 +1,8 @@
 import { effect, flush, onCleanup, reactive, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type On, type Renderable } from '@esportsplus/template';
-import breadcrumb, { type Crumb } from '../../breadcrumb';
-import sidebar from '../../button/sidebar';
-import command, { type Command, type ResultGroup, type Tab } from '../../command';
+import breadcrumb, { type Crumb } from '~/components/breadcrumb';
+import sidebar from '~/components/button/sidebar';
+import command, { type Command, type ResultGroup, type Tab } from '~/components/command';
 import fileTree, {
     FileTreeDecorations,
     FileTreeEditor,
@@ -11,17 +11,17 @@ import fileTree, {
     type FileTreeController,
     type FileTreeElement
 } from '../tree';
-import highlight from '../../highlight';
-import icon from '../../icon';
-import input from '../../input';
-import nav from '../../nav';
-import overlay from '../../overlay';
-import tooltip from '../../tooltip';
-import type { Controller as MenuController, Item } from '../../tooltip/menu';
-import scrollbar from '../../../modifiers/scrollbar';
-import fuzzy from '../../../shared/fuzzy';
-import { mac } from '../../../shared/platform';
-import { observe } from '../../../shared/resize';
+import highlight from '~/components/highlight';
+import icon from '~/components/icon';
+import input from '~/components/input';
+import nav from '~/components/nav';
+import overlay from '~/components/overlay';
+import tooltip from '~/components/tooltip';
+import type { Controller as MenuController, Item } from '~/components/tooltip/menu';
+import scrollbar from '~/modifiers/scrollbar';
+import fuzzy from '~/shared/fuzzy';
+import { mac } from '~/shared/platform';
+import { observe } from '~/shared/resize';
 import codeEditor, { type CodeEditorAttributes } from '../code/editor';
 import type { Controller as EditorController, Options as EditorOptions } from '../code/view';
 import { label as chordLabel, declare, merge, sequence } from './keybindings';

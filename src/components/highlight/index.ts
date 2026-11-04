@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import { ms } from '../../shared/animation';
-import { observer, type Observer } from '../../shared/resize';
+import { ms } from '~/shared/animation';
+import { observer, type Observer } from '~/shared/resize';
 import './scss/index.scss';
 
 

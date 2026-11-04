@@ -1,9 +1,9 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
-import scrollbar from '../../../modifiers/scrollbar';
-import { clamp } from '../../../shared/clamp';
-import { mac } from '../../../shared/platform';
-import { observer, observeSize, type Observer } from '../../../shared/resize';
+import scrollbar from '~/modifiers/scrollbar';
+import { clamp } from '~/shared/clamp';
+import { mac } from '~/shared/platform';
+import { observer, observeSize, type Observer } from '~/shared/resize';
 import { copied, read, write } from '../code/clipboard';
 import { addNextOccurrence, deleteCharacter, indent, insertText, lineCommand, toggleComment } from '../code/commands';
 import { composition } from '../code/composition';
@@ -37,7 +37,7 @@ import { renderer } from './render';
 import { foldable, foldAt, markdownFolds } from './structure';
 import type { Change, EditorDocument, Selection, Snapshot } from '../code/document';
 import type { Callbacks, Controller, Options } from '../code/view';
-import tooltip from '../../tooltip';
+import tooltip from '~/components/tooltip';
 
 
 type Decoration = { kind: string; style: string };

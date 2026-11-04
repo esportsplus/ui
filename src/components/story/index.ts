@@ -1,7 +1,7 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import { drag, INTERACTIVE, type Direction } from '../../shared/drag';
-import '../frame/scss/index.scss';
+import { drag, INTERACTIVE, type Direction } from '~/shared/drag';
+import '~/components/frame/scss/index.scss';
 import './scss/index.scss';
 
 

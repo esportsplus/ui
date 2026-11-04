@@ -1,8 +1,8 @@
 import { component, html, type Attributes, type Element } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
-import icon from '../icon';
-import tooltip from '../tooltip';
-import { observer } from '../../shared/resize';
+import icon from '~/components/icon';
+import tooltip from '~/components/tooltip';
+import { observer } from '~/shared/resize';
 import chevron from '@esportsplus/ui/svg/chevron-right.svg';
 import dots from '@esportsplus/ui/svg/dots.svg';
 import folder from '@esportsplus/ui/svg/folder.svg';

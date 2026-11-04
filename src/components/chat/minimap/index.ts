@@ -1,9 +1,9 @@
 import { effect, onCleanup, reactive, ReactiveArray, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import { lead, step, type Range } from './model';
-import icon from '../../icon';
-import tooltip from '../../tooltip';
-import subscribe from '../../../shared/subscribe';
+import icon from '~/components/icon';
+import tooltip from '~/components/tooltip';
+import subscribe from '~/shared/subscribe';
 import down from '@esportsplus/ui/svg/chevron-down.svg';
 import up from '@esportsplus/ui/svg/chevron-up.svg';
 import spy from './spy';

@@ -1,5 +1,5 @@
-import { clamp } from '../../shared/clamp';
-import { viewport } from '../../shared/viewport';
+import { clamp } from '~/shared/clamp';
+import { viewport } from '~/shared/viewport';
 
 
 type Parts = {

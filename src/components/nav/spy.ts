@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { on, setProperties, type Element as Bound } from '@esportsplus/template';
-import { observer } from '../../shared/resize';
-import { viewport } from '../../shared/viewport';
+import { observer } from '~/shared/resize';
+import { viewport } from '~/shared/viewport';
 
 
 // 'current' marks the last section scrolled past the top; 'visible' marks every section on screen.

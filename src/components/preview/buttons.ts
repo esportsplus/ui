@@ -1,5 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import group from '../group';
+import group from '~/components/group';
 import type { State } from './index';
 
 

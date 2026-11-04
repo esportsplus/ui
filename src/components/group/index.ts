@@ -1,5 +1,5 @@
 import { component, html, type Attributes } from '@esportsplus/template';
-import highlight from '../highlight';
+import highlight from '~/components/highlight';
 import './scss/index.scss';
 
 

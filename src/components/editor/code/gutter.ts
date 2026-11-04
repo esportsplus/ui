@@ -1,5 +1,5 @@
 import { html } from '@esportsplus/template';
-import icon from '../../icon';
+import icon from '~/components/icon';
 import type { Reactive } from '@esportsplus/reactivity';
 import type { Slot } from './rows';
 import chevron from '@esportsplus/ui/svg/chevron-down.svg';

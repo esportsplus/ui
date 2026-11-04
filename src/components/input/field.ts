@@ -1,6 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import form from '../form';
+import form from '~/components/form';
 
 
 type A = Attributes & {

@@ -1,11 +1,11 @@
 import { computed, reactive, read } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import icon from '../icon';
-import { edge, type Edge } from '../../shared/anchor';
-import { drag, fling, toward, type Fling } from '../../shared/drag';
-import { observeSize } from '../../shared/resize';
+import icon from '~/components/icon';
+import { edge, type Edge } from '~/shared/anchor';
+import { drag, fling, toward, type Fling } from '~/shared/drag';
+import { observeSize } from '~/shared/resize';
 import close from '@esportsplus/ui/svg/close.svg';
-import '../button/scss/index.scss';
+import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
 

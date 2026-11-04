@@ -1,6 +1,6 @@
 import { component, html, setProperties, type Attributes, type Element as Bound, type Renderable } from '@esportsplus/template';
 import { reactive, root } from '@esportsplus/reactivity';
-import { swallow } from '../../shared/press';
+import { swallow } from '~/shared/press';
 import input from './field';
 
 

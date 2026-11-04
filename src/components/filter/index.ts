@@ -1,6 +1,6 @@
 import { effect, flush, onCleanup, reactive } from '@esportsplus/reactivity';
-import { timing } from '../../shared/animation';
-import { viewport } from '../../shared/viewport';
+import { timing } from '~/shared/animation';
+import { viewport } from '~/shared/viewport';
 import type { Attributes } from '@esportsplus/template';
 import './scss/index.scss';
 

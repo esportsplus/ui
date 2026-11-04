@@ -1,10 +1,10 @@
 import { computed, effect, reactive, read, signal, untrack, write } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import type { Command as PaletteCommand } from '../../command';
-import input from '../../input';
-import overlay from '../../overlay';
-import shortcutRecorder from '../../shortcut-recorder';
-import scrollbar from '../../../modifiers/scrollbar';
+import type { Command as PaletteCommand } from '~/components/command';
+import input from '~/components/input';
+import overlay from '~/components/overlay';
+import shortcutRecorder from '~/components/shortcut-recorder';
+import scrollbar from '~/modifiers/scrollbar';
 import type { Command } from '../code';
 import {
     bind,

@@ -1,7 +1,7 @@
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { html, component, type Attributes } from '@esportsplus/template';
-import { observeSize } from '../../shared/resize';
-import { trackTransition } from '../../shared/transition';
+import { observeSize } from '~/shared/resize';
+import { trackTransition } from '~/shared/transition';
 import group, { settle, type Group } from './group';
 import './scss/index.scss';
 

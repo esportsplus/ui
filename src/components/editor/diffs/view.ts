@@ -1,7 +1,7 @@
 import { reactive, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type VirtualSlot } from '@esportsplus/template';
-import icon from '../../icon';
-import scrollbar from '../../../modifiers/scrollbar';
+import icon from '~/components/icon';
+import scrollbar from '~/modifiers/scrollbar';
 import { languageFor, type Language, type Token } from '../code/syntax';
 import { diffTexts, hunks, type Diff, type DiffChange } from './hunks';
 import { highlighter, markup } from './render';

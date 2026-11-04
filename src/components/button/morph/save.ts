@@ -1,6 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
-import icon from '../../icon';
+import icon from '~/components/icon';
 import check from '@esportsplus/ui/svg/check.svg';
 import spinner from '@esportsplus/ui/svg/spinner.svg';
 import template, { BUTTON_MORPH_CONTENT, type A as MorphAttributes, type Status } from './template';

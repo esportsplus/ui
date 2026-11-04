@@ -1,4 +1,4 @@
-import icon from '../../icon';
+import icon from '~/components/icon';
 import { resolver, type Options } from './icons';
 import { FILES, FOLDERS } from './sprites';
 

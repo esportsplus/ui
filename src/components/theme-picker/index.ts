@@ -1,7 +1,7 @@
 import cards from './cards';
 import swatches from './swatches';
 import toggle from './toggle';
-import '../button/scss/index.scss';
+import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
 

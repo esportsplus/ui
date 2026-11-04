@@ -1,9 +1,9 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, signal, write } from '@esportsplus/reactivity';
-import { clamp } from '../../shared/clamp';
-import form from '../form';
-import icon from '../icon';
-import overlay from '../overlay';
+import { clamp } from '~/shared/clamp';
+import form from '~/components/form';
+import icon from '~/components/icon';
+import overlay from '~/components/overlay';
 import place, { ROWS } from './placement';
 import check from '@esportsplus/ui/svg/check.svg';
 import chevronDown from '@esportsplus/ui/svg/chevron-down.svg';

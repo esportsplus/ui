@@ -1,7 +1,7 @@
 import { effect, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import code from './code';
-import type { CodeViewerAttributes } from '../editor/viewer';
+import type { CodeViewerAttributes } from '~/components/editor/viewer';
 import type { State } from './index';
 
 

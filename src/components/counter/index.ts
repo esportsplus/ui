@@ -1,6 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, onCleanup, reactive, untrack } from '@esportsplus/reactivity';
-import { onceVisible } from '../../shared/visible';
+import { onceVisible } from '~/shared/visible';
 import './scss/index.scss';
 
 

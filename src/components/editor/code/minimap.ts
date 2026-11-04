@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
-import { clamp } from '../../../shared/clamp';
+import { clamp } from '~/shared/clamp';
 import type { Token } from './syntax';
 
 

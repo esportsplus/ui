@@ -1,10 +1,10 @@
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, flush, reactive } from '@esportsplus/reactivity';
-import error, { type Direction } from '../error';
-import icon from '../icon';
-import { mac as apple } from '../../shared/platform';
+import error, { type Direction } from '~/components/error';
+import icon from '~/components/icon';
+import { mac as apple } from '~/shared/platform';
 import cmd from '@esportsplus/ui/svg/command.svg';
-import '../button/scss/index.scss';
+import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
 

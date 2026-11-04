@@ -1,6 +1,6 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import { observeIntersection } from '../../shared/visible';
+import { observeIntersection } from '~/shared/visible';
 import buttons from './buttons';
 import code from './code';
 import header from './header';

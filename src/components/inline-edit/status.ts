@@ -1,6 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, isPromise, onCleanup, reactive } from '@esportsplus/reactivity';
-import icon from '../icon';
+import icon from '~/components/icon';
 import check from '@esportsplus/ui/svg/check.svg';
 
 

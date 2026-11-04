@@ -1,9 +1,9 @@
 import { flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import highlight, { type A as HighlightAttributes } from '../highlight';
-import overlay from '../overlay';
-import { finished } from '../../shared/animation';
-import { flip, viewport } from '../../shared/viewport';
+import highlight, { type A as HighlightAttributes } from '~/components/highlight';
+import overlay from '~/components/overlay';
+import { finished } from '~/shared/animation';
+import { flip, viewport } from '~/shared/viewport';
 import { morph } from './utilities';
 
 

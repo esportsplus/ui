@@ -1,10 +1,10 @@
 import { flush, reactive, root } from '@esportsplus/reactivity';
 import { component, html, setProperties, type Attributes, type Element as Bound } from '@esportsplus/template';
 import { noop } from '@esportsplus/utilities';
-import { edge } from '../../shared/anchor';
-import { finished, ms } from '../../shared/animation';
-import { drag, fling, INTERACTIVE, toward, type Direction, type Drag } from '../../shared/drag';
-import { observer, type Observer } from '../../shared/resize';
+import { edge } from '~/shared/anchor';
+import { finished, ms } from '~/shared/animation';
+import { drag, fling, INTERACTIVE, toward, type Direction, type Drag } from '~/shared/drag';
+import { observer, type Observer } from '~/shared/resize';
 import popup, { lifecycle } from './popup';
 import './scss/index.scss';
 

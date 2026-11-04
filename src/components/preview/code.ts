@@ -1,6 +1,6 @@
 import { component, html } from '@esportsplus/template';
-import copy from '../button/copy';
-import viewer, { type CodeViewerAttributes } from '../editor/viewer';
+import copy from '~/components/button/copy';
+import viewer, { type CodeViewerAttributes } from '~/components/editor/viewer';
 
 
 type A = Pick<CodeViewerAttributes, 'fold' | 'language' | 'lineNumbers' | 'value' | 'whitespace' | 'wrap'> & {

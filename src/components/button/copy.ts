@@ -2,8 +2,8 @@ import { component, html, type Attributes } from '@esportsplus/template';
 import { reactive } from '@esportsplus/reactivity';
 import check from '@esportsplus/ui/svg/check.svg';
 import copy from '@esportsplus/ui/svg/copy.svg';
-import write from '../clipboard/write';
-import icon from '../icon';
+import write from '~/components/clipboard/write';
+import icon from '~/components/icon';
 import './scss/index.scss';
 
 
