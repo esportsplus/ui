@@ -1,6 +1,4 @@
 @use '../../frame/scss/index';
-@use 'css-utilities/box-shadow';
-@use 'css-utilities/layer';
 @use 'variables';
 
 .card {
@@ -21,21 +19,14 @@
     width: var(--width);
 
 
-    // Pseudo Element Box Shadow
-    &::after {
-        @extend %layer-box-shadow;
-    }
-
-
-    // A shell that morphs between stacked layers, one shown at a time. The consumer sizes it to the active
-    // layer through '--morph-width' and '--morph-height'; the layers are 'frame--swap's, so marking one
-    // '--active', with the active index in '--i' on the viewport and each layer's own in '--n', slides the
-    // swap the way the active index moved. Its own opacity and transform are
-    // the consumer's to animate for open and close; 'card--morph-instant' snaps everything, for a fresh open.
-    // The viewport clips, not the card, so the '::after' shadow and whatever a consumer hangs off '::before'
-    // can still reach outside the box.
+    // A shell that morphs between stacked layers, one shown at a time. The consumer sizes it to the active layer
+    // through '--morph-width' and '--morph-height'; the layers are 'frame--swap's, so marking one '--active', with the
+    // active index in '--i' on the viewport and each layer's own in '--n', slides the swap the way the active index
+    // moved. Its own opacity and transform are the consumer's to animate for open and close; 'card--morph-instant'
+    // snaps everything, for a fresh open. The viewport clips, not the card, so the shadow and whatever a consumer hangs
+    // off '::before' or '::after' can still reach outside the box.
     &--morph {
-        height: var(--morph-height, auto);
+        height: var(--morph-height);
         padding: 0;
         transition:
             background var(--transition-duration) var(--transition-timing-function),
@@ -47,7 +38,8 @@
             transform var(--morph-fade-duration) var(--morph-fade-timing-function),
             translate var(--morph-duration) var(--morph-timing-function),
             width var(--morph-duration) var(--morph-timing-function);
-        width: var(--morph-width, var(--width));
+        width: var(--morph-width);
+
 
         &-instant {
             &,
@@ -61,11 +53,10 @@
     // Pinned to its natural size, so text never reflows while the shell morphs around it.
     &-morph {
         &-layer {
-            left: 0;
+            inset: 0 auto auto 0;
             padding-block: var(--padding-vertical);
             padding-inline: var(--padding-horizontal);
             position: absolute;
-            top: 0;
             width: max-content;
         }
 

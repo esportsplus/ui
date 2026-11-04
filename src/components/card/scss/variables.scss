@@ -4,7 +4,6 @@
 @use 'css-utilities/box-shadow';
 @use 'css-utilities/surface';
 
-
 // A surface: a level above whatever it sits in, painted and lifted to match.
 .card {
     @extend %background-state, %border-state, %box-shadow-state, %surface-raise;
@@ -16,6 +15,7 @@
     --width: auto;
 
 
+    // Drawn in '--border-color', its fill unless something like '--surface' sets an edge colour.
     &--border {
         --border-width: var(--border-width-400);
     }
@@ -24,8 +24,11 @@
         --morph-duration: 0.3s;
         --morph-fade-duration: var(--transition-duration);
         --morph-fade-timing-function: var(--transition-timing-function);
+        --morph-height: auto;
         // Critically damped spring: an overshooting shell would uncover empty space.
         --morph-timing-function: linear(0, 0.0432 4.2%, 0.1402 8.3%, 0.2575 12.5%, 0.3764 16.7%, 0.4867 20.8%, 0.584 25%, 0.667 29.2%, 0.7361 33.3%, 0.7925 37.5%, 0.838 41.7%, 0.8743 45.8%, 0.9029 50%, 0.9254 54.2%, 0.9428 58.3%, 0.9564 62.5%, 0.9668 66.7%, 0.9748 70.8%, 0.9809 75%, 0.9856 79.2%, 0.9892 83.3%, 0.9918 87.5%, 0.9939 91.7%, 0.9954 95.8%, 1);
+        --morph-width: var(--width);
+
 
         @media (prefers-reduced-motion: reduce) {
             --morph-duration: 0s;
@@ -35,7 +38,6 @@
     // The fill follows its states, stepping on hover and press like any other surface.
     &--surface {
         @extend %background-surface, %border-surface;
-        --box-shadow-default: var(--surface-shadow-default);
     }
 
 
@@ -47,9 +49,11 @@
         --transition-duration: 0.25s;
         --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
+
         @media (prefers-reduced-motion: reduce) {
             --blur: 0px;
         }
+
 
         // Inactive only, so the active layer keeps the frame's resting '--shift: 0px'.
         @include tokens.state(inactive) {

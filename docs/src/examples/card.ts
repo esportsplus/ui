@@ -79,6 +79,14 @@ export default {
             title: 'default'
         },
         {
+            render: () => html`
+                <div class='card card--border card--surface' style='${box}'>
+                    <div class='preview-text'>Card with a surface border</div>
+                </div>
+            `,
+            title: 'card--border'
+        },
+        {
             render: morph,
             title: 'card--morph'
         }

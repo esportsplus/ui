@@ -16,7 +16,7 @@ export default (page: Page) => {
             ${pagination.cards({
                 ...adjacent(),
                 [pagination.cards.card]: {
-                    class: 'card--surface card--surface-border',
+                    class: 'card--border card--surface',
                 },
                 'aria-label': 'Page navigation',
                 class: 'main-pagination',
