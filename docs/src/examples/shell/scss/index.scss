@@ -1,27 +1,49 @@
-@use 'css-utilities/surface';
-
-
-// The shell's root surface with its sidebars set side by side in flow, since the real ones are fixed to the window.
+// Contained layout makes the frame the containing block for the shell's fixed parts, so a whole shell, with its edges,
+// toggles and sidebars, runs inside it instead of against the window.
 .shell-demo {
-    @extend %surface-root;
-    background: var(--surface-background-default);
+    --frame-height: 480px;
+    border: var(--border-width-400) solid var(--surface-border-default);
     border-radius: var(--border-radius-400);
-    display: grid;
-    gap: var(--size-400);
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    padding: var(--size-400);
+    contain: layout paint;
+    height: var(--frame-height);
     width: 100%;
 
 
-    .shell-sidebar {
-        border-radius: var(--border-radius-300);
-        height: 160px;
-        inset: auto;
-        padding: var(--size-400);
-        position: relative;
-        translate: none;
-        visibility: visible;
-        width: auto;
-        z-index: auto;
+    .shell {
+        --height: calc(var(--frame-height) - var(--gap-vertical) * 2);
+        --space: min(220px, calc(100% - 88px));
+        height: 100%;
+    }
+
+
+    &-main {
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-300);
+        // Clears the corner toggles, which sit over the card's top edge.
+        padding: calc(var(--size-300) * 2 + 32px) var(--size-600) var(--size-500);
+
+        p {
+            color: var(--color-text-300);
+            margin: 0;
+            max-width: 56ch;
+        }
+    }
+
+    &-panel {
+        display: flex;
+        flex-direction: column;
+        gap: var(--size-200);
+        padding: calc(var(--size-300) * 2 + 32px) var(--size-400) var(--size-400);
+
+        &-row {
+            border-radius: var(--border-radius-300);
+            color: var(--color-text-400);
+            padding: var(--size-100) var(--size-300);
+        }
+
+        &-title {
+            padding-inline: var(--size-300);
+        }
     }
 }
