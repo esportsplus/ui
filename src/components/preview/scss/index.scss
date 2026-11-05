@@ -89,6 +89,9 @@
         border-radius: var(--border-radius);
         display: grid;
         gap: var(--gap-vertical) var(--gap-horizontal);
+        // One column held to the stage. An implicit 'auto' column grows to an example's min-content (a scroller's
+        // whole track, say), spilling past the padding and centring the example in the overflow instead.
+        grid-template-columns: minmax(0, 1fr);
         justify-items: center;
         min-height: var(--min-height);
         padding: var(--padding-vertical) var(--padding-horizontal);
