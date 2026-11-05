@@ -9,7 +9,7 @@
 
 
     &--menu {
-        --border-radius: var(--border-radius-600);
+        --border-radius: var(--border-radius-400);
         --close-duration: 0.128s;
         --close-timing-function: cubic-bezier(0.2, 0, 0, 1);
         --color: var(--color-text-500);
@@ -85,7 +85,11 @@
                 }
             }
 
-            // Cascade order.
+            // Cascade order; items past the twelfth arrive with the first.
+            > * {
+                --index: 0;
+            }
+
             @for $i from 1 through 12 {
                 > :nth-child(#{$i}) {
                     --index: #{$i - 1};
@@ -100,6 +104,7 @@
 
 
     &-arrow {
+        --margin-horizontal: -1px;
         --rotate: 0deg;
     }
 
@@ -128,16 +133,15 @@
             --morph-land: 2px;
             --morph-open-duration: 0.12s;
             --morph-open-timing-function: cubic-bezier(0.2, 0, 0, 1);
+            // The close's two legs: the shrink onto the trigger, then the settle from the blob into its box.
+            --morph-settle-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            --morph-shrink-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
             // Motion comes from the morph, not the slide/scale.
             --offset: 0px;
             --scale: 1;
         }
 
-        &--scale {
-            --offset: var(--spacer);
-            --scale: 0.88;
-        }
-
+        &--scale,
         &--scale-spring {
             --offset: var(--spacer);
             --scale: 0.88;
@@ -151,8 +155,21 @@
 
     &-menu-chevron {
         --border-width: 1.5px;
+        --margin-horizontal: calc(var(--size-100) / 4);
         --opacity: 0.6;
+        --rotate: -45deg;
         --size: 6px;
+        --transition-duration: var(--open-duration);
+        --transition-timing-function: var(--open-timing-function);
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
+
+        // A branch panel's header points down into the panel it heads.
+        &--down {
+            --rotate: 45deg;
+        }
     }
 
     // The open clip overhangs the box so the shadow isn't cut off.
@@ -189,6 +206,17 @@
         --color-disabled: var(--color-text-300);
         --transition-duration: 130ms;
         --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
+
+        // Visible focus only, as the highlight takes it: opening by click focuses the first item without marking it.
+        &:focus-visible {
+            --background: var(--background-hover);
+        }
+
+        &:disabled,
+        &[aria-disabled='true'] {
+            --background-hover: var(--background-default);
+            --background-pressed: var(--background-default);
+        }
     }
 
     // A surface of its own, so a branch panel sits a level above the panel it opened from. The item sizes are read by
@@ -205,6 +233,8 @@
         --item-height: 36px;
         --padding-horizontal: calc(var(--size-100) / 2);
         --padding-vertical: calc(var(--size-100) / 2);
+        // Written by 'tooltip.menu' on the root panel: how far it shifts to stay on screen.
+        --shift-x: 0px;
         --title-bold-opacity: 0;
         --title-regular-opacity: 1;
 
@@ -227,6 +257,10 @@
     &-menu-panel:has(> .highlight) > .tooltip-menu-entry > .tooltip-menu-item {
         --background-hover: var(--background-default);
         --background-pressed: var(--background-default);
+    }
+
+    &-menu-title-bold {
+        --font-weight: var(--font-weight-600);
     }
 
     &-message {
@@ -298,6 +332,11 @@
         &-layer {
             --padding-horizontal: var(--size-300);
             --padding-vertical: var(--size-300);
+
+            // Root styles give 'strong' its own page text color, unreadable on the bubble.
+            strong {
+                --color: inherit;
+            }
         }
     }
 }

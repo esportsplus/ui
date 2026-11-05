@@ -1,44 +1,149 @@
 @use '/tokens';
 @use 'css-utilities/layer';
-@use 'center' as *;
-@use 'east' as *;
-@use 'menu';
-@use 'north' as *;
-@use 'shared' as tooltip-shared;
-@use 'south' as *;
-@use 'west' as *;
+@use 'css-utilities/reset';
+@use 'css-utilities/text';
+@use 'sass:map';
 @use 'variables';
+
+// Each side pushes the tooltip past the trigger's edge ('edge' names the tooltip side facing the trigger), centered on
+// it along 'center' or aligned to one of its two corners; opening travels '--offset' further out.
+$sides: (
+    e: (
+        center: bottom,
+        corner-open: var(--offset) 0,
+        corners: (en: top, es: bottom),
+        edge: left,
+        open: var(--offset) 50%,
+        rest: 0 50%
+    ),
+    n: (
+        center: right,
+        corner-open: 0 calc(var(--offset) * -1),
+        corners: (ne: right, nw: left),
+        edge: bottom,
+        open: 50% calc(var(--offset) * -1),
+        rest: 50% 0
+    ),
+    s: (
+        center: right,
+        corner-open: 0 var(--offset),
+        corners: (se: right, sw: left),
+        edge: top,
+        open: 50% var(--offset),
+        rest: 50% 0
+    ),
+    w: (
+        center: bottom,
+        corner-open: calc(var(--offset) * -1) 0,
+        corners: (wn: top, ws: bottom),
+        edge: right,
+        open: calc(var(--offset) * -1) 50%,
+        rest: 0 50%
+    )
+);
+
 
 .tooltip {
     cursor: pointer;
     position: relative;
     z-index: 0;
 
-    // Morph tooltips (-2) sit behind the trigger. A child can't paint under its parent's own
-    // background, so repaint that background above them; the label still paints on top.
-    // Shares '.button::after' (its shadow layer) when the trigger is a button.
-    &:has(> .tooltip-content--morph, > .tooltip-message--morph, > :not(.tooltip) > .tooltip-content--morph, > :not(.tooltip) > .tooltip-message--morph)::after {
-        @extend %layer;
-        background: inherit;
-        content: '';
-        display: block;
-        z-index: -1;
-    }
 
     &--context,
     &--menu {
         cursor: inherit;
     }
 
-    // Gooey join between trigger and tooltip while the morph runs; 'morph()' injects the filter
-    // and toggles the class.
+    // 'tooltip.menu''s layer, which also carries '.tooltip', so an expanding root panel opens as tooltip content does.
+    // Qualified by the layer as well, keeping the specificity the panels had under the old wrapper.
+    &--menu {
+        &.tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
+            background: transparent;
+            box-shadow: none;
+            clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
+            overflow: visible;
+            // 'transform', since the placement it composes as tooltip content owns 'translate'.
+            transform: translateX(var(--shift-x));
+            transition:
+                clip-path var(--expand-duration) var(--expand-timing-function),
+                opacity var(--expand-fade-duration) var(--expand-fade-timing-function) var(--expand-fade-delay);
+
+            &::before {
+                background: var(--background);
+                border-radius: var(--morph-radius);
+                box-shadow: var(--box-shadow);
+                content: '';
+                inset: var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left);
+                position: absolute;
+                transition:
+                    border-radius var(--expand-duration) var(--expand-timing-function),
+                    inset var(--expand-duration) var(--expand-timing-function);
+                z-index: -1;
+            }
+
+            // Items animate rather than transition so their own transitions (a link's colour) survive. Their boxes
+            // never move, only fade, so a 'highlight' measures them where they land even mid-cascade; it places itself
+            // with 'translate', so it arrives with the panel instead. Closing fades them out together; the shrinking
+            // shape carries the motion.
+            > :not(.highlight) {
+                animation: tooltip-menu-expand-out var(--expand-content-duration) var(--expand-content-timing-function);
+                opacity: 0;
+            }
+
+            @include tokens.state(active) {
+                clip-path: inset(calc(var(--expand-bleed) * -1) round calc(var(--border-radius) + var(--expand-bleed)));
+
+                &::before {
+                    border-radius: var(--border-radius);
+                    inset: 0;
+                }
+
+                // The reveal is finished; child panels can now extend beyond the root.
+                &.tooltip-menu-panel--settled {
+                    clip-path: none;
+                }
+
+                > :not(.highlight) {
+                    animation: tooltip-menu-expand-in var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index) * var(--expand-stagger)) backwards;
+                    opacity: 1;
+
+                    // Text-only items and dividers just fade.
+                    > * {
+                        animation: tooltip-menu-expand-slide var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index) * var(--expand-stagger)) backwards;
+                    }
+                }
+            }
+        }
+
+        // Root panel
+        &.tooltip-menu-layer > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
+            left: 0;
+            opacity: 0;
+            top: calc(100% + var(--offset));
+            transition:
+                opacity var(--close-duration) var(--close-timing-function),
+                visibility 0s linear var(--close-duration);
+            translate: var(--shift-x) 0;
+            visibility: hidden;
+            z-index: 9;
+
+            // Fades in as quickly as it fades out.
+            @include tokens.state(active) {
+                opacity: 1;
+                transition: opacity var(--close-duration) var(--close-timing-function);
+                visibility: visible;
+            }
+        }
+    }
+
+    // Gooey join between trigger and tooltip while the morph runs; 'morph()' injects the filter and toggles the class.
     &--morphing {
         filter: url(#tooltip-morph-goo);
     }
 
 
     &-arrow {
-        margin-inline: -1px;
+        margin-inline: var(--margin-horizontal);
         rotate: var(--rotate);
     }
 
@@ -60,30 +165,60 @@
         z-index: 9;
 
 
-        // Shared with the placement mixins.
         $active: '#{tokens.state(active, ".tooltip")} > &, #{tokens.state(active, ".tooltip")} :not(.tooltip) > &';
         $not-active: '#{tokens.state(inactive, ".tooltip")} > &, #{tokens.state(inactive, ".tooltip")} :not(.tooltip) > &';
 
 
-        // A warm handoff between delayed tooltips ('delay') swaps straight in. Single-class specificity and
-        // ahead of the '--morph' variant, so it keeps its own motion.
+        // A warm handoff between delayed tooltips ('delay') swaps straight in. Single-class specificity and ahead of
+        // the '--morph' variant, so it keeps its own motion.
         &:where(.tooltip.tooltip--instant > *, .tooltip.tooltip--instant :not(.tooltip) > *) {
             transition: none;
+        }
+
+
+        &--c {
+            bottom: 50%;
+            position: absolute;
+            right: 50%;
+            transform-origin: center center;
+            translate: 50% 50%;
         }
 
         &--context {
             position: absolute;
         }
 
-        @include center($active);
-        @include east($active);
-        @include north($active);
-        @include south($active);
-        @include west($active);
+        @each $side, $placement in $sides {
+            $edge: map.get($placement, edge);
 
+            &--#{$side} {
+                #{map.get($placement, center)}: 50%;
+                #{$edge}: calc(100% + var(--spacer) - var(--offset));
+                position: absolute;
+                transform-origin: center $edge;
+                translate: map.get($placement, rest);
 
-        // Grows out of the trigger: 'morph()' seeds the trigger's box as clip-path insets, then the
-        // clip springs out to the tooltip's own box. Content never moves; the shape reveals it.
+                #{$active} {
+                    translate: map.get($placement, open);
+                }
+            }
+
+            @each $corner, $align in map.get($placement, corners) {
+                &--#{$corner} {
+                    #{$align}: 0;
+                    #{$edge}: calc(100% + var(--spacer) - var(--offset));
+                    position: absolute;
+                    transform-origin: $align $edge;
+
+                    #{$active} {
+                        translate: map.get($placement, corner-open);
+                    }
+                }
+            }
+        }
+
+        // Grows out of the trigger: 'morph()' seeds the trigger's box as clip-path insets, then the clip springs out
+        // to the tooltip's own box. Content never moves; the shape reveals it.
         &--morph {
             // Closing: collapse onto the trigger, overshoot it as a blob, settle to its exact box.
             animation: tooltip-morph-close var(--morph-close-duration) linear;
@@ -91,14 +226,13 @@
             // The overshooting clip would reveal the shadow around the box mid-spring.
             box-shadow: none;
             clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
-            // Blurs the content. The background layer is one flat colour overhanging the clip by three
-            // blur radii, so within the clip only text and media visibly blur; the container stays
-            // crisp and flat. (A backdrop-filter overlay instead paints its blur as an unclipped
-            // rectangle, squaring the corners mid-morph.)
+            // Blurs the content. The background layer is one flat colour overhanging the clip by three blur radii, so
+            // within the clip only text and media visibly blur; the container stays crisp and flat. (A backdrop-filter
+            // overlay instead paints its blur as an unclipped rectangle, squaring the corners mid-morph.)
             filter: blur(var(--morph-blur));
-            // Always fully opaque; only blur animates. Visibility hides it at rest instead (behind
-            // a transparent trigger, or before the first open when there's no clip yet), switching
-            // off only once the close has finished.
+            // Always fully opaque; only blur animates. Visibility hides it at rest instead (behind a transparent
+            // trigger, or before the first open when there's no clip yet), switching off only once the close has
+            // finished.
             opacity: 1;
             // Lets the background layer reach back to the trigger; clip-path does the clipping.
             overflow: visible;
@@ -109,10 +243,10 @@
             // Below the trigger's repainted background, see '.tooltip:has(...)::after'.
             z-index: -2;
 
-            // Background spanning the tooltip, the trigger and the close's landing overshoot, so the
-            // clip has something to show wherever it goes. It also overhangs every side by three blur
-            // radii: the content blur samples past the tooltip's edge, and reading transparency there
-            // would soften and lighten the edges until the blur settles. The overhang is clipped away.
+            // Background spanning the tooltip, the trigger and the close's landing overshoot, so the clip has
+            // something to show wherever it goes. It also overhangs every side by three blur radii: the content blur
+            // samples past the tooltip's edge, and reading transparency there would soften and lighten the edges until
+            // the blur settles. The overhang is clipped away.
             &::before {
                 background: var(--background);
                 content: '';
@@ -129,15 +263,16 @@
                 animation: none;
                 clip-path: inset(0 round var(--border-radius));
                 filter: none;
-                // Visibility isn't transitioned here so the shape shows instantly; it starts hidden
-                // behind the trigger, so there's nothing to fade in. Content starts focusing as it
-                // emerges and is sharp as the menu settles.
+                // Visibility isn't transitioned here so the shape shows instantly; it starts hidden behind the
+                // trigger, so there's nothing to fade in. Content starts focusing as it emerges and is sharp as the
+                // menu settles.
                 transition:
                     clip-path var(--morph-open-duration) var(--morph-open-timing-function),
                     filter var(--morph-open-duration) var(--morph-focus-timing-function);
                 visibility: visible;
             }
         }
+
 
         #{$active} {
             opacity: 1;
@@ -148,6 +283,219 @@
             &, * {
                 pointer-events: none;
             }
+        }
+    }
+
+    &-menu {
+        &-chevron {
+            border-color: currentColor;
+            border-style: solid;
+            border-width: 0 var(--border-width) var(--border-width) 0;
+            flex-shrink: 0;
+            height: var(--size);
+            margin-inline: var(--margin-horizontal);
+            opacity: var(--opacity);
+            rotate: var(--rotate);
+            transition: rotate var(--transition-duration) var(--transition-timing-function);
+            width: var(--size);
+        }
+
+        &-entry {
+            position: relative;
+
+
+            // Sub-panels start clipped to the row that opened them, so the row reads as the panel's header, then the
+            // clip grows downward.
+            > .tooltip-menu-panel {
+                clip-path: inset(
+                    var(--padding-vertical)
+                    var(--padding-horizontal)
+                    calc(100% - var(--padding-vertical) - var(--item-height))
+                    var(--padding-horizontal)
+                    round var(--item-border-radius)
+                );
+                inset-inline: calc(var(--padding-horizontal) * -1);
+                pointer-events: none;
+                top: calc(var(--padding-vertical) * -1);
+                transition:
+                    clip-path var(--close-duration) var(--close-timing-function),
+                    visibility 0s linear var(--close-duration);
+                visibility: hidden;
+                width: auto;
+                z-index: 2;
+
+                // Sub-panels snap open and closed; the scrim and title fades keep their timing.
+                @media (prefers-reduced-motion: reduce) {
+                    transition-duration: 0s;
+                }
+
+                @include tokens.state(active) {
+                    clip-path: inset(calc(var(--bleed) * -1) round calc(var(--border-radius) + var(--bleed)));
+                    pointer-events: auto;
+                    transition: clip-path var(--open-duration) var(--open-timing-function);
+                    visibility: visible;
+
+                    @media (prefers-reduced-motion: reduce) {
+                        transition-duration: 0s;
+                    }
+
+                    &.tooltip-menu-panel--settled {
+                        clip-path: none;
+                    }
+                }
+            }
+
+
+            // Above the parent's scrim, so the open child panel stays undimmed.
+            &--open {
+                z-index: 2;
+            }
+
+
+            // An item's 'hidden' takes its whole row out; the item's own 'display' would outrank the attribute.
+            &:has(> [hidden]) {
+                display: none;
+            }
+        }
+
+        &-header {
+            cursor: pointer;
+        }
+
+        &-header,
+        &-item {
+            align-items: center;
+            border-radius: var(--border-radius);
+            display: flex;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            min-height: var(--height);
+            padding-inline: var(--padding-horizontal);
+        }
+
+        &-hint {
+            color: var(--color);
+            font-size: var(--font-size);
+        }
+
+        &-icon {
+            display: inline-flex;
+            flex-shrink: 0;
+        }
+
+        &-item {
+            appearance: none;
+            background: var(--background);
+            border: 0;
+            color: inherit;
+            cursor: pointer;
+            font: inherit;
+            outline: none;
+            text-align: start;
+            text-decoration: none;
+            transition: background var(--transition-duration) var(--transition-timing-function);
+            width: 100%;
+
+
+            // Doubled so it outranks a class paired onto the item, such as '.link'.
+            &.tooltip-menu-item--danger {
+                color: var(--color-danger);
+            }
+
+
+            &:disabled,
+            &[aria-disabled='true'] {
+                color: var(--color-disabled);
+                cursor: not-allowed;
+            }
+        }
+
+        &-label,
+        &-title {
+            @extend %text-truncate;
+            flex: 1;
+            min-width: 0;
+        }
+
+        // The root panel's popover, so an open menu stands above every stacking context around it. Anchored over the
+        // trigger's box, so its panels place against it as they would against the trigger; it takes no clicks itself.
+        // Qualified so the popover reset outranks the '.tooltip' it also carries.
+        &-layer.tooltip {
+            @extend %reset-popover;
+            height: anchor-size(height);
+            left: anchor(left);
+            top: anchor(top);
+            width: anchor-size(width);
+
+
+            > .tooltip-menu-panel {
+                pointer-events: auto;
+            }
+        }
+
+        &-panel {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            color: var(--color);
+            font-size: var(--font-size);
+            isolation: isolate;
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
+            position: absolute;
+            width: var(--width);
+
+
+            // Scrim over parent panels while a child is open; it also takes clicks meant to pop back here.
+            &::after {
+                @extend %layer;
+                background: var(--scrim);
+                content: '';
+                opacity: 0;
+                transition: opacity var(--open-duration) var(--open-timing-function);
+                z-index: 1;
+            }
+
+            // The highlight writes the row's own rounding to '--border-radius'; rows are measured whole, so the layer
+            // takes the items' rounding instead.
+            > .highlight {
+                border-radius: var(--item-border-radius);
+            }
+
+
+            &--covered::after {
+                cursor: pointer;
+                opacity: 1;
+                pointer-events: auto;
+            }
+        }
+
+        // Regular and bold copies of the title are stacked; crossfading them morphs the weight without reflowing the
+        // label.
+        &-title {
+            display: grid;
+
+
+            &-bold {
+                font-weight: var(--font-weight);
+                opacity: var(--title-bold-opacity);
+            }
+
+            &-bold,
+            &-regular {
+                grid-area: 1 / 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                transition: opacity var(--open-duration) var(--open-timing-function);
+            }
+
+            &-regular {
+                opacity: var(--title-regular-opacity);
+            }
+        }
+
+        // A context menu's trigger is the region it opens over, which keeps its own cursor.
+        &-trigger:is(button) {
+            cursor: pointer;
         }
     }
 
@@ -162,12 +510,121 @@
         white-space: nowrap;
     }
 
+    // A popover, so it sits in the top layer; the UA popover styles are undone here. The padding on the anchor side is
+    // the gap to the trigger, which also carries the pointer across to interactive content. 'tooltip.shared' sets the
+    // '--shared-*' size and position.
+    &-shared {
+        @extend %reset-popover;
+        box-sizing: content-box;
+        color: var(--color);
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        height: var(--shared-height);
+        left: 0;
+        top: 0;
+        translate: var(--shared-x) var(--shared-y);
+        width: var(--shared-width);
+
+
+        @each $side, $padding in (e: left, n: bottom, s: top, w: right) {
+            &--#{$side} {
+                padding-#{$padding}: var(--spacer);
+            }
+        }
+
+        // Only while moving between triggers; a fresh open appears in place.
+        &--gliding {
+            transition:
+                height var(--glide-duration) var(--glide-timing-function),
+                translate var(--glide-duration) var(--glide-timing-function),
+                width var(--glide-duration) var(--glide-timing-function);
+        }
+
+        &--interactive {
+            @include tokens.state(active) {
+                pointer-events: auto;
+            }
+        }
+
+
+        &-box {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: block;
+            filter: blur(var(--blur));
+            height: 100%;
+            opacity: 0;
+            overflow: hidden;
+            position: relative;
+            scale: var(--scale);
+            transition:
+                filter var(--close-duration) var(--close-timing-function),
+                opacity var(--close-duration) var(--close-timing-function),
+                scale var(--close-duration) var(--close-timing-function),
+                translate var(--close-duration) var(--close-timing-function);
+            translate: var(--box-translate);
+
+
+            // 'none' rather than 'blur(0)', which still keeps an open box in its own filter layer; it interpolates the
+            // same.
+            #{tokens.state(active, '.tooltip-shared')} > & {
+                filter: none;
+                opacity: 1;
+                scale: 1;
+                transition:
+                    filter var(--open-duration) var(--open-timing-function),
+                    opacity var(--open-duration) var(--open-timing-function),
+                    scale var(--open-duration) var(--open-timing-function),
+                    translate var(--open-duration) var(--open-timing-function);
+                translate: 0;
+            }
+
+            // A warm handoff from another delayed tooltip swaps straight in. Doubled and after the open state, so it
+            // wins there too.
+            .tooltip-shared.tooltip-shared--instant > & {
+                transition: none;
+            }
+        }
+
+        // A 'frame--swap', centered in the box so the box can resize around it; centering takes 'transform', leaving
+        // 'translate' to the frame. 'tooltip.shared' sets '--translate-x' and '--translate-y' to the unit vector of the
+        // trip between triggers, so incoming content drifts in along it and outgoing content carries on out the far
+        // side.
+        &-layer {
+            left: 50%;
+            max-width: var(--max-width);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            white-space: var(--white-space);
+            width: max-content;
+        }
+
+
+        &:not(#{&}--gliding) #{&}-layer {
+            transition: none;
+        }
+    }
+
+
+    // Morph tooltips (-2) sit behind the trigger. A child can't paint under its parent's own background, so repaint
+    // that background above them; the label still paints on top. Shares '.button::after' (its shadow layer) when the
+    // trigger is a button.
+    &:has(> .tooltip-content--morph, > .tooltip-message--morph, > :not(.tooltip) > .tooltip-content--morph, > :not(.tooltip) > .tooltip-message--morph)::after {
+        @extend %layer;
+        background: inherit;
+        content: '';
+        display: block;
+        z-index: -1;
+    }
 
     @include tokens.state(active) {
-        // Cone from the pointer to the tooltip, computed by 'tooltip.onhover'; other
-        // tooltips never set the variables, so the pseudo-element stays empty.
-        // clip-path also clips hit-testing, so only the cone keeps it open. Lowest layer
-        // so it never intercepts clicks meant for the tooltip, including morph (-2).
+        // Cone from the pointer to the tooltip, computed by 'tooltip.onhover'; other tooltips never set the variables,
+        // so the pseudo-element stays empty. clip-path also clips hit-testing, so only the cone keeps it open. Lowest
+        // layer so it never intercepts clicks meant for the tooltip, including morph (-2).
         &::before {
             background: var(--safe-color);
             clip-path: var(--safe-area);
@@ -180,7 +637,7 @@
             z-index: -3;
         }
 
-        // Rotate arrow only if parent tooltip is active
+        // Flips the arrow only while its own tooltip is active.
         :not(.tooltip) .tooltip-arrow,
         > .tooltip-arrow {
             scale: -1 1;
@@ -193,13 +650,33 @@
 }
 
 
-// Shrinks straight onto the trigger (every edge together) until it's a blob '--morph-land'
-// larger than the trigger on every side, holds there, then settles into the trigger's exact box.
-// The hold matters: without it, edges still arriving (the travel differs per direction) overlap
-// with the final shrink, so it never reads as having landed.
+@keyframes tooltip-menu-expand-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes tooltip-menu-expand-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes tooltip-menu-expand-slide {
+    from {
+        translate: var(--expand-shift);
+    }
+}
+
+// Shrinks straight onto the trigger (every edge together) until it's a blob '--morph-land' larger than the trigger on
+// every side, holds there, then settles into the trigger's exact box. The hold matters: without it, edges still
+// arriving (the travel differs per direction) overlap with the final shrink, so it never reads as having landed.
 @keyframes tooltip-morph-close {
     0% {
-        animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
+        animation-timing-function: var(--morph-shrink-timing-function);
         clip-path: inset(0 round var(--border-radius));
     }
     55% {
@@ -212,7 +689,7 @@
         );
     }
     80% {
-        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        animation-timing-function: var(--morph-settle-timing-function);
         clip-path: inset(
             calc(var(--morph-top) - var(--morph-land))
             calc(var(--morph-right) - var(--morph-land))

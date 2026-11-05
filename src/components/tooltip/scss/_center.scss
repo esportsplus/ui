@@ -1,9 +1,0 @@
-@mixin center($active) {
-    &--c {
-        bottom: 50%;
-        position: absolute;
-        right: 50%;
-        transform-origin: center center;
-        translate: 50% 50%;
-    }
-}
