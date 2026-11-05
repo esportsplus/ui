@@ -24,8 +24,11 @@
         width: 100%;
     }
 
+    // Held to the bottom, as a dock on a screen's bottom edge is, so it grows upward into the launcher.
     &--launcher {
-        padding-top: 440px;
+        height: 540px;
+        justify-content: flex-end;
+        padding-top: 0;
     }
 
     &--narrow {

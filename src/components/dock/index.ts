@@ -106,7 +106,7 @@ function glyph(item: Item) {
 
 function hint(keys: Renderable<unknown>[], label: string) {
     return html`
-        <span class='dock-launcher-hint'>
+        <span class='dock-launcher-footer-hint'>
             <span aria-hidden='true' class='dock-launcher-keys'>
                 ${keys.map((key) => html`<kbd class='button button--kbd'>${key}</kbd>`)}
             </span>
@@ -151,14 +151,24 @@ const dock = ({
         docked = items instanceof ReactiveArray ? items : new ReactiveArray(items),
         drawer = apps && (apps instanceof ReactiveArray ? apps : new ReactiveArray(apps)),
         field: HTMLInputElement | undefined,
+        // The dock's own box while it morphs to and from the launcher: lengths, since 'auto' doesn't transition, set
+        // only from opening until it has landed back on the shelf.
+        fit = reactive({ height: 0, radius: 0, sized: false, width: 0 }),
+        frame = 0,
         group = `dock-${++uid}`,
         // The launcher's search, and the app the keys rest on among those it shows: none (-1) until an arrow picks one.
         launch = reactive({ index: -1, query: '' }),
         // Kept per app rather than per render, since moving between lists renders it afresh.
         launching = new WeakMap<Item, { launching: boolean }>(),
+        // The dock has grown to the launcher: a frame behind 'state.active' while opening, so it starts from its own
+        // box, and with it while closing.
+        expanded = reactive({ active: false }),
         // Shows the icons off the page for as long as 'measure()' reads them.
         measuring = reactive({ active: false }),
+        panel: HTMLElement | undefined,
         popup = drawer && overlay.popup({ state, target: surface }),
+        // The shelf's own box, which the dock grows from and lands back on.
+        resting = { height: 0, radius: 0, width: 0 },
         running = new WeakMap<Item, { running: boolean }>(),
         // The page of icons the shelf shows: the first, and how many fit (none while they all do). 'order' moves with
         // every sort, which can reorder the dock without changing its length.
@@ -231,6 +241,17 @@ const dock = ({
         `;
     }
 
+    // The launcher's size, which the dock grows to; layout lengths, so a scaled ancestor doesn't skew them.
+    function grow() {
+        if (!panel) {
+            return;
+        }
+
+        fit.height = panel.offsetHeight;
+        fit.radius = parseFloat(getComputedStyle(panel).borderTopLeftRadius) || 0;
+        fit.width = panel.offsetWidth;
+    }
+
     // Off the shelf's current page; hidden outright, so an icon swelling at either end grows the dock rather than
     // being cut off by it.
     function hidden(item: Item) {
@@ -246,8 +267,37 @@ const dock = ({
         return index < scroll.first || index >= scroll.first + scroll.count;
     }
 
-    // Beside the dock, centred on it: a search, the apps, and the keys that drive them. The apps sort into the dock
-    // and back.
+    // The shelf's own box. Its rounding is held to half its height, so a pill's '999px' eases into the launcher's
+    // corners rather than holding the stadium shape until the end.
+    function hold() {
+        if (!shelf) {
+            return;
+        }
+
+        resting = {
+            height: shelf.offsetHeight,
+            radius: Math.min(parseFloat(getComputedStyle(shelf).borderTopLeftRadius) || 0, shelf.offsetHeight / 2, shelf.offsetWidth / 2),
+            width: shelf.offsetWidth
+        };
+    }
+
+    // Back to the shelf's box, released once there so the dock sizes itself again; closed before it grew, there is
+    // nothing to wait for.
+    function land() {
+        if (!fit.sized) {
+            return;
+        }
+
+        if (fit.height === resting.height && fit.width === resting.width) {
+            fit.sized = false;
+            return;
+        }
+
+        Object.assign(fit, resting);
+    }
+
+    // Beside the dock, centred on it, laid out as the command palette is: the search and the apps in an inset card, and
+    // the keys that drive them on the frame around it. The apps sort into the dock and back.
     function launcher(apps: ReactiveArray<Item>) {
         // The app the keys rest on, so a step only reaches the two apps it moves between.
         let current = signal<Item | undefined>(undefined),
@@ -266,18 +316,35 @@ const dock = ({
             write(current, shown()[selected()]);
         });
 
-        // Every opening starts afresh, on all the apps, with the search taking the keys.
+        // Every opening starts afresh, on all the apps, with the search taking the keys, and grows the dock from its own
+        // box to the launcher's; every close shrinks it back.
         effect(() => state.active, (open) => {
+            cancelAnimationFrame(frame);
+
             if (!open) {
+                expanded.active = false;
+                land();
                 return;
             }
 
             launch.index = -1;
             launch.query = '';
 
-            // After the popup has put focus back where it was while opening.
-            requestAnimationFrame(() => {
-                field?.focus({ preventScroll: true });
+            // Pinned at its own size first, which changes nothing on screen, so the growth has a length to start from;
+            // the popup has put focus back where it was by the time it grows.
+            if (!fit.sized) {
+                hold();
+                Object.assign(fit, resting, { sized: true });
+            }
+
+            queueMicrotask(() => {
+                shelf?.getBoundingClientRect();
+
+                frame = requestAnimationFrame(() => {
+                    expanded.active = true;
+                    grow();
+                    field?.focus({ preventScroll: true });
+                });
             });
         });
 
@@ -288,49 +355,65 @@ const dock = ({
                 id='${group}-launcher'
                 role='dialog'
                 ${attributes[DOCK_LAUNCHER]}
-                ${{ onmousedown: keep }}
-            >
-                <div class='dock-launcher-search'>
-                    ${sprite(magnifier)}
-                    ${input({
-                        'aria-label': 'Search apps',
-                        autocomplete: 'off',
-                        class: 'dock-launcher-input',
-                        oninput: (e: Event) => {
-                            launch.index = -1;
-                            launch.query = (e.target as HTMLInputElement).value;
-                        },
-                        onconnect: (element: HTMLInputElement) => {
-                            field = element;
-                        },
-                        onkeydown: navigate,
-                        placeholder: 'Search apps',
-                        spellcheck: false,
-                        value: () => launch.query
-                    })}
-                </div>
-
-                <div class='dock-launcher-view' ${scrollbar({ fade: true })}>
-                    <div
-                        class='dock-launcher-apps'
-                        ${library.attributes}
-                        ${{
-                            onconnect: (element: HTMLElement) => {
-                                cells = element;
+                ${{
+                    // Followed while open, so a search that changes its rows resizes the dock around them.
+                    onconnect: (element: HTMLElement) => {
+                        let resize = observer(() => {
+                            if (expanded.active) {
+                                grow();
                             }
-                        }}
-                    >
-                        ${library.render()}
+                        });
+
+                        panel = element;
+                        resize.observe(element);
+                        onCleanup(resize.disconnect);
+                    },
+                    onmousedown: keep
+                }}
+            >
+                <div class='dock-launcher-body'>
+                    <div class='dock-launcher-search'>
+                        ${sprite(magnifier)}
+                        ${input({
+                            'aria-label': 'Search apps',
+                            autocomplete: 'off',
+                            class: 'dock-launcher-input',
+                            oninput: (e: Event) => {
+                                launch.index = -1;
+                                launch.query = (e.target as HTMLInputElement).value;
+                            },
+                            onconnect: (element: HTMLInputElement) => {
+                                field = element;
+                            },
+                            onkeydown: navigate,
+                            placeholder: 'Search apps',
+                            spellcheck: false,
+                            value: () => launch.query
+                        })}
                     </div>
-                    ${() => !shown().length && html`
-                        <p class='dock-launcher-empty' role='status'>${launch.query.trim() ? 'No results' : 'No apps'}</p>
-                    `}
+
+                    <div class='dock-launcher-view' ${scrollbar({ fade: true })}>
+                        <div
+                            class='dock-launcher-apps'
+                            ${library.attributes}
+                            ${{
+                                onconnect: (element: HTMLElement) => {
+                                    cells = element;
+                                }
+                            }}
+                        >
+                            ${library.render()}
+                        </div>
+                        ${() => !shown().length && html`
+                            <p class='dock-launcher-empty' role='status'>${launch.query.trim() ? 'No results' : 'No apps'}</p>
+                        `}
+                    </div>
                 </div>
 
                 <div aria-hidden='true' class='dock-launcher-footer'>
                     ${hint(['esc'], 'Close')}
-                    ${hint([left, right, up, down].map((href) => sprite(href, 'dock-launcher-key-icon')), 'Navigate')}
-                    ${hint([sprite(enter, 'dock-launcher-key-icon')], 'Open')}
+                    ${hint([left, right, up, down].map((href) => sprite(href, 'dock-launcher-kbd-icon')), 'Navigate')}
+                    ${hint([sprite(enter, 'dock-launcher-kbd-icon')], 'Open')}
                 </div>
             </div>
         `;
@@ -515,6 +598,8 @@ const dock = ({
                 'aria-label': label,
                 'aria-orientation': vertical ? 'vertical' : 'horizontal',
                 class: [
+                    () => expanded.active && 'dock--expanded',
+                    () => fit.sized && 'dock--sized',
                     () => measuring.active && 'dock--measuring',
                     () => state.active && 'dock--open',
                     () => scroll.count > 0 && 'dock--overflowing'
@@ -522,13 +607,13 @@ const dock = ({
                 // The icons are measured against the shelf whenever it, they, or the room around the dock change; the
                 // dock's parent can grow without the dock growing with it.
                 onconnect: (element: HTMLElement) => {
+                    shelf = element;
+
                     if (!arrows) {
                         return;
                     }
 
                     let resize = observer(measure);
-
-                    shelf = element;
 
                     for (let node of [element, element.parentElement, track, viewport]) {
                         if (node) {
@@ -537,7 +622,14 @@ const dock = ({
                     }
 
                     onCleanup(resize.disconnect);
-                }
+                },
+                // Landed back on the shelf: the dock sizes itself again.
+                ontransitionend: (e: TransitionEvent) => {
+                    if (e.target === e.currentTarget && e.propertyName === 'height' && !expanded.active) {
+                        fit.sized = false;
+                    }
+                },
+                style: () => fit.sized && `--fit-height: ${fit.height}px; --fit-radius: ${fit.radius}px; --fit-width: ${fit.width}px;`
             }}
         >
             ${arrows && arrow(-1)}

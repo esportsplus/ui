@@ -51,6 +51,22 @@
         }
     }
 
+    // Grown to the launcher: the shelf's own icons leave at once, and the launcher's contents fade in once the dock
+    // has opened enough to hold them.
+    &--expanded > &-arrow,
+    &--expanded > &-item,
+    &--expanded > &-viewport {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--fade-duration) linear;
+    }
+
+    &--expanded > &-launcher > &-launcher-body,
+    &--expanded > &-launcher > &-launcher-footer {
+        opacity: 1;
+        transition: opacity var(--content-duration) var(--content-timing-function) var(--content-delay);
+    }
+
     &--measuring &-item--hidden,
     &--overflowing > &-arrow {
         display: flex;
@@ -61,8 +77,28 @@
         visibility: hidden;
     }
 
+    // The launcher's frame fades in over the dock's own colour as it starts to grow.
+    &--open > &-launcher {
+        transition: opacity var(--fade-duration) linear;
+    }
+
+
     &--s &-item {
         padding: var(--inset-vertical) var(--padding-horizontal) var(--padding-vertical);
+    }
+
+    // The dock itself is the frame the launcher opens in: from opening until it has landed back, it holds lengths that
+    // move between its own box and the launcher's, since 'auto' doesn't transition. Doubled to outrank the upright
+    // docks' own size.
+    &#{&}--sized {
+        border-radius: var(--fit-radius);
+        height: var(--fit-height);
+        overflow: hidden;
+        transition:
+            border-radius var(--morph-duration) var(--morph-timing-function),
+            height var(--morph-duration) var(--morph-timing-function),
+            width var(--morph-duration) var(--morph-timing-function);
+        width: var(--fit-width);
     }
 
     &--s &-light {
@@ -228,11 +264,16 @@
         display: flex;
     }
 
+    // Pinned inside the dock at its screen edge, at its own size, which the dock grows to and clips it by. Its frame
+    // fades back to the dock's colour only once the dock has landed on the shelf.
     &-launcher {
         color: var(--color);
         display: flex;
         flex-direction: column;
         font-size: var(--font-size);
+        min-height: var(--min-height);
+        transition: opacity var(--fade-duration) linear var(--morph-duration);
+
 
         &-apps {
             align-content: start;
@@ -245,6 +286,28 @@
             padding-inline: var(--padding-horizontal);
         }
 
+        // The search and the apps sit in an inset card; the footer's legends rest on the frame around it. Both leave
+        // at once, ahead of the shape closing over them.
+        &-body,
+        &-footer {
+            opacity: 0;
+            transition: opacity var(--fade-duration) linear;
+        }
+
+        // Grows into any height the launcher is held to beyond its contents, beside an upright dock taller than them,
+        // so the footer stays at the bottom.
+        &-body {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            margin-block: var(--margin-vertical) 0;
+            margin-inline: var(--margin-horizontal);
+            min-height: 0;
+            overflow: hidden;
+        }
+
         &-empty {
             color: var(--color);
             margin: 0;
@@ -254,7 +317,6 @@
 
         &-footer {
             align-items: center;
-            border-top: var(--border-width) solid var(--border-color);
             color: var(--color);
             display: flex;
             flex-shrink: 0;
@@ -263,16 +325,16 @@
             height: var(--height);
             padding-inline: var(--padding-horizontal);
             user-select: none;
-        }
 
-        &-hint {
-            align-items: center;
-            display: flex;
-            gap: var(--gap-vertical) var(--gap-horizontal);
+            &-hint {
+                align-items: center;
+                display: flex;
+                gap: var(--gap-vertical) var(--gap-horizontal);
 
-            // Close stays on the left; the rest pack to the end.
-            &:first-child {
-                margin-inline-end: auto;
+                // Close stays on the left; the rest pack to the end.
+                &:first-child {
+                    margin-inline-end: auto;
+                }
             }
         }
 
@@ -330,6 +392,12 @@
             opacity: 1;
             transition-delay: var(--delay);
         }
+    }
+
+    // Fades back in once the dock has landed on the shelf again.
+    &-viewport,
+    & > &-item {
+        transition: opacity var(--fade-duration) linear var(--morph-duration);
     }
 
     &-viewport {
