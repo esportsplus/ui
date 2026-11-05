@@ -76,7 +76,7 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
                 onclick='${() => go(api.page - 1)}'
                 type='button'
             >
-                ${icon({ 'aria-hidden': 'true' }, previous)}
+                ${icon({ 'aria-hidden': 'true', class: 'pagination-control-icon' }, previous)}
                 Previous
             </button>
 
@@ -102,7 +102,7 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
                 type='button'
             >
                 Next
-                ${icon({ 'aria-hidden': 'true' }, next)}
+                ${icon({ 'aria-hidden': 'true', class: 'pagination-control-icon' }, next)}
             </button>
         </nav>
     `;

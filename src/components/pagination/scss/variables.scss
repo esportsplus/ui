@@ -167,6 +167,12 @@
         --box-shadow-default: var(--surface-shadow-default);
         --gap-horizontal: var(--size-100);
         --gap-vertical: 0px;
+
+        // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order.
+        & &-icon {
+            --color: currentColor;
+            --size: var(--size-400);
+        }
     }
 
     &-control,
