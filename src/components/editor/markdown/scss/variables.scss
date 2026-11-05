@@ -200,7 +200,7 @@
     }
 
     &-strong {
-        --font-weight: bold;
+        --font-weight: var(--font-weight-600);
     }
 
     &-summary {
