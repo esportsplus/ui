@@ -1,6 +1,8 @@
 import { deleteCharacter } from '../code/commands';
 import { EditorDocument, type Edit, type Selection } from '../code/document';
-import { markdownBackspace, markdownEnter, toggleMarkdown, type Kind } from './model';
+import { toggleMark, type Context } from './format';
+import { parseInline } from './inline';
+import { markdownBackspace, markdownEnter, parseMarkdown, type Kind } from './model';
 
 
 type Command = 'backspace' | 'bold' | 'enter' | 'italic';
@@ -40,9 +42,18 @@ function fence(document: EditorDocument) {
     });
 }
 
-function run(document: EditorDocument, command: Command, kind?: KindAt) {
+// What the format commands read, parsed from the document itself: for the copies each extra caret runs on.
+function formatting(document: EditorDocument): Context {
+    return {
+        blocks: parseMarkdown(document),
+        document,
+        tokens: (block) => parseInline(document.value.slice(block.contentFrom, block.contentTo), block.contentFrom - block.from, 0, new Map())
+    };
+}
+
+function run(document: EditorDocument, command: Command, kind?: KindAt, format?: Context) {
     if (command === 'bold' || command === 'italic') {
-        return toggleMarkdown(document, command === 'bold' ? '**' : '*');
+        return toggleMark(format ?? formatting(document), command);
     }
 
     if (command === 'backspace') {
@@ -64,12 +75,13 @@ function run(document: EditorDocument, command: Command, kind?: KindAt) {
 }
 
 
-// Runs a source-aware command at every range and commits the edits as one history entry.
-const markdownCommand = (document: EditorDocument, command: Command, kind?: KindAt) => {
+// Runs a source-aware command at every range and commits the edits as one history entry. 'format' is the caller's
+// parse of 'document', which a single range formats with.
+const markdownCommand = (document: EditorDocument, command: Command, kind?: KindAt, format?: Context) => {
     let ranges = document.selections;
 
     if (ranges.length === 1) {
-        return run(document, command, kind);
+        return run(document, command, kind, format);
     }
 
     let carets: { from: number; selection: Selection }[] = [],

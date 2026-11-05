@@ -1798,7 +1798,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             return changed;
         },
         block: (kind) => editable(() => setBlockKind(formatting, kind)),
-        bold: () => editable(() => markdownCommand(model, 'bold', kindAt)),
+        bold: () => editable(() => markdownCommand(model, 'bold', kindAt, formatting)),
         clearFormats: () => editable(() => clearFormats(formatting)),
         closeFind: () => search.close(),
         dispose: () => {
@@ -1889,7 +1889,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
         },
         indent: () => editable(() => indent(model, options.indent)),
         insert: (text) => editable(() => insertText(model, text)),
-        italic: () => editable(() => markdownCommand(model, 'italic', kindAt)),
+        italic: () => editable(() => markdownCommand(model, 'italic', kindAt, formatting)),
         lineCommand: (command) => editable(() => lineCommand(model, command)),
         link: (href) => editable(() => setLink(formatting, href)),
         mark: (mark) => editable(() => toggleMark(formatting, mark)),
