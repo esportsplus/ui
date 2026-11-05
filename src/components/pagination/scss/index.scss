@@ -156,6 +156,18 @@
     &-control {
         gap: var(--gap-vertical) var(--gap-horizontal);
 
+
+        // The arrow glyphs lean toward their tail, toward the label, leaving the outer padding looking wider; pulling
+        // each icon outward by that drift evens the button out.
+        &--next &-icon {
+            margin-right: var(--offset);
+        }
+
+        &--previous &-icon {
+            margin-left: var(--offset);
+        }
+
+
         @include tokens.state(disabled) {
             @extend %disabled;
             pointer-events: none;

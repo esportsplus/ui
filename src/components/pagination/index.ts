@@ -72,7 +72,7 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
         <nav aria-label='Pagination' class='pagination' ${attributes}>
             <button
                 aria-disabled='${() => String(api.page <= 1)}'
-                class='button pagination-control ${() => api.page <= 1 && '--disabled'}'
+                class='button pagination-control pagination-control--previous ${() => api.page <= 1 && '--disabled'}'
                 onclick='${() => go(api.page - 1)}'
                 type='button'
             >
@@ -97,7 +97,7 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
 
             <button
                 aria-disabled='${() => String(api.page >= total)}'
-                class='button pagination-control ${() => api.page >= total && '--disabled'}'
+                class='button pagination-control pagination-control--next ${() => api.page >= total && '--disabled'}'
                 onclick='${() => go(api.page + 1)}'
                 type='button'
             >

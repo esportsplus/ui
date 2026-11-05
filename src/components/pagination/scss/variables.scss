@@ -168,9 +168,11 @@
         --gap-horizontal: var(--size-100);
         --gap-vertical: 0px;
 
-        // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order.
+        // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order. The offset
+        // is how far the glyph drifts toward its tail inside its box.
         & &-icon {
             --color: currentColor;
+            --offset: calc(var(--size) / -4);
             --size: var(--size-400);
         }
     }
