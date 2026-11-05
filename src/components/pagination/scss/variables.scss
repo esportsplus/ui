@@ -6,7 +6,8 @@
 
 .pagination {
     --gap-horizontal: var(--size-300);
-    --gap-vertical: var(--size-300);
+    // Only spaces a wrapped line, such as the caption's.
+    --gap-vertical: var(--size-400);
 
 
     &--arrows {
@@ -14,6 +15,20 @@
         --gap-vertical: var(--size-100);
     }
 
+
+    &-control,
+    &-page {
+        @extend %color-text;
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
+        --border-color-default: var(--surface-border-default);
+        --border-radius: var(--border-radius-400);
+        --border-width: var(--border-width-400);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-500);
+        --padding-vertical: 0px;
+        --size: 32px;
+    }
 
     &-arrow {
         @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
@@ -25,16 +40,25 @@
             --background-hover: var(--background-default);
         }
 
-        // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order.
-        & &-icon {
-            --color: currentColor;
-            --size: var(--size-400);
-        }
-
         @include tokens.state(disabled) {
             --background-hover: var(--background-default);
             --background-pressed: var(--background-default);
         }
+    }
+
+    // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order. The offset is
+    // how far the glyph drifts toward its tail: a quarter of its own box.
+    @each $element in (arrow, control) {
+        &-#{$element} &-#{$element}-icon {
+            --color: currentColor;
+            --offset: calc(var(--size) / -4);
+            --size: var(--size-400);
+        }
+    }
+
+    &-caption {
+        --color: var(--color-text-300);
+        --font-size: var(--font-size-300);
     }
 
     &-card {
@@ -58,19 +82,19 @@
         --padding-vertical: var(--size-400);
 
 
+        &--ring,
+        &--tactile {
+            &:focus-visible {
+                --box-shadow: var(--box-shadow-hover);
+            }
+        }
+
         &--next {
             --direction: 1;
         }
 
         &--previous {
             --direction: -1;
-        }
-
-        &--ring,
-        &--tactile {
-            &:focus-visible {
-                --box-shadow: var(--box-shadow-hover);
-            }
         }
 
         // A halo in place of the card's elevation, growing in on hover. Chained through the card so it wins over the
@@ -146,29 +170,7 @@
         --box-shadow-default: var(--surface-shadow-default);
         --gap-horizontal: var(--size-100);
         --gap-vertical: 0px;
-
-        // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order. The offset
-        // is how far the glyph drifts toward its tail inside its box.
-        & &-icon {
-            --color: currentColor;
-            --offset: calc(var(--size) / -4);
-            --size: var(--size-400);
-        }
-    }
-
-    &-control,
-    &-page {
-        @extend %color-text;
-        --background-hover: var(--surface-background-hover);
-        --background-pressed: var(--surface-background-pressed);
-        --border-color-default: var(--surface-border-default);
-        --border-radius: var(--border-radius-400);
-        --border-width: var(--border-width-400);
-        --font-size: var(--font-size-300);
-        --font-weight: var(--font-weight-500);
         --padding-horizontal: var(--size-300);
-        --padding-vertical: 0px;
-        --size: 32px;
     }
 
     &-page {
@@ -176,7 +178,7 @@
         --border-color-active: var(--surface-border-default);
         --border-color-default: transparent;
         --box-shadow-active: var(--surface-shadow-default);
-        --padding-horizontal: 0px;
+        --padding-horizontal: var(--size-100);
 
         &--dots {
             --background-hover: transparent;
@@ -186,7 +188,7 @@
     }
 
     &-pages {
-        --gap-horizontal: var(--size-100);
+        --gap-horizontal: calc(var(--size-100) / 2);
         --gap-vertical: 0px;
     }
 }

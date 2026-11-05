@@ -1,5 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/absolute';
 @use 'css-utilities/disabled';
 @use 'variables';
 
@@ -46,15 +45,6 @@
             color var(--transition-duration) var(--transition-timing-function);
         width: var(--size);
 
-        // The arrow glyphs sit a quarter of their box off centre, toward their tail; pulling that back centres them.
-        &--next &-icon {
-            margin-right: calc(var(--size) / -4);
-        }
-
-        &--previous &-icon {
-            margin-left: calc(var(--size) / -4);
-        }
-
         @include tokens.state(disabled) {
             @extend %disabled;
         }
@@ -66,6 +56,26 @@
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: var(--focus-offset);
         }
+    }
+
+    // Pulling each arrow icon outward by its glyph's drift centres it in a square arrow button and evens the padding of
+    // a labelled control.
+    @each $element in (arrow, control) {
+        &-#{$element}--next &-#{$element}-icon {
+            margin-right: var(--offset);
+        }
+
+        &-#{$element}--previous &-#{$element}-icon {
+            margin-left: var(--offset);
+        }
+    }
+
+    &-caption {
+        color: var(--color);
+        flex-basis: 100%;
+        font-size: var(--font-size);
+        font-variant-numeric: tabular-nums;
+        text-align: center;
     }
 
     &-card {
@@ -117,19 +127,17 @@
             }
         }
 
-        &-subtitle {
+        &-subtitle,
+        &-title {
             color: var(--color);
             font-size: var(--font-size);
             transition: color var(--transition-duration) var(--transition-timing-function);
         }
 
         &-title {
-            color: var(--color);
-            font-size: var(--font-size);
             font-weight: var(--font-weight);
             overflow-wrap: anywhere;
             text-transform: capitalize;
-            transition: color var(--transition-duration) var(--transition-timing-function);
         }
 
         // Clears the text from whichever edge holds the arrow, on top of the card's own padding.
@@ -144,18 +152,6 @@
 
     &-control {
         gap: var(--gap-vertical) var(--gap-horizontal);
-
-
-        // The arrow glyphs lean toward their tail, toward the label, leaving the outer padding looking wider; pulling
-        // each icon outward by that drift evens the button out.
-        &--next &-icon {
-            margin-right: var(--offset);
-        }
-
-        &--previous &-icon {
-            margin-left: var(--offset);
-        }
-
 
         @include tokens.state(disabled) {
             @extend %disabled;
@@ -185,4 +181,9 @@
         gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
+
+    // The caption takes a line of its own beneath the controls.
+    &:has(> #{&}-caption) {
+        flex-wrap: wrap;
+    }
 }

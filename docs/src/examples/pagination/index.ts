@@ -1,19 +1,10 @@
 import { reactive } from '@esportsplus/reactivity';
-import { html } from '@esportsplus/template';
 import { pagination } from '@esportsplus/ui/components';
 import type { Entry } from 'docs/types';
-import 'docs/examples/pagination/scss/index.scss';
 
 
 function demo(page: number, total: number, siblings?: number) {
-    let state = reactive({ page });
-
-    return html`
-        <div class='pagination-demo-pages'>
-            ${pagination({ siblings, state, total })}
-            <span class='pagination-demo-caption'>Page ${() => state.page} of ${total}</span>
-        </div>
-    `;
+    return pagination({ caption: true, siblings, state: reactive({ page }), total });
 }
 
 

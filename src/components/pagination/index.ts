@@ -42,7 +42,9 @@ function pages(page: number, siblings: number, total: number) {
 }
 
 
-const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), total, ...attributes }: Attributes & {
+const plain = ({ caption = false, onchange, siblings = 1, state: api = reactive({ page: 1 }), total, ...attributes }: Attributes & {
+    // A 'Page n of total' line under the controls.
+    caption?: boolean;
     onchange?: (page: number) => void;
     siblings?: number;
     state?: { page: number };
@@ -103,6 +105,8 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
                 Next
                 ${icon({ 'aria-hidden': 'true', class: 'pagination-control-icon' }, next)}
             </button>
+
+            ${caption && html`<span class='pagination-caption'>Page ${() => api.page} of ${total}</span>`}
         </nav>
     `;
 };
