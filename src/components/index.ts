@@ -3,7 +3,6 @@ export { default as announcement } from './announcement';
 export { default as breadcrumb } from './breadcrumb';
 export { default as button } from './button';
 export { default as capslock } from './capslock';
-export { default as cc } from './cc';
 export { default as chat } from './chat';
 export { default as checkbox } from './checkbox';
 export { default as clipboard } from './clipboard';

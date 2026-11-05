@@ -21,7 +21,6 @@ const groups: Record<string, Group[]> = {
     card: [
         { title: 'card', members: ['default', ['card--morph', 'Morph']] }
     ],
-    cc: [{ title: 'card details', members: ['default', ['prefilled amex + onvalid', 'Prefilled Amex, validation callback']] }],
     checkbox: [
         { title: 'checkbox', members: ['default', 'checked'] },
         { title: 'group', members: ['group', 'group without descriptions'] }

@@ -25,10 +25,6 @@ const meta: Record<string, Meta> = {
     card: {
         description: 'Rounded surface that groups related content and actions, plus cards that morph into a detail dialog and fly back into their slot.'
     },
-    cc: {
-        description: 'Payment card form with a live card preview that flips for the CVC, brand detection, auto-formatting and Luhn validation.',
-        label: 'CC'
-    },
     'chat-minimap': {
         description: 'A rail of lines mapping a conversation, one per turn: the hovered line swells its neighbours, a card previews the turn, the turns in view stay lit as the thread scrolls, and the rail grows with the chat.',
         label: 'Chat Minimap'

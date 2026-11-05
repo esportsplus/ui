@@ -240,94 +240,6 @@
     "severity": "low"
   },
   {
-    "component": "cc",
-    "file": "src/components/cc/scss/variables.scss",
-    "line": 5,
-    "rule": "Variables: live on the consuming selector, not on a parent with a prefix",
-    "issue": "The .cc block defines many prefixed variables that only child elements read: --card-background/--card-border-radius/--card-color (used by .cc-face, .cc-ring, .cc-stripe, .cc-signature-value), --card-number-font-size (.cc-number), --digit-duration (.cc-digit), --error-color (.cc-error), --field-* (.cc-field.input, .cc-submit), --flip-* (.cc-card), --label-font-* (.cc-label), --muted-color, --outline-color, --ring-duration (.cc-ring), --submit-* (.cc-submit), --icon-swap-* (.cc-brand-mark). Each should be an unprefixed variable on the selector that uses it.",
-    "severity": "high"
-  },
-  {
-    "component": "cc",
-    "file": "src/components/cc/scss/variables.scss",
-    "line": 87,
-    "rule": "Variables: no --icon-size on a parent (the rule's own counter-example)",
-    "issue": "&-submit sets --icon-size: var(--size-400). That is the exact anti-pattern RULES.md names, and nothing in button or cc reads --icon-size, so the variable is also dead. --face-duration and --face-timing-function (lines 83-84) are dead too, because .button-face reads --transition-duration and --transition-timing-function.",
-    "severity": "medium"
-  },
-  {
-    "component": "cc",
-    "file": "src/components/cc/scss/variables.scss",
-    "line": 57,
-    "rule": "Variables: every tunable value is a variable (defined)",
-    "issue": "&-field.input sets --background-default: var(--field-background), but cc never defines --field-background, so the value falls through to whatever is inherited.",
-    "severity": "low"
-  },
-  {
-    "component": "cc",
-    "file": "src/components/cc/scss/variables.scss",
-    "line": 32,
-    "rule": "Ordering: block-level @media (group 2) comes before elements (group 4)",
-    "issue": "The &-face element block (lines 32-34) comes before the block's own @media (prefers-reduced-motion) at line 37.",
-    "severity": "low"
-  },
-  {
-    "component": "cc",
-    "file": "src/components/cc/scss/variables.scss",
-    "line": 73,
-    "rule": "SCSS style: comments only for a non-obvious why (and must be accurate)",
-    "issue": "The comment says the selector is \"Chained through '.button'\", but the selector is &-note-icon.icon, which is chained through .icon. The comment is wrong.",
-    "severity": "low"
-  },
-  {
-    "component": "cc",
-    "file": "src/components/cc/scss/index.scss",
-    "line": 29,
-    "rule": "index.scss vs variables.scss: values come from var(--*), not literals",
-    "issue": "index.scss hardcodes many tunable values. Brand sizes 32px/48px/24px/36px (29-35). Opacities 0.6/0.45/0.7/0.35 (52, 95, 203, 272). right: 12px (76). margin 0.6em (91). Padding/gap 24px/12px (111, 163, 169, 299, 320-321, 336). Transitions 200ms cubic-bezier (120-122), opacity 200ms ease-out (155), 150ms ease-out (200), opacity 120ms/200ms ease-out (282, 291). padding-inline-end 64px (190). outline-offset -1px (208). perspective 1200px (264). Heights 40px/44px (334, 342). margin-top 24px (343).",
-    "severity": "medium"
-  },
-  {
-    "component": "cc",
-    "file": "src/components/cc/scss/index.scss",
-    "line": 99,
-    "rule": "Variables: timing is always a pair (--{name}-duration + --{name}-timing-function)",
-    "issue": "The digit roll animations use var(--digit-duration) with a literal ease-out (lines 99 and 103), and there is no --digit-timing-function. In the same way, .cc-ring pairs --ring-duration with --spring instead of --ring-timing-function.",
-    "severity": "low"
-  },
-  {
-    "component": "cc",
-    "file": "src/components/cc/scss/index.scss",
-    "line": 376,
-    "rule": "SCSS style: nest @media inside the selector it affects; always use &--/&- instead of repeating the block name; Variables placement",
-    "issue": "The reduced-motion @media sits at the root and repeats the block name (.cc-card--flipped, .cc-digit--roll-1, .cc-digit--roll-2) instead of nesting under .cc with &-. It also declares --face-back-opacity and --face-front-opacity in index.scss on .cc-card--flipped, from where they pass down to the .cc-face children (read with fallbacks at 386/391).",
-    "severity": "medium"
-  },
-  {
-    "component": "cc",
-    "file": "src/components/cc/scss/index.scss",
-    "line": 359,
-    "rule": "Keyframes: name after the class using them",
-    "issue": "Keyframes cc-digit-1 and cc-digit-2 are used by .cc-digit--roll-1 and .cc-digit--roll-2, so they should be named cc-digit--roll-1 and cc-digit--roll-2. cc-fade (line 407) is used only by .cc-digit--roll-* and lacks the element path (it should be cc-digit-fade).",
-    "severity": "low"
-  },
-  {
-    "component": "cc",
-    "file": "src/components/cc/scss/index.scss",
-    "line": 346,
-    "rule": "SCSS style: comments only for a non-obvious why (accurate)",
-    "issue": "The comment says \"Chained through '.button'\", but &-submit is not chained. The comment does not match the code.",
-    "severity": "low"
-  },
-  {
-    "component": "cc",
-    "file": "src/components/cc/index.ts",
-    "line": 386,
-    "rule": "TypeScript: fine-grained reactivity, never re-render templates for a small change",
-    "issue": "The error slot is a function that returns a new <span> template every time the error text changes (for example 'Too short' to 'Not a valid number'). A persistent span with a reactive text binding would avoid rebuilding it.",
-    "severity": "low"
-  },
-  {
     "component": "chat",
     "file": "src/components/chat/minimap/scss/index.scss",
     "line": 1,
@@ -356,7 +268,7 @@
     "file": "src/components/chat/minimap/scss/_chat-minimap.scss",
     "line": 132,
     "rule": "SCSS style: reuse css-utilities placeholders via @extend",
-    "issue": "&-title hand-writes overflow: hidden, text-overflow: ellipsis and white-space: nowrap instead of using @extend %text-truncate, which cc and breadcrumb both use.",
+    "issue": "&-title hand-writes overflow: hidden, text-overflow: ellipsis and white-space: nowrap instead of using @extend %text-truncate, which breadcrumb uses.",
     "severity": "low"
   },
   {
@@ -2100,7 +2012,7 @@
     "file": "src/components/theme-picker/scss/variables.scss",
     "line": 64,
     "rule": "Variables: variables live on the consuming selector (no --icon-size on parent)",
-    "issue": "`&-toggle-trigger` sets `--icon-size: var(--size-400)`, which is the exact anti-pattern RULES.md names. Nothing in the repo reads it apart from cc's own definition, so it is dead too. The icon size should be `--size` on `.theme-picker-icon`, chained through `.icon`.",
+    "issue": "`&-toggle-trigger` sets `--icon-size: var(--size-400)`, which is the exact anti-pattern RULES.md names. Nothing in the repo reads it, so it is dead too. The icon size should be `--size` on `.theme-picker-icon`, chained through `.icon`.",
     "severity": "medium"
   },
   {
