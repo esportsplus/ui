@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 import { after, test } from 'node:test';
 import { ts } from '@esportsplus/typescript';
 import { languageService } from '@esportsplus/typescript/compiler';
-import { snippet } from './example-source.mjs';
+import { snippets } from './example-source.mjs';
 import { groupVariants } from '../src/examples/groups.ts';
 
 
 after(() => languageService.dispose());
 
-function extract(source) {
-    let context = languageService.scratch(`${process.cwd()}/docs/src/examples/source-fixture.ts`, source),
+async function extract(source) {
+    let context = await languageService.scratch(`${process.cwd()}/docs/src/examples/source-fixture.ts`, source),
         render;
 
     function walk(node) {
@@ -22,11 +22,11 @@ function extract(source) {
 
     walk(context.sourceFile);
     assert.ok(render);
-    return snippet(context, render);
+    return (await snippets(context, [render]))[0];
 }
 
-test('includes the selected renderer and its transitive helpers, omitting unrelated examples', () => {
-    let result = extract(`
+test('includes the selected renderer and its transitive helpers, omitting unrelated examples', async () => {
+    let result = await extract(`
         import { accordion } from '@esportsplus/ui';
         import { reactive } from '@esportsplus/reactivity';
         import './example.scss';
@@ -49,8 +49,8 @@ test('includes the selected renderer and its transitive helpers, omitting unrela
     assert.deepEqual(result.captures, []);
 });
 
-test('captures selected values from generated variants without capturing their local state', () => {
-    let result = extract(`
+test('captures selected values from generated variants without capturing their local state', async () => {
+    let result = await extract(`
         import { reactive } from '@esportsplus/reactivity';
         function variants(kind: string) {
             return ['halo', 'underline'].map((mode) => ({
@@ -68,8 +68,8 @@ test('captures selected values from generated variants without capturing their l
     assert.match(result.example, /reactive\(\{ active: false \}\)/);
 });
 
-test('resolves shorthand dependencies and a renderer passed by reference', () => {
-    let result = extract(`
+test('resolves shorthand dependencies and a renderer passed by reference', async () => {
+    let result = await extract(`
         const words = ['one', 'two'];
         const unused = ['three'];
         function demo() { return { words }; }
@@ -83,8 +83,8 @@ test('resolves shorthand dependencies and a renderer passed by reference', () =>
     assert.deepEqual(result.captures, []);
 });
 
-test('keeps shadowed locals separate from module data', () => {
-    let result = extract(`
+test('keeps shadowed locals separate from module data', async () => {
+    let result = await extract(`
         const state = 'Unrelated';
         const variant = {
             render: () => { const state = 'Selected'; return state; },
