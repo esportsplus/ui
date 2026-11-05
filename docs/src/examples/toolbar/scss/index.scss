@@ -4,7 +4,7 @@
 
 
 // Headroom for icons that swell above the shelf and the labels over them.
-.dock-demo {
+.toolbar-demo {
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -15,7 +15,7 @@
         justify-content: flex-start;
     }
 
-    // Room beside the dock for the launcher to open into.
+    // Room beside the bar for the drawer to open into.
     &--e,
     &--w {
         flex-direction: row;
@@ -24,8 +24,8 @@
         width: 100%;
     }
 
-    // Held to the bottom, as a dock on a screen's bottom edge is, so it grows upward into the launcher.
-    &--launcher {
+    // Held to the bottom, as a dock on a screen's bottom edge is, so it grows upward into the drawer.
+    &--drawer {
         height: 540px;
         justify-content: flex-end;
         padding-top: 0;
@@ -49,15 +49,16 @@
         @extend %background-blue, %color-white;
     }
 
+    // Outline glyphs: their sprites carry no stroke once inlined; the bar sets its width.
+    &-glyph {
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
     &-status {
         color: var(--color-text-300);
         font-size: var(--font-size-300);
-    }
-
-    // The shelf is themed where it is placed; here, a raised surface.
-    .dock {
-        @extend %surface-raise;
-        background: var(--surface-background-default);
-        box-shadow: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
     }
 }

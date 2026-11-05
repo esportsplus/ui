@@ -9,7 +9,6 @@ export { default as clipboard } from './clipboard';
 export { default as colorPicker } from './color-picker';
 export { default as command } from './command';
 export { default as counter } from './counter';
-export { default as dock } from './dock';
 export {
     createFileTreeIconResolver,
     default as editor,
@@ -60,6 +59,7 @@ export { default as tasklist } from './tasklist';
 export { default as textarea } from './textarea';
 export { default as theme } from './theme';
 export { default as toaster } from './toast';
+export { default as toolbar } from './toolbar';
 export { default as tooltip } from './tooltip';
 export { default as truncate } from './truncate';
 export { default as typewriter } from './typewriter';

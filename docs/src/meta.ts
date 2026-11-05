@@ -44,9 +44,6 @@ const meta: Record<string, Meta> = {
     counter: {
         description: 'Animated number display with currency and formatting support.'
     },
-    dock: {
-        description: 'macOS-style dock whose icons swell toward the cursor and launch with a bounce and a running light.'
-    },
     editor: {
         description: 'Code, markdown, file tree, workspace and diff editing in one family. editor.code edits source with syntax colors, undo and redo, find and replace, multiple and rectangular selections, folding, wrap, a minimap and language services; editor.markdown edits rendered markdown directly; editor.tree is a collapsible, virtualized file tree with git and problem decorations, drag and drop and desktop import and export; editor.workspace adds an explorer, tabs and quick open; editor.viewer shows source read-only; and editor.diffs compares two texts side by side or unified, with editor.diffs.merge for three-way merges.',
         label: 'Editor'
@@ -158,6 +155,9 @@ const meta: Record<string, Meta> = {
     },
     toast: {
         description: 'Independent toasters that stack your content: a close button, swipe-to-dismiss, a capped stack that fans out on hover, and a CSS clock that runs only on the front toast.'
+    },
+    toolbar: {
+        description: 'A bar of flat buttons and dividers the consumer defines, sortable by drag, that can morph into a drawer of more buttons with an optional search; as a dock, its buttons launch apps with a hop and a running dot, and a button thrown off it goes back to the drawer.'
     },
     tooltip: {
         description: 'Contextual popover for hints, menus, and hover details, including one shared tooltip that glides between the triggers bound to it, down to a navigation bar of dropdown panels.'

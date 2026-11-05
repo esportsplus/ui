@@ -32,10 +32,6 @@ const groups: Record<string, Group[]> = {
         { title: 'number format', members: [['plain number', 'Plain number'], ['suffix', 'Suffix']] },
         { title: 'ticker', members: ['ticker', 'ticker with blur'] }
     ],
-    dock: [
-        { title: 'dock', members: ['default', ['arrows', 'Arrows'], ['thumbnails', 'Thumbnails'], ['thumbnails and icons', 'Thumbnails and icons'], ['dock--square', 'Square'], ['dock--squircle', 'Squircle'], ['dock--plain', 'Plain'], ['item modifiers', 'Item modifiers'], ['controlled running state + onlaunch', 'Controlled state, launch callback']] },
-        { title: 'launcher', members: [['launcher', 'Default'], ['direction s', 'Direction s'], ['direction e', 'Direction e'], ['direction w', 'Direction w']] }
-    ],
     editor: [
         { title: 'file tree', members: ['default', ['locked items, natural sort, no indicator', 'Locked items, no indicator'], ['guides on hover, named folders, path tooltip, scope colors', 'Guides, tooltips and scope colors'], ['sticky scroll, three folders deep', 'Sticky scroll']] },
         { title: 'large tree', members: [['virtualized, 10,000 files', 'Default'], ['find in 10,000 files, highlight mode', 'Find and highlight']] },
@@ -134,6 +130,11 @@ const groups: Record<string, Group[]> = {
         { title: 'focus animation', members: [['Halo · Expanding focus ring', 'Default'], ['Underline · Draw from center', 'Underline'], ['Lift · Soft spring elevation', 'Lift'], ['Wash · Tinted focus surface', 'Wash'], ['Bracket · Growing side accents', 'Bracket']] },
         { title: 'Board', members: [['Board · Label, hint and resize handle', 'Default'], ['Board · Sizes (medium, small)', 'Sizes'], ['Board · Auto resize (1 to 8 lines)', 'Auto resize'], ['Board · Character count', 'Character count'], ['Board · States (default, filled, disabled, invalid)', 'States']] },
         { title: 'textarea', members: ['default', 'autoresize', 'tall'] }
+    ],
+    toolbar: [
+        { title: 'toolbar', members: ['default', ['drawer, no search', 'Drawer, no search']] },
+        { title: 'dock', members: [['dock', 'Default'], ['arrows', 'Arrows'], ['thumbnails', 'Thumbnails'], ['thumbnails and icons', 'Thumbnails and icons'], ['controlled running state + onlaunch', 'Controlled state, launch callback']] },
+        { title: 'dock drawer', members: [['dock drawer', 'Default'], ['direction s', 'Direction s'], ['direction e', 'Direction e'], ['direction w', 'Direction w']] }
     ],
     tooltip: [
         { title: 'tooltip', members: [['onhover', 'Hover'], ['onclick', 'Click'], 'scale', 'scale + spring', 'spring'] },

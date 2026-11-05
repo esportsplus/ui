@@ -1,0 +1,473 @@
+@use '/tokens';
+@use 'css-utilities/reset';
+@use 'css-utilities/text';
+@use 'variables';
+
+.toolbar {
+    background: var(--background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    display: flex;
+    max-width: 100%;
+    padding-block: var(--inset-vertical);
+    padding-inline: var(--inset-horizontal);
+    position: relative;
+
+
+    &--e,
+    &--w {
+        flex-direction: column;
+        max-height: 100%;
+    }
+
+    &--e > &-arrow,
+    &--w > &-arrow {
+        height: var(--width);
+        width: var(--height);
+    }
+
+    &--e > &-viewport,
+    &--e > &-viewport > &-items,
+    &--w > &-viewport,
+    &--w > &-viewport > &-items {
+        flex-direction: column;
+    }
+
+    // Grown to the drawer: the bar's own icons leave at once, and the drawer's contents come in once the bar
+    // has opened enough to hold them.
+    &--expanded > &-arrow,
+    &--expanded > &-viewport {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--fade-duration) var(--fade-timing-function);
+    }
+
+    &--expanded > &-drawer > &-drawer-body,
+    &--expanded > &-drawer > &-drawer-footer {
+        opacity: 1;
+        transition: opacity var(--enter-duration) var(--enter-timing-function) var(--enter-delay);
+    }
+
+    &--measuring &-custom--hidden,
+    &--measuring &-divider--hidden,
+    &--measuring &-item--hidden,
+    &--overflowing > &-arrow {
+        display: flex;
+    }
+
+    // Moving between the bar's box and the drawer's; off while the bar is first pinned to its own box.
+    &--morphing {
+        transition:
+            border-radius var(--morph-duration) var(--morph-timing-function),
+            height var(--morph-duration) var(--morph-timing-function),
+            padding var(--morph-duration) var(--morph-timing-function),
+            width var(--morph-duration) var(--morph-timing-function);
+    }
+
+    // The bar's label would otherwise hang over the drawer.
+    &--open > &-label {
+        visibility: hidden;
+    }
+
+    // The drawer's frame and its colour fade in over the bar's own as it starts to grow. Chained through
+    // '.tooltip-content' to outrank the tooltip's own transition, whichever stylesheet loads last.
+    &--open > &-drawer.tooltip-content {
+        transition:
+            background-color var(--fade-duration) var(--fade-timing-function),
+            opacity var(--fade-duration) var(--fade-timing-function);
+    }
+
+    // The bar itself is the frame the drawer opens in: from opening until it has landed back, it holds lengths that
+    // move between its own box and the drawer's, since 'auto' doesn't transition; doubled to outrank the upright
+    // bars' own size. Its buttons stay where they rest on screen while the box moves around them, centred along it.
+    &#{&}--sized {
+        border-radius: var(--fit-radius);
+        height: var(--fit-height);
+        justify-content: center;
+        overflow: hidden;
+        width: var(--fit-width);
+    }
+
+    // Per screen edge: the running light sits between the glyph and that edge, centred across the bar; while the bar
+    // is sized, its far side takes whatever the bar has grown, holding the bar at its resting depth against the edge.
+    @each $direction, $edge, $across, $far, $length, $inset in (e, left, block, right, width, horizontal), (n, bottom, inline, top, height, vertical), (s, top, inline, bottom, height, vertical), (w, right, block, left, width, horizontal) {
+        &--#{$direction} &-light {
+            #{$edge}: var(--offset);
+            inset-#{$across}: 0;
+            margin-#{$across}: auto;
+        }
+
+        &--#{$direction}#{&}--sized {
+            padding-#{$far}: calc(var(--fit-#{$length}) - var(--fit-depth) + var(--inset-#{$inset}));
+        }
+    }
+
+
+    &-app {
+        align-items: center;
+        background: var(--background);
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        min-width: 0;
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
+
+
+        &--hidden {
+            display: none;
+        }
+
+
+        &-label {
+            @extend %text-truncate;
+            color: var(--color);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
+            user-select: none;
+        }
+    }
+
+    // Pages the icons when they outgrow the bar; shown only then.
+    &-arrow {
+        @extend %reset-button;
+        align-items: center;
+        align-self: center;
+        color: var(--color);
+        display: none;
+        flex-shrink: 0;
+        height: var(--height);
+        justify-content: center;
+        opacity: var(--opacity);
+        outline: none;
+        transition: opacity var(--transition-duration) var(--transition-timing-function);
+        width: var(--width);
+
+
+        &:disabled {
+            cursor: default;
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+    }
+
+    // A '.button' sized to its slot; '.button' doesn't undo a native button's border or draw a focus ring.
+    &-button {
+        border: 0;
+        flex-shrink: 0;
+        height: var(--size);
+        outline: none;
+        transform-origin: var(--origin);
+        width: var(--size);
+
+
+        &--launching {
+            animation:
+                toolbar-button-hop var(--hop-duration) var(--hop-timing-function),
+                var(--squash) var(--hop-duration) var(--squash-timing-function);
+        }
+
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+        }
+
+        // '.button' displays as flex, which would show a hidden one.
+        &[hidden] {
+            display: none;
+        }
+
+        > .icon,
+        > svg {
+            stroke-width: var(--stroke-width);
+        }
+
+        > svg {
+            height: var(--size);
+            width: var(--size);
+        }
+    }
+
+    // A control carried as is: a select, a field.
+    &-custom {
+        align-items: center;
+        display: flex;
+        flex-shrink: 0;
+
+
+        // Off the bar's page; shown again only while the page is measured.
+        &--hidden {
+            display: none;
+        }
+    }
+
+    &-divider {
+        align-self: center;
+        background: var(--background);
+        flex: none;
+        height: var(--height);
+        margin-block: var(--margin-vertical);
+        margin-inline: var(--margin-horizontal);
+        width: var(--width);
+
+
+        // Off the bar's page; shown again only while the page is measured.
+        &--hidden {
+            display: none;
+        }
+    }
+
+    &-item {
+        cursor: default;
+        display: flex;
+        flex-shrink: 0;
+        position: relative;
+
+
+        // Off the bar's page; shown again only while the page is measured.
+        &--hidden {
+            display: none;
+        }
+    }
+
+    &-items {
+        display: flex;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+    }
+
+    // Held while it is dragged, the slot shows the icon's own shape dashed, not the whole item's box. Qualified by its
+    // list to outrank the sortable's own placeholder, whichever stylesheet loads last.
+    &-items > &-item.sortable-item--held {
+        outline: none;
+    }
+
+    &-items > &-item.sortable-item--held > &-button {
+        opacity: 1;
+        outline: var(--outline-width) dashed var(--outline-color);
+        outline-offset: calc(var(--outline-width) * -1);
+    }
+
+    &-items > &-item.sortable-item--held > &-button > * {
+        opacity: 0;
+    }
+
+    // Pinned inside the bar at its screen edge, at its own size, which the bar grows to and clips it by.
+    // Without a search, it takes focus itself for the keys; the highlighted button shows where they are.
+    &-drawer {
+        color: var(--color);
+        display: flex;
+        flex-direction: column;
+        font-size: var(--font-size);
+        min-height: var(--min-height);
+        outline: none;
+
+
+        &-apps {
+            align-content: start;
+            display: grid;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            grid-template-columns: repeat(auto-fill, minmax(var(--column-width), 1fr));
+            // Stays a drop target while a search leaves it empty.
+            min-height: var(--column-width);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
+        }
+
+        // The search and the apps sit in an inset card; the footer's legends rest on the frame around it. Both leave
+        // at once, ahead of the shape closing over them.
+        &-body,
+        &-footer {
+            opacity: 0;
+            transition: opacity var(--fade-duration) var(--fade-timing-function);
+        }
+
+        // Grows into any height the drawer is held to beyond its contents, beside an upright bar taller than them,
+        // so the footer stays at the bottom.
+        &-body {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            margin-block: var(--margin-vertical) 0;
+            margin-inline: var(--margin-horizontal);
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        &-empty {
+            color: var(--color);
+            margin: 0;
+            padding-bottom: var(--padding-bottom);
+            text-align: center;
+        }
+
+        // The rows above and below the apps.
+        &-footer,
+        &-search {
+            align-items: center;
+            color: var(--color);
+            display: flex;
+            flex-shrink: 0;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            height: var(--height);
+            padding-inline: var(--padding-horizontal);
+        }
+
+        &-footer {
+            font-size: var(--font-size);
+            user-select: none;
+
+
+            &-hint {
+                align-items: center;
+                display: flex;
+                gap: var(--gap-vertical) var(--gap-horizontal);
+
+
+                // Close stays on the left; the rest pack to the end.
+                &:first-child {
+                    margin-inline-end: auto;
+                }
+            }
+        }
+
+        &-input.input {
+            height: 100%;
+            outline: none;
+
+
+            &::placeholder {
+                color: var(--color);
+            }
+        }
+
+        // Keycaps here are legends, not controls, so they take no hover or press.
+        &-keys {
+            display: flex;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            pointer-events: none;
+        }
+
+        &-view {
+            border-top: var(--border-width) solid var(--border-color);
+            max-height: var(--max-height);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+    }
+
+    // A button lifted out of the drawer becomes the one it is in the bar: its label fades and it eases to the bar's
+    // button size, centred in the box it was picked up from, which lands on its slot in the bar.
+    &-drawer-apps > .sortable-drag > &-app {
+        justify-content: center;
+    }
+
+    &-drawer-apps > .sortable-drag &-app-label {
+        bottom: 0;
+        inset-inline: 0;
+        opacity: 0;
+        position: absolute;
+        text-align: center;
+        transition: opacity var(--fade-duration) var(--fade-timing-function);
+
+        @starting-style {
+            opacity: 1;
+        }
+    }
+
+    &-drawer-apps > .sortable-drag &-button {
+        height: var(--size-rest);
+        width: var(--size-rest);
+
+        @starting-style {
+            height: var(--size);
+            width: var(--size);
+        }
+    }
+
+    &-light {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        height: var(--size);
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        scale: var(--scale);
+        transition:
+            opacity var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
+        width: var(--size);
+
+
+        @include tokens.state(active) {
+            opacity: 1;
+            transition-delay: var(--delay);
+        }
+    }
+
+    // Fades back in as the bar lands on the bar again.
+    &-viewport {
+        display: flex;
+        min-height: 0;
+        min-width: 0;
+        transition: opacity var(--fade-duration) var(--fade-timing-function) var(--fade-delay);
+    }
+
+
+    // Hosts the drawer as a tooltip, without taking the tooltip's pointer cursor across the bar.
+    &.tooltip {
+        cursor: auto;
+    }
+
+    // A dragged copy is the box its slot or cell takes, and a drawer cell is wider than its button; the button casts
+    // its own shadow, so the box casts none.
+    .sortable-drag {
+        box-shadow: none;
+    }
+}
+
+
+// Away from the screen edge fast and back with gravity; each landing is the quickest part.
+@keyframes toolbar-button-hop {
+    0% {
+        animation-timing-function: ease-out;
+        translate: 0 0;
+    }
+    30% {
+        animation-timing-function: ease-in;
+        translate: calc(var(--hop-x) * var(--hop-distance)) calc(var(--hop-y) * var(--hop-distance));
+    }
+    55% {
+        animation-timing-function: ease-out;
+        translate: 0 0;
+    }
+    78% {
+        animation-timing-function: ease-in;
+        translate: calc(var(--hop-x) * var(--hop-rebound)) calc(var(--hop-y) * var(--hop-rebound));
+    }
+    100% {
+        translate: 0 0;
+    }
+}
+
+// Squashes on each landing, so the icon reads as having weight; '-upright' turns it on its side, for an upright bar.
+@each $suffix in '', '-upright' {
+    @keyframes toolbar-button-squash#{$suffix} {
+        @each $stop, $x, $y in (0%, 1, 1), (30%, 0.97, 1.04), (55%, 1.08, 0.9), (70%, 0.99, 1.02), (80%, 1.03, 0.96), (100%, 1, 1) {
+            #{$stop} {
+                @if $suffix == '' {
+                    scale: $x $y;
+                }
+                @else {
+                    scale: $y $x;
+                }
+            }
+        }
+    }
+}
