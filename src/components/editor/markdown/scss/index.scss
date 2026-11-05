@@ -401,47 +401,19 @@
         transition: none;
     }
 
-    &-toolbar-button {
-        border: 0;
-        flex: none;
-        height: var(--size);
-        outline: none;
-        transition:
-            background-color var(--transition-duration) var(--transition-timing-function),
-            color var(--transition-duration) var(--transition-timing-function);
-        width: var(--size);
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-        }
-
-        &[hidden] {
-            display: none;
-        }
-    }
-
-    &-toolbar-divider {
-        background: var(--background);
-        flex: none;
-        height: var(--height);
-        margin-inline: var(--spacer);
-        width: var(--width);
-    }
-
-    // One pane shows at a time: the buttons, or the link field while a link is being set.
-    &-toolbar-format,
-    &-toolbar-link {
-        align-items: center;
+    // One pane shows at a time: the buttons, or the link field while a link is being set. Chained through '.toolbar'
+    // to outrank its own display, whichever stylesheet loads last.
+    &-toolbar-format.toolbar,
+    &-toolbar-link.toolbar {
         display: var(--display);
-        gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
+    // Outlines on a 24 unit grid that carry no stroke of their own; '.toolbar-button' sets its width.
     &-toolbar-icon {
         fill: none;
         stroke: currentColor;
         stroke-linecap: round;
         stroke-linejoin: round;
-        stroke-width: var(--stroke-width);
     }
 
     // The toolbar's popover, pinned to the viewport's corner at no size, so the toolbar inside is placed in viewport

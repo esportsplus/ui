@@ -1,11 +1,11 @@
 import { effect, flush, reactive, untrack } from '@esportsplus/reactivity';
-import { html, type Renderable } from '@esportsplus/template';
+import { html } from '@esportsplus/template';
 import faces from '~/components/button/faces';
 import clipboard from '~/components/clipboard/write';
 import icon from '~/components/icon';
 import input from '~/components/input';
 import selectInput from '~/components/select';
-import tooltip from '~/components/tooltip';
+import toolbar, { type Entry } from '~/components/toolbar';
 import { finished } from '~/shared/animation';
 import { clamp } from '~/shared/clamp';
 import { mac } from '~/shared/platform';
@@ -48,8 +48,6 @@ type Host = {
     selection: () => { end: number; start: number };
 };
 
-type Hinted = HTMLElement & { [HINT]: Renderable<unknown> };
-
 // The tools a toolbar may offer: its marks, the link, clearing and copying, and the kinds of block it can turn lines into.
 type Tool = Action | 'bullet' | 'codeblock' | 'heading' | 'ordered' | 'quote' | 'task';
 
@@ -72,8 +70,6 @@ const EMAIL = /^[^\s/@]+@[^\s/@]+\.[^\s/@]+$/;
 
 // Space between the selection and the toolbar, and between the toolbar and the viewport's edge.
 const GAP = 8;
-
-const HINT = Symbol();
 
 const ICONS: Record<Exclude<Action, 'copy'> | 'apply' | 'open' | 'unlink', string> = {
     apply: checkSvg,
@@ -125,6 +121,11 @@ function glyph(name: Exclude<Action, 'copy'> | 'apply' | 'open' | 'unlink') {
     return icon({ 'aria-hidden': 'true', class: 'markdown-editor-toolbar-icon' }, ICONS[name]);
 }
 
+// A shortcut as 'aria-keyshortcuts' names it.
+function chord(shortcut: string) {
+    return `${mac() ? 'Meta' : 'Control'}+${shortcut}`;
+}
+
 function hint(label: string, shortcut?: string) {
     if (!shortcut) {
         return label;
@@ -137,17 +138,16 @@ function hint(label: string, shortcut?: string) {
 
 
 // The formatting toolbar: it floats over the selection in the top layer, so nothing around the editor clips or covers
-// it, and offers the tools it was given. Shown once a selection settles, never while a press is still dragging one out.
-const toolbar = (host: Host) => {
+// it, and offers the tools it was given as a 'toolbar', which roves the arrow keys between them. Shown once a selection
+// settles, never while a press is still dragging one out.
+const formatting = (host: Host) => {
     let apple = mac(),
         block = reactive({ active: false, error: '', selected: 'paragraph' }),
         hyperlink = reactive({ existing: false, invalid: false, url: '' }),
-        // 'focus' is the control the arrow keys rove to, the toolbar's one tab stop.
-        local = reactive({ copied: 'idle' as 'error' | 'idle' | 'success', focus: 0, live: '' }),
+        local = reactive({ copied: 'idle' as 'error' | 'idle' | 'success', live: '' }),
         // 'link' swaps the buttons for the link field, 'instant' holds the toolbar still, 'origin' and 'x'/'y' place it.
         panel = reactive({ instant: false, link: false, open: false, origin: '', x: 0, y: 0 }),
-        pressed = reactive({ bold: false, code: false, highlight: false, italic: false, strike: false } as Record<Mark, boolean>),
-        tip = tooltip.shared({ delay: { open: TOOLTIP_DELAY } });
+        pressed = reactive({ bold: false, code: false, highlight: false, italic: false, strike: false } as Record<Mark, boolean>);
 
     let bar: HTMLElement | undefined,
         copyTimer: ReturnType<typeof setTimeout> | undefined,
@@ -155,7 +155,6 @@ const toolbar = (host: Host) => {
         dismissed: { end: number; start: number } | null = null,
         enabled = new Set<Tool>(),
         hiding = 0,
-        items: HTMLElement[] = [],
         layer: HTMLElement | undefined,
         pressing = false,
         shown: BlockKind = 'paragraph',
@@ -213,11 +212,6 @@ const toolbar = (host: Host) => {
         show(false);
     }
 
-    function focus(index: number) {
-        local.focus = (index + items.length) % items.length;
-        items[local.focus]?.focus();
-    }
-
     function inspect() {
         let formats = host.formats();
 
@@ -260,6 +254,7 @@ const toolbar = (host: Host) => {
         });
     }
 
+    // The arrow keys are the toolbar's; Enter and Escape in the link field, and Escape elsewhere, are the editor's.
     function navigate(e: KeyboardEvent) {
         if (e.target === url) {
             if (e.key === 'Enter') {
@@ -274,15 +269,7 @@ const toolbar = (host: Host) => {
             return;
         }
 
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-            e.preventDefault();
-            focus(local.focus + (e.key === 'ArrowRight' ? 1 : -1));
-        }
-        else if (e.key === 'Home' || e.key === 'End') {
-            e.preventDefault();
-            focus(e.key === 'Home' ? 0 : -1);
-        }
-        else if (e.key === 'Escape' && !block.active) {
+        if (e.key === 'Escape' && !block.active) {
             e.preventDefault();
             dismiss();
             host.focus();
@@ -372,7 +359,6 @@ const toolbar = (host: Host) => {
         inspect();
 
         if (!panel.open) {
-            local.focus = 0;
             show(true);
         }
     }
@@ -430,11 +416,9 @@ const toolbar = (host: Host) => {
 
     let template = (tools: readonly Tool[]) => {
         enabled = new Set(tools);
-        items = [];
 
         let actions = ACTIONS.filter(({ action }) => enabled.has(action)),
             kinds = KINDS.filter(({ tool }) => !tool || enabled.has(tool)),
-            lead = kinds.length > 1 ? 1 : 0,
             marks = actions.filter(({ action }) => action !== 'clear' && action !== 'copy'),
             rest = actions.filter(({ action }) => action === 'clear' || action === 'copy');
 
@@ -443,25 +427,44 @@ const toolbar = (host: Host) => {
             return '';
         }
 
-        // 'index' is the button's place among the controls the arrow keys rove.
-        let button = ({ action, label, shortcut }: (typeof ACTIONS)[number], content: Renderable<unknown>, index: number) => html`
-            <button
-                aria-label='${label}'
-                class='button button--feedback markdown-editor-toolbar-button'
-                tabindex='${() => local.focus === index ? '0' : '-1'}'
-                type='button'
-                ${action === 'clear' || action === 'copy' || action === 'link' ? {} : { 'aria-pressed': () => pressed[action] ? 'true' : 'false' }}
-                ${{
-                    onclick: () => trigger(action),
-                    onconnect: (element: Hinted) => {
-                        element[HINT] = action === 'copy' ? () => local.copied === 'success' ? 'Copied' : label : hint(label, shortcut);
-                        items[index] = element;
-                    }
-                }}
-            >
-                ${content}
-            </button>
-        `;
+        // Marks show whether they're on; copy confirms on its face and in its hint.
+        let control = ({ action, label, shortcut }: (typeof ACTIONS)[number]) => toolbar.button({
+            ...(action === 'clear' || action === 'copy' || action === 'link' ? {} : { 'aria-pressed': () => pressed[action] ? 'true' : 'false' }),
+            'aria-keyshortcuts': shortcut && chord(shortcut),
+            hint: action === 'copy' ? () => local.copied === 'success' ? 'Copied' : label : hint(label, shortcut),
+            icon: action === 'copy'
+                ? () => faces(() => local.copied, [
+                    { content: icon({ 'aria-hidden': 'true', class: 'button-icon' }, copySvg), key: 'idle' },
+                    { content: icon({ 'aria-hidden': 'true', class: 'button-icon button-icon--draw' }, checkSvg), key: 'success', tone: 'success' },
+                    { content: icon({ 'aria-hidden': 'true', class: 'button-icon button-icon--draw' }, closeSvg), key: 'error', tone: 'error' }
+                ])
+                : () => glyph(action as Exclude<Action, 'copy'>),
+            label,
+            onclick: () => trigger(action)
+        });
+
+        let format: Entry[] = [];
+
+        if (kinds.length > 1) {
+            format.push(toolbar.item(() => selectInput({
+                class: 'markdown-editor-toolbar-block',
+                label: 'Text style',
+                options: kinds.map(({ label, value }) => ({ label, value })),
+                state: block
+            })));
+
+            if (actions.length) {
+                format.push(toolbar.divider());
+            }
+        }
+
+        format.push(...marks.map(control));
+
+        if (marks.length && rest.length) {
+            format.push(toolbar.divider());
+        }
+
+        format.push(...rest.map(control));
 
         return html`
             <div
@@ -489,9 +492,7 @@ const toolbar = (host: Host) => {
                 }}
             >
                 <div
-                    aria-label='Formatting'
                     class='tooltip-content tooltip-content--context markdown-editor-toolbar'
-                    role='toolbar'
                     ${{
                         'aria-hidden': () => panel.open ? 'false' : 'true',
                         class: [
@@ -513,43 +514,12 @@ const toolbar = (host: Host) => {
                         style: () => `--toolbar-origin: ${panel.origin}; --toolbar-x: ${panel.x}px; --toolbar-y: ${panel.y}px;`
                     }}
                 >
-                    <div
-                        class='markdown-editor-toolbar-format'
-                        ${tip.delegate({ content: (trigger) => (trigger as Hinted)[HINT], edge: true, selector: '.markdown-editor-toolbar-button' })}
-                    >
-                        ${kinds.length > 1 && html`
-                            ${selectInput({
-                                [selectInput.trigger]: {
-                                    onconnect: (element: HTMLElement) => {
-                                        items[0] = element;
-                                    },
-                                    tabindex: () => local.focus === 0 ? '0' : '-1'
-                                },
-                                class: 'markdown-editor-toolbar-block',
-                                label: 'Text style',
-                                options: kinds.map(({ label, value }) => ({ label, value })),
-                                state: block
-                            })}
-                            ${actions.length > 0 && html`<span aria-hidden='true' class='markdown-editor-toolbar-divider'></span>`}
-                        `}
-                        ${marks.map((item, i) => button(item, glyph(item.action as Exclude<Action, 'copy'>), lead + i))}
-                        ${marks.length > 0 && rest.length > 0 && html`<span aria-hidden='true' class='markdown-editor-toolbar-divider'></span>`}
-                        ${rest.map((item, i) => button(
-                            item,
-                            item.action === 'copy'
-                                ? faces(() => local.copied, [
-                                    { content: icon({ 'aria-hidden': 'true', class: 'button-icon' }, copySvg), key: 'idle' },
-                                    { content: icon({ 'aria-hidden': 'true', class: 'button-icon button-icon--draw' }, checkSvg), key: 'success', tone: 'success' },
-                                    { content: icon({ 'aria-hidden': 'true', class: 'button-icon button-icon--draw' }, closeSvg), key: 'error', tone: 'error' }
-                                ])
-                                : glyph(item.action as Exclude<Action, 'copy'>),
-                            lead + marks.length + i
-                        ))}
-                        ${tip.render()}
-                    </div>
-                    ${enabled.has('link') && html`
-                        <div class='markdown-editor-toolbar-link'>
-                            ${input({
+                    ${toolbar({ class: 'markdown-editor-toolbar-format', delay: TOOLTIP_DELAY, items: format, label: 'Formatting' })}
+                    ${enabled.has('link') && toolbar({
+                        class: 'markdown-editor-toolbar-link',
+                        delay: TOOLTIP_DELAY,
+                        items: [
+                            toolbar.item(() => input({
                                 'aria-invalid': () => hyperlink.invalid && 'true',
                                 'aria-label': 'Link address',
                                 class: 'markdown-editor-toolbar-url',
@@ -563,44 +533,23 @@ const toolbar = (host: Host) => {
                                 placeholder: 'Paste or type a link',
                                 type: 'url',
                                 value: () => hyperlink.url
-                            })}
-                            <button
-                                aria-label='Apply link'
-                                class='button button--feedback markdown-editor-toolbar-button'
-                                type='button'
-                                ${{ onclick: () => apply(hyperlink.url) }}
-                            >
-                                ${glyph('apply')}
-                            </button>
-                            <button
-                                aria-label='Open link in a new tab'
-                                class='button button--feedback markdown-editor-toolbar-button'
-                                type='button'
-                                ${{
-                                    onclick: () => {
-                                        let href = address(hyperlink.url);
+                            })),
+                            toolbar.button({ icon: () => glyph('apply'), label: 'Apply link', onclick: () => apply(hyperlink.url) }),
+                            toolbar.button({
+                                icon: () => glyph('open'),
+                                label: 'Open link in a new tab',
+                                onclick: () => {
+                                    let href = address(hyperlink.url);
 
-                                        if (href) {
-                                            window.open(href, '_blank', 'noopener');
-                                        }
+                                    if (href) {
+                                        window.open(href, '_blank', 'noopener');
                                     }
-                                }}
-                            >
-                                ${glyph('open')}
-                            </button>
-                            <button
-                                aria-label='Remove link'
-                                class='button button--feedback markdown-editor-toolbar-button'
-                                type='button'
-                                ${{
-                                    hidden: () => !hyperlink.existing,
-                                    onclick: () => apply(null)
-                                }}
-                            >
-                                ${glyph('unlink')}
-                            </button>
-                        </div>
-                    `}
+                                }
+                            }),
+                            toolbar.button({ hidden: () => !hyperlink.existing, icon: () => glyph('unlink'), label: 'Remove link', onclick: () => apply(null) })
+                        ],
+                        label: 'Link'
+                    })}
                     <span aria-live='polite' class='markdown-editor-toolbar-live'>${() => local.live}</span>
                 </div>
             </div>
@@ -624,5 +573,5 @@ const toolbar = (host: Host) => {
 };
 
 
-export { toolbar };
+export { formatting as toolbar };
 export type { Host, Tool };

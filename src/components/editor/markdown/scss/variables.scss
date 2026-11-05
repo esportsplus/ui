@@ -1,7 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/background';
 @use 'css-utilities/border';
-@use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 .markdown-editor {
@@ -232,14 +231,13 @@
         --margin-horizontal: var(--size-100);
     }
 
-    // Feeds the reused tooltip content; qualified so it wins over the tooltip defaults regardless of stylesheet order.
-    // A surface through the tooltip content it reuses, so its colors are read at its own level.
+    // Feeds the reused tooltip content, which only places and animates the bar: the 'toolbar' inside paints itself.
+    // Qualified so it wins over the tooltip defaults regardless of stylesheet order.
     &-toolbar.tooltip-content {
-        --background-default: var(--surface-background-default);
-        --border-radius: var(--border-radius-600);
-        --box-shadow-default: var(--surface-shadow-default);
-        --padding-horizontal: calc(var(--size-100) / 2);
-        --padding-vertical: calc(var(--size-100) / 2);
+        --background-default: transparent;
+        --box-shadow-default: none;
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
         --scale: 0.96;
         --width: max-content;
 
@@ -275,43 +273,8 @@
         --width: 132px;
     }
 
-    &-toolbar-button {
-        @extend %color-text;
-        --background-default: transparent;
-        --background-hover: color-mix(in oklab, var(--color-text-500) 6%, transparent);
-        --border-radius: var(--border-radius-400);
-        --padding-horizontal: 0px;
-        --padding-vertical: 0px;
-        --size: 36px;
-
-        &[aria-pressed='true'] {
-            --background-default: color-mix(in oklab, var(--color-text-500) 8%, transparent);
-            --background-hover: color-mix(in oklab, var(--color-text-500) 10%, transparent);
-            --color-default: var(--color-text-500);
-        }
-    }
-
-    &-toolbar-divider {
-        --background: var(--surface-border-default);
-        --height: var(--size-500);
-        --spacer: calc(var(--size-100) / 2);
-        --width: 1px;
-    }
-
     &-toolbar-format {
         --display: flex;
-    }
-
-    &-toolbar-format,
-    &-toolbar-link {
-        --gap-horizontal: calc(var(--size-100) / 4);
-        --gap-vertical: 0px;
-    }
-
-    // The toolbar's glyphs are outlines on a 24 unit grid that carry no stroke of their own.
-    &-toolbar-icon.icon {
-        --size: var(--size-400);
-        --stroke-width: 2.25;
     }
 
     &-toolbar-link {
