@@ -1,6 +1,7 @@
 import { flush, reactive, read, root, signal, write, type ReactiveArray, type Signal } from '@esportsplus/reactivity';
 import { html, setProperties, type Attributes, type Element as Bound, type Renderable } from '@esportsplus/template';
 import { finished, measure, slides, timing } from '~/shared/animation';
+import { coast, sample, velocity, type Direction, type Fling } from '~/shared/drag';
 import press from '~/shared/press';
 import './scss/index.scss';
 
@@ -32,6 +33,8 @@ type Motion = {
     left: number;
     origin: string;
     radius: string;
+    // Thrown out of its list: how much further it coasts, and for how long.
+    throw: Fling | null;
     top: number;
     width: number;
     x: number;
@@ -45,7 +48,14 @@ type Options<T> = {
     group?: string;
     // Selector for the part of an item that starts a drag; the whole item when omitted.
     handle?: string;
+    // Once the dragged item has landed, after 'onsort', or the drag has stopped with its list gone.
+    onland?: (item: T) => void;
+    // As a drag lifts the item, its copy now following the pointer.
+    onlift?: (item: T) => void;
     onsort?: (item: T, from: number, to: number, source: ReactiveArray<T>, target: ReactiveArray<T>) => void;
+    // Let go outside every list, the item is thrown out of the one it was in, its copy coasting on and fading to
+    // nothing; called once the copy has gone. Without it, the item lands back in its place.
+    onthrow?: (item: T, from: number, items: ReactiveArray<T>) => void;
 };
 
 // 'index' is the item's place in its list.
@@ -59,6 +69,9 @@ type Rect = {
     top: number;
 };
 
+
+// A throw may leave any way at all.
+const ANYWHERE: Direction[] = [{ axis: 'x', sign: -1 }, { axis: 'x', sign: 1 }, { axis: 'y', sign: -1 }, { axis: 'y', sign: 1 }];
 
 // Touch has to hold still briefly before a drag starts, otherwise swiping across the items could never scroll.
 const DELAY = 180;
@@ -78,7 +91,7 @@ const SORTABLE_STATE = Symbol('sortable.root');
 let groups = new Map<string, Set<List<unknown>>>();
 
 
-function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: PointerEvent, { group, onsort }: Options<unknown>) {
+function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: PointerEvent, { group, onland, onlift, onsort, onthrow }: Options<unknown>) {
     // Whether this drag counts toward 'carrying'.
     let carried = false,
         // 'current' is the list the item sits in now.
@@ -100,6 +113,8 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         shift: KeyframeAnimationOptions | null = null,
         swing: ReturnType<typeof inertia> | null = null,
         time = 0,
+        // What a throw is let go at, sampled as an overlay's drag samples it.
+        tracked = velocity(),
         x = e.clientX,
         y = e.clientY;
 
@@ -117,6 +132,7 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
             motion.left = rect.left;
             motion.origin = `${originX - rect.left}px ${originY - rect.top}px`;
             motion.radius = computed.borderRadius;
+            motion.throw = null;
             motion.top = rect.top;
             motion.width = rect.width;
             motion.x = 0;
@@ -126,6 +142,7 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         });
 
         carry(true);
+        onlift?.(value);
         frame = requestAnimationFrame(tick);
     }
 
@@ -194,6 +211,8 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
             if (onsort && (current !== source || to !== from)) {
                 onsort(value, from, to, source.items, current.items);
             }
+
+            onland?.(value);
         });
     }
 
@@ -226,29 +245,44 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         }
 
         if (e) {
-            drop();
+            if (onthrow && !hit()) {
+                toss(onthrow);
+            }
+            else {
+                drop();
+            }
+
             return;
         }
 
         write(current.held, null);
         write(source.dragging, null);
         carry(false);
+        onland?.(value);
     }
 
-    function over() {
-        if (lists.length === 1) {
-            return source;
-        }
-
+    // The list under the pointer, among those in sight.
+    function hit() {
         for (let i = 0, n = lists.length; i < n; i++) {
-            let rect = lists[i].container?.getBoundingClientRect();
+            let container = lists[i].container;
 
-            if (rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+            // A list faded or hidden out of sight still holds its box, which can lie over another list's.
+            if (!container?.checkVisibility({ opacityProperty: true, visibilityProperty: true })) {
+                continue;
+            }
+
+            let rect = container.getBoundingClientRect();
+
+            if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
                 return lists[i];
             }
         }
 
         return null;
+    }
+
+    function over() {
+        return lists.length === 1 ? source : hit();
     }
 
     function reflow(mutate: VoidFunction) {
@@ -409,11 +443,42 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         sort();
     }
 
+    // Out of its list at once, so the items around it close up. The copy coasts on at the speed it was thrown,
+    // shrinking and fading to nothing; without a coast (reduced motion) it fades where it is.
+    function toss(thrown: NonNullable<Options<unknown>['onthrow']>) {
+        let ghost = source.ghost,
+            list = current,
+            from = list.items.indexOf(value);
+
+        if (ghost) {
+            let fade = timing(getComputedStyle(ghost), 'throw-fade');
+
+            motion.throw = coast(ghost, { ...tracked, directions: ANYWHERE, x: x - originX, y: y - originY })
+                ?? { duration: (fade?.duration as number | undefined) ?? 0, easing: fade?.easing ?? 'linear', x: 0, y: 0 };
+            flush();
+            carry(false);
+        }
+
+        reflow(() => {
+            list.items.splice(from, 1);
+            write(list.held, null);
+        });
+
+        void (ghost ? finished(ghost) : Promise.resolve()).then(() => {
+            write(source.dragging, null);
+            flush();
+            carry(false);
+            thrown(value, from, list.items);
+            onland?.(value);
+        });
+    }
+
     source.press.begin(e, {
         end,
         move: (e) => {
             x = e.clientX;
             y = e.clientY;
+            sample(tracked, x - originX, y - originY);
         },
         start: activate
     });
@@ -475,13 +540,13 @@ function page() {
 export default <T>(
     items: ReactiveArray<T>,
     template: (item: T, attributes: Attributes) => Renderable<unknown>,
-    { drag: copy, group, handle, onsort }: Options<T> = {}
+    { drag: copy, group, handle, onland, onlift, onsort, onthrow }: Options<T> = {}
 ) => {
     let list: List<T> = {
             dragging: signal<T | null>(null),
             held: signal<T | null>(null),
             items,
-            motion: reactive({ angle: 0, dropping: false, height: 0, left: 0, origin: '', radius: '', top: 0, width: 0, x: 0, y: 0 }),
+            motion: reactive({ angle: 0, dropping: false, height: 0, left: 0, origin: '', radius: '', throw: null, top: 0, width: 0, x: 0, y: 0 } as Motion),
             press: press(DELAY),
             revealing: signal<T | null>(null)
         };
@@ -496,7 +561,7 @@ export default <T>(
                 inert
                 popover='manual'
                 ${{
-                    class: () => motion.dropping && 'sortable-drag--dropping',
+                    class: [() => motion.dropping && 'sortable-drag--dropping', () => motion.throw && 'sortable-drag--thrown'],
                     onconnect: (element: HTMLElement) => {
                         list.ghost = element;
                         element.showPopover();
@@ -509,7 +574,8 @@ export default <T>(
                     },
                     style: [
                         () => `--sortable-height: ${motion.height}px; --sortable-left: ${motion.left}px; --sortable-origin: ${motion.origin}; --sortable-radius: ${motion.radius}; --sortable-top: ${motion.top}px; --sortable-width: ${motion.width}px;`,
-                        () => `--sortable-angle: ${motion.angle}deg; --sortable-x: ${motion.x}px; --sortable-y: ${motion.y}px;`
+                        () => `--sortable-angle: ${motion.angle}deg; --sortable-x: ${motion.x}px; --sortable-y: ${motion.y}px;`,
+                        () => motion.throw && `--sortable-throw-duration: ${motion.throw.duration}ms; --sortable-throw-easing: ${motion.throw.easing}; --sortable-throw-x: ${motion.throw.x}px; --sortable-throw-y: ${motion.throw.y}px;`
                     ]
                 }}
             >
@@ -537,7 +603,13 @@ export default <T>(
                     return;
                 }
 
-                drag(list as List<unknown>, element, item, e, { group, onsort: onsort as Options<unknown>['onsort'] });
+                drag(list as List<unknown>, element, item, e, {
+                    group,
+                    onland: onland as Options<unknown>['onland'],
+                    onlift: onlift as Options<unknown>['onlift'],
+                    onsort: onsort as Options<unknown>['onsort'],
+                    onthrow: onthrow as Options<unknown>['onthrow']
+                });
             }
         };
     }

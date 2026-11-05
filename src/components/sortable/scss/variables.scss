@@ -78,7 +78,18 @@ $animations: (
         --fade-delay: calc(var(--drop-duration) * 0.75);
         --fade-duration: calc(var(--drop-duration) / 4);
         --fade-timing-function: ease-out;
+        // How long a thrown copy coasts on; the fade is for when it doesn't (reduced motion).
+        --fling-duration: 500ms;
         --scale: 1.06;
+        --throw-fade-duration: 0.2s;
+        --throw-fade-timing-function: ease-out;
+        --throw-scale: 0;
+
+        // Thrown, it fades where it was let go.
+        @media (prefers-reduced-motion: reduce) {
+            --fling-duration: 0s;
+            --throw-scale: 1;
+        }
     }
 
     // Every state too: the item stays ':active' for the whole drag, and a component's state rules can outrank this one

@@ -73,6 +73,18 @@
                 width var(--drop-duration) var(--drop-timing-function);
         }
 
+        // Coasts on the way it was going, shrinking and fading to nothing; JS writes how far and for how long.
+        &--thrown {
+            animation: none;
+            opacity: 0;
+            scale: var(--throw-scale);
+            transition:
+                opacity var(--sortable-throw-duration) var(--sortable-throw-easing),
+                scale var(--sortable-throw-duration) var(--sortable-throw-easing),
+                translate var(--sortable-throw-duration) var(--sortable-throw-easing);
+            translate: var(--sortable-throw-x) var(--sortable-throw-y);
+        }
+
         // The copy takes the box the item was picked up from.
         > * {
             box-sizing: border-box;
