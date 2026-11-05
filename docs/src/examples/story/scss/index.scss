@@ -1,5 +1,6 @@
 @use 'css-utilities/background';
 @use 'css-utilities/color';
+@use 'css-utilities/surface';
 
 
 .story-demo {
@@ -44,6 +45,15 @@
     &-controls {
         display: flex;
         gap: var(--size-300);
+    }
+
+    // Floating, the bars sit outside the card, so the story's own track is the card.
+    &-float .story-track {
+        @extend %surface-raise;
+        --border-radius: 20px;
+        background: var(--surface-background-default);
+        border: var(--border-width-400) solid var(--surface-border-default);
+        box-shadow: var(--surface-shadow-default);
     }
 
     &-value {

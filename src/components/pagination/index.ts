@@ -5,7 +5,6 @@ import next from '@esportsplus/ui/svg/arrow-right.svg';
 import previous from '@esportsplus/ui/svg/arrow-left.svg';
 import arrows from './arrows';
 import cards from './cards';
-import dots from './dots';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
@@ -108,7 +107,7 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
     `;
 };
 
-const pagination: typeof plain & { arrows: typeof arrows, cards: typeof cards, dots: typeof dots } = Object.assign(plain, { arrows, cards, dots });
+const pagination: typeof plain & { arrows: typeof arrows, cards: typeof cards } = Object.assign(plain, { arrows, cards });
 
 
 export default pagination;

@@ -27,17 +27,6 @@
         }
     }
 
-    // Geometry is derived from '--progress' alone, so a scroll or drag only rewrites one custom property per frame.
-    &--dots {
-        contain: layout;
-        display: block;
-        flex: none;
-        height: var(--height);
-        position: relative;
-        // Never changes width: the active slot is always one pill wide, whichever dot owns it.
-        width: calc((var(--count) - 1) * var(--step) + var(--pill-width));
-    }
-
 
     &-arrow {
         align-items: center;
@@ -180,44 +169,6 @@
         height: var(--size);
     }
 
-    // Each dot swells toward pill width as its page approaches, so the row makes room for the pill and every gap stays even mid-scroll.
-    &-dot {
-        align-items: center;
-        background: none;
-        border: 0;
-        border-radius: var(--border-radius);
-        box-sizing: content-box;
-        cursor: pointer;
-        display: flex;
-        inset-block: 0;
-        left: calc(var(--index) * var(--step) + (var(--pill-width) - var(--dot-size)) * clamp(0, var(--index) - var(--progress), 1));
-        // Reaches half the gap past each side of its dot, so the hit areas tile the row with no dead space between them.
-        margin: 0 0 0 calc(var(--gap-horizontal) / -2);
-        outline: none;
-        padding: 0 calc(var(--gap-horizontal) / 2);
-        position: absolute;
-        touch-action: manipulation;
-        width: calc(var(--dot-size) + (var(--pill-width) - var(--dot-size)) * var(--near));
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-        }
-    }
-
-    &-fill {
-        @extend %absolute-full;
-        background: var(--background);
-        transform-origin: left;
-    }
-
-    &-mark {
-        background: var(--background);
-        border-radius: var(--border-radius);
-        height: var(--dot-size);
-        transition: background-color var(--transition-duration) var(--transition-timing-function);
-        width: 100%;
-    }
-
     &-page {
         font-variant: tabular-nums;
         min-width: var(--size);
@@ -234,18 +185,4 @@
         gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
-    // Spans the two pages it sits between: the leading edge travels in the first 60% of the move and the trailing edge in the
-    // last 60%, so the pill stretches toward the next dot, then pulls its tail in after it, like a worm.
-    &-pill {
-        background: var(--background);
-        border-radius: var(--border-radius);
-        height: var(--dot-size);
-        left: 0;
-        overflow: hidden;
-        pointer-events: none;
-        position: absolute;
-        top: 50%;
-        translate: calc(var(--k) * var(--step) + var(--step) * var(--trail)) -50%;
-        width: calc(var(--pill-width) + var(--step) * (var(--lead) - var(--trail)));
-    }
 }

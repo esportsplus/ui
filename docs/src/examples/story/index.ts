@@ -37,6 +37,14 @@ export default {
             title: 'stories'
         },
         {
+            render: () => story({ class: 'story--float story-demo-float', label: 'Floating stories', stories: STATS.map(stat) }),
+            title: 'float'
+        },
+        {
+            render: () => story({ class: 'story--dots story--float story-demo-float', label: 'Floating dot stories', stories: STATS.map(stat) }),
+            title: 'float: dots'
+        },
+        {
             render: () => {
                 let clicks = reactive({ count: 0 });
 

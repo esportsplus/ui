@@ -31,8 +31,11 @@ type State = {
 };
 
 
-// Controls inside a story keep their own clicks.
-const CONTROLS = `.story-slide :is(${INTERACTIVE}, [tabindex])`;
+// Controls inside a story, and the bars, keep their own clicks.
+const CONTROLS = `.story-bar, .story-slide :is(${INTERACTIVE}, [tabindex])`;
+
+// The bar's fill, drawn by its '::after', is the story's timer.
+const FILL = 'story-bar-fill';
 
 // Shorter presses are taps that navigate; longer ones are holds that pause.
 const HOLD = 200;
@@ -42,14 +45,16 @@ const LOCK = 6;
 
 
 function template(this: { attributes?: Partial<A> } | void, { duration, label = 'Stories', repeat = false, state = reactive({ done: false, index: 0, paused: false }), stories, ...attributes }: A) {
-    let bound = this?.attributes,
+    let bars: HTMLElement[] = [],
+        bound = this?.attributes,
         count = stories.length,
         dragged = false,
-        fills: HTMLElement[] = [],
         hold: ReturnType<typeof setTimeout> | undefined,
         press: Press | null = null,
         // Where each slide last sat relative to the shown story, to tell a step from a leap.
         shown: number[] = [],
+        // Taps split by the track's box: floated bars sit outside it, so the story's own box is taller.
+        track: HTMLElement | undefined,
         // Auto-advancing stays silent; only stories the user moved to are announced.
         view = reactive({ dragging: false, held: false, hidden: false, hovering: false, manual: false, offset: 0, pressing: false });
 
@@ -92,18 +97,26 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
             }
         });
 
+    // Going back from the first story replays it instead of wrapping to the last.
     function go(step: number) {
+        if (step < 0) {
+            jump(Math.max(state.index - 1, 0));
+            return;
+        }
+
+        view.manual = true;
+        next();
+    }
+
+    // Picking the story already playing starts it over.
+    function jump(i: number) {
         view.manual = true;
 
-        // Going back from the first story replays it instead of wrapping to the last.
-        if (step < 0 && state.index === 0) {
-            replay(0);
-        }
-        else if (step > 0) {
-            next();
+        if (i === state.index) {
+            replay(i);
         }
         else {
-            state.index += step;
+            state.index = i;
         }
     }
 
@@ -143,7 +156,7 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
         state.done = true;
 
         if (!repeat) {
-            for (let animation of fills[state.index]?.getAnimations() ?? []) {
+            for (let animation of timers(state.index)) {
                 animation.finish();
             }
         }
@@ -161,7 +174,7 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
     }
 
     function replay(i: number) {
-        for (let animation of fills[i]?.getAnimations() ?? []) {
+        for (let animation of timers(i)) {
             animation.currentTime = 0;
         }
     }
@@ -170,6 +183,11 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
         clearTimeout(hold);
         press = null;
         view.pressing = false;
+    }
+
+    // Only the fill: the bar's own width transition runs on the same element.
+    function timers(i: number) {
+        return (bars[i]?.getAnimations({ subtree: true }) ?? []).filter((animation) => animation instanceof CSSAnimation && animation.animationName === FILL);
     }
 
     return html`
@@ -198,8 +216,9 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                     settle();
                     view.held = false;
                 },
+                // The story itself is only the target in the gap a float leaves between the card and its bars.
                 onpointerdown: (e: PointerEvent) => {
-                    if (e.button !== 0 || (e.target as Element).closest(CONTROLS)) {
+                    if (e.button !== 0 || e.target === e.currentTarget || (e.target as Element).closest(CONTROLS)) {
                         return;
                     }
 
@@ -254,38 +273,42 @@ function template(this: { attributes?: Partial<A> } | void, { duration, label = 
                         return;
                     }
 
-                    let box = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                    let box = (track ?? e.currentTarget as HTMLElement).getBoundingClientRect();
 
                     go(e.clientX < box.left + box.width / 3 ? -1 : 1);
                 },
                 style: duration !== undefined && `--duration: ${duration}ms`
             }}
         >
-            <div aria-hidden='true' class='story-bars'>
+            <div class='story-bars'>
                 ${stories.map((_, i) => html`
-                    <span class='story-bar ${() => i < state.index && 'story-bar--done'} ${() => i === state.index && '--active'}'>
-                        <span
-                            class='story-fill'
-                            ${{
-                                onanimationend: () => {
-                                    if (i !== state.index) {
-                                        return;
-                                    }
-
-                                    view.manual = false;
-                                    next();
-                                },
-                                onconnect: (element: HTMLElement) => {
-                                    fills[i] = element;
+                    <button
+                        aria-current='${() => i === state.index && 'step'}'
+                        aria-label='${`Story ${i + 1} of ${count}`}'
+                        class='story-bar ${() => i < state.index && 'story-bar--done'} ${() => i === state.index && '--active'}'
+                        tabindex='-1'
+                        type='button'
+                        ${{
+                            onanimationend: (e: AnimationEvent) => {
+                                if (e.animationName !== FILL || i !== state.index) {
+                                    return;
                                 }
-                            }}
-                        ></span>
-                    </span>
+
+                                view.manual = false;
+                                next();
+                            },
+                            onclick: () => jump(i),
+                            onconnect: (element: HTMLElement) => {
+                                bars[i] = element;
+                            }
+                        }}
+                    ></button>
                 `)}
             </div>
 
             <div
                 class='story-track ${() => (view.held || state.paused) && 'story-track--dimmed'}'
+                onconnect='${(element: HTMLElement) => { track = element; }}'
                 style='${() => `--i: ${state.index - view.offset}`}'
             >
                 ${stories.map((story, i) => html`

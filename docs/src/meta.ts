@@ -112,7 +112,7 @@ const meta: Record<string, Meta> = {
         description: 'Vertical page scaffold with title, suptitle, and subtitle slots.'
     },
     pagination: {
-        description: 'Numbered page navigation that folds overflow into ellipses, plus a scroll-linked dots indicator whose active pill stretches between dots like a worm, with an optional autoplay countdown. Previous and next links come as large cards or compact arrow buttons, each nudging its arrow the way it points.'
+        description: 'Numbered page navigation that folds overflow into ellipses. Previous and next links come as large cards or compact arrow buttons, each nudging its arrow the way it points.'
     },
     preview: {
         description: 'Example card with a numbered header for its controls, a stage that mounts its example as it nears the viewport, and preview and code views that load the source on demand with a copy button.'
@@ -142,7 +142,7 @@ const meta: Record<string, Meta> = {
         description: 'Drag-and-drop reordering of a reactive list\'s items, within one list or across a group.'
     },
     story: {
-        description: 'Auto-advancing stories of any content with segmented progress bars, tap or drag to navigate, and press-and-hold to pause.'
+        description: 'Auto-advancing stories of any content with segmented progress bars over the card or floating beneath it, optionally as dots whose active pill counts down, tap or drag to navigate, and press-and-hold to pause.'
     },
     'surface-field': {
         description: 'Canvas field of dots and lines lit by the pointer, rippling on press and bending around draggable, resizable, inline-editable surfaces of any shape, with links drawn through the field, a camera it follows as a parallax floor, and an optional worker to draw in (Surface Field).'

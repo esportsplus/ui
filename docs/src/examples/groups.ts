@@ -91,7 +91,6 @@ const groups: Record<string, Group[]> = {
     ],
     pagination: [
         { title: 'pages', members: [['overflow', 'Default'], ['few pages', 'Few pages'], ['two siblings', 'Two siblings']] },
-        { title: 'dots', members: [['dots: autoplay carousel', 'Autoplay carousel'], ['dots: scroll-linked', 'Scroll-linked'], ['dots: large (click to jump)', 'Large, click to jump']] },
         { title: 'cards', members: [['cards', 'Default'], ['cards: label and description', 'Label and description'], ['cards: next only', 'Next only'], ['cards: previous only', 'Previous only'], ['cards: tactile', 'Tactile'], ['cards: tactile + ring', 'Tactile + ring'], ['cards: ring', 'Ring']] },
         { title: 'arrows', members: [['arrows', 'Default'], ['arrows: first page', 'First page'], ['arrows: last page', 'Last page']] }
     ],
@@ -119,7 +118,10 @@ const groups: Record<string, Group[]> = {
         { title: 'options', members: [['options', 'Default'], ['pre-selected', 'Pre-selected'], ['font picker', 'Font picker'], ['settings', 'Settings'], ['controlled state', 'Controlled state']] }
     ],
     'shortcut-recorder': [{ title: 'keyboard shortcuts', members: [['keyboard shortcuts', 'Default'], 'empty', 'limit', 'callout, whole field shakes'] }],
-    story: [{ title: 'stories', members: [['stories', 'Default'], ['any content', 'Custom content'], ['controlled, 2s per story', 'Controlled state, 2s duration']] }],
+    story: [
+        { title: 'stories', members: [['stories', 'Default'], ['any content', 'Custom content'], ['controlled, repeating, 2s per story', 'Controlled state, repeating, 2s duration']] },
+        { title: 'float', members: [['float', 'Bars'], ['float: dots', 'Dots']] }
+    ],
     switch: [{ title: 'switch', members: ['default', 'squared', 'on'] }],
     tasklist: [
         { title: 'tasks', members: ['default', ['sortable', 'Sortable']] },
