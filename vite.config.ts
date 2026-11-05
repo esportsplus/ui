@@ -1,8 +1,6 @@
 import { defineConfig, type Plugin } from '@esportsplus/vite';
-import { glob } from 'glob';
-import { resolve } from 'path';
-import autoprefixer from 'autoprefixer';
-import shelljs from 'shelljs';
+import { copyFileSync, globSync, mkdirSync } from 'node:fs';
+import { dirname, resolve } from 'path';
 import type { Targets } from 'lightningcss';
 
 
@@ -77,8 +75,8 @@ export default defineConfig(() => {
             outDir: 'build',
             rollupOptions: {
                 input: [
-                    ...glob.sync('./src/normalize/scss/index.scss'),
-                    ...glob.sync('./src/{components,modifiers}/*/scss/index.scss')
+                    ...globSync('./src/normalize/scss/index.scss'),
+                    ...globSync('./src/{components,modifiers}/*/scss/index.scss')
                 ],
                 output: {
                     assetFileNames: ({ originalFileNames: [filename] }) => {
@@ -93,8 +91,11 @@ export default defineConfig(() => {
                     {
                         name: '@esportsplus/ui-assets-copy',
                         writeBundle() {
-                            for (let license of glob.sync('./src/css-utilities/font/*/OFL.txt')) {
-                                shelljs.cp(license, license.replace('src', 'build'));
+                            for (let license of globSync('./src/css-utilities/font/*/OFL.txt')) {
+                                let target = license.replace('src', 'build');
+
+                                mkdirSync(dirname(target), { recursive: true });
+                                copyFileSync(license, target);
                             }
                         }
                     }
@@ -104,11 +105,6 @@ export default defineConfig(() => {
         css: {
             lightningcss: {
                 targets: CSS_TARGETS
-            },
-            postcss: {
-                plugins: [
-                    autoprefixer()
-                ]
             },
             transformer: 'lightningcss'
         },
