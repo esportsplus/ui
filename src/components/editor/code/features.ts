@@ -1,4 +1,4 @@
-import { effect, reactive } from '@esportsplus/reactivity';
+import { dispose, effect, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import colorPicker from '~/components/color-picker';
 import icon from '~/components/icon';
@@ -795,7 +795,7 @@ const features = (host: Host, apple: boolean) => {
             timers = {};
             pick = null;
             tip.close();
-            stop();
+            dispose(stop);
         },
         // Mod pressed or let go with the pointer still: links show or hide.
         key: (e: KeyboardEvent) => {

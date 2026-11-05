@@ -1,4 +1,4 @@
-import { effect, onCleanup, owner, reactive, root } from '@esportsplus/reactivity';
+import { dispose, effect, onCleanup, owner, reactive, root } from '@esportsplus/reactivity';
 import { setProperties, type Attributes, type Element as Bound } from '@esportsplus/template';
 import { finished } from '~/shared/animation';
 
@@ -71,7 +71,7 @@ function lifecycle(element: HTMLElement, { animations, close, closed, open, stat
 
     return () => {
         generation++;
-        stop();
+        dispose(stop);
     };
 }
 

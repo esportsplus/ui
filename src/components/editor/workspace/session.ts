@@ -1,4 +1,4 @@
-import { effect, onCleanup, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
+import { dispose, effect, onCleanup, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import type { On } from '@esportsplus/template';
 import Decorations, { type Decoration } from '../tree/decorations';
 import type { CodeController } from '../code/view';
@@ -204,7 +204,10 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
             });
 
         documents.set(tab, () => {
-            stop?.();
+            if (stop !== undefined) {
+                dispose(stop);
+            }
+
             unsubscribe();
         });
     }

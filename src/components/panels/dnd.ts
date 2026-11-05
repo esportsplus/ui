@@ -1,4 +1,4 @@
-import { effect, peek, read, root, signal, untrack, write } from '@esportsplus/reactivity';
+import { dispose, effect, peek, read, root, signal, untrack, write } from '@esportsplus/reactivity';
 import { html, on, render } from '@esportsplus/template';
 
 
@@ -178,7 +178,7 @@ const manager = ({ collide, end, label }: { collide: Collide; end: (active: Acti
             });
 
             return () => {
-                stop();
+                dispose(stop);
                 unmount();
             };
         }

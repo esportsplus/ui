@@ -1,4 +1,4 @@
-import { effect, peek, reactive, read, root, signal, untrack, write } from '@esportsplus/reactivity';
+import { dispose, effect, peek, reactive, read, root, signal, untrack, write } from '@esportsplus/reactivity';
 import type { Edit, EditorDocument, Language, Options, Selection } from '../code';
 import type { Status } from '~/components/inline-edit/status';
 import type { EditorWorkspaceModel, WorkspacePreferences, WorkspaceTab } from './model';
@@ -180,7 +180,7 @@ class AutoSave {
 
         tracked.stop = () => {
             clearTimeout(tracked.timer);
-            stop();
+            dispose(stop);
             unsubscribe();
         };
         this.tabs.set(tab, tracked);
