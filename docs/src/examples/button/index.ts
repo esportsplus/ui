@@ -29,7 +29,7 @@ let modifiers = [
     ];
 
 
-function segmented(glide: boolean, track = false) {
+function segmented(glide: boolean, track = false, reveal = false) {
     let state = reactive({ active: 0 });
 
     return group(
@@ -41,13 +41,13 @@ function segmented(glide: boolean, track = false) {
         },
         views.map(({ glyph, label }, index) => html`
             <button
-                class='button button--group button-demo-group-button ${() => state.active === index && '--active'}'
+                class='button button--group button-demo-group-button ${reveal && 'button--reveal'} ${() => state.active === index && '--active'}'
                 onclick='${() => state.active = index}'
                 type='button'
                 ${{ 'aria-pressed': () => String(state.active === index) }}
             >
                 ${icon({ 'aria-hidden': 'true', class: 'button-demo-group-icon' }, glyph)}
-                ${label}
+                ${reveal ? html`<span class='button-reveal'><span class='button-reveal-text'>${label}</span></span>` : label}
             </button>
         `)
     );
@@ -154,6 +154,10 @@ export default {
         {
             render: () => segmented(true, true),
             title: 'group with background'
+        },
+        {
+            render: () => segmented(true, true, true),
+            title: 'group · reveal'
         },
         {
             render: () => {

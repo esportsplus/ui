@@ -140,6 +140,13 @@
         }
     }
 
+    // Only its icon shows until it is active, when its label slides out beside it.
+    &--reveal.--active > &-reveal {
+        grid-template-columns: 1fr;
+        opacity: 1;
+        padding-inline-start: var(--gap-horizontal);
+    }
+
     &--sidebar {
         &-right svg {
             scale: -1 1;
@@ -288,6 +295,35 @@
                 filter: blur(0px);
                 opacity: 1;
             }
+        }
+    }
+
+    // Collapsed to nothing beside the icon, gap included, and opened to the text's own width: a fractional track eases
+    // where 'width: auto' can't. Trimmed to its capitals, so it centres on the icon. Still read while collapsed, so it
+    // names the button either way.
+    &-reveal {
+        align-items: center;
+        display: grid;
+        font-size: var(--font-size);
+        grid-template-columns: 0fr;
+        line-height: var(--line-height);
+        opacity: 0;
+        padding-inline-start: 0;
+        transition:
+            grid-template-columns var(--transition-duration) var(--transition-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function),
+            padding var(--transition-duration) var(--transition-timing-function);
+
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+
+
+        &-text {
+            @extend %text-crop;
+            min-width: 0;
+            overflow: hidden;
         }
     }
 

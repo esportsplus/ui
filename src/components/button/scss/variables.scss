@@ -112,6 +112,11 @@
         }
     }
 
+    // The label brings the gap beside the icon, closing with it, so the button's own stays out.
+    &--reveal {
+        --gap-horizontal: 0px;
+    }
+
     // 1 while the panel shows, 0 while hidden; the pill's width and offset both derive from it.
     &--sidebar {
         --open: 1;
@@ -227,6 +232,13 @@
                 --transition-duration: 200ms;
             }
         }
+    }
+
+    // Its '--gap-horizontal' is the space it opens beside the icon: the default gap, as an icon and label always have.
+    &-reveal {
+        --font-size: var(--font-size-300);
+        --line-height: 1;
+        --transition-duration: 0.24s;
     }
 
     &-split {
