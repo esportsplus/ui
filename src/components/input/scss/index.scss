@@ -28,6 +28,8 @@
     // Holds the height of password fields hidden in floating modals, which password managers need kept rendered.
     min-height: calc((var(--padding-vertical) * 2) + var(--size));
     min-width: 0;
+    outline: var(--outline-width) solid var(--border-color);
+    outline-offset: calc((var(--border-width) + var(--outline-width)) * -1);
     overflow: hidden;
     padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
     padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
@@ -38,6 +40,7 @@
         border-color var(--transition-duration) var(--transition-timing-function),
         box-shadow var(--transition-duration) var(--transition-timing-function),
         opacity var(--transition-duration) var(--transition-timing-function),
+        outline-color var(--transition-duration) var(--transition-timing-function),
         transform var(--transition-duration) var(--transition-timing-function);
     white-space: nowrap;
     width: 100%;
@@ -63,6 +66,7 @@
             box-shadow var(--transition-duration) var(--transition-timing-function),
             height var(--resize-duration) var(--resize-timing-function),
             opacity var(--transition-duration) var(--transition-timing-function),
+            outline-color var(--transition-duration) var(--transition-timing-function),
             transform var(--transition-duration) var(--transition-timing-function);
 
         @media (prefers-reduced-motion: reduce) {

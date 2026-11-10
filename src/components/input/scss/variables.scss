@@ -6,8 +6,8 @@
 @use 'css-utilities/font/geist';
 @use 'css-utilities/surface';
 
-// The checkbox's edge: the surface's border colors, a step thicker while focused. The padding insets by the border, so
-// the text holds still as it thickens.
+// The checkbox's edge: the surface's border colors, a step thicker while focused. The border keeps its resting width,
+// and the extra step is an outline drawn just inside it, so neither the box nor the text moves as it thickens.
 .input {
     @extend %background-state, %border-state, %box-shadow-surface, %box-shadow-state, %color-state;
     --border-color-active: var(--color-primary-300);
@@ -20,12 +20,13 @@
     --border-width-active: var(--border-width-500);
     --border-width-default: var(--border-width-400);
     --font-size: var(--font-size-400);
+    --outline-width: 0px;
     --padding-horizontal: var(--size-300);
     --padding-vertical: var(--size-100);
     --size: var(--size-400);
 
     @include tokens.state(active) {
-        --border-width: var(--border-width-active);
+        --outline-width: max(0px, calc(var(--border-width-active) - var(--border-width)));
     }
 
 
@@ -307,7 +308,7 @@
         --border-color-default: var(--color-red-400);
         --border-color-hover: var(--color-red-400);
         --border-color-pressed: var(--color-red-400);
-        --border-width: var(--border-width-500);
         --color-default: var(--color-red-400);
+        --outline-width: max(0px, calc(var(--border-width-500) - var(--border-width)));
     }
 }
