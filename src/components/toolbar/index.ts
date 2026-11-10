@@ -115,19 +115,15 @@ const ROVE: Record<'horizontal' | 'vertical', Record<string, -1 | 1>> = {
 const TOOLBAR_DRAWER = Symbol.for('@esportsplus/ui/toolbar.drawer');
 
 // The first label waits so a cursor passing through doesn't flash one; neighbours then open at once.
-const TOOLTIP_DELAY = 300;
+const TOOLTIP_DELAY = 240;
 
 
 let uid = 0;
 
 
-// The copy following the pointer: the bar's slot with a stand-in for the button, which keeps no controls.
+// The copy following the pointer: the bar's slot with a stand-in for the button.
 function copy(item: Button) {
-    return html`
-        <div class='toolbar-item'>
-            <span class='button button--feedback toolbar-button' ${face(item)}>${glyph(item)}</span>
-        </div>
-    `;
+    return html`<div class='toolbar-item'>${stand(item)}</div>`;
 }
 
 function face(item: Button): Attributes {
@@ -171,6 +167,11 @@ function sprite(href: string, name = '') {
     return icon({ 'aria-hidden': 'true', class: name }, href);
 }
 
+// A dragged copy's button, which keeps no controls.
+function stand(item: Button) {
+    return html`<span class='button button--feedback toolbar-button' ${face(item)}>${glyph(item)}</span>`;
+}
+
 function text(label: Label) {
     return typeof label === 'function' ? label() : label;
 }
@@ -180,12 +181,12 @@ function thumbnail(src: string) {
     return new URL(src, document.baseURI).href;
 }
 
-// The copy dragged out of the drawer: its cell, with a stand-in for the button, which keeps no controls. CSS turns it
-// into the bar's button as it lifts.
+// The copy dragged out of the drawer: its cell, with a stand-in for the button. CSS turns it into the bar's button as
+// it lifts.
 function tile(item: Button) {
     return html`
         <div class='toolbar-app'>
-            <span class='button button--feedback toolbar-button' ${face(item)}>${glyph(item)}</span>
+            ${stand(item)}
             <span class='toolbar-app-label'>${item.label}</span>
         </div>
     `;
@@ -220,15 +221,19 @@ const toolbar = ({
     let cells: HTMLElement | undefined,
         dock = mode === 'dock',
         entries = items instanceof ReactiveArray ? items : new ReactiveArray(items),
+        // The bar has grown to the drawer: a frame behind 'state.active' while opening, so it starts from its own box,
+        // and with it while closing.
+        expanded = reactive({ active: false }),
+        field: HTMLInputElement | undefined,
         // The bar's own box while it morphs to and from the drawer: lengths, since 'auto' doesn't transition, set only
         // from opening until it has landed back. 'morphing' turns the transitions on a frame after 'sized' pins the
         // bar's box, so the pin itself (a pill's '999px' rounding held to what it draws) is instant.
         fit = reactive({ height: 0, morphing: false, radius: 0, sized: false, width: 0 }),
-        field: HTMLInputElement | undefined,
         frame = 0,
         group = `toolbar-${++uid}`,
-        // The drawer's search, and the button the keys rest on among those it shows: none (-1) until an arrow picks one.
-        launch = reactive({ index: -1, query: '' }),
+        // The drawer's search, whether it has focus, and the button the keys rest on among those it shows: none (-1)
+        // until an arrow picks one.
+        launch = reactive({ focused: false, index: -1, query: '' }),
         // Kept per button rather than per render, since moving between lists renders it afresh.
         launching = new WeakMap<Button, { launching: boolean }>(),
         marker = entries.indexOf(TOOLBAR_DRAWER),
@@ -248,10 +253,7 @@ const toolbar = ({
         stash = drawn ? (apps instanceof ReactiveArray ? apps : new ReactiveArray(apps ?? [])) : undefined,
         track: HTMLElement | undefined,
         vertical = direction === 'e' || direction === 'w',
-        viewport: HTMLElement | undefined,
-        // The bar has grown to the drawer: a frame behind 'state.active' while opening, so it starts from its own box,
-        // and with it while closing.
-        expanded = reactive({ active: false });
+        viewport: HTMLElement | undefined;
 
     function arrow(step: -1 | 1) {
         return html`
@@ -420,12 +422,18 @@ const toolbar = ({
             >
                 <div class='toolbar-drawer-body'>
                     ${search && html`
-                        <div class='toolbar-drawer-search'>
+                        <div class='toolbar-drawer-search' ${{ class: () => launch.focused && '--active' }}>
                             ${sprite(magnifier)}
                             ${input({
                                 'aria-label': 'Search',
                                 autocomplete: 'off',
                                 class: 'toolbar-drawer-input',
+                                onblur: () => {
+                                    launch.focused = false;
+                                },
+                                onfocus: () => {
+                                    launch.focused = true;
+                                },
                                 oninput: (e: Event) => {
                                     launch.index = -1;
                                     launch.query = (e.target as HTMLInputElement).value;
@@ -529,16 +537,19 @@ const toolbar = ({
         };
     }
 
-    // Back to the bar's box, released once there so it sizes itself again; closed before it grew, there is nothing to
-    // wait for.
+    // Back to the bar's box, released once there so it sizes itself again. Closed before it grew, or with no morph to
+    // run (reduced motion), no transition ends to say so, so it lets go at once.
     function land() {
         if (!fit.sized) {
             return;
         }
 
-        if (fit.height === resting.height && fit.width === resting.width) {
-            fit.morphing = false;
-            fit.sized = false;
+        if (
+            (fit.height === resting.height && fit.width === resting.width) ||
+            !shelf ||
+            !parseFloat(getComputedStyle(shelf).getPropertyValue('--morph-duration'))
+        ) {
+            release();
             return;
         }
 
@@ -660,6 +671,12 @@ const toolbar = ({
         scroll.first = Math.max(0, Math.min(scroll.first + step * scroll.count, entries.length - scroll.count));
     }
 
+    // The bar sizes itself again.
+    function release() {
+        fit.morphing = false;
+        fit.sized = false;
+    }
+
     // A button's length along the bar: the shortest, so a page never holds more than fit. Dividers aren't buttons.
     function rest(length: 'offsetHeight' | 'offsetWidth') {
         let children = track?.children ?? [],
@@ -703,28 +720,6 @@ const toolbar = ({
         }
 
         return list;
-    }
-
-    // Steps between controls, leaving the keys alone in a field, where they move the caret.
-    function step(e: KeyboardEvent) {
-        let target = e.target as HTMLElement;
-
-        if (e.defaultPrevented || target.matches('input, textarea, [contenteditable]')) {
-            return;
-        }
-
-        let list = roving(),
-            at = list.indexOf(target),
-            move = ROVE[vertical ? 'vertical' : 'horizontal'][e.key],
-            next = e.key === 'Home' ? list[0] : e.key === 'End' ? list[list.length - 1] : move && at !== -1 ? list[(at + move + list.length) % list.length] : null;
-
-        if (!next) {
-            return;
-        }
-
-        e.preventDefault();
-        rove(next);
-        next.focus();
     }
 
     function selected() {
@@ -789,6 +784,28 @@ const toolbar = ({
         return current;
     }
 
+    // Steps between controls, leaving the keys alone in a field, where they move the caret.
+    function step(e: KeyboardEvent) {
+        let target = e.target as HTMLElement;
+
+        if (e.defaultPrevented || target.matches('input, textarea, [contenteditable]')) {
+            return;
+        }
+
+        let list = roving(),
+            at = list.indexOf(target),
+            move = ROVE[vertical ? 'vertical' : 'horizontal'][e.key],
+            next = e.key === 'Home' ? list[0] : e.key === 'End' ? list[list.length - 1] : move && at !== -1 ? list[(at + move + list.length) % list.length] : null;
+
+        if (!next) {
+            return;
+        }
+
+        e.preventDefault();
+        rove(next);
+        next.focus();
+    }
+
     // Thrown off the bar, a button goes back to the drawer, at its end.
     function thrown(item: Entry, from: number, list: ReactiveArray<Entry>) {
         let target = stash as unknown as ReactiveArray<Entry>;
@@ -807,7 +824,7 @@ const toolbar = ({
     // One label glides between the buttons; hidden from assistive tech, since each button is already named by it. Only
     // buttons are dragged, so 'copy' only ever gets one, and only one is ever thrown back to the drawer.
     let list = sortable(entries, slot, { drag: copy as (item: Entry) => Renderable<unknown>, group, onsort: sorted, onthrow: sorting && stash ? thrown : undefined }),
-        tip = tooltip.shared({ 'aria-hidden': 'true', class: 'toolbar-label', delay: { open: delay }, direction });
+        tip = tooltip.shared({ 'aria-hidden': 'true', class: 'toolbar-label', delay: { open: delay }, direction, swap: false });
 
     // A toolbar takes one tab stop, kept on a control the bar still shows as its items change.
     if (!dock) {
@@ -864,8 +881,7 @@ const toolbar = ({
                 // Landed back on its own box: the bar sizes itself again.
                 ontransitionend: (e: TransitionEvent) => {
                     if (e.target === e.currentTarget && e.propertyName === 'height' && !expanded.active) {
-                        fit.morphing = false;
-                        fit.sized = false;
+                        release();
                     }
                 },
                 role: dock ? 'navigation' : 'toolbar',

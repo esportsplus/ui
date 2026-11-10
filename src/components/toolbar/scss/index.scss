@@ -64,17 +64,17 @@
             width var(--morph-duration) var(--morph-timing-function);
     }
 
-    // The bar's label would otherwise hang over the drawer.
-    &--open > &-label {
-        visibility: hidden;
-    }
-
     // The drawer's frame and its colour fade in over the bar's own as it starts to grow. Chained through
     // '.tooltip-content' to outrank the tooltip's own transition, whichever stylesheet loads last.
     &--open > &-drawer.tooltip-content {
         transition:
             background-color var(--fade-duration) var(--fade-timing-function),
             opacity var(--fade-duration) var(--fade-timing-function);
+    }
+
+    // The bar's label would otherwise hang over the drawer.
+    &--open > &-label {
+        visibility: hidden;
     }
 
     // The bar itself is the frame the drawer opens in: from opening until it has landed back, it holds lengths that
@@ -103,10 +103,19 @@
     }
 
 
+    // Out of the drawer's search, or off the bar's page: shown again only while the page is measured.
+    &-app--hidden,
+    &-custom--hidden,
+    &-divider--hidden,
+    &-item--hidden {
+        display: none;
+    }
+
     &-app {
         align-items: center;
         background: var(--background);
         border-radius: var(--border-radius);
+        color: var(--color);
         cursor: pointer;
         display: flex;
         flex-direction: column;
@@ -116,14 +125,8 @@
         padding-inline: var(--padding-horizontal);
 
 
-        &--hidden {
-            display: none;
-        }
-
-
         &-label {
             @extend %text-truncate;
-            color: var(--color);
             font-size: var(--font-size);
             font-weight: var(--font-weight);
             user-select: none;
@@ -198,12 +201,6 @@
         align-items: center;
         display: flex;
         flex-shrink: 0;
-
-
-        // Off the bar's page; shown again only while the page is measured.
-        &--hidden {
-            display: none;
-        }
     }
 
     &-divider {
@@ -214,46 +211,6 @@
         margin-block: var(--margin-vertical);
         margin-inline: var(--margin-horizontal);
         width: var(--width);
-
-
-        // Off the bar's page; shown again only while the page is measured.
-        &--hidden {
-            display: none;
-        }
-    }
-
-    &-item {
-        cursor: default;
-        display: flex;
-        flex-shrink: 0;
-        position: relative;
-
-
-        // Off the bar's page; shown again only while the page is measured.
-        &--hidden {
-            display: none;
-        }
-    }
-
-    &-items {
-        display: flex;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-    }
-
-    // Held while it is dragged, the slot shows the icon's own shape dashed, not the whole item's box. Qualified by its
-    // list to outrank the sortable's own placeholder, whichever stylesheet loads last.
-    &-items > &-item.sortable-item--held {
-        outline: none;
-    }
-
-    &-items > &-item.sortable-item--held > &-button {
-        opacity: 1;
-        outline: var(--outline-width) dashed var(--outline-color);
-        outline-offset: calc(var(--outline-width) * -1);
-    }
-
-    &-items > &-item.sortable-item--held > &-button > * {
-        opacity: 0;
     }
 
     // Pinned inside the bar at its screen edge, at its own size, which the bar grows to and clips it by.
@@ -323,7 +280,6 @@
             font-size: var(--font-size);
             user-select: none;
 
-
             &-hint {
                 align-items: center;
                 display: flex;
@@ -354,8 +310,18 @@
             pointer-events: none;
         }
 
+        // A field of its own, inset in the card above the apps. The border's growth comes out of the padding, so the
+        // contents hold still as it thickens.
+        &-search {
+            background: var(--background);
+            border: var(--border-width) solid var(--border-color);
+            border-radius: var(--border-radius);
+            margin-block: var(--margin-vertical) 0;
+            margin-inline: var(--margin-horizontal);
+            padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
+        }
+
         &-view {
-            border-top: var(--border-width) solid var(--border-color);
             max-height: var(--max-height);
             overflow-y: auto;
             overscroll-behavior: contain;
@@ -389,6 +355,34 @@
             height: var(--size);
             width: var(--size);
         }
+    }
+
+    &-item {
+        cursor: default;
+        display: flex;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    &-items {
+        display: flex;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+    }
+
+    // Held while it is dragged, the slot shows the icon's own shape dashed, not the whole item's box. Qualified by its
+    // list to outrank the sortable's own placeholder, whichever stylesheet loads last.
+    &-items > &-item.sortable-item--held {
+        outline: none;
+    }
+
+    &-items > &-item.sortable-item--held > &-button {
+        opacity: 1;
+        outline: var(--outline-width) dashed var(--outline-color);
+        outline-offset: calc(var(--outline-width) * -1);
+    }
+
+    &-items > &-item.sortable-item--held > &-button > * {
+        opacity: 0;
     }
 
     &-light {
