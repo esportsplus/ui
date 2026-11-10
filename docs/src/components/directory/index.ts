@@ -64,7 +64,7 @@ function example(variant: Variant, index: number, id: string) {
     }
 
     return [
-        variant.source && preview.buttons({ 'aria-label': `${variant.title} view`, state }, [
+        variant.source && preview.buttons({ 'aria-label': `${variant.title} view`, hover: false, state }, [
             { content: [icon({ 'aria-hidden': 'true', class: 'preview-view-icon' }, eye), 'Preview'], view: 'preview' },
             { content: [icon({ 'aria-hidden': 'true', class: 'preview-view-icon' }, code), 'Code'], view: 'code' }
         ]),
