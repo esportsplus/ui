@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'css-utilities/text';
 @use 'variables';
 
@@ -38,6 +39,10 @@
         will-change: opacity, scale;
     }
 
+    &-dialog#{&}-dialog--glass.overlay {
+        backdrop-filter: blur(var(--glass-blur));
+    }
+
     &-empty {
         color: var(--color);
         font-size: var(--font-size);
@@ -54,8 +59,9 @@
         display: flex;
         flex-shrink: 0;
         font-size: var(--font-size);
+        font-weight: var(--font-weight);
         gap: var(--gap-vertical) var(--gap-horizontal);
-        height: var(--height);
+        padding-block: var(--padding-vertical);
         padding-inline: var(--padding-horizontal);
         user-select: none;
 
@@ -114,30 +120,47 @@
         flex-direction: column;
     }
 
+    // A field of its own, inset in the card; the hotkey's keycaps sit at its end.
     &-search {
         align-items: center;
+        background: var(--background);
+        border: var(--border-width) solid var(--border-color);
+        border-radius: var(--border-radius);
         color: var(--color);
         display: flex;
         flex-shrink: 0;
         gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--height);
-        padding-inline: var(--padding-horizontal);
+        margin-block: var(--margin-vertical) 0;
+        margin-inline: var(--margin-horizontal);
+        // The border's growth comes out of the padding, so the contents hold still as it thickens.
+        padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
     }
 
     &-tab {
         user-select: none;
     }
 
-    // Tab labels line up with the option labels below; a long row scrolls sideways rather than wrapping.
+    // A track under the search, as the docs' preview and code switch is, whose raised highlight glides between the
+    // tabs; a long row scrolls sideways rather than wrapping.
     &-tabs {
-        border-top: var(--border-width) solid var(--border-color);
-        display: flex;
+        background: var(--background);
+        border-radius: var(--border-radius);
         flex-shrink: 0;
         gap: var(--gap-vertical) var(--gap-horizontal);
+        margin-block: var(--margin-vertical) 0;
+        margin-inline: var(--margin-horizontal);
         overflow-x: auto;
         padding-block: var(--padding-vertical);
         padding-inline: var(--padding-horizontal);
         scrollbar-width: none;
+
+
+        &-highlight {
+            @include tokens.state(active) {
+                box-shadow: var(--surface-shadow-hover);
+            }
+        }
     }
 
     &-trigger {
@@ -186,7 +209,6 @@
 
     &-views {
         background: var(--background);
-        border-top: var(--border-width) solid var(--border-color);
         overflow: hidden;
 
         // Every view keeps the same height, so swapping between them never resizes the dialog.

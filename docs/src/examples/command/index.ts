@@ -186,6 +186,10 @@ export default {
             title: 'centered + blur'
         },
         {
+            render: () => demo({ [command.dialog]: { class: 'command-dialog--glass' }, label: 'Glass' }),
+            title: 'glass'
+        },
+        {
             render: () => hub(),
             title: 'tabs: recents + every command, a tab per group + keyboard shortcuts'
         },

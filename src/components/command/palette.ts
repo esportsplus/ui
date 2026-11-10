@@ -1,7 +1,7 @@
 import { computed, effect, reactive, read, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type On, type Renderable } from '@esportsplus/template';
 import button from '~/components/button';
-import highlight from '~/components/highlight';
+import group from '~/components/group';
 import icon from '~/components/icon';
 import input from '~/components/input';
 import nav from '~/components/nav';
@@ -406,7 +406,7 @@ export default component(
             }))),
             lookup = computed(() => new Map(read(entries).map((entry) => [entry.id, entry]))),
             // A Set keeps insertion order, most recent first, and replacing it is what re-runs the list.
-            ui = reactive({ moving: false, recent: new Set<string>() }),
+            ui = reactive({ focused: false, moving: false, recent: new Set<string>() }),
             views: View[] = ([
                 { empty: 'No commands', entries: everything, id: 'all', label: 'All', placeholder, search: 'Search commands' },
                 ...(tabs ? groups() : []),
@@ -685,7 +685,7 @@ export default component(
                             ${!trigger && { onconnect: listen }}
                         >
                             <div class='command-body'>
-                                <div class='command-search'>
+                                <div class='command-search' ${{ class: () => ui.focused && '--active' }}>
                                     ${sprite(magnifier)}
                                     ${input({
                                         'aria-activedescendant': () => read(active),
@@ -695,6 +695,12 @@ export default component(
                                         'aria-label': () => current().search,
                                         autocomplete: 'off',
                                         autofocus: true,
+                                        onblur: () => {
+                                            ui.focused = false;
+                                        },
+                                        onfocus: () => {
+                                            ui.focused = true;
+                                        },
                                         oninput: (e: Event) => {
                                             state.index = -1;
                                             state.query = (e.target as HTMLInputElement).value;
@@ -757,34 +763,38 @@ export default component(
                                             }}
                                         </span>
                                     `}
+                                    ${keys.length > 0 && kbd(keys)}
                                 </div>
 
-                                ${views.length > 1 && html`
-                                    <div aria-label='Views' class='command-tabs' role='tablist'>
-                                        ${highlight({ class: 'command-tabs-highlight' })}
-                                        ${views.map((view) => html`
-                                            <button
-                                                aria-controls='${view.key}'
-                                                class='button command-tab'
-                                                id='${view.key}-tab'
-                                                role='tab'
-                                                tabindex='-1'
-                                                type='button'
-                                                ${this?.attributes?.[COMMAND_TAB]}
-                                                ${attributes[COMMAND_TAB]}
-                                                ${{
-                                                    'aria-selected': () => current() === view ? 'true' : 'false',
-                                                    class: () => current() === view && '--active',
-                                                    onclick: () => {
-                                                        state.tab = view.id;
-                                                    }
-                                                }}
-                                            >
-                                                ${view.label}
-                                            </button>
-                                        `)}
-                                    </div>
-                                `}
+                                ${views.length > 1 && group(
+                                    {
+                                        [group.highlight]: { class: 'command-tabs-highlight' },
+                                        'aria-label': 'Views',
+                                        class: 'command-tabs',
+                                        role: 'tablist'
+                                    },
+                                    views.map((view) => html`
+                                        <button
+                                            aria-controls='${view.key}'
+                                            class='button button--group command-tab'
+                                            id='${view.key}-tab'
+                                            role='tab'
+                                            tabindex='-1'
+                                            type='button'
+                                            ${this?.attributes?.[COMMAND_TAB]}
+                                            ${attributes[COMMAND_TAB]}
+                                            ${{
+                                                'aria-selected': () => current() === view ? 'true' : 'false',
+                                                class: () => current() === view && '--active',
+                                                onclick: () => {
+                                                    state.tab = view.id;
+                                                }
+                                            }}
+                                        >
+                                            ${view.label}
+                                        </button>
+                                    `)
+                                )}
 
                                 <div
                                     class='command-views'
