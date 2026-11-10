@@ -1,0 +1,88 @@
+// An alternative to a message that pushes the page down: it paints over what's already laid out, and the dashed block
+// after the field shows that nothing moves.
+.error-alt {
+    --error: var(--color-red-400);
+    --ink: var(--color-white-400);
+    --transition: 0.2s cubic-bezier(0.2, 0, 0, 1);
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-400);
+    position: relative;
+    width: min(100%, 320px);
+
+
+    &-after {
+        border: 1px dashed var(--surface-border-default);
+        border-radius: var(--border-radius-400);
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        padding: var(--size-300);
+    }
+
+    // The morph tooltip's trigger, so its message grows out of the field: under it, aligned to its end and at least as
+    // wide.
+    &-icon.tooltip {
+        cursor: auto;
+    }
+
+    &-icon-mark {
+        align-items: center;
+        background: var(--error);
+        border-radius: 50%;
+        color: var(--ink);
+        display: flex;
+        font-size: var(--font-size-300);
+        font-weight: var(--font-weight-600);
+        height: var(--size-500);
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        right: var(--size-300);
+        scale: 0.6;
+        top: 50%;
+        transition: opacity var(--transition), scale var(--transition);
+        translate: 0 -50%;
+        width: var(--size-500);
+    }
+
+    .--invalid > &-icon-mark {
+        opacity: 1;
+        scale: 1;
+    }
+
+    // At least the field's width, growing to the wider of it and 280px before a long message wraps onto more lines.
+    &-icon-message.tooltip-message {
+        --max-width: max(100%, 280px);
+        --min-width: 100%;
+        --width: max-content;
+        white-space: normal;
+
+        ul {
+            display: grid;
+            gap: var(--size-200);
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        li {
+            color: var(--error);
+            font-weight: var(--font-weight-600);
+        }
+    }
+
+    // Fills for the tooltip, set where its morph paints them; the glass one also frosts what it covers.
+    &-icon--glass > &-icon-message.tooltip-message {
+        --background-default: oklch(from var(--surface-background-default) l c h / 0.6);
+    }
+
+    &-icon--surface > &-icon-message.tooltip-message {
+        --background-default: var(--surface-background-default);
+    }
+
+    &-icon--surface-primary > &-icon-message.tooltip-message {
+        --background-default: var(--surface-primary-default);
+        --box-shadow-default: var(--surface-shadow-default);
+    }
+}

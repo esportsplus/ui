@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'css-utilities/hidden';
 @use 'variables';
 
@@ -6,6 +7,11 @@
     display: inline-flex;
     vertical-align: middle;
 
+
+    // Clearing, the control drops its red edge and fill at once, with the message, rather than fading back.
+    &--leaving > :not(.error-live, .error-message) {
+        transition: none;
+    }
 
     // Two copies, keyed by the shake class parity, so every failure restarts it.
     @each $shake in 1 2 {
@@ -41,20 +47,42 @@
         @extend %hidden-visually;
     }
 
-    // Long messages wrap instead of running off in one line.
-    &-message.tooltip-content {
-        color: var(--color);
-        font-size: var(--font-size);
-        padding-block: var(--padding-vertical);
-        padding-inline: var(--padding-horizontal);
-        white-space: normal;
+    // Wraps the control a gap out on every side and runs on below it, where the text starts past the control. Behind the
+    // control within the wrapper, which rises over its siblings while open, so it shows around the control and over
+    // everything else.
+    &-message.tooltip-message {
+        padding-top: calc(var(--error-spacing) + var(--error-host-height) + var(--padding-vertical));
+        position: absolute;
+        top: calc(var(--error-spacing) * -1);
+        z-index: -1;
+    }
+
+    &-message--s {
+        left: 50%;
+        translate: -50% 0;
+    }
+
+    &-message--se {
+        right: calc(var(--error-spacing) * -1);
+    }
+
+    &-message--sw {
+        left: calc(var(--error-spacing) * -1);
     }
 
 
-    // The tooltip's repaint behind its trigger, which the goo bridges from while the morph runs, so the neck reads as
-    // the tooltip leaving the control. Pulled in by the shake's reach, so it stays hidden under the control at full swing.
-    &.tooltip:has(> .tooltip-content--morph)::after {
-        background: var(--background);
-        inset: 0 var(--error-reach);
+    &.tooltip {
+        // Over a hovered sibling tooltip, which rises to the same level and would paint over the message when it comes
+        // later in the page.
+        @include tokens.state(active) {
+            z-index: var(--error-z-index);
+        }
+
+        // Hides at once instead of fading out.
+        @include tokens.state(inactive) {
+            > .error-message.tooltip-message {
+                transition: none;
+            }
+        }
     }
 }

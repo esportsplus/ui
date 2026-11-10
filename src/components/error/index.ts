@@ -1,6 +1,7 @@
-import { effect, flush, onCleanup, reactive, root, untrack } from '@esportsplus/reactivity';
+import { effect, onCleanup, reactive, root, untrack } from '@esportsplus/reactivity';
 import { component, html, setProperties, type Attributes, type Element as Bound } from '@esportsplus/template';
-import { morph, morphs, shape } from '~/components/tooltip/utilities';
+import { overlay, type GlassMode } from '~/modifiers/glass';
+import { observe } from '~/shared/resize';
 import '~/components/tooltip/scss/index.scss';
 import './scss/index.scss';
 
@@ -10,21 +11,17 @@ type A = Attributes & {
     // Milliseconds an error shows before it clears 'state.error' itself, counted from its latest failure; left out, it
     // shows until its owner clears it.
     duration?: number;
-    onanimationcancel?: never;
-    onanimationend?: never;
-    onanimationstart?: never;
+    // Frosts the message over whatever it overlays with the glass modifier's blur layer, and marks the wrapper
+    // 'error--glass'. The layer alone, not the modifier's '--glass' class, which would position the message in place.
+    glass?: GlassMode;
     onconnect?: never;
-    ontransitioncancel?: never;
-    ontransitionend?: never;
-    ontransitionrun?: never;
+    onfocusout?: never;
     state: { error: string };
 };
 
-type Direction = 'e' | 'en' | 'es' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w' | 'wn' | 'ws';
+// Where a message wider than the control runs: centered on it, from its start edge, or from its end edge.
+type Direction = 's' | 'se' | 'sw';
 
-
-// The morph tooltip's '--morph-close-duration', plus a frame: a new message reopens once the old one has landed.
-const CLOSE = 210;
 
 const ERROR_STATE = Symbol('error.control');
 
@@ -44,93 +41,46 @@ function validity(element: Element) {
 
 
 // Wraps one control, so it works on any element that keeps its error in 'state.error': the control shakes and its
-// edge turns red, and the message grows out of it in the morph tooltip. The wrapper is the tooltip's trigger and holds
-// still while the control shakes inside it, so the tooltip stays put. A repeat of the same message is written as ''
-// and then the message, flushed in between, which shakes the control again without closing the tooltip.
-export default component<A>(({ direction = 'ne', duration, state, ...attributes }, content) => {
+// edge turns red, and the message shows in a tooltip that wraps the control, a gap's width out on every side, behind it
+// and over everything around it, with the message under the control; it overlays what follows instead of pushing it
+// down. The control's height and corners, which only layout knows, are measured so the tooltip clears and rounds
+// around it. The wrapper is the tooltip's trigger and holds still while the control shakes inside it, so the tooltip stays put. Focus
+// leaving the wrapper clears 'state.error'; a select's menu renders inside it, so picking an option isn't leaving. A
+// repeat of the same message is written as '' and then the message, flushed in between, which shakes the control again
+// without closing the tooltip.
+export default component<A>(({ direction = 'sw', duration, glass: frost, state, ...attributes }, content) => {
     let control: Element | null = null,
-        disposed = false,
-        element: HTMLElement | undefined,
         expire: ReturnType<typeof setTimeout> | undefined,
-        frame = 0,
-        local = reactive({ active: false, message: '', morphing: false, radius: undefined as string | undefined, shake: 0 }),
-        opening: VoidFunction | undefined,
+        local = reactive({ active: false, height: 0, leaving: false, message: '', radius: undefined as string | undefined, shake: 0 }),
         pending = 0,
-        reopen: ReturnType<typeof setTimeout> | undefined,
-        shown = '',
-        tooltip: HTMLElement | undefined;
+        settle = 0;
 
+    // The message goes at once, and the control drops its red in the same frame rather than fading back; 'leaving'
+    // holds its transitions off until that frame has painted.
     function close() {
-        clearTimeout(reopen);
-        opening?.();
-        opening = undefined;
         local.active = false;
-        land();
+        settle = requestAnimationFrame(() => {
+            local.leaving = false;
+        });
     }
 
-    // The close lands on the control's box as the open measured it, but the control can change size in the meantime,
-    // so the landing is measured again every frame the close runs, with the same insets the open seeds.
-    function land() {
-        cancelAnimationFrame(frame);
-
-        let until = performance.now() + CLOSE;
-
-        (function measure() {
-            if (!element || !tooltip) {
-                return;
-            }
-
-            let box = tooltip.getBoundingClientRect(),
-                rect = element.getBoundingClientRect(),
-                state = shape(tooltip);
-
-            state.bottom = `${box.bottom - rect.bottom}px`;
-            state.left = `${rect.left - box.left}px`;
-            state.right = `${box.right - rect.right}px`;
-            state.top = `${rect.top - box.top}px`;
-
-            if (performance.now() < until) {
-                frame = requestAnimationFrame(measure);
-            }
-        })();
-    }
-
-    // Flushed before the open measures the tooltip's box, which the message sizes. The morph starts from the wrapper's
-    // corners, so the wrapper takes the control's, copied from its computed corners, which only layout knows, and
-    // landed by the same flush so they hold before the morph reads them.
-    function open(text: string) {
-        if (!element) {
+    function measure() {
+        if (!control) {
             return;
         }
 
-        cancelAnimationFrame(frame);
-        shown = text;
-        local.message = text;
-
-        if (control) {
-            local.radius = getComputedStyle(control).borderRadius;
-        }
-
-        flush();
-        opening = morph(element, () => {
-            opening = undefined;
-            local.active = true;
-        });
+        local.height = (control as HTMLElement).offsetHeight;
+        local.radius = getComputedStyle(control).borderTopLeftRadius;
     }
 
     function show(text: string) {
         cancelAnimationFrame(pending);
-        clearTimeout(reopen);
+        cancelAnimationFrame(settle);
+        local.active = true;
+        local.leaving = false;
+        local.message = text;
         // Alternating the parity swaps between identical keyframes, restarting the shake.
         local.shake = local.shake === 1 ? 2 : 1;
-
-        if (!local.active && !opening) {
-            open(text);
-        }
-        else if (text !== shown) {
-            close();
-            reopen = setTimeout(() => open(text), CLOSE);
-        }
     }
 
     effect(() => {
@@ -144,12 +94,7 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
             }
 
             if (text) {
-                // After the pass running this effect, where the open's flush would be a no-op.
-                queueMicrotask(() => {
-                    if (!disposed && state.error === text) {
-                        show(text);
-                    }
-                });
+                show(text);
 
                 if (duration) {
                     expire = setTimeout(() => {
@@ -160,6 +105,9 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
                 return;
             }
 
+            // Set with the control's validity, which is what its transitions would fade.
+            local.leaving = local.active;
+
             // A frame late, so a repeat's '' followed at once by the message shakes rather than closes.
             cancelAnimationFrame(pending);
             pending = requestAnimationFrame(close);
@@ -167,40 +115,54 @@ export default component<A>(({ direction = 'ne', duration, state, ...attributes 
     });
 
     onCleanup(() => {
-        disposed = true;
-        cancelAnimationFrame(frame);
         cancelAnimationFrame(pending);
+        cancelAnimationFrame(settle);
         clearTimeout(expire);
-        clearTimeout(reopen);
-        opening?.();
     });
 
     return html`
         <div
             class='error tooltip'
             ${attributes}
-            ${morphs(local)}
             ${{
                 class: [
                     () => local.active && '--active',
+                    frost && 'error--glass',
                     () => state.error && 'error--invalid',
-                    () => local.morphing && 'tooltip--morphing',
+                    () => local.leaving && 'error--leaving',
                     () => local.shake && `error--shake-${local.shake}`
                 ],
                 onconnect: (el: HTMLElement) => {
                     control = el.firstElementChild;
-                    element = el;
+
+                    if (control) {
+                        onCleanup(observe(control, measure));
+                    }
                 },
-                style: () => ({ 'border-radius': local.radius })
+                onfocusout: (e: FocusEvent) => {
+                    let next = e.relatedTarget as Node | null;
+
+                    if (next && (e.currentTarget as HTMLElement).contains(next)) {
+                        return;
+                    }
+
+                    state.error = '';
+                }
             }}
         >
             ${content}
             <div
                 aria-hidden='true'
-                class='error-message tooltip-content tooltip-content--${direction} tooltip-content--morph'
-                ${{ onconnect: (el: HTMLElement) => { tooltip = el; } }}
+                class='error-message error-message--${direction} tooltip-message'
+                ${{
+                    style: () => ({
+                        '--error-host-height': `${local.height}px`,
+                        '--error-host-radius': local.radius
+                    })
+                }}
             >
-                <span>${() => local.message}</span>
+                ${frost && overlay(frost)}
+                ${() => local.message}
             </div>
             <span aria-live='polite' class='error-live'>${() => state.error}</span>
         </div>

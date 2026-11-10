@@ -1,7 +1,20 @@
 import { effect, flush, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import { error, input, select } from '@esportsplus/ui/components';
+import alternatives from 'docs/examples/error/alternatives';
 import 'docs/examples/error/scss/index.scss';
+
+
+// The error's own look: a fill class and the glass modifier.
+type Look = Pick<Parameters<typeof error>[0], 'class' | 'glass'>;
+
+type Text = Look & {
+    check: (value: string) => string;
+    duration?: number;
+    label: string;
+    placeholder: string;
+    type?: string;
+};
 
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -9,31 +22,15 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const WEEKEND = new Set(['saturday', 'sunday']);
 
 
-function email(hint: string, duration?: number) {
-    let state = reactive({ active: false, error: '' });
+let instance = 0;
 
-    return field('Email', hint, error({ direction: 'ne', duration, state }, input({
-        class: 'error-demo-input',
-        oninput: () => {
-            state.error = '';
-        },
-        onkeydown: (e: KeyboardEvent) => {
-            if (e.key !== 'Enter') {
-                return;
-            }
 
-            let value = (e.target as HTMLInputElement).value;
+function email(value: string) {
+    if (!value) {
+        return 'Required';
+    }
 
-            if (EMAIL.test(value)) {
-                state.error = '';
-            }
-            else {
-                fail(state, value ? 'That doesn\'t look like an email address' : 'Required');
-            }
-        },
-        placeholder: 'you@example.com',
-        state
-    })));
+    return EMAIL.test(value) ? '' : 'That doesn\'t look like an email address';
 }
 
 // A repeat is cleared and flushed first, so the error sees a new failure and shakes again.
@@ -46,16 +43,61 @@ function fail(state: { error: string }, text: string) {
     state.error = text;
 }
 
-function field(label: string, hint: string, control: Renderable<unknown>) {
+function field(label: string, id: string, control: Renderable<unknown>, row = false) {
     return html`
-        <div class='error-demo'>
-            <div class='error-demo-label'>
-                ${label}
-                <span class='error-demo-hint'>${hint}</span>
-            </div>
+        <div class='field ${row ? 'field--row' : ''}'>
+            <label class='field-label' for='${id}'>${label}</label>
             ${control}
         </div>
     `;
+}
+
+function name(value: string) {
+    if (!value) {
+        return 'Required';
+    }
+
+    return value.length < 2 ? 'Use at least 2 characters' : '';
+}
+
+// Name and email stacked, in one of the error's looks.
+function pair(look: Look = {}) {
+    return html`
+        <div class='error-demo'>
+            ${text({ ...look, check: name, label: 'Name', placeholder: 'Ada Lovelace' })}
+            ${text({ ...look, check: email, label: 'Email', placeholder: 'you@example.com', type: 'email' })}
+        </div>
+    `;
+}
+
+// Checked on Enter; typing or leaving the field clears the error.
+function text({ check, class: classname, duration, glass, label, placeholder, type = 'text' }: Text, row = false) {
+    let id = `error-example-${++instance}`,
+        state = reactive({ active: false, error: '' });
+
+    return field(label, id, error({ class: classname, duration, glass, state }, input({
+        id,
+        oninput: () => {
+            state.error = '';
+        },
+        onkeydown: (e: KeyboardEvent) => {
+            if (e.key !== 'Enter') {
+                return;
+            }
+
+            let message = check((e.target as HTMLInputElement).value);
+
+            if (message) {
+                fail(state, message);
+            }
+            else {
+                state.error = '';
+            }
+        },
+        placeholder,
+        state,
+        type
+    })), row);
 }
 
 
@@ -63,12 +105,37 @@ export default {
     name: 'error',
     variants: [
         {
-            render: () => email('Press Enter to check'),
-            title: 'input'
+            render: () => pair(),
+            title: 'input · press Enter to check'
         },
         {
-            render: () => email('Press Enter to check; the error hides after 3s', 3000),
-            title: 'input, duration'
+            render: () => pair({ glass: 'uniform' }),
+            title: 'input, error--glass'
+        },
+        {
+            render: () => pair({ class: 'error--surface' }),
+            title: 'input, error--surface'
+        },
+        {
+            render: () => pair({ class: 'error--surface-primary' }),
+            title: 'input, error--surface-primary'
+        },
+        {
+            render: () => html`
+                <div class='error-demo error-demo--row'>
+                    ${text({ check: name, label: 'Name', placeholder: 'Ada Lovelace' }, true)}
+                    ${text({ check: email, label: 'Email', placeholder: 'you@example.com', type: 'email' }, true)}
+                </div>
+            `,
+            title: 'input, field--row'
+        },
+        {
+            render: () => html`
+                <div class='error-demo'>
+                    ${text({ check: email, duration: 3000, label: 'Email', placeholder: 'you@example.com', type: 'email' })}
+                </div>
+            `,
+            title: 'input, duration · hides after 3s'
         },
         {
             render: () => {
@@ -78,13 +145,22 @@ export default {
                     state.error = WEEKEND.has(String(state.selected)) ? 'Weeks start on a weekday here' : '';
                 });
 
-                return field('Week starts on', 'Pick a weekend day', error({ direction: 'ne', state }, select({
-                    class: 'error-demo-select',
-                    options: { monday: 'Monday', saturday: 'Saturday', sunday: 'Sunday' },
-                    state
-                })));
+                return html`
+                    <div class='error-demo'>
+                        <div class='field'>
+                            <span aria-hidden='true' class='field-label'>Week starts on</span>
+                            ${error({ state }, select({
+                                label: 'Week starts on',
+                                options: { monday: 'Monday', saturday: 'Saturday', sunday: 'Sunday' },
+                                state,
+                                style: '--width: 100%;'
+                            }))}
+                        </div>
+                    </div>
+                `;
             },
-            title: 'select'
-        }
+            title: 'select · pick a weekend day'
+        },
+        ...alternatives
     ]
 };

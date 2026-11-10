@@ -19,7 +19,7 @@ type State = { error: string, value: string };
 
 
 // Every side and corner the error can open on, clockwise from the top left.
-const DIRECTIONS: Direction[] = ['nw', 'n', 'ne', 'en', 'e', 'es', 'se', 's', 'sw', 'ws', 'w', 'wn'];
+const DIRECTIONS: Direction[] = ['sw', 's', 'se'];
 
 // Deliberately long, to see the message wrap rather than run off in one line.
 const TAKEN: Record<string, string> = {
@@ -62,7 +62,7 @@ function shortcuts() {
 
 // The field renders afresh whenever the direction changes; the state outlives it.
 function errors() {
-    let direction = reactive({ active: false, error: '', selected: 'ne' }),
+    let direction = reactive({ active: false, error: '', selected: 's' }),
         state = reactive({ error: '', value: '' });
 
     return html`

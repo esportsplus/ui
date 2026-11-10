@@ -38,7 +38,12 @@ const groups: Record<string, Group[]> = {
         { title: 'drag and drop with the desktop', members: [['drop files and folders from the desktop', 'Drop in'], ['drag files out to the desktop or another app', 'Drag out']] },
         { title: 'diffs', members: [['split: syntax colors, accept and revert', 'Split'], 'unified', ['word diff: on and off', 'Word diff'], ['ignore whitespace: off and on', 'Ignore whitespace'], ['large file: 20,000 lines, virtualized', 'Large file']] }
     ],
-    error: [{ title: 'input', members: ['input', 'input, duration'] }],
+    error: [
+        { title: 'input', members: [['input · press Enter to check', 'Default'], ['input, field--row', 'Row'], ['input, duration · hides after 3s', 'Duration']] },
+        { title: 'look', members: [['input, error--glass', 'Glass'], ['input, error--surface', 'Surface'], ['input, error--surface-primary', 'Surface primary']] },
+        { title: 'select', members: [['select · pick a weekend day', 'Default']] },
+        { title: 'alternatives', members: [['alternative · icon + tooltip', 'Default'], ['alternative · icon + tooltip, glass', 'Glass'], ['alternative · icon + tooltip, surface', 'Surface'], ['alternative · icon + tooltip, surface primary', 'Surface primary']] }
+    ],
     filter: [{ title: 'layout', members: [['Grid · 3 columns', 'Default'], ['Rows · Single column list', 'Rows'], ['Max rows · Scrolls past 2 rows', 'Max rows']] }],
     frame: [{ title: 'transition', members: [['Default · Instant', 'Default'], ['frame--slide · Horizontal', 'Slide'], ['frame--scroll · Vertical', 'Scroll'], ['frame--swap · Crossfade in place', 'Swap']] }],
     grid: [{ title: 'auto-fit', members: [['auto-fit (min 200px)', 'Default'], 'min-width 120px'] }],

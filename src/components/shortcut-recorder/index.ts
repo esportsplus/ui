@@ -106,7 +106,7 @@ function parse(value: string) {
 }
 
 
-export default ({ direction = 'ne', limit, taken, value = '', state = reactive({ error: '', value }), ...attributes }: A) => {
+export default ({ direction = 's', limit, taken, value = '', state = reactive({ error: '', value }), ...attributes }: A) => {
     let chord: string[] = [],
         connected = false,
         field: HTMLElement | undefined,
