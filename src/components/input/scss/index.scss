@@ -223,6 +223,20 @@
 
     }
 
+    &-search {
+        // The keycaps sit where the native clear button would.
+        & > .input::-webkit-search-cancel-button {
+            appearance: none;
+        }
+
+        // Legends, not controls: no hover or press, and a press falls through to the field.
+        &-keys {
+            display: flex;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            pointer-events: none;
+        }
+    }
+
     &-tag {
         color: var(--color);
         width: var(--width);

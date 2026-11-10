@@ -1,4 +1,4 @@
-import { field, form, icon, input, select } from '@esportsplus/ui/components';
+import { command, field, form, icon, input, select } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { moreFieldVariations } from 'docs/examples/form-options';
@@ -6,6 +6,7 @@ import alert from '@esportsplus/ui/svg/circle-alert.svg';
 import check from '@esportsplus/ui/svg/circle-check.svg';
 import help from '@esportsplus/ui/svg/help.svg';
 import user from '@esportsplus/ui/svg/user.svg';
+import type { Tab } from '@esportsplus/ui/components/command';
 
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -260,6 +261,74 @@ export default {
         {
             render: () => password('click', true),
             title: 'password strength'
+        },
+        {
+            render: () => html`
+                <div style='${stack}'>
+                    ${input.search({ kbd: ['Mod', 'K'], placeholder: 'Search documentation…' })}
+                    ${input.search({ class: 'input--compact', kbd: ['/'] })}
+                </div>
+            `,
+            title: 'search · shortcut'
+        },
+        {
+            render: () => {
+                let result = reactive({ query: '' });
+
+                return html`
+                    <div class='field' style='width: min(100%, 320px);'>
+                        ${input.search({
+                            oninput: (e: Event) => {
+                                result.query = (e.currentTarget as HTMLInputElement).value;
+                            }
+                        })}
+                        <small class='field-description'>${() => `Query: ${result.query || '—'}`}</small>
+                    </div>
+                `;
+            },
+            title: 'search · observed query'
+        },
+        {
+            render: () => {
+                let result = reactive({ ran: '' }),
+                    state = reactive({ active: false, index: -1, query: '', tab: 'all' as Tab });
+
+                function open() {
+                    state.active = true;
+                }
+
+                return html`
+                    <div class='field' style='width: min(100%, 320px);'>
+                        ${input.search({
+                            'aria-haspopup': 'dialog',
+                            onclick: open,
+                            onkeydown: (e: KeyboardEvent) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    open();
+                                }
+                            },
+                            placeholder: 'Search commands…',
+                            readonly: true,
+                            style: 'cursor: pointer;'
+                        })}
+                        <small class='field-description'>${() => `Ran: ${result.ran || '—'}`}</small>
+                        ${command({
+                            commands: [
+                                { group: 'File', id: 'new', label: 'New file' },
+                                { group: 'File', id: 'open', label: 'Open file' },
+                                { group: 'View', id: 'theme', label: 'Toggle theme' }
+                            ],
+                            onrun: (entry) => {
+                                result.ran = entry.label;
+                            },
+                            state,
+                            trigger: false
+                        })}
+                    </div>
+                `;
+            },
+            title: 'search · opens a dialog on click'
         },
         ...moreFieldVariations('input'),
         {
