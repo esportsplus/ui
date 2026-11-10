@@ -1,0 +1,153 @@
+@use 'css-utilities/absolute';
+@use 'css-utilities/flex';
+@use 'variables';
+
+// A label, any control and a description, stacked; the gap between them is the field's only spacing.
+.field {
+    @extend %flex-column;
+    min-width: 0;
+
+
+    // A code's cells in a row, grouped; the groups sit further apart than the cells within one.
+    &--otp,
+    &--otp-group {
+        @extend %flex-row;
+        align-items: center;
+    }
+
+    // Label and control share one line, the control held to one width; the description wraps onto its own.
+    &--row {
+        align-items: center;
+        flex-flow: row wrap;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        justify-content: space-between;
+    }
+
+    &--row > #{&}-description {
+        flex-basis: 100%;
+    }
+
+    &--row > :not(#{&}-description, #{&}-label, .checkbox) {
+        flex: 0 0 var(--width);
+        width: var(--width);
+    }
+
+    // A checkbox, radio or switch keeps its own size and shares the first row with the label alone, so it centers on
+    // the label however long the description runs; the description sits under the label, in its column. The control
+    // takes whichever side it's written on.
+    &--row:has(> .checkbox) {
+        cursor: pointer;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        justify-content: stretch;
+        user-select: none;
+    }
+
+    &--row:has(> #{&}-label + .checkbox) {
+        grid-template-columns: 1fr auto;
+    }
+
+    &--row > .checkbox {
+        grid-row: 1;
+    }
+
+    &--row:has(> .checkbox) > #{&}-description {
+        grid-column: 2;
+    }
+
+    &--row:has(> #{&}-label + .checkbox) > #{&}-description {
+        grid-column: 1;
+    }
+
+
+    &-description {
+        color: var(--color);
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        line-height: var(--line-height);
+        margin: 0;
+        padding-top: var(--padding-top);
+    }
+
+    &-label {
+        align-items: center;
+        color: var(--color);
+        column-gap: var(--gap-horizontal);
+        display: flex;
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        line-height: var(--line-height);
+
+        // Pushed to the label's end, so a count lines up down a column of headers. Its box is trimmed to the glyphs, cap
+        // height to baseline, so the label's centering lands on the digits at any size, its own or the label's; the
+        // font's ascent, descent and leading would otherwise sit unevenly above and below them.
+        &-counter {
+            color: var(--color);
+            flex: 0 0 auto;
+            font-size: var(--font-size);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight);
+            line-height: 1;
+            margin-inline-start: auto;
+            text-box: trim-both cap alphabetic;
+        }
+
+        &-required {
+            color: var(--color);
+        }
+    }
+
+    &-progress {
+        margin-top: var(--margin-top);
+    }
+
+    // Holds a control and the items floating over it.
+    &-tag {
+        display: flex;
+        position: relative;
+
+        // Qualified by the wrapper so it wins over an item's own position regardless of stylesheet order.
+        & > #{&}-item {
+            @extend %absolute-vertical;
+            z-index: 1;
+        }
+
+        // An icon is decoration, so a press on it lands on the control under it; other items keep their own.
+        & > #{&}-item.icon {
+            pointer-events: none;
+        }
+
+        // Text read as the start of the value, so a press on it lands on the control too. Its box is trimmed to the
+        // glyphs, cap height to baseline, so centering the box centers the letters at any font size; the font's own
+        // ascent, descent and leading would otherwise sit unevenly above and below them.
+        & > #{&}-item--prefix {
+            color: var(--color);
+            font-size: var(--font-size);
+            line-height: 1;
+            pointer-events: none;
+            text-box: trim-both cap alphabetic;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        // Where an item sits picks its side: before the control it takes the start, after it the end, inset by the gap
+        // above and below it. The control's padding makes room on each side an item takes: its own padding, the inset
+        // and the item, less its border, which its own padding already insets by. Resolved on the control, since the
+        // padding is its own.
+        & > #{&}-item:has(~ :not(#{&}-item)) {
+            inset-inline-start: var(--start-inset);
+        }
+
+        & > #{&}-item ~ :not(#{&}-item) {
+            padding-inline-start: calc(var(--padding-vertical, 0px) + var(--start-inset) + var(--start-width) - var(--border-width, 0px));
+        }
+
+        & > :not(#{&}-item) ~ #{&}-item {
+            inset-inline-end: var(--end-inset);
+        }
+
+        & > :not(#{&}-item):has(~ #{&}-item) {
+            padding-inline-end: calc(var(--padding-vertical, 0px) + var(--end-inset) + var(--end-width) - var(--border-width, 0px));
+        }
+    }
+}
