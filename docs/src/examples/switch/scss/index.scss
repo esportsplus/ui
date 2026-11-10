@@ -1,14 +1,6 @@
 .switch-demo {
     width: min(360px, 100%);
 
-    &-row {
-        align-items: center;
-        cursor: pointer;
-        display: flex;
-        gap: var(--size-300);
-        user-select: none;
-    }
-
     &-switch.checkbox,
     .checkbox {
         --background-active: var(--color-accent-400);

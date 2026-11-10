@@ -1,15 +1,10 @@
 import { reactive } from '@esportsplus/reactivity';
-import { highlight, radio } from '@esportsplus/ui/components';
+import { radio } from '@esportsplus/ui/components';
 import { html } from '@esportsplus/template';
 import 'docs/examples/radio/scss/index.scss';
 
 
 let instance = 0,
-    plans = [
-        { description: 'For side projects and trying things out.', period: '/mo', price: '$0', title: 'Hobby', value: 'hobby' },
-        { badge: 'Popular', description: 'Unlimited projects and custom domains.', period: '/mo', price: '$12', title: 'Pro', value: 'pro' },
-        { description: 'Shared workspaces, roles and priority support.', period: '/mo', price: '$32', title: 'Team', value: 'team' }
-    ],
     shipping = [
         { description: 'Arrives in 5 to 7 business days.', title: 'Standard', value: 'standard' },
         { description: 'Arrives in 2 to 3 business days.', title: 'Priority', value: 'priority' },
@@ -48,12 +43,12 @@ export default {
 
                 return html`
                     <fieldset class='radio-demo'>
-                        <legend class='radio-demo-legend'>Choose a size</legend>
+                        <legend class='field field--header radio-demo-legend'><span class='field-label'>Choose a size</span></legend>
                         <div class='radio-demo-inline'>
                             ${sizes.map((size, index) => html`
-                                <label class='radio-demo-row radio-demo-row--inline'>
+                                <label class='field field--row'>
                                     ${radio({ style, [radio.input]: { checked: index === 1, name, value: size } })}
-                                    ${size}
+                                    <span class='field-label'>${size}</span>
                                 </label>
                             `)}
                         </div>
@@ -69,54 +64,19 @@ export default {
 
                 return html`
                     <fieldset class='radio-demo'>
-                        <legend class='radio-demo-legend'>Delivery</legend>
+                        <legend class='field field--header radio-demo-legend'><span class='field-label'>Delivery</span></legend>
                         ${shipping.map((option) => html`
-                            <label class='radio-demo-row'>
+                            <label class='field field--row'>
                                 ${choice(name, state, option.value)}
-                                <span class='radio-demo-text'>
-                                    ${option.title}
-                                    <span class='radio-demo-description'>${option.description}</span>
-                                </span>
+                                <span class='field-label'>${option.title}</span>
+                                <small class='field-description'>${option.description}</small>
                             </label>
                         `)}
-                        <span class='radio-demo-status'>value: ${() => state.value}</span>
+                        <small class='field-description'>value: ${() => state.value}</small>
                     </fieldset>
                 `;
             },
             title: 'group'
-        },
-        {
-            render: () => {
-                let name = `radio-example-${++instance}`,
-                    state = reactive({ value: 'pro' });
-
-                return html`
-                    <fieldset class='radio-demo'>
-                        <legend class='radio-demo-legend'>Choose a plan</legend>
-                        <div class='radio-demo-cards'>
-                            ${highlight({ class: 'radio-demo-ring', hover: false })}
-                            ${plans.map((plan) => html`
-                                <label class='card radio-demo-card' ${{ class: () => state.value === plan.value && '--active' }}>
-                                    ${choice(name, state, plan.value)}
-                                    <span class='radio-demo-text'>
-                                        <span class='radio-demo-heading'>
-                                            ${plan.title}
-                                            ${plan.badge && html`<span class='radio-demo-badge'>${plan.badge}</span>`}
-                                        </span>
-                                        <span class='radio-demo-description'>${plan.description}</span>
-                                    </span>
-                                    <span class='radio-demo-price'>
-                                        ${plan.price}
-                                        <span class='radio-demo-period'>${plan.period}</span>
-                                    </span>
-                                </label>
-                            `)}
-                        </div>
-                        <span class='radio-demo-status'>value: ${() => state.value}</span>
-                    </fieldset>
-                `;
-            },
-            title: 'cards'
         }
     ]
 };

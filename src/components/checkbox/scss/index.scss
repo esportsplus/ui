@@ -74,21 +74,6 @@
         gap: var(--gap-vertical) var(--gap-horizontal);
 
 
-        &-counter {
-            color: var(--color);
-            flex: 0 0 auto;
-            font-size: var(--font-size-300);
-            font-variant-numeric: tabular-nums;
-        }
-
-        &-header {
-            align-items: center;
-            cursor: pointer;
-            display: flex;
-            gap: var(--gap-vertical) var(--gap-horizontal);
-            user-select: none;
-        }
-
         &-hint {
             color: var(--color);
             font-size: var(--font-size-300);
@@ -104,12 +89,6 @@
                 padding-block: var(--padding-vertical);
                 padding-inline: var(--padding-horizontal);
             }
-        }
-
-        &-label {
-            flex: 1;
-            font-weight: var(--font-weight-500);
-            min-width: 0;
         }
     }
 
