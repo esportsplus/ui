@@ -241,6 +241,8 @@
             // Qualified by the field so it wins over the reused input styles regardless of stylesheet order.
             .range-filter-input {
                 --background-default: transparent;
+                --border-width-active: 0px;
+                --border-width-default: 0px;
                 --color-default: currentColor;
                 --font-size: inherit;
                 --padding-horizontal: 0px;

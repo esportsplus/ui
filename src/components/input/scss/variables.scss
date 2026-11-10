@@ -1,68 +1,168 @@
 @use '/tokens';
 @use 'css-utilities/background';
+@use 'css-utilities/border';
+@use 'css-utilities/box-shadow';
 @use 'css-utilities/color';
+@use 'css-utilities/font/geist';
 @use 'css-utilities/surface';
-@use 'field';
 
+// The checkbox's edge: the surface's border colors, a step thicker while focused. The padding insets by the border, so
+// the text holds still as it thickens.
 .input {
-    @include field.variables;
+    @extend %background-state, %border-state, %box-shadow-surface, %box-shadow-state, %color-state;
+    --border-color-active: var(--color-primary-300);
+    --border-color-default: var(--surface-border-default);
+    --border-color-hover: var(--surface-border-hover);
+    --border-color-pressed: var(--surface-border-pressed);
+    --border-radius: var(--border-radius-400);
+    --border-style: solid;
+    --border-width: var(--border-width-default);
+    --border-width-active: var(--border-width-500);
+    --border-width-default: var(--border-width-400);
+    --font-size: var(--font-size-400);
+    --padding-horizontal: var(--size-300);
+    --padding-vertical: var(--size-100);
+    --size: var(--size-400);
 
+    @include tokens.state(active) {
+        --border-width: var(--border-width-active);
+    }
+
+
+    // Wraps and scrolls as a textarea does, resized by hand only in height, since its width is the layout's. First, so
+    // '--autoresize' and '--measure', which only ever refine it, replace its overflow, resize and white space.
+    &--textarea {
+        --padding-vertical: var(--size-300);
+        --resize: vertical;
+        --scrollbar-overflow: auto;
+        --white-space: pre-wrap;
+    }
+
+    // Its height is the text's, so it can't be dragged.
+    &--autoresize {
+        --resize: none;
+        --resize-duration: 240ms;
+        --resize-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        --scrollbar-gutter: stable;
+        --scrollbar-overflow: hidden;
+    }
+
+    &--compact {
+        --font-size: var(--font-size-300);
+        --padding-horizontal: var(--size-200);
+        --padding-vertical: 6px;
+        --size: var(--size-100);
+    }
+
+    // Never scrolls, so its height is its content's; the gutter matches the field's.
+    &--measure {
+        --scrollbar-gutter: stable;
+        --scrollbar-overflow: hidden;
+
+        &-nowrap {
+            --white-space: pre;
+        }
+    }
+
+    // One character to a square cell, its edge taking the brand color while focused.
+    &--otp {
+        @extend %font-geist-mono;
+        --border-color-active: var(--color-primary-300);
+        --font-size: var(--font-size-500);
+        --font-weight: var(--font-weight-500);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: 48px;
+    }
+
+    // Only ever set alongside '--autoresize', once the content outgrows its maximum height; after it, so it wins.
+    &--scrollbar {
+        --scrollbar-overflow: auto;
+    }
+
+    &--surface {
+        @extend %background-surface, %border-surface, %color-text;
+
+        &-primary {
+            @extend %background-surface-primary, %border-surface, %box-shadow-surface;
+        }
+    }
+
+
+    &-password {
+        &-icon.icon {
+            --color: currentColor;
+            --size: var(--size-400);
+        }
+
+        &-toggle {
+            @extend %background-state, %color-state;
+            --background-hover: var(--surface-background-hover);
+            --background-pressed: var(--background-hover);
+            --border-radius: var(--border-radius-300);
+            --color-default: var(--color-text-300);
+            --color-hover: var(--color-text-500);
+            --color-pressed: var(--color-hover);
+            --size: 28px;
+        }
+    }
 
     &-scrub {
-        @extend %background-state, %surface-raise;
-        --background-default: var(--surface-background-default);
-        --border-radius: var(--border-radius-400);
-        --color: var(--color-text-500);
-        --font-size: var(--font-size-300);
-        --height: 40px;
-
-        // Qualified by the root so it wins over the reused input styles regardless of stylesheet order.
-        & > #{&}-field {
-            --color-default: currentColor;
-            --font-size: inherit;
-            --padding-end: var(--size-200);
-            --padding-horizontal: 0px;
-            --padding-vertical: 0px;
-        }
-
         &-label {
             @extend %color-state, %color-text;
-            --width: 36px;
+            --font-size: var(--font-size-300);
+            --height: var(--size-600);
+            --width: var(--size-600);
         }
 
+        // Hidden until the field is pointed at or in use: hovered, typed in or dragged.
         &-needle {
             --background: var(--color-primary-500);
-            --height: var(--size-100);
-            --width: 1px;
+            --height: 8px;
+            --opacity: 0;
+            --width: 8px;
         }
 
-        // Leaves slower than it arrives; under reduced motion it only fades.
+        &-tape:hover #{&}-needle,
+        &:has(> #{&}-field.--active) #{&}-needle {
+            --opacity: 1;
+        }
+
+        // Faint at rest so it reads as a handle, full under the pointer and while scrubbing; it fades back slower
+        // than it arrives.
         &-tape {
             --color: var(--color-primary-300);
-            --height: var(--size-100);
-            --opacity: 0;
+            --height: 6px;
+            --opacity: var(--opacity-default);
+            --opacity-active: 1;
+            --opacity-default: 0.16;
+            --opacity-hover: 1;
             --transition-duration: 200ms;
             --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-            --translate: 0 4px;
+            // Above the field, which is positioned, so the track takes the pointer along its strip.
+            --z-index: 1;
 
-            @media (prefers-reduced-motion: reduce) {
-                --translate: 0 0;
+            &:hover {
+                --opacity: var(--opacity-hover);
             }
         }
 
         &-ticks {
-            --major-height: 6px;
-            --minor-height: 3px;
+            --major-height: 8px;
+            --minor-height: 5px;
             // Keep in sync with the component's TICK constant; the tape offset is computed against it.
             --tick: 6px;
         }
 
-        // Scrubbing raises the tape under the needle.
+        // The letter or icon scrubs too, so it lights the tape as the tape's own hover does.
+        &:has(> #{&}-label:hover) > #{&}-tape {
+            --opacity: var(--opacity-hover);
+        }
+
         @include tokens.state(active) {
             .input-scrub-tape {
-                --opacity: 1;
+                --opacity: var(--opacity-active);
                 --transition-duration: 150ms;
-                --translate: 0 0;
             }
         }
     }
@@ -71,18 +171,22 @@
     &-tag {
         --color: var(--color-text-500);
         --font-size: var(--font-size-300);
-        --gap-horizontal: 0px;
-        --gap-vertical: var(--size-100);
         --text-inset-horizontal: var(--size-200);
         --width: min(440px, 100%);
 
-
+        // An input holding the chips: 8px chip corners inside 6px of padding keep its 14px corners concentric.
         &-box {
-            @extend %surface-raise;
-            --background: var(--surface-background-default);
-            --border-radius: 14px;
             --padding-horizontal: calc(var(--size-300) / 2);
             --padding-vertical: calc(var(--size-300) / 2);
+
+            // A chip under the pointer is its own target, so the box holds its resting state rather than reading the
+            // hover and press as its own.
+            &:not(.--active):has(.input-tag-chip:hover) {
+                --background: var(--background-default);
+                --border-color: var(--border-color-default);
+                --box-shadow: var(--box-shadow-default);
+                --color: var(--color-default);
+            }
         }
 
         // Read by JS, so a chip comes and goes as these say: how far it blurs (half that leaving) and what it grows from
@@ -92,11 +196,9 @@
         // without reading as an error. Chips fade where they stand under reduced motion, and a repeated tag's chip dims
         // instead of shaking.
         &-chip {
-            @extend %color-state;
             --blur: var(--blur-400);
-            --color-active: var(--color-surface);
-            --color-default: var(--color-text-500);
-            --gap-horizontal: calc(var(--size-100) / 4);
+            --color: var(--color-text-500);
+            --gap-horizontal: var(--size-100);
             --gap-vertical: 0px;
             --height: 32px;
             --leave-duration: 150ms;
@@ -121,24 +223,17 @@
                 --shake-opacity: 0.4;
             }
 
-            // 8px inside 6px of box padding keeps the 14px box concentric; the surface's, until an armed chip fills
-            // with ink and drops its shadow.
+            // A card, until an armed chip fills with ink and drops its shadow.
             &-body {
-                @extend %surface-raise;
-                --background: var(--surface-background-default);
-                --border-radius: var(--border-radius-400);
-                --box-shadow: var(--surface-shadow-default);
+                --border-radius: var(--border-radius-300);
             }
 
-            // Its hit area grows to 32px without growing the icon.
-            &-button {
-                @extend %background-state, %color-state;
-                --background-hover: var(--surface-background-hover);
-                --background-pressed: var(--background-hover);
+            // Its hit area grows to 32px without growing the icon; its colors are the button's, or its variant's.
+            // Chained through '.button' so it wins over the button's own spacing regardless of stylesheet order.
+            &-button.button {
                 --border-radius: var(--border-radius-300);
-                --color-default: var(--color-primary-300);
-                --color-hover: var(--color-primary-500);
-                --color-pressed: var(--color-hover);
+                --padding-horizontal: 0px;
+                --padding-vertical: 0px;
                 --reach: calc(var(--size-100) / -2);
                 --size: 24px;
             }
@@ -149,17 +244,25 @@
                 --size: 14px;
             }
 
-            // An armed chip inverts, and its remove button follows it onto the dark surface.
+            // An armed chip inverts, and its remove button follows it onto the dark surface, whatever its variant.
             @include tokens.state(active) {
+                --color: var(--color-surface);
+
                 .input-tag-chip-body {
-                    --background: var(--color-primary-500);
-                    --box-shadow: none;
+                    --background-default: var(--color-primary-500);
+                    --box-shadow-default: none;
                 }
 
-                .input-tag-chip-button {
+                .input-tag-chip-button.button {
+                    --background-default: transparent;
                     --background-hover: transparent;
+                    --background-pressed: transparent;
+                    --box-shadow-default: none;
+                    --box-shadow-hover: none;
+                    --box-shadow-pressed: none;
                     --color-default: oklch(from var(--color-surface) l c h / 0.7);
                     --color-hover: var(--color-surface);
+                    --color-pressed: var(--color-surface);
                 }
             }
         }
@@ -170,20 +273,16 @@
 
         // Qualified so it wins over the reused input styles regardless of stylesheet order.
         &-entry > #{&}-field {
+            --border-width-active: 0px;
+            --border-width-default: 0px;
+            --box-shadow-active: none;
+            --box-shadow-default: none;
+            --box-shadow-hover: none;
+            --box-shadow-pressed: none;
             --color-default: currentColor;
             --height: 32px;
             --padding-end: var(--size-100);
             --placeholder-color: var(--color-text-300);
-        }
-
-        &-hint {
-            --color: var(--color-text-300);
-            --font-size: var(--font-size-200);
-        }
-
-        &-label {
-            --font-size: var(--font-size-300);
-            --font-weight: var(--font-weight-500);
         }
 
         // Read by JS: how the row slides as chips come and go, which a formed chip's remove button eases like. No
@@ -198,5 +297,17 @@
                 --slide-duration: 0s;
             }
         }
+    }
+
+
+    // Set by the consumer or by 'error': tinted and edged in red through every state, so focus never hides it.
+    &[aria-invalid='true'] {
+        --background-default: color-mix(in oklab, var(--color-red-400) 18%, var(--surface-background-default));
+        --border-color-active: var(--color-red-400);
+        --border-color-default: var(--color-red-400);
+        --border-color-hover: var(--color-red-400);
+        --border-color-pressed: var(--color-red-400);
+        --border-width: var(--border-width-500);
+        --color-default: var(--color-red-400);
     }
 }

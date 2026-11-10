@@ -2,8 +2,12 @@ import { flush, reactive, ReactiveArray, type Reactive } from '@esportsplus/reac
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import close from '@esportsplus/ui/svg/close.svg';
 import icon from '~/components/icon';
+import sortable from '~/components/sortable';
 import { measure, ms, slides, timing } from '~/shared/animation';
 import input from './field';
+import '~/components/button/scss/index.scss';
+import '~/components/card/scss/index.scss';
+import '~/components/field/scss/index.scss';
 
 
 type A = Attributes & {
@@ -12,8 +16,12 @@ type A = Attributes & {
     label: string;
     name?: string;
     placeholder?: string;
+    // Chips reorder by dragging.
+    sortable?: boolean;
     state?: State;
     tags?: string[];
+    // The input's surface modifier, which the chips and their remove buttons take too.
+    variant?: 'surface' | 'surface-primary';
 };
 
 // A chip's element, carrying the shake still running on it.
@@ -83,8 +91,10 @@ export default component(
             label,
             name,
             placeholder = 'Add a tag',
+            sortable: sorts = false,
             tags = [],
             state = reactive({ active: false, error: '', tags: new ReactiveArray<string>(tags) }),
+            variant,
             ...attributes
         }: A
     ) {
@@ -94,44 +104,6 @@ export default component(
             id = `input-tag-${++uid}`,
             list: HTMLElement | undefined,
             local = reactive({ announcement: '', armed: '', text: '' }),
-            slot = html.reactive(state.tags, (tag) => html`
-                <li
-                    class='input-tag-chip ${() => local.armed === key(tag) && '--active'}'
-                    ${{
-                        onconnect: (element: HTMLElement) => {
-                            chips.set(key(tag), element);
-                        },
-                        ondisconnect: (element: HTMLElement) => {
-                            if (chips.get(key(tag)) === element) {
-                                chips.delete(key(tag));
-                            }
-                        }
-                    }}
-                >
-                    <span aria-hidden='true' class='input-tag-chip-body'></span>
-                    <span class='input-tag-chip-text'>${tag}</span>
-                    <span class='input-tag-chip-remove'>
-                        <button
-                            aria-label='Remove ${tag}'
-                            class='input-tag-chip-button'
-                            type='button'
-                            ${{
-                                onclick: () => {
-                                    remove(key(tag));
-                                    field?.focus();
-                                },
-                                // Keeps focus in the field, so typing carries straight on.
-                                onpointerdown: (e: PointerEvent) => {
-                                    e.preventDefault();
-                                }
-                            }}
-                        >
-                            ${icon({ 'aria-hidden': 'true', class: 'input-tag-chip-icon' }, close)}
-                        </button>
-                    </span>
-                    ${name && html`<input name='${name}[]' type='hidden' value='${tag}' />`}
-                </li>
-            `),
             stand = html.reactive(ghosts, (ghost) => html`
                 <li
                     aria-hidden='true'
@@ -163,13 +135,76 @@ export default component(
                         }
                     }}
                 >
-                    <span aria-hidden='true' class='input-tag-chip-body'></span>
-                    <span class='input-tag-chip-text'>${ghost.tag}</span>
-                    <span class='input-tag-chip-remove'>
-                        <span class='input-tag-chip-button'>${icon({ 'aria-hidden': 'true', class: 'input-tag-chip-icon' }, close)}</span>
-                    </span>
+                    ${face(ghost.tag)}
                 </li>
-            `);
+            `),
+            view = sorts
+                // 'reactive' makes an array a ReactiveArray, though its type shows only part of one.
+                ? sortable(state.tags as unknown as ReactiveArray<string>, chip, {
+                    // A copy of its own: the chip's template would register the copy as the chip.
+                    drag: (tag) => html`<div class='input-tag-chip'>${face(tag)}</div>`,
+                    onsort: (tag, _, to) => {
+                        local.announcement = `Moved ${tag} to position ${to + 1}`;
+                    }
+                })
+                : null,
+            slot = view ? null : html.reactive(state.tags, (tag) => chip(tag));
+
+        // 'sorting' is the sortable's, spread on a chip it can drag.
+        function chip(tag: string, sorting?: Attributes) {
+            return html`
+                <li
+                    class='input-tag-chip ${() => local.armed === key(tag) && '--active'}'
+                    ${sorting}
+                    ${{
+                        onconnect: (element: HTMLElement) => {
+                            chips.set(key(tag), element);
+                        },
+                        ondisconnect: (element: HTMLElement) => {
+                            if (chips.get(key(tag)) === element) {
+                                chips.delete(key(tag));
+                            }
+                        }
+                    }}
+                >
+                    <span aria-hidden='true' class='card ${variant && `card--${variant}`} input-tag-chip-body'></span>
+                    <span class='input-tag-chip-text'>${tag}</span>
+                    <button
+                        aria-label='Remove ${tag}'
+                        class='button ${variant && `button--${variant}`} input-tag-chip-button'
+                        type='button'
+                        ${{
+                            // From the keyboard the button had focus, and it's going, so focus moves to the field; a
+                            // pointer leaves focus where it was.
+                            onclick: (e: MouseEvent) => {
+                                remove(key(tag));
+
+                                if (!e.detail) {
+                                    field?.focus();
+                                }
+                            },
+                            // Keeps focus where it is: in the field while typing, and off it otherwise. Its own handler
+                            // also keeps the press from starting a drag.
+                            onpointerdown: (e: PointerEvent) => {
+                                e.preventDefault();
+                            }
+                        }}
+                    >
+                        ${icon({ 'aria-hidden': 'true', class: 'input-tag-chip-icon' }, close)}
+                    </button>
+                    ${name && html`<input name='${name}[]' type='hidden' value='${tag}' />`}
+                </li>
+            `;
+        }
+
+        // A chip's look without its behaviour, for the copies that stand in for it.
+        function face(tag: string) {
+            return html`
+                <span aria-hidden='true' class='card ${variant && `card--${variant}`} input-tag-chip-body'></span>
+                <span class='input-tag-chip-text'>${tag}</span>
+                <span class='button ${variant && `button--${variant}`} input-tag-chip-button'>${icon({ 'aria-hidden': 'true', class: 'input-tag-chip-icon' }, close)}</span>
+            `;
+        }
 
         function add(raw: string[], typed: boolean) {
             let added: string[] = [],
@@ -222,7 +257,7 @@ export default component(
         // Queried, since the chip forms in the frame it renders in, ahead of its parts' connect callbacks.
         function form(chip: HTMLElement) {
             let body = chip.querySelector('.input-tag-chip-body'),
-                remove = chip.querySelector('.input-tag-chip-remove'),
+                remove = chip.querySelector('.input-tag-chip-button'),
                 { blur, grow, pop, scale, swap } = motion(chip);
 
             if (pop) {
@@ -305,14 +340,15 @@ export default component(
 
         return html`
             <div
-                class='input-tag'
+                class='field input-tag'
                 ${this?.attributes}
                 ${attributes}
             >
-                <label class='input-tag-label' for='${id}'>${label}</label>
+                <label class='field-label' for='${id}'>${label}</label>
                 <div
-                    class='input-tag-box'
+                    class='input ${variant && `input--${variant}`} input-tag-box'
                     ${{
+                        class: () => state.active && '--active',
                         // Pressing the field's empty space types into it, like a real input.
                         onpointerdown: (e: PointerEvent) => {
                             let target = e.target as HTMLElement;
@@ -328,14 +364,15 @@ export default component(
                 >
                     <ul
                         class='input-tag-list'
+                        ${view?.attributes}
                         ${{
-                            'aria-label': () => `${label}, ${slot.length} added`,
+                            'aria-label': () => `${label}, ${state.tags.length} added`,
                             onconnect: (element: HTMLElement) => {
                                 list = element;
                             }
                         }}
                     >
-                        ${slot}
+                        ${view ? view.render() : slot}
                         ${stand}
                         <li class='input-tag-entry' role='none'>
                             ${input.call({ attributes: { ...this?.attributes?.[INPUT_TAG_FIELD], ...attributes[INPUT_TAG_FIELD] } }, {
@@ -403,7 +440,7 @@ export default component(
                         </li>
                     </ul>
                 </div>
-                ${!!hint && html`<p class='input-tag-hint'>${hint}</p>`}
+                ${!!hint && html`<p class='field-description'>${hint}</p>`}
                 <span aria-live='polite' class='input-tag-live'>${() => local.announcement}</span>
             </div>
         `;

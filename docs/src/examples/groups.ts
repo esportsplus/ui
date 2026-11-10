@@ -57,10 +57,11 @@ const groups: Record<string, Group[]> = {
         { title: 'save status', members: ['save status', ['save status states', 'Status states']] }
     ],
     input: [
-        { title: 'focus animation', members: [['Halo · Expanding focus ring', 'Default'], ['Underline · Draw from center', 'Underline'], ['Lift · Soft spring elevation', 'Lift'], ['Wash · Tinted focus surface', 'Wash'], ['Bracket · Growing side accents', 'Bracket']] },
-        { title: 'Board', members: [['Board · Label, icons and hint', 'Default'], ['Board · Sizes (medium, small)', 'Sizes'], ['Board · States (default, filled, disabled, invalid)', 'States'], ['Board · Compact icon fields', 'Compact icons']] },
-        { title: 'Board OTP', members: [['Board OTP · Six digits', 'Default'], ['Board OTP · Four digit PIN', 'Four digit PIN'], ['Board OTP · Grouped (000 000)', 'Grouped'], ['Board OTP · Invalid', 'Invalid'], ['Board OTP · Disabled', 'Disabled']] },
-        { title: 'tags', members: [['tag · topics', 'Default'], ['tag · paste + observed state', 'Paste and observed state']] },
+        { title: 'default', members: [['default', 'Default']] },
+        { title: 'compact', members: [['compact', 'Default']] },
+        { title: 'otp', members: [['otp', 'Default'], ['otp · four digit PIN', 'Four digit PIN'], ['otp · grouped (000 000)', 'Grouped'], ['otp · invalid', 'Invalid'], ['otp · disabled', 'Disabled']] },
+        { title: 'password', members: [['password · click to reveal', 'Click to reveal'], ['password · hover to reveal', 'Hover to reveal'], ['password strength', 'Strength']] },
+        { title: 'tags', members: [['tag · topics', 'Default'], ['tag · paste + observed state', 'Paste and observed state'], ['tag · sortable', 'Sortable'], ['tag · surface', 'Surface'], ['tag · surface primary', 'Surface primary']] },
         { title: 'scrub', members: [['scrub · transform', 'Default'], ['scrub · bounded + observed state', 'Bounds and observed state'], ['scrub · pointer lock', 'Pointer lock']] }
     ],
     link: [
@@ -127,8 +128,6 @@ const groups: Record<string, Group[]> = {
         { title: 'plan', members: ['plan', ['plan with a step left open', 'Step left open']] }
     ],
     textarea: [
-        { title: 'focus animation', members: [['Halo · Expanding focus ring', 'Default'], ['Underline · Draw from center', 'Underline'], ['Lift · Soft spring elevation', 'Lift'], ['Wash · Tinted focus surface', 'Wash'], ['Bracket · Growing side accents', 'Bracket']] },
-        { title: 'Board', members: [['Board · Label, hint and resize handle', 'Default'], ['Board · Sizes (medium, small)', 'Sizes'], ['Board · Auto resize (1 to 8 lines)', 'Auto resize'], ['Board · Character count', 'Character count'], ['Board · States (default, filled, disabled, invalid)', 'States']] },
         { title: 'textarea', members: ['default', 'autoresize', 'tall'] }
     ],
     toolbar: [

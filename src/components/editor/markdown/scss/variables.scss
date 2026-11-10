@@ -283,6 +283,8 @@
 
     &-toolbar-url.input {
         --background-default: transparent;
+        --border-width-active: 0px;
+        --border-width-default: 0px;
         --color-default: var(--color-text-500);
         --font-size: var(--font-size-300);
         --height: 36px;

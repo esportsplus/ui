@@ -44,6 +44,9 @@
     &-editor,
     & > #{&}-field {
         --border-radius: var(--border-radius-400);
+        // Ringed by '--ring' instead, so the reused input's border stays off.
+        --border-width-active: 0px;
+        --border-width-default: 0px;
         --padding-end: 36px;
         --padding-start: var(--box-padding-start);
         --padding-vertical: calc(var(--size-100) / 2);

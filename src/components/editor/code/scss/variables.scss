@@ -186,9 +186,13 @@
     &-find-input.input,
     &-goto-input.input {
         --background-default: var(--background);
+        --border-color-active: var(--border-color-default);
         --border-color-default: var(--border-color);
+        --border-color-hover: var(--border-color-default);
+        --border-color-pressed: var(--border-color-default);
         --border-radius: var(--border-radius-200);
-        --border-width: var(--border-width-400);
+        --border-width-active: var(--border-width-400);
+        --border-width-default: var(--border-width-400);
         --color-default: var(--color);
         --font-size: var(--font-size-200);
         --padding-horizontal: var(--size-100);
