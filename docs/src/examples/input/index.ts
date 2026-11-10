@@ -301,6 +301,7 @@ export default {
                     <div class='field' style='width: min(100%, 320px);'>
                         ${input.search({
                             'aria-haspopup': 'dialog',
+                            class: 'input--tactile',
                             onclick: open,
                             onkeydown: (e: KeyboardEvent) => {
                                 if (e.key === 'Enter' || e.key === ' ') {

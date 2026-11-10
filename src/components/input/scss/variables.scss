@@ -89,6 +89,22 @@
         }
     }
 
+    // Read by the field, and by a 'field-tag' around it, which sinks in its place; held still under reduced motion.
+    @at-root #{&}--tactile,
+    .field-tag:has(> #{&}--tactile) {
+        --translate-pressed: 0 1px;
+
+        @media (prefers-reduced-motion: reduce) {
+            --translate-pressed: none;
+        }
+    }
+
+    // Its shadow drops while pressed, focused or not. Chained through '.input' so it wins over the state's own shadow
+    // regardless of stylesheet order.
+    &#{&}--tactile:active {
+        --box-shadow: none;
+    }
+
 
     &-password {
         &-icon.icon {

@@ -111,6 +111,17 @@
         width: var(--size);
     }
 
+    // Sinks 1px while pressed, as 'button--tactile' does. Held by ':active' rather than the pressed state, since the
+    // press focuses the field and focus is its active state. Inside a 'field-tag' the wrapper sinks instead, so the
+    // items floating over the field go with it; they center by 'translate', which the field's own would fight.
+    &--tactile:active:not(.field-tag > *) {
+        translate: var(--translate-pressed);
+    }
+
+    @at-root .field-tag:has(> #{&}--tactile:active) {
+        translate: var(--translate-pressed);
+    }
+
     // Multi-line text in the input's box: wrapped and scrolled as a textarea is, where the box itself is a row.
     &--textarea {
         display: block;
