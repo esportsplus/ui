@@ -2,6 +2,7 @@ import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import cmd from '@esportsplus/ui/svg/command.svg';
 import icon from '~/components/icon';
+import { mac } from '~/shared/platform';
 
 
 type A = Attributes & {
@@ -12,27 +13,30 @@ type A = Attributes & {
     onwindowkeyup?: never;
 };
 
+type Legend = string | (() => Renderable<unknown>);
+
 
 // ⌘ is an icon, since most fonts lack the glyph and fall back to one that sits wrong in the keycap; a function so each
-// keycap gets its own.
-const KEYS: Record<string, [key: string, legend: string | (() => Renderable<unknown>)]> = {
-    alt: ['alt', '⌥'],
-    ctrl: ['control', '⌃'],
-    down: ['arrowdown', '↓'],
-    enter: ['enter', '↵'],
-    escape: ['escape', 'esc'],
-    left: ['arrowleft', '←'],
-    meta: ['meta', () => icon({ 'aria-hidden': 'true', class: 'button-kbd-icon' }, cmd)],
-    right: ['arrowright', '→'],
-    shift: ['shift', '⇧'],
-    space: [' ', '␣'],
-    up: ['arrowup', '↑']
+// keycap gets its own. Modifiers only take symbols on Apple keyboards; 'mod' is ⌘ there and Ctrl elsewhere.
+const KEYS: Record<string, (apple: boolean) => [key: string, legend: Legend]> = {
+    alt: (apple) => ['alt', apple ? '⌥' : 'Alt'],
+    ctrl: (apple) => ['control', apple ? '⌃' : 'Ctrl'],
+    down: () => ['arrowdown', '↓'],
+    enter: () => ['enter', '↵'],
+    escape: () => ['escape', 'esc'],
+    left: () => ['arrowleft', '←'],
+    meta: () => ['meta', () => icon({ 'aria-hidden': 'true', class: 'button-kbd-icon' }, cmd)],
+    mod: (apple) => KEYS[apple ? 'meta' : 'ctrl'](apple),
+    right: () => ['arrowright', '→'],
+    shift: (apple) => ['shift', apple ? '⇧' : 'Shift'],
+    space: () => [' ', '␣'],
+    up: () => ['arrowup', '↑']
 };
 
 
 export default component(
-    ({ key: name, ontrigger, ...attributes }: A) => {
-        let [key, legend] = KEYS[name.toLowerCase()] ?? [name.toLowerCase(), name.length === 1 ? name.toUpperCase() : name],
+    ({ key: name, ontrigger, ...attributes }: A, content?: Renderable<unknown>) => {
+        let [key, legend] = KEYS[name.toLowerCase()]?.(mac()) ?? [name.toLowerCase(), name.length === 1 ? name.toUpperCase() : name],
             state = reactive({ code: '', keyboard: false, pointer: false });
 
         // Only going from up to down triggers, so holding the key fires once.
@@ -77,7 +81,8 @@ export default component(
 
                         state.code = e.code;
 
-                        if (press('keyboard')) {
+                        // A keycap that only shows its key lights up without swallowing the press, so typing carries on.
+                        if (press('keyboard') && ontrigger) {
                             e.preventDefault();
                         }
                     },
@@ -92,7 +97,7 @@ export default component(
                     }
                 }}
             >
-                ${typeof legend === 'function' ? legend() : legend}
+                ${content ?? (typeof legend === 'function' ? legend() : legend)}
             </kbd>
         `;
     }

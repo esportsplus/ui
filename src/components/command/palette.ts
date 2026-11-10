@@ -1,5 +1,6 @@
 import { computed, effect, reactive, read, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type On, type Renderable } from '@esportsplus/template';
+import button from '~/components/button';
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import input from '~/components/input';
@@ -9,7 +10,6 @@ import scrollbar from '~/modifiers/scrollbar';
 import { mac } from '~/shared/platform';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
-import cmd from '@esportsplus/ui/svg/command.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
 import '~/components/frame/scss/index.scss';
@@ -77,7 +77,7 @@ type Entry = {
     group: string;
     icon?: string;
     id: string;
-    keys?: Renderable<unknown>[];
+    keys?: string[];
     label: string;
     // 'label' lowercased once, for the built-in matcher.
     lower: string;
@@ -171,11 +171,6 @@ const COMMAND_TAB = Symbol.for('@esportsplus/ui/command.tab');
 
 const COMMAND_TRIGGER = Symbol.for('@esportsplus/ui/command.trigger');
 
-const GLYPHS: Record<string, string> = {
-    Alt: '⌥',
-    Shift: '⇧'
-};
-
 const RECENT_KEY = 'recent';
 
 const RECENT_LIMIT = 8;
@@ -251,20 +246,10 @@ function filter(entries: Entry[], query: string, matcher?: Matcher, limit = Infi
     return { flat, groups };
 }
 
-// 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere; other modifiers only get symbols on Apple keyboards. ⌘ is an icon,
-// since most fonts lack the glyph and fall back to one that sits wrong in the keycap.
-function glyph(key: string, apple: boolean): Renderable<unknown> {
-    if (key === 'Mod') {
-        return apple ? sprite(cmd, 'command-kbd-icon') : 'Ctrl';
-    }
-
-    return (apple && GLYPHS[key]) || key;
-}
-
-function hint(keys: Renderable<unknown>[], label: string) {
+function hint(content: Renderable<unknown>[], label: string) {
     return html`
         <span class='command-footer-hint'>
-            ${kbd(keys)}
+            ${keycaps(content)}
             ${label}
         </span>
     `;
@@ -277,10 +262,15 @@ function keep(e: MouseEvent) {
     }
 }
 
-function kbd(keys: Renderable<unknown>[]) {
+// 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere.
+function kbd(keys: string[]) {
+    return keycaps(keys.map((key) => button.kbd({ key })));
+}
+
+function keycaps(content: Renderable<unknown>[]) {
     return html`
         <span aria-hidden='true' class='command-keys'>
-            ${keys.map((key) => html`<kbd class='button button--kbd'>${key}</kbd>`)}
+            ${content}
         </span>
     `;
 }
@@ -401,7 +391,7 @@ export default component(
                 group: shortcut.group,
                 icon: shortcut.icon,
                 id: shortcut.id,
-                keys: shortcut.keys.map((key) => glyph(key, apple)),
+                keys: shortcut.keys,
                 label: shortcut.label,
                 lower: shortcut.label.toLowerCase()
             })),
@@ -410,7 +400,7 @@ export default component(
                 group: command.group,
                 icon: command.icon,
                 id: command.id,
-                keys: command.shortcut?.map((key) => glyph(key, apple)),
+                keys: command.shortcut,
                 label: command.label,
                 lower: command.label.toLowerCase()
             }))),
@@ -676,7 +666,7 @@ export default component(
                     >
                         ${sprite(magnifier, 'command-trigger-icon command-trigger-icon--search')}
                         <span class='command-trigger-label'>${label}</span>
-                        ${keys.length > 0 && kbd(keys.map((key) => glyph(key, apple)))}
+                        ${keys.length > 0 && kbd(keys)}
                     </button>
                 `}
 
@@ -840,10 +830,13 @@ export default component(
                             </div>
 
                             <div aria-hidden='true' class='command-footer'>
-                                ${hint(['esc'], 'Close')}
-                                ${views.length > 1 && hint(['tab'], 'Switch')}
-                                ${hint([sprite(up, 'command-kbd-icon'), sprite(down, 'command-kbd-icon')], 'Navigate')}
-                                ${hint([sprite(enter, 'command-kbd-icon')], 'Select')}
+                                ${hint([button.kbd({ key: 'escape' })], 'Close')}
+                                ${views.length > 1 && hint([button.kbd({ key: 'tab' })], 'Switch')}
+                                ${hint([
+                                    button.kbd({ key: 'up' }, sprite(up, 'button-kbd-icon')),
+                                    button.kbd({ key: 'down' }, sprite(down, 'button-kbd-icon'))
+                                ], 'Navigate')}
+                                ${hint([button.kbd({ key: 'enter' }, sprite(enter, 'button-kbd-icon'))], 'Select')}
                             </div>
                         </div>
                     `
@@ -861,5 +854,5 @@ export default component(
         trigger: COMMAND_TRIGGER
     }
 );
-export { glyph, kbd, sprite };
+export { kbd, sprite };
 export type { Command, Matcher, Result, ResultGroup, Shortcut, State, Store, Tab };

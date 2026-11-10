@@ -2,7 +2,7 @@ import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import { mac } from '~/shared/platform';
 import magnifier from '@esportsplus/ui/svg/search.svg';
-import command, { glyph, kbd, sprite, type State, type Tab } from './palette';
+import command, { kbd, sprite, type State, type Tab } from './palette';
 import './scss/index.scss';
 
 
@@ -52,7 +52,7 @@ const trigger = component(
             >
                 ${sprite(magnifier, 'command-trigger-icon command-trigger-icon--search')}
                 <span class='command-trigger-label'>${label}</span>
-                ${kbd(['Mod', 'K'].map((key) => glyph(key, apple)))}
+                ${kbd(['Mod', 'K'])}
             </button>
         `;
     }

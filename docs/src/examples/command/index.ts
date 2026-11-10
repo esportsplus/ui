@@ -1,13 +1,11 @@
 import { reactive, read, signal, write } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import { command, icon } from '@esportsplus/ui/components';
-import { mac } from '@esportsplus/ui/shared/platform';
+import { button, command } from '@esportsplus/ui/components';
 import fuzzy from '@esportsplus/ui/shared/fuzzy';
 import back from '@esportsplus/ui/svg/arrow-left.svg';
 import forward from '@esportsplus/ui/svg/arrow-right.svg';
 import next from '@esportsplus/ui/svg/arrow-down.svg';
 import previous from '@esportsplus/ui/svg/arrow-up.svg';
-import cmd from '@esportsplus/ui/svg/command.svg';
 import contrast from '@esportsplus/ui/svg/contrast.svg';
 import docs from '@esportsplus/ui/svg/document.svg';
 import duplicate from '@esportsplus/ui/svg/copy.svg';
@@ -152,8 +150,8 @@ function palette() {
                     }}'
                 >
                     Go to file
-                    <kbd class='button button--kbd'>${mac() ? icon({ 'aria-hidden': 'true', class: 'command-kbd-icon' }, cmd) : 'Ctrl'}</kbd>
-                    <kbd class='button button--kbd'>P</kbd>
+                    ${button.kbd({ key: 'mod' })}
+                    ${button.kbd({ key: 'p' })}
                 </button>
                 <button
                     class='button'
