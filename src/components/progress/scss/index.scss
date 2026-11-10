@@ -12,6 +12,12 @@
     width: 100%;
 
 
+    // The gaps are masked out of the track, so the indicator fills across them as one bar.
+    &--segmented &-track {
+        mask-image: repeating-linear-gradient(to right, #000 0 var(--segment), transparent var(--segment) calc(var(--segment) + var(--gap-horizontal)));
+    }
+
+
     &-header {
         align-items: baseline;
         display: flex;

@@ -5,6 +5,14 @@
     --gap-vertical: var(--size-100);
 
 
+    // Cut into equal segments by '--gap-horizontal'; '--segment' is one segment's length.
+    &--segmented &-track {
+        --gap-horizontal: 3px;
+        --segment: calc((100% - (var(--segments) - 1) * var(--gap-horizontal)) / var(--segments));
+        --segments: 4;
+    }
+
+
     &-indicator {
         --background: var(--color-primary-500);
         --transition-duration: 150ms;
