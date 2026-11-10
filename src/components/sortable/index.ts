@@ -317,8 +317,9 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
                 top = bounds.top - parent.scrollTop;
 
             for (let element of parent.children as HTMLCollectionOf<HTMLElement>) {
-                // Only the items: the copy is a child too, out in the top layer.
-                if (!element.classList.contains('sortable-drag')) {
+                // Only the items: the copy is a child too, out in the top layer, and a container may hold more than its
+                // items.
+                if (element.classList.contains('sortable-item')) {
                     elements.push(element);
                     places.push({ index: index++, left, list, top });
                 }
@@ -534,9 +535,9 @@ function page() {
 
 
 // Spread 'attributes' on the container and render the items inside it; each item renders one element, with the
-// attributes its template is handed spread on it. Dropping reorders 'items', or moves an item between the lists of a
-// group. A move between lists splices it out of one array and into the other, so a reactive object moved that way is
-// disposed with its old place.
+// attributes its template is handed spread on it, which mark it 'sortable-item'. Other children of the container stay
+// where they are. Dropping reorders 'items', or moves an item between the lists of a group. A move between lists
+// splices it out of one array and into the other, so a reactive object moved that way is disposed with its old place.
 export default <T>(
     items: ReactiveArray<T>,
     template: (item: T, attributes: Attributes) => Renderable<unknown>,
@@ -589,9 +590,12 @@ export default <T>(
     // item with its own, keeps the press from this one.
     function hold(item: T): Attributes {
         return {
-            class: () => signal.selector(list.held, item)
-                ? 'sortable-item--held'
-                : signal.selector(list.revealing, item) && 'sortable-item--revealing',
+            class: [
+                'sortable-item',
+                () => signal.selector(list.held, item)
+                    ? 'sortable-item--held'
+                    : signal.selector(list.revealing, item) && 'sortable-item--revealing'
+            ],
             onpointerdown: (e: PointerEvent) => {
                 let element = e.currentTarget as HTMLElement;
 

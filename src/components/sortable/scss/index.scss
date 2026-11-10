@@ -149,7 +149,7 @@
     }
 
 
-    > * {
+    > .sortable-item {
         @extend %drag-item;
     }
 }
