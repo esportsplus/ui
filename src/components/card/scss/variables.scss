@@ -35,9 +35,14 @@
         }
     }
 
-    // The fill follows its states, stepping on hover and press like any other surface.
-    &--surface {
+    // The fill follows its states, stepping on hover and press like any other surface. Chained through '.card': the
+    // extended placeholders are written before the card's own defaults, which would otherwise win the tie.
+    &#{&}--surface {
         @extend %background-surface, %border-surface;
+    }
+
+    &#{&}--surface-primary {
+        @extend %background-surface-primary, %border-surface, %box-shadow-surface;
     }
 
 
