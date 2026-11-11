@@ -1,6 +1,5 @@
 @use '/tokens';
 @use 'css-utilities/background';
-@use 'css-utilities/border';
 @use 'css-utilities/box-shadow';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
@@ -239,20 +238,13 @@
             }
         }
 
-        // 'inherit' passes the drawer's '--font-size' through the input's own, which would otherwise refer to itself.
+        // On the card's own surface, 44px tall, as the command palette's search is. 'inherit' passes the drawer's
+        // '--font-size' through the input's own, which would otherwise refer to itself.
         &-input.input {
-            --border-width-active: 0px;
-            --border-width-default: 0px;
-            --color-default: var(--color-text-500);
+            --background-default: var(--surface-background-default);
+            --border-radius: var(--border-radius-500);
             --font-size: inherit;
-            --padding-horizontal: 0px;
-            --padding-vertical: 0px;
-            --size: 0px;
-
-
-            &::placeholder {
-                --color: var(--color-text-300);
-            }
+            --padding-vertical: calc((44px - var(--size)) / 2);
         }
 
         &-kbd-icon.icon {
@@ -266,24 +258,9 @@
             --gap-vertical: 0px;
         }
 
-        // On the card's own surface, ringed rather than ruled off from the apps, as the command palette's search is; its
-        // ring thickens on hover and while it has focus.
         &-search {
-            @extend %border-state, %border-surface;
-            --background: var(--surface-background-default);
-            --border-radius: var(--border-radius-500);
-            --border-width: var(--border-width-400);
-            --color: var(--color-text-300);
-            --gap-horizontal: var(--size-100);
-            --gap-vertical: 0px;
-            --height: 44px;
             --margin-horizontal: var(--size-300);
             --margin-vertical: var(--size-300);
-            --padding-horizontal: var(--size-200);
-
-            @include tokens.state(hover active) {
-                --border-width: var(--border-width-500);
-            }
         }
 
         &-view {

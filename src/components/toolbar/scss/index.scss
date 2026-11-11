@@ -264,20 +264,16 @@
             text-align: center;
         }
 
-        // The rows above and below the apps.
-        &-footer,
-        &-search {
+        // The row below the apps.
+        &-footer {
             align-items: center;
             color: var(--color);
             display: flex;
             flex-shrink: 0;
             gap: var(--gap-vertical) var(--gap-horizontal);
+            font-size: var(--font-size);
             height: var(--height);
             padding-inline: var(--padding-horizontal);
-        }
-
-        &-footer {
-            font-size: var(--font-size);
             user-select: none;
 
             &-hint {
@@ -293,16 +289,6 @@
             }
         }
 
-        &-input.input {
-            height: 100%;
-            outline: none;
-
-
-            &::placeholder {
-                color: var(--color);
-            }
-        }
-
         // Keycaps here are legends, not controls, so they take no hover or press.
         &-keys {
             display: flex;
@@ -310,15 +296,11 @@
             pointer-events: none;
         }
 
-        // A field of its own, inset in the card above the apps. The border's growth comes out of the padding, so the
-        // contents hold still as it thickens.
+        // Insets the search in the card above the apps.
         &-search {
-            background: var(--background);
-            border: var(--border-width) solid var(--border-color);
-            border-radius: var(--border-radius);
+            flex-shrink: 0;
             margin-block: var(--margin-vertical) 0;
             margin-inline: var(--margin-horizontal);
-            padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
         }
 
         &-view {

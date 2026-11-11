@@ -18,7 +18,6 @@ import chevronRight from '@esportsplus/ui/svg/chevron-right.svg';
 import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
 import grid from '@esportsplus/ui/svg/grid.svg';
-import magnifier from '@esportsplus/ui/svg/search.svg';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
@@ -231,9 +230,8 @@ const toolbar = ({
         fit = reactive({ height: 0, morphing: false, radius: 0, sized: false, width: 0 }),
         frame = 0,
         group = `toolbar-${++uid}`,
-        // The drawer's search, whether it has focus, and the button the keys rest on among those it shows: none (-1)
-        // until an arrow picks one.
-        launch = reactive({ focused: false, index: -1, query: '' }),
+        // The drawer's search, and the button the keys rest on among those it shows: none (-1) until an arrow picks one.
+        launch = reactive({ index: -1, query: '' }),
         // Kept per button rather than per render, since moving between lists renders it afresh.
         launching = new WeakMap<Button, { launching: boolean }>(),
         marker = entries.indexOf(TOOLBAR_DRAWER),
@@ -422,18 +420,9 @@ const toolbar = ({
             >
                 <div class='toolbar-drawer-body'>
                     ${search && html`
-                        <div class='toolbar-drawer-search' ${{ class: () => launch.focused && '--active' }}>
-                            ${sprite(magnifier)}
-                            ${input({
-                                'aria-label': 'Search',
-                                autocomplete: 'off',
+                        <div class='toolbar-drawer-search'>
+                            ${input.search({
                                 class: 'toolbar-drawer-input',
-                                onblur: () => {
-                                    launch.focused = false;
-                                },
-                                onfocus: () => {
-                                    launch.focused = true;
-                                },
                                 oninput: (e: Event) => {
                                     launch.index = -1;
                                     launch.query = (e.target as HTMLInputElement).value;
@@ -442,7 +431,6 @@ const toolbar = ({
                                     field = element;
                                 },
                                 onkeydown: navigate,
-                                placeholder: 'Search',
                                 spellcheck: false,
                                 value: () => launch.query
                             })}
