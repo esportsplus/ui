@@ -189,7 +189,7 @@ function groupVariants(name: string, variants: Variant[]): Variant[] {
             return [{ id: `v-${original}`, label, render: variants[original].render, source: variants[original].source }];
         });
 
-        return [{ id: options[0].id, options, render: options[0].render, source: options[0].source, title: family.title }];
+        return [{ id: options[0].id, options, render: options[0].render, source: options[0].source, styles: variant.styles, title: family.title }];
     });
 }
 

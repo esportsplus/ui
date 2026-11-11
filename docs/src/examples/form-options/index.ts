@@ -1,4 +1,4 @@
-import { field, input, textarea } from '@esportsplus/ui/components';
+import { group, input, textarea } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import type { Variant } from 'docs/types';
@@ -22,7 +22,7 @@ function moreFieldVariations(kind: 'input' | 'textarea'): Variant[] {
     ];
 
     return options.map(([mode, title, hint]) => ({
-        render: () => {
+        render: (style: string) => {
             let id = `field-option-${++instance}`,
                 label = mode === 'prefix' ? 'Workspace address' : kind === 'input' ? 'Project name' : 'Notes',
                 state = reactive({ length: 0 }),
@@ -34,11 +34,12 @@ function moreFieldVariations(kind: 'input' | 'textarea'): Variant[] {
                         state.length = (event.target as HTMLInputElement | HTMLTextAreaElement).value.length;
                     },
                     placeholder: kind === 'input' ? 'Type here…' : 'Write a few notes…'
-                };
+                },
+                field = { ...attributes, class: style };
 
             return html`
-                <div class='field' style='width: min(100%, 400px);'>
-                    <label class='field-label' for='${id}'>${label}</label>
+                <div class='group group--column' style='width: min(100%, 400px);'>
+                    <label class='group-label' for='${id}'>${label}</label>
                     ${kind === 'textarea'
                         ? textarea({
                             ...attributes,
@@ -46,19 +47,19 @@ function moreFieldVariations(kind: 'input' | 'textarea'): Variant[] {
                             rows: mode === 'autosize' ? 2 : 4
                         })
                         : mode === 'prefix'
-                            ? field.tag({}, html`
-                                <span aria-hidden='true' class='field-tag-item field-tag-item--prefix'>workspace /</span>
-                                ${input(attributes)}
+                            ? group({}, html`
+                                <span aria-hidden='true' class='group-item group-item--overlay group-item--prefix'>workspace /</span>
+                                ${input(field)}
                             `)
-                            : input(attributes)}
+                            : input(field)}
                     ${mode === 'counter'
                         ? html`
                             <div style='display: flex; gap: var(--size-400); justify-content: space-between;'>
-                                <small class='field-description' id='${id}-hint'>${hint}</small>
-                                <small class='field-description' style='flex-shrink: 0; font-variant-numeric: tabular-nums;'>${() => state.length} / ${LIMIT}</small>
+                                <small class='group-description' id='${id}-hint'>${hint}</small>
+                                <small class='group-description' style='flex-shrink: 0; font-variant-numeric: tabular-nums;'>${() => state.length} / ${LIMIT}</small>
                             </div>
                         `
-                        : html`<small class='field-description' id='${id}-hint'>${hint}</small>`}
+                        : html`<small class='group-description' id='${id}-hint'>${hint}</small>`}
                 </div>
             `;
         },
