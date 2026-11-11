@@ -1,13 +1,10 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { select, shortcutRecorder } from '@esportsplus/ui/components';
+import { shortcutRecorder } from '@esportsplus/ui/components';
 import 'docs/examples/shortcut-recorder/scss/index.scss';
 
 
-type Direction = NonNullable<Parameters<typeof shortcutRecorder>[0]['direction']>;
-
 type Row = {
-    direction?: Direction;
     hint?: string;
     label: string;
     limit?: number;
@@ -18,9 +15,6 @@ type Row = {
 type State = { error: string, value: string };
 
 
-// Every side and corner the error can open on, clockwise from the top left.
-const DIRECTIONS: Direction[] = ['sw', 's', 'se'];
-
 // Deliberately long, to see the message wrap rather than run off in one line.
 const TAKEN: Record<string, string> = {
     'Mod+K': 'Open command menu',
@@ -28,14 +22,11 @@ const TAKEN: Record<string, string> = {
 };
 
 
-function row({ direction, hint, label, limit, state, taken }: Row, border = false) {
+function row({ hint, label, limit, state, taken }: Row, border = false) {
     return html`
-        <div class='shortcut-recorder-demo-row ${border && 'shortcut-recorder-demo-row--border'}'>
-            <div class='shortcut-recorder-demo-label'>
-                ${label}
-                ${hint && html`<span class='shortcut-recorder-demo-hint'>${hint}</span>`}
-            </div>
-            ${shortcutRecorder({ 'aria-label': `${label} shortcut`, direction, limit, state, taken })}
+        <div class='group group--row shortcut-recorder-demo-row ${border && 'shortcut-recorder-demo-row--border'}'>
+            <span class='group-label'>${label}</span>
+            ${shortcutRecorder({ 'aria-label': `${label} shortcut`, description: hint, limit, state, taken })}
         </div>
     `;
 }
@@ -60,32 +51,13 @@ function shortcuts() {
     `;
 }
 
-// The field renders afresh whenever the direction changes; the state outlives it.
+// The error slides open under the recorder; a long one wraps to its width.
 function errors() {
-    let direction = reactive({ active: false, error: '', selected: 's' }),
-        state = reactive({ error: '', value: '' });
+    let state = reactive({ error: '', value: '' });
 
     return html`
         <div class='shortcut-recorder-demo'>
-            ${() => row({
-                direction: direction.selected as Direction,
-                hint: 'K alone, Mod+K, or Mod+L for a long one',
-                label: 'Whole field',
-                state,
-                taken: (shortcut) => TAKEN[shortcut]
-            })}
-            <div class='shortcut-recorder-demo-row shortcut-recorder-demo-row--border'>
-                <div class='shortcut-recorder-demo-label'>
-                    Error direction
-                    <span class='shortcut-recorder-demo-hint'>Where the message opens</span>
-                </div>
-                ${select({
-                    class: 'shortcut-recorder-demo-direction',
-                    label: 'Error direction',
-                    options: DIRECTIONS.map((d) => ({ label: d, value: d })),
-                    state: direction
-                })}
-            </div>
+            ${row({ hint: 'K alone, Mod+K, or Mod+L for a long one', label: 'Whole field', state, taken: (shortcut) => TAKEN[shortcut] })}
         </div>
     `;
 }
@@ -112,7 +84,7 @@ export default {
         },
         {
             render: errors,
-            title: 'callout, whole field shakes'
+            title: 'errors'
         }
     ]
 };

@@ -116,7 +116,7 @@ const groups: Record<string, Group[]> = {
     select: [
         { title: 'options', members: [['options', 'Default'], ['pre-selected', 'Pre-selected'], ['font picker', 'Font picker'], ['settings', 'Settings'], ['controlled state', 'Controlled state']] }
     ],
-    'shortcut-recorder': [{ title: 'keyboard shortcuts', members: [['keyboard shortcuts', 'Default'], 'empty', 'limit', 'callout, whole field shakes'] }],
+    'shortcut-recorder': [{ title: 'keyboard shortcuts', members: [['keyboard shortcuts', 'Default'], 'empty', 'limit', 'errors'] }],
     story: [
         { title: 'stories', members: [['stories', 'Default'], ['any content', 'Custom content'], ['controlled, repeating, 2s per story', 'Controlled state, repeating, 2s duration']] },
         { title: 'float', members: [['float', 'Bars'], ['float: dots', 'Dots']] }

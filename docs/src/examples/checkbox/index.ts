@@ -41,10 +41,10 @@ export default {
                 ({ checkbox, header, hint }) => html`
                     ${header({ counter: true })}
                     ${notifications.map((item) => html`
-                        <label class='field field--row'>
+                        <label class='group group--row'>
                             ${checkbox({ checked: item.checked, value: item.id })}
-                            <span class='field-label'>${item.label}</span>
-                            <small class='field-description'>${item.description}</small>
+                            <span class='group-label'>${item.label}</span>
+                            <small class='group-description'>${item.description}</small>
                         </label>
                     `)}
                     ${hint()}
@@ -58,12 +58,12 @@ export default {
                 ({ checkbox, header, selected }) => html`
                     ${header()}
                     ${toppings.map((item) => html`
-                        <label class='field field--row'>
+                        <label class='group group--row'>
                             ${checkbox({ checked: item.id === 'basil', value: item.id })}
-                            <span class='field-label'>${item.label}</span>
+                            <span class='group-label'>${item.label}</span>
                         </label>
                     `)}
-                    <small class='field-description'>
+                    <small class='group-description'>
                         ${() => {
                             let ids = selected();
 

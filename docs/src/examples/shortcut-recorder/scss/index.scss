@@ -1,29 +1,10 @@
+// Rows of 'group--row', each label beside its recorder, divided like a settings list.
 .shortcut-recorder-demo {
     display: grid;
-    width: min(100%, 420px);
-
-    &-direction {
-        --width: 96px;
-    }
-
-    &-hint {
-        color: var(--color-text-300);
-        display: block;
-        font-size: var(--font-size-300);
-    }
-
-    &-label {
-        color: var(--color-text-500);
-        flex: 1 1 auto;
-        font-size: var(--font-size-400);
-        min-width: 0;
-    }
+    max-width: 100%;
+    width: 420px;
 
     &-row {
-        align-items: center;
-        display: flex;
-        gap: var(--size-400);
-        justify-content: space-between;
         padding: var(--size-400) 0;
 
         &--border {

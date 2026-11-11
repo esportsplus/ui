@@ -43,12 +43,12 @@ export default {
 
                 return html`
                     <fieldset class='radio-demo'>
-                        <legend class='field field--header radio-demo-legend'><span class='field-label'>Choose a size</span></legend>
+                        <legend class='group group--column group-header radio-demo-legend'><span class='group-label'>Choose a size</span></legend>
                         <div class='radio-demo-inline'>
                             ${sizes.map((size, index) => html`
-                                <label class='field field--row'>
+                                <label class='group group--row'>
                                     ${radio({ style, [radio.input]: { checked: index === 1, name, value: size } })}
-                                    <span class='field-label'>${size}</span>
+                                    <span class='group-label'>${size}</span>
                                 </label>
                             `)}
                         </div>
@@ -64,15 +64,15 @@ export default {
 
                 return html`
                     <fieldset class='radio-demo'>
-                        <legend class='field field--header radio-demo-legend'><span class='field-label'>Delivery</span></legend>
+                        <legend class='group group--column group-header radio-demo-legend'><span class='group-label'>Delivery</span></legend>
                         ${shipping.map((option) => html`
-                            <label class='field field--row'>
+                            <label class='group group--row'>
                                 ${choice(name, state, option.value)}
-                                <span class='field-label'>${option.title}</span>
-                                <small class='field-description'>${option.description}</small>
+                                <span class='group-label'>${option.title}</span>
+                                <small class='group-description'>${option.description}</small>
                             </label>
                         `)}
-                        <small class='field-description'>value: ${() => state.value}</small>
+                        <small class='group-description'>value: ${() => state.value}</small>
                     </fieldset>
                 `;
             },
