@@ -120,18 +120,12 @@
         user-select: none;
     }
 
-    // A track under the search, as the docs' preview and code switch is, whose raised highlight glides between the
-    // tabs; a long row scrolls sideways rather than wrapping.
+    // A long row scrolls sideways rather than wrapping.
     &-tabs {
-        background: var(--background);
-        border-radius: var(--border-radius);
         flex-shrink: 0;
-        gap: var(--gap-vertical) var(--gap-horizontal);
         margin-block: var(--margin-vertical) 0;
         margin-inline: var(--margin-horizontal);
         overflow-x: auto;
-        padding-block: var(--padding-vertical);
-        padding-inline: var(--padding-horizontal);
         scrollbar-width: none;
     }
 

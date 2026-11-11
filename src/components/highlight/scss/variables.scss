@@ -101,6 +101,7 @@
         --scale-default: 1;
     }
 
+    // Steps measured from the container it rides, as a group--surface track.
     &--surface {
         @extend %background-surface;
 
@@ -113,10 +114,10 @@
         }
 
         :where([data-theme='light']) & {
-            @include surface.step(-3);
+            @include surface.step(-2);
 
             @include tokens.state(active) {
-                @include surface.step(3);
+                @include surface.step(2);
             }
         }
     }

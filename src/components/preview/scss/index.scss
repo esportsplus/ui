@@ -122,9 +122,6 @@
     // scrolling to the example still shows the buttons.
     &-view {
         align-self: flex-start;
-        background: var(--background);
-        border-radius: var(--border-radius);
-        padding: var(--padding-vertical) var(--padding-horizontal);
         width: fit-content;
 
         &-button {

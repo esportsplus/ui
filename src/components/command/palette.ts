@@ -781,9 +781,9 @@ export default component(
 
                                 ${views.length > 1 && group(
                                     {
-                                        [group.highlight]: { class: 'command-tabs-highlight' },
+                                        [group.highlight]: { class: 'highlight--surface' },
                                         'aria-label': 'Views',
-                                        class: 'command-tabs',
+                                        class: 'group--surface command-tabs',
                                         role: 'tablist'
                                     },
                                     views.map((view) => html`

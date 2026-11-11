@@ -2,7 +2,6 @@
 @use 'css-utilities/border';
 @use 'css-utilities/box-shadow';
 @use 'css-utilities/surface';
-@use '/tokens';
 
 // Qualified by the class each part shares an element with (card, select, button, highlight, icon, code viewer), so
 // these win over that component's own variables whatever order the stylesheets load in.
@@ -86,31 +85,13 @@
     }
 
     &-view {
-        --background: var(--surface-background-default);
-        --border-radius: var(--border-radius-600);
         // Pulls the buttons down onto the card below, out of the page's gap.
         --overlap: calc(var(--size-100) - var(--size-800));
-        --padding-horizontal: calc(var(--size-100) / 4);
-        --padding-vertical: calc(var(--size-100) / 4);
-
-        &-button {
-            --border-radius: var(--border-radius-400);
-            --font-size: var(--font-size-300);
-            --padding-vertical: var(--size-100);
-        }
 
         // Clears the buttons above it, so scrolling to the example still shows them. Qualified so it beats the card's
         // own scroll margin.
         + .preview.card {
             --scroll-margin-vertical: calc(var(--size-500) + var(--size-800) + var(--size-100));
-        }
-
-        :where([data-theme='dark']) & {
-            @include surface.step(-3);
-        }
-
-        :where([data-theme='light']) & {
-            @include surface.step(-2);
         }
     }
 

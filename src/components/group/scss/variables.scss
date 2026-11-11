@@ -1,3 +1,5 @@
+@use 'css-utilities/surface';
+
 .group {
     --gap-horizontal: var(--size-400);
     --gap-vertical: var(--size-200);
@@ -9,6 +11,29 @@
 
     &--row {
         --gap-vertical: var(--size-100);
+    }
+
+    // Qualified through the group so the buttons' sizes win over their own, whatever order the stylesheets load in. Its
+    // highlight takes 'highlight--surface'.
+    &--surface {
+        --background: var(--surface-background-default);
+        --border-radius: var(--border-radius-600);
+        --padding-horizontal: calc(var(--size-100) / 4);
+        --padding-vertical: calc(var(--size-100) / 4);
+
+        :where([data-theme='dark']) & {
+            @include surface.step(-3);
+        }
+
+        :where([data-theme='light']) & {
+            @include surface.step(-2);
+        }
+
+        & > .button {
+            --border-radius: var(--border-radius-400);
+            --font-size: var(--font-size-300);
+            --padding-vertical: var(--size-100);
+        }
     }
 
     // One width for every row's control, so a column of rows lines its controls up whatever their labels say. Prefixed,

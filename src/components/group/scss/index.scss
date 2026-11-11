@@ -8,6 +8,11 @@
     @extend %group;
     min-width: 0;
 
+    // Its own display would otherwise outrank the attribute's.
+    &[hidden] {
+        display: none;
+    }
+
 
     &--column {
         flex-flow: column;
@@ -51,6 +56,14 @@
     &--row:has(> #{&}-description) > :not(#{&}-description, #{&}-label) {
         grid-column: 2;
         grid-row: 1 / span 2;
+    }
+
+    // A track sunk below what it sits on.
+    &--surface {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
     }
 
 

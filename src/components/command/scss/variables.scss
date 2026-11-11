@@ -1,8 +1,5 @@
-@use 'css-utilities/background';
-@use 'css-utilities/box-shadow';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
-@use '/tokens';
 
 .command {
     --color: var(--color-text-500);
@@ -125,51 +122,16 @@
         --margin-vertical: var(--size-100);
     }
 
-    // The highlight paints the tab backgrounds, so the buttons only carry colour; sized as the docs' preview and code
-    // buttons are.
+    // The highlight paints the tab backgrounds, so the buttons only carry colour.
     &-tab {
         @extend %color-text;
-        --border-radius: var(--border-radius-400);
-        --font-size: var(--font-size-300);
-        --padding-vertical: var(--size-100);
     }
 
-    // A level below the card, as the docs' preview and code switch is below the page.
     &-tabs {
-        @extend %surface;
-        --background: var(--surface-background-default);
-        --border-radius: var(--border-radius-600);
         --margin-horizontal: var(--size-100);
         --margin-vertical: var(--size-200);
-        --padding-horizontal: calc(var(--size-100) / 4);
-        --padding-vertical: calc(var(--size-100) / 4);
         // Keep the tab strip hidden when an ancestor opts into site-wide scrollbar styling.
         --scrollbar-width: none;
-
-        :where([data-theme='dark']) & {
-            @include surface.step(-1);
-        }
-
-        :where([data-theme='light']) & {
-            @include surface.step(-2);
-        }
-
-        // Raised off the track, as the docs' switch highlight is; qualified to outrank the highlight's own defaults.
-        &-highlight.highlight {
-            @extend %background-surface;
-
-            :where([data-theme='dark']) & {
-                @include surface.step(1);
-            }
-
-            :where([data-theme='light']) & {
-                @include surface.step(-2);
-
-                @include tokens.state(active) {
-                    @include surface.step(2);
-                }
-            }
-        }
     }
 
     &-view {
