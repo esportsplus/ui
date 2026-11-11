@@ -1,23 +1,28 @@
-import { effect, flush, reactive } from '@esportsplus/reactivity';
-import { html, type Renderable } from '@esportsplus/template';
+import { effect, reactive } from '@esportsplus/reactivity';
+import { html } from '@esportsplus/template';
 import { error, input, select } from '@esportsplus/ui/components';
-import alternatives from 'docs/examples/error/alternatives';
 import 'docs/examples/error/scss/index.scss';
 
 
-// The error's own look: a fill class and the glass modifier.
-type Look = Pick<Parameters<typeof error>[0], 'class' | 'glass'>;
+type Check = (value: string) => string[];
 
-type Text = Look & {
-    check: (value: string) => string;
+type Text = {
+    check: Check;
+    description?: string;
     duration?: number;
     label: string;
     placeholder: string;
+    row?: boolean;
     type?: string;
+    // Starts filled in, its errors already showing.
+    value?: string;
 };
 
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Personal providers, turned away so the list shows a long, wrapping message.
+const PERSONAL = new Set(['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com']);
 
 const WEEKEND = new Set(['saturday', 'sunday']);
 
@@ -27,77 +32,94 @@ let instance = 0;
 
 function email(value: string) {
     if (!value) {
-        return 'Required';
+        return ['Required'];
     }
 
-    return EMAIL.test(value) ? '' : 'That doesn\'t look like an email address';
+    return EMAIL.test(value) ? [] : ['That doesn\'t look like an email address'];
 }
 
-// A repeat is cleared and flushed first, so the error sees a new failure and shakes again.
-function fail(state: { error: string }, text: string) {
-    if (state.error === text) {
-        state.error = '';
-        flush();
+// Every problem with an address at once, so the error can list them together.
+function issues(value: string) {
+    if (!value) {
+        return ['Required'];
     }
 
-    state.error = text;
-}
+    let at = value.lastIndexOf('@'),
+        domain = value.slice(at + 1).toLowerCase(),
+        found: string[] = [];
 
-function field(label: string, id: string, control: Renderable<unknown>, row = false) {
-    return html`
-        <div class='field ${row ? 'field--row' : ''}'>
-            <label class='field-label' for='${id}'>${label}</label>
-            ${control}
-        </div>
-    `;
+    if (/\s/.test(value)) {
+        found.push('Remove the spaces');
+    }
+
+    if (value.startsWith('.') || value.endsWith('.')) {
+        found.push('Addresses can\'t start or end with a dot');
+    }
+
+    if (at === -1) {
+        found.push('Add an @ between the name and the domain');
+    }
+    else {
+        if (value.indexOf('@') !== at) {
+            found.push('Use only one @');
+        }
+
+        if (!/\.[^.\s]+$/.test(domain)) {
+            found.push('Add a domain after the @, like example.com');
+        }
+
+        if (PERSONAL.has(domain)) {
+            found.push('Use your work address; personal domains like gmail.com aren\'t accepted for team accounts');
+        }
+    }
+
+    return found;
 }
 
 function name(value: string) {
     if (!value) {
-        return 'Required';
+        return ['Required'];
     }
 
-    return value.length < 2 ? 'Use at least 2 characters' : '';
+    return value.length < 2 ? ['Use at least 2 characters'] : [];
 }
 
-// Name and email stacked, in one of the error's looks.
-function pair(look: Look = {}) {
+// Checked on leaving the field or on Enter, then again as you type once it shows an error, so the error goes the
+// moment the value is fixed.
+function text({ check, description, duration, label, placeholder, row = false, type = 'text', value }: Text) {
+    let id = `error-example-${++instance}`,
+        state = reactive({ active: false, error: value === undefined ? '' : check(value).join('\n') });
+
+    function validate(value: string) {
+        state.error = check(value).join('\n');
+    }
+
     return html`
-        <div class='error-demo'>
-            ${text({ ...look, check: name, label: 'Name', placeholder: 'Ada Lovelace' })}
-            ${text({ ...look, check: email, label: 'Email', placeholder: 'you@example.com', type: 'email' })}
+        <div class='group ${row ? 'group--row' : 'group--column'}'>
+            <label class='group-label' for='${id}'>${label}</label>
+            ${input({
+                'aria-describedby': `${id}-error`,
+                'aria-invalid': () => state.error ? 'true' : 'false',
+                id,
+                onblur: (e: FocusEvent) => validate((e.target as HTMLInputElement).value),
+                oninput: (e: Event) => {
+                    if (state.error) {
+                        validate((e.target as HTMLInputElement).value);
+                    }
+                },
+                onkeydown: (e: KeyboardEvent) => {
+                    if (e.key === 'Enter') {
+                        validate((e.target as HTMLInputElement).value);
+                    }
+                },
+                placeholder,
+                state,
+                type,
+                value
+            })}
+            ${error({ description, duration, id: `${id}-error`, state })}
         </div>
     `;
-}
-
-// Checked on Enter; typing or leaving the field clears the error.
-function text({ check, class: classname, duration, glass, label, placeholder, type = 'text' }: Text, row = false) {
-    let id = `error-example-${++instance}`,
-        state = reactive({ active: false, error: '' });
-
-    return field(label, id, error({ class: classname, duration, glass, state }, input({
-        id,
-        oninput: () => {
-            state.error = '';
-        },
-        onkeydown: (e: KeyboardEvent) => {
-            if (e.key !== 'Enter') {
-                return;
-            }
-
-            let message = check((e.target as HTMLInputElement).value);
-
-            if (message) {
-                fail(state, message);
-            }
-            else {
-                state.error = '';
-            }
-        },
-        placeholder,
-        state,
-        type
-    })), row);
 }
 
 
@@ -105,29 +127,39 @@ export default {
     name: 'error',
     variants: [
         {
-            render: () => pair(),
-            title: 'input · press Enter to check'
+            render: () => html`
+                <div class='error-demo'>
+                    ${text({ check: name, label: 'Name', placeholder: 'Ada Lovelace' })}
+                    ${text({ check: email, label: 'Email', placeholder: 'you@example.com', type: 'email' })}
+                </div>
+            `,
+            title: 'input · leave the field or press Enter'
         },
         {
-            render: () => pair({ glass: 'uniform' }),
-            title: 'input, error--glass'
-        },
-        {
-            render: () => pair({ class: 'error--surface' }),
-            title: 'input, error--surface'
-        },
-        {
-            render: () => pair({ class: 'error--surface-primary' }),
-            title: 'input, error--surface-primary'
+            render: () => html`
+                <div class='error-demo'>
+                    ${text({ check: name, description: 'Shown on invoices and shared links.', label: 'Name', placeholder: 'Ada Lovelace' })}
+                    ${text({ check: issues, description: 'We only use this for sign-in links.', label: 'Work email', placeholder: 'you@company.com', type: 'email' })}
+                </div>
+            `,
+            title: 'input, description'
         },
         {
             render: () => html`
                 <div class='error-demo error-demo--row'>
-                    ${text({ check: name, label: 'Name', placeholder: 'Ada Lovelace' }, true)}
-                    ${text({ check: email, label: 'Email', placeholder: 'you@example.com', type: 'email' }, true)}
+                    ${text({ check: name, label: 'Name', placeholder: 'Ada Lovelace', row: true })}
+                    ${text({ check: email, label: 'Email', placeholder: 'you@example.com', row: true, type: 'email' })}
                 </div>
             `,
-            title: 'input, field--row'
+            title: 'input, group--row'
+        },
+        {
+            render: () => html`
+                <div class='error-demo'>
+                    ${text({ check: issues, label: 'Work email', placeholder: 'you@company.com', type: 'email', value: '.a b@gmail.com' })}
+                </div>
+            `,
+            title: 'input, multiple errors'
         },
         {
             render: () => html`
@@ -147,20 +179,20 @@ export default {
 
                 return html`
                     <div class='error-demo'>
-                        <div class='field'>
-                            <span aria-hidden='true' class='field-label'>Week starts on</span>
-                            ${error({ state }, select({
+                        <div class='group group--column'>
+                            <span aria-hidden='true' class='group-label'>Week starts on</span>
+                            ${select({
                                 label: 'Week starts on',
                                 options: { monday: 'Monday', saturday: 'Saturday', sunday: 'Sunday' },
                                 state,
                                 style: '--width: 100%;'
-                            }))}
+                            })}
+                            ${error({ description: 'Calendars and date pickers start here.', state })}
                         </div>
-                    </div>
+                        </div>
                 `;
             },
-            title: 'select · pick a weekend day'
-        },
-        ...alternatives
+            title: 'select, description · pick a weekend day'
+        }
     ]
 };

@@ -1,11 +1,12 @@
-// Fields stacked at their usual spacing: an open error overlays the field below rather than pushing it down.
 .error-demo {
     display: flex;
     flex-direction: column;
     gap: var(--size-400);
-    width: min(100%, 320px);
+    max-width: 100%;
+    width: 320px;
+
 
     &--row {
-        width: min(100%, 440px);
+        width: 440px;
     }
 }

@@ -1,52 +1,20 @@
-@use 'css-utilities/background';
-@use 'css-utilities/box-shadow';
-
-// Prefixed where the wrapper sets them, unlike most components: the wrapper's custom properties inherit into the control
-// it wraps, and a plain '--color' or '--duration' there would restyle it.
+// Prefixed where the error sets them, unlike most components: they inherit into the accordions and text inside it, and a
+// plain '--duration' there would restyle them.
 .error {
-    // How far the shake swings each way.
-    --error-reach: 4px;
-    --error-shake-duration: 320ms;
-    --error-shake-timing-function: ease-out;
-    // The gap the message leaves around the control it wraps, on every side.
-    --error-spacing: 2px;
-    // Above the tooltips' own raised level (9), so an open error stays over hovered siblings.
-    --error-z-index: 10;
+    --error-duration: 240ms;
+    // How far the description and the message travel as they swap.
+    --error-slide: var(--size-100);
+    --error-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 
-
-    // The control draws its edge from '--border-color', as the form controls do. Doubled, so it outranks the control's
-    // own hover and active states whatever order the sheets load in.
-    &#{&}--invalid#{&}--invalid > :not(.error-live, .error-message) {
-        --border-color: var(--color-red-400);
+    @media (prefers-reduced-motion: reduce) {
+        --error-slide: 0px;
     }
 
 
-    // Fills, as the button's: the tooltip's own primary by default, frosted glass, or the surface's fills; the text stays
-    // red on every one. Chained through '.tooltip-message' so each wins over the tooltip's own fill regardless of
-    // stylesheet order.
-    &--glass > &-message.tooltip-message {
-        --background-default: oklch(from var(--surface-background-default) l c h / var(--background-opacity));
-        --background-opacity: 0.6;
-    }
-
-    &--surface > &-message.tooltip-message {
-        @extend %background-surface;
-    }
-
-    &--surface-primary > &-message.tooltip-message {
-        @extend %background-surface-primary, %box-shadow-surface;
-    }
-
-
-    &-message.tooltip-message {
-        // Concentric with the control's corners, the gap further out.
-        --border-radius: calc(var(--error-host-radius) + var(--error-spacing));
-        --color: var(--color-red-400);
-        // Measured inline from the control; these hold until it first measures.
-        --error-host-height: 0px;
-        --error-host-radius: var(--border-radius-400);
-        --font-weight: var(--font-weight-600);
-        // The wrapper is the containing block and sized to the control, so it spans the control and the gap either side.
-        --min-width: calc(100% + var(--error-spacing) * 2);
+    // Both accordions take one timing whichever way they move, so a swap of equal heights holds everything still.
+    // Qualified past the accordion's own open and closed timings.
+    > .accordion.accordion {
+        --transition-duration: var(--error-duration);
+        --transition-timing-function: var(--error-timing-function);
     }
 }

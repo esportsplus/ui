@@ -3,41 +3,42 @@
 @use 'variables';
 
 .error {
-    cursor: auto;
-    display: inline-flex;
-    vertical-align: middle;
+    display: flex;
+    flex-direction: column;
 
 
-    // Clearing, the control drops its red edge and fill at once, with the message, rather than fading back.
-    &--leaving > :not(.error-live, .error-message) {
-        transition: none;
+    // The text fades and travels as its accordion opens and closes: the description down and out, the message down and
+    // in.
+    > .accordion > .accordion-content {
+        transition:
+            opacity var(--error-duration) var(--error-timing-function),
+            translate var(--error-duration) var(--error-timing-function);
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
     }
 
-    // Two copies, keyed by the shake class parity, so every failure restarts it.
-    @each $shake in 1 2 {
-        &#{&}--shake-#{$shake} > :not(.error-live, .error-message) {
-            animation: error--shake-#{$shake} var(--error-shake-duration) var(--error-shake-timing-function);
-
-            @media (prefers-reduced-motion: reduce) {
-                animation: none;
+    > .accordion {
+        @include tokens.state(inactive) {
+            > .accordion-content {
+                opacity: 0;
             }
         }
+    }
 
-        @keyframes error--shake-#{$shake} {
-            20% {
-                translate: calc(var(--error-reach) * -1);
+    > .error-description {
+        @include tokens.state(inactive) {
+            > .accordion-content {
+                translate: 0 var(--error-slide);
             }
+        }
+    }
 
-            40% {
-                translate: var(--error-reach);
-            }
-
-            60% {
-                translate: calc(var(--error-reach) * -0.75);
-            }
-
-            80% {
-                translate: calc(var(--error-reach) * 0.75);
+    > .error-message {
+        @include tokens.state(inactive) {
+            > .accordion-content {
+                translate: 0 calc(var(--error-slide) * -1);
             }
         }
     }
@@ -46,43 +47,17 @@
     &-live {
         @extend %hidden-visually;
     }
+}
 
-    // Wraps the control a gap out on every side and runs on below it, where the text starts past the control. Behind the
-    // control within the wrapper, which rises over its siblings while open, so it shows around the control and over
-    // everything else.
-    &-message.tooltip-message {
-        padding-top: calc(var(--error-spacing) + var(--error-host-height) + var(--padding-vertical));
-        position: absolute;
-        top: calc(var(--error-spacing) * -1);
-        z-index: -1;
+// In a 'group--row', a line of its own under the control, as wide as it and ending with it; beside a description, in
+// the control's column. Chained through '.group' so it wins over the row's own placement regardless of stylesheet order.
+.group.group--row {
+    > .error {
+        margin-inline-start: auto;
     }
 
-    &-message--s {
-        left: 50%;
-        translate: -50% 0;
-    }
-
-    &-message--se {
-        right: calc(var(--error-spacing) * -1);
-    }
-
-    &-message--sw {
-        left: calc(var(--error-spacing) * -1);
-    }
-
-
-    &.tooltip {
-        // Over a hovered sibling tooltip, which rises to the same level and would paint over the message when it comes
-        // later in the page.
-        @include tokens.state(active) {
-            z-index: var(--error-z-index);
-        }
-
-        // Hides at once instead of fading out.
-        @include tokens.state(inactive) {
-            > .error-message.tooltip-message {
-                transition: none;
-            }
-        }
+    &:has(> .group-description) > .error {
+        grid-column: 2;
+        grid-row: auto;
     }
 }
