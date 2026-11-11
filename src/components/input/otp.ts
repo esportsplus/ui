@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import input from './field';
-import '~/components/field/scss/index.scss';
+import '~/components/group/scss/index.scss';
 
 
 type A = Attributes & {
@@ -12,6 +12,7 @@ type A = Attributes & {
     length?: number;
     state?: State;
     value?: string;
+    variant?: 'border' | 'surface' | 'surface-primary';
 };
 
 type State = {
@@ -34,6 +35,7 @@ export default component(
             length = 6,
             value = '',
             state = reactive({ value }),
+            variant,
             ...attributes
         }: A
     ) {
@@ -45,7 +47,8 @@ export default component(
                 'aria-invalid': invalid && 'true',
                 'aria-label': `Digit ${index + 1} of ${length}`,
                 autocomplete: index === 0 ? 'one-time-code' : 'off',
-                class: 'input--otp',
+                // The first cell of each group after the first is pushed off the one before it.
+                class: ['input--otp', index > 0 && index % size === 0 && 'input--otp-break', variant && `input--${variant}`],
                 disabled,
                 inputmode: 'numeric',
                 maxlength: length,
@@ -157,17 +160,13 @@ export default component(
 
         return html`
             <div
-                class='field field--otp'
+                class='group input-otp'
                 role='group'
                 ${this?.attributes}
                 ${attributes}
                 ${{ onmousedown: press }}
             >
-                ${Array.from({ length: Math.ceil(length / size) }, (_, g) => html`
-                    <div class='field--otp-group'>
-                        ${Array.from({ length: Math.min(size, length - g * size) }, (_, i) => cell(g * size + i))}
-                    </div>
-                `)}
+                ${Array.from({ length }, (_, index) => cell(index))}
             </div>
         `;
     }

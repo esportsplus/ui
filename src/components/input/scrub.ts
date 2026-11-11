@@ -1,9 +1,8 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import tag from '~/components/field/tag';
+import group from '~/components/group';
 import { swallow } from '~/shared/press';
 import input from './field';
-import '~/components/field/scss/index.scss';
 
 
 type A = Attributes & {
@@ -21,7 +20,7 @@ type A = Attributes & {
     suffix?: string;
     value?: number;
     // The input's surface modifier.
-    variant?: 'surface' | 'surface-primary';
+    variant?: 'border' | 'surface' | 'surface-primary';
 };
 
 type D = Attributes & Pick<A, typeof INPUT_SCRUB_FIELD | typeof INPUT_SCRUB_LABEL>;
@@ -249,7 +248,7 @@ export default component(
 
         // An input with the letter or icon floating at its start and the tape along its foot, so the box, its states
         // and its variants are the input's own.
-        return tag.call({ attributes: this?.attributes }, {
+        return group.call({ attributes: this?.attributes }, {
             ...attributes,
             class: ['input-scrub', () => local.scrubbing && '--active', attributes.class ?? []].flat(),
             ondisconnect: () => {
@@ -273,7 +272,7 @@ export default component(
             }
         }, html`
             <span
-                class='field-tag-item input-scrub-label'
+                class='group-item group-item--overlay input-scrub-label'
                 ${this?.attributes?.[INPUT_SCRUB_LABEL]}
                 ${attributes[INPUT_SCRUB_LABEL]}
                 ${drag}

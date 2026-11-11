@@ -6,29 +6,44 @@
 @use 'css-utilities/font/geist';
 @use 'css-utilities/surface';
 
-// The checkbox's edge: the surface's border colors, a step thicker while focused. The border keeps its resting width,
-// and the extra step is an outline drawn just inside it, so neither the box nor the text moves as it thickens.
 .input {
     @extend %background-state, %border-state, %box-shadow-surface, %box-shadow-state, %color-state;
-    --border-color-active: var(--color-primary-300);
-    --border-color-default: var(--surface-border-default);
-    --border-color-hover: var(--surface-border-hover);
-    --border-color-pressed: var(--surface-border-pressed);
-    --border-radius: var(--border-radius-400);
-    --border-style: solid;
-    --border-width: var(--border-width-default);
-    --border-width-active: var(--border-width-500);
-    --border-width-default: var(--border-width-400);
     --font-size: var(--font-size-400);
-    --outline-width: 0px;
     --padding-horizontal: var(--size-300);
     --padding-vertical: var(--size-100);
     --size: var(--size-400);
 
-    @include tokens.state(active) {
-        --outline-width: max(0px, calc(var(--border-width-active) - var(--border-width)));
+
+    // Its height is the text's, so it can't be dragged.
+    &--autoresize {
+        --resize: none;
+        --resize-duration: 240ms;
+        --resize-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        --scrollbar-gutter: stable;
+        --scrollbar-overflow: hidden;
     }
 
+    &--border {
+        --border-color-active: var(--color-primary-300);
+        --border-color-default: var(--surface-border-default);
+        --border-color-hover: var(--surface-border-hover);
+        --border-color-pressed: var(--surface-border-pressed);
+        --border-radius: var(--border-radius-400);
+        --border-style: solid;
+        --border-width: var(--border-width-default);
+        --border-width-active: var(--border-width-500);
+        --border-width-default: var(--border-width-400);
+        --outline-width: 0px;
+
+        @include tokens.state(active) {
+            --outline-width: max(0px, calc(var(--border-width-active) - var(--border-width)));
+
+            // Keep the same outline while mouse is held down
+            &:active {
+                --outline-width: 0px;
+            }
+        }
+    }
 
     // Wraps and scrolls as a textarea does, resized by hand only in height, since its width is the layout's. First, so
     // '--autoresize' and '--measure', which only ever refine it, replace its overflow, resize and white space.
@@ -39,13 +54,15 @@
         --white-space: pre-wrap;
     }
 
-    // Its height is the text's, so it can't be dragged.
-    &--autoresize {
-        --resize: none;
-        --resize-duration: 240ms;
-        --resize-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        --scrollbar-gutter: stable;
-        --scrollbar-overflow: hidden;
+    // Styled as the command palette's trigger: raised off its parent on the surface's fill and shadow, with no border
+    // until focus rings it, sized to one 24px keycap line. Before '--compact', which resizes it.
+    &--search {
+        @extend %color-text, %surface-raise;
+        --background-default: var(--surface-background-default);
+        --border-width-active: var(--border-width-500);
+        --font-size: calc(var(--font-size-400) * 0.875);
+        --padding-vertical: var(--size-100);
+        --size: 24px;
     }
 
     &--compact {
@@ -63,6 +80,13 @@
         &-nowrap {
             --white-space: pre;
         }
+    }
+
+    // The cells' gap, and what a group's first cell adds to it to sit a group's width apart; qualified by the group so
+    // they win over its own gaps regardless of stylesheet order.
+    &-otp.group {
+        --gap-horizontal: var(--size-100);
+        --input-otp-break: calc(var(--size-500) - var(--size-100));
     }
 
     // One character to a square cell, its edge taking the brand color while focused.
@@ -89,14 +113,24 @@
         }
     }
 
-    // Read by the field, and by a 'field-tag' around it, which sinks in its place; held still under reduced motion.
+    // Read by the field, and by a group floating items over it, which sinks in its place; held still under reduced motion.
     @at-root #{&}--tactile,
-    .field-tag:has(> #{&}--tactile) {
+    .group:has(> .group-item--overlay):has(> #{&}--tactile) {
         --translate-pressed: 0 1px;
 
         @media (prefers-reduced-motion: reduce) {
             --translate-pressed: none;
         }
+    }
+
+    // A field takes focus, and so its active state, as the press starts, which the pressed state steps aside for. Held
+    // here instead, so every press shows, focused or not. Chained through ':active' so it wins over the active state
+    // regardless of stylesheet order; before '--tactile', which drops the shadow while pressed.
+    #{tokens.state(active)}:active {
+        --background: var(--background-pressed);
+        --border-color: var(--border-color-pressed);
+        --box-shadow: var(--box-shadow-pressed);
+        --color: var(--color-pressed);
     }
 
     // Its shadow drops while pressed, focused or not. Chained through '.input' so it wins over the state's own shadow
@@ -125,24 +159,33 @@
     }
 
     &-scrub {
+        // Qualified like the rule it feeds, so it wins over the reused input's own value regardless of stylesheet order.
+        & > #{&}-field {
+            // Matches the label's '--padding-horizontal', so the value ends as far in as the label's text starts.
+            --padding-end: calc(var(--size-100) / 2);
+            --text-align: right;
+        }
+
+        // A square for one letter, growing with longer text so a word keeps the space a single letter has on each side.
+        // An icon fills the square on its own.
         &-label {
             @extend %color-state, %color-text;
             --font-size: var(--font-size-300);
             --height: var(--size-600);
-            --width: var(--size-600);
+            --min-width: var(--size-600);
+            --padding-horizontal: calc(var(--size-100) / 2);
+
+            &:has(svg) {
+                --padding-horizontal: 0px;
+            }
         }
 
-        // Hidden until the field is pointed at or in use: hovered, typed in or dragged.
+        // Hidden until a bordered field is dragged; a borderless one has no edge for it to stand on.
         &-needle {
             --background: var(--color-primary-500);
             --height: 8px;
             --opacity: 0;
             --width: 8px;
-        }
-
-        &-tape:hover #{&}-needle,
-        &:has(> #{&}-field.--active) #{&}-needle {
-            --opacity: 1;
         }
 
         // Faint at rest so it reads as a handle, full under the pointer and while scrubbing; it fades back slower
@@ -177,6 +220,10 @@
         }
 
         @include tokens.state(active) {
+            &:has(> .input-scrub-field.input--border) .input-scrub-needle {
+                --opacity: 1;
+            }
+
             .input-scrub-tape {
                 --opacity: var(--opacity-active);
                 --transition-duration: 150ms;
@@ -195,6 +242,11 @@
     &-search:has(> .input--compact) > &-search-keys > .button {
         --padding-horizontal: calc(var(--size-100) * 0.75);
         --padding-vertical: calc(var(--size-100) / 2);
+    }
+
+    // Read-only, the search is a trigger, so its text steps through the states as a button's does.
+    &-search > #{&}[readonly] {
+        @extend %color-text;
     }
 
     // A typed tag becomes a chip without its letters shifting: the chip's text and the field share one inset.
@@ -303,8 +355,6 @@
 
         // Qualified so it wins over the reused input styles regardless of stylesheet order.
         &-entry > #{&}-field {
-            --border-width-active: 0px;
-            --border-width-default: 0px;
             --box-shadow-active: none;
             --box-shadow-default: none;
             --box-shadow-hover: none;
@@ -340,4 +390,9 @@
         --color-default: var(--color-red-400);
         --outline-width: max(0px, calc(var(--border-width-500) - var(--border-width)));
     }
+}
+
+// A compact field's overlay icon shrinks with it. Qualified past the group's own overlay icon size.
+.group:has(> .group-item--overlay):has(> .input--compact) > .group-item--overlay.icon {
+    --size: var(--size-400);
 }

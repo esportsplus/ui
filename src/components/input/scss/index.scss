@@ -16,7 +16,6 @@
 .input {
     align-items: center;
     background: var(--background);
-    border: var(--border-width) var(--border-style) var(--border-color);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     color: var(--color);
@@ -28,8 +27,6 @@
     // Holds the height of password fields hidden in floating modals, which password managers need kept rendered.
     min-height: calc((var(--padding-vertical) * 2) + var(--size));
     min-width: 0;
-    outline: var(--outline-width) solid var(--border-color);
-    outline-offset: calc((var(--border-width) + var(--outline-width)) * -1);
     overflow: hidden;
     padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
     padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
@@ -74,6 +71,12 @@
         }
     }
 
+    &--border {
+        border: var(--border-width) var(--border-style) var(--border-color);
+        outline: var(--outline-width) solid var(--border-color);
+        outline-offset: calc((var(--border-width) + var(--outline-width)) * -1);
+    }
+
     // The field's text laid out in a box of its own, which the field's height follows; hidden, out of flow and out of
     // reach. Typography restates what a textarea's UA styles set and a block box would inherit instead; line height
     // and tracking come from the same author rules as the field's.
@@ -109,17 +112,11 @@
         font-weight: var(--font-weight);
         text-align: center;
         width: var(--size);
-    }
 
-    // Sinks 1px while pressed, as 'button--tactile' does. Held by ':active' rather than the pressed state, since the
-    // press focuses the field and focus is its active state. Inside a 'field-tag' the wrapper sinks instead, so the
-    // items floating over the field go with it; they center by 'translate', which the field's own would fight.
-    &--tactile:active:not(.field-tag > *) {
-        translate: var(--translate-pressed);
-    }
-
-    @at-root .field-tag:has(> #{&}--tactile:active) {
-        translate: var(--translate-pressed);
+        // Starts a group of cells, set further from the last group than the cells within one are from each other.
+        &-break {
+            margin-inline-start: var(--input-otp-break);
+        }
     }
 
     // Multi-line text in the input's box: wrapped and scrolled as a textarea is, where the box itself is a row.
@@ -130,6 +127,25 @@
         white-space: var(--white-space);
     }
 
+
+    // A code's cells on one line. Qualified by the group so it wins over the group's own wrapping regardless of
+    // stylesheet order.
+    &-otp.group {
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+    // Sinks 1px while pressed, as 'button--tactile' does. Held by ':active' rather than the pressed state, since the
+    // press focuses the field and focus is its active state. Inside a group with overlay items the group sinks
+    // instead, so the items floating over the field go with it; they center by 'translate', which the field's own
+    // would fight.
+    &--tactile:active:not(.group:has(> .group-item--overlay) > *) {
+        translate: var(--translate-pressed);
+    }
+
+    @at-root .group:has(> .group-item--overlay):has(> #{&}--tactile:active) {
+        translate: var(--translate-pressed);
+    }
 
     &-password-toggle {
         align-items: center;
@@ -162,11 +178,15 @@
         width: 100%;
     }
 
-    // A 'field-tag' around an input: the label floats at its start and the tape runs along its foot.
+    // A group around an input: the label floats over its start and the tape runs along its foot.
     &-scrub {
         // Qualified by the root so it wins over the reused input styles regardless of stylesheet order.
+        // Its end mirrors the label's start: the group's measured inset plus the label's own padding, less the border
+        // its padding already insets by.
         & > #{&}-field {
             font-variant-numeric: tabular-nums;
+            padding-inline-end: calc(var(--start-inset) + var(--padding-end) - var(--border-width));
+            text-align: var(--text-align);
         }
 
         &-label {
@@ -177,10 +197,12 @@
             font-size: var(--font-size);
             height: var(--height);
             justify-content: center;
+            min-width: var(--min-width);
+            padding-inline: var(--padding-horizontal);
             touch-action: none;
             transition: color var(--transition-duration) var(--transition-timing-function);
             user-select: none;
-            width: var(--width);
+            white-space: nowrap;
 
             svg {
                 height: var(--size-400);
@@ -240,8 +262,20 @@
             appearance: none;
         }
 
+        // Read-only, it stands in for a button that opens a search elsewhere, so its placeholder reads as the button's
+        // label.
+        & > .input[readonly] {
+            cursor: pointer;
+
+            &::placeholder {
+                color: var(--color);
+                opacity: 1;
+            }
+        }
+
         // Legends, not controls: no hover or press, and a press falls through to the field.
         &-keys {
+            align-items: center;
             display: flex;
             gap: var(--gap-vertical) var(--gap-horizontal);
             pointer-events: none;

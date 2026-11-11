@@ -3,7 +3,7 @@ import { component, html } from '@esportsplus/template';
 import eye from '@esportsplus/ui/svg/eye.svg';
 import hidden from '@esportsplus/ui/svg/eye-off.svg';
 import checkbox from '~/components/checkbox';
-import tag from '~/components/field/tag';
+import group from '~/components/group';
 import icon from '~/components/icon';
 import progress from '~/components/progress';
 import input from './field';
@@ -111,7 +111,7 @@ export default component(
         attributes.autocomplete ??= strength ? 'new-password' : 'current-password';
 
         return html`
-            ${tag({}, html`
+            ${group({}, html`
                 ${input.call(this, {
                     ...attributes,
                     onconnect: (element: HTMLInputElement) => {
@@ -126,7 +126,7 @@ export default component(
                     value: state.value
                 })}
                 <button
-                    class='field-tag-item input-password-toggle'
+                    class='group-item group-item--overlay input-password-toggle'
                     type='button'
                     ${{
                         'aria-label': () => visible() ? 'Hide password' : 'Show password',
@@ -159,15 +159,15 @@ export default component(
             `)}
             ${strength && html`
                 ${progress({
-                    class: 'field-progress progress--segmented',
+                    class: 'group-progress progress--segmented',
                     percent: false,
                     state: meter,
                     status: (value) => `${LABELS[Math.round(value / 100 * RULES.length)]}${guessable(state.value) ? ' · commonly guessed' : ''}`
                 })}
                 ${RULES.map(([label, test]) => html`
-                    <div class='field field--row' inert>
+                    <div class='group group--row' inert>
                         ${checkbox({ [checkbox.input]: { checked: () => test(state.value), tabindex: -1 } })}
-                        <span class='field-label field-label--small'>${label}</span>
+                        <span class='group-label group-label--small'>${label}</span>
                     </div>
                 `)}
             `}

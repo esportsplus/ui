@@ -7,7 +7,7 @@ import { measure, ms, slides, timing } from '~/shared/animation';
 import input from './field';
 import '~/components/button/scss/index.scss';
 import '~/components/card/scss/index.scss';
-import '~/components/field/scss/index.scss';
+import '~/components/group/scss/index.scss';
 
 
 type A = Attributes & {
@@ -21,7 +21,8 @@ type A = Attributes & {
     state?: State;
     tags?: string[];
     // The input's surface modifier, which the chips and their remove buttons take too.
-    variant?: 'surface' | 'surface-primary';
+    // 'border' edges the field alone; the surfaces also tint its chips.
+    variant?: 'border' | 'surface' | 'surface-primary';
 };
 
 // A chip's element, carrying the shake still running on it.
@@ -138,6 +139,8 @@ export default component(
                     ${face(ghost.tag)}
                 </li>
             `),
+            // The chips take the surfaces alone; a border only edges the field.
+            tint = variant !== 'border' && variant,
             view = sorts
                 // 'reactive' makes an array a ReactiveArray, though its type shows only part of one.
                 ? sortable(state.tags as unknown as ReactiveArray<string>, chip, {
@@ -167,11 +170,11 @@ export default component(
                         }
                     }}
                 >
-                    <span aria-hidden='true' class='card ${variant && `card--${variant}`} input-tag-chip-body'></span>
+                    <span aria-hidden='true' class='card ${tint && `card--${tint}`} input-tag-chip-body'></span>
                     <span class='input-tag-chip-text'>${tag}</span>
                     <button
                         aria-label='Remove ${tag}'
-                        class='button ${variant && `button--${variant}`} input-tag-chip-button'
+                        class='button ${tint && `button--${tint}`} input-tag-chip-button'
                         type='button'
                         ${{
                             // From the keyboard the button had focus, and it's going, so focus moves to the field; a
@@ -200,9 +203,9 @@ export default component(
         // A chip's look without its behaviour, for the copies that stand in for it.
         function face(tag: string) {
             return html`
-                <span aria-hidden='true' class='card ${variant && `card--${variant}`} input-tag-chip-body'></span>
+                <span aria-hidden='true' class='card ${tint && `card--${tint}`} input-tag-chip-body'></span>
                 <span class='input-tag-chip-text'>${tag}</span>
-                <span class='button ${variant && `button--${variant}`} input-tag-chip-button'>${icon({ 'aria-hidden': 'true', class: 'input-tag-chip-icon' }, close)}</span>
+                <span class='button ${tint && `button--${tint}`} input-tag-chip-button'>${icon({ 'aria-hidden': 'true', class: 'input-tag-chip-icon' }, close)}</span>
             `;
         }
 
@@ -340,11 +343,11 @@ export default component(
 
         return html`
             <div
-                class='field input-tag'
+                class='group group--column input-tag'
                 ${this?.attributes}
                 ${attributes}
             >
-                <label class='field-label' for='${id}'>${label}</label>
+                <label class='group-label' for='${id}'>${label}</label>
                 <div
                     class='input ${variant && `input--${variant}`} input-tag-box'
                     ${{
@@ -440,7 +443,7 @@ export default component(
                         </li>
                     </ul>
                 </div>
-                ${!!hint && html`<p class='field-description'>${hint}</p>`}
+                ${!!hint && html`<p class='group-description'>${hint}</p>`}
                 <span aria-live='polite' class='input-tag-live'>${() => local.announcement}</span>
             </div>
         `;
