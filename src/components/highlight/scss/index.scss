@@ -1,3 +1,4 @@
+@use '/tokens';
 @use 'variables';
 
 .highlight {
@@ -59,6 +60,13 @@
 
     &--fill {
         background: color-mix(in srgb, var(--background) var(--background-opacity), transparent);
+    }
+
+    // The chosen item's layer lifts off the track.
+    &--surface {
+        @include tokens.state(active) {
+            box-shadow: var(--surface-shadow-hover);
+        }
     }
 
     &--visible {

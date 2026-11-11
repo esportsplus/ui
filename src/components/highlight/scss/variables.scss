@@ -101,6 +101,26 @@
         --scale-default: 1;
     }
 
+    &--surface {
+        @extend %background-surface;
+
+        :where([data-theme='dark']) & {
+            @include surface.step(0);
+
+            @include tokens.state(active) {
+                @include surface.step(4);
+            }
+        }
+
+        :where([data-theme='light']) & {
+            @include surface.step(-3);
+
+            @include tokens.state(active) {
+                @include surface.step(3);
+            }
+        }
+    }
+
 
     // The rail a 'highlight--rail' layer rides, along the edge its side modifier names; the layer's 'border' names the
     // same. Its own names, since the layer inherits them alongside its border's.

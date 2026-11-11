@@ -2,6 +2,7 @@
 @use 'css-utilities/border';
 @use 'css-utilities/box-shadow';
 @use 'css-utilities/surface';
+@use '/tokens';
 
 // Qualified by the class each part shares an element with (card, select, button, highlight, icon, code viewer), so
 // these win over that component's own variables whatever order the stylesheets load in.
@@ -96,18 +97,6 @@
             --border-radius: var(--border-radius-400);
             --font-size: var(--font-size-300);
             --padding-vertical: var(--size-100);
-        }
-
-        &-highlight {
-            @extend %background-surface;
-
-            :where([data-theme='dark']) & {
-                @include surface.step(4);
-            }
-
-            :where([data-theme='light']) & {
-                @include surface.step(3);
-            }
         }
 
         // Clears the buttons above it, so scrolling to the example still shows them. Qualified so it beats the card's

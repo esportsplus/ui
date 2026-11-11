@@ -19,7 +19,7 @@ export default component(
     function({ state, ...attributes }: A, views: View[]) {
         return group(
             {
-                [group.highlight]: { class: 'preview-view-highlight', hover: false },
+                [group.highlight]: { class: 'preview-view-highlight highlight--surface' },
                 class: 'preview-view',
                 role: 'group',
                 ...attributes
