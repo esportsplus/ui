@@ -42,6 +42,13 @@
     }
 
 
+    &--kbd,
+    &--tactile {
+        @include tokens.state(active pressed) {
+            translate: 0 1px;
+        }
+    }
+
     &--border {
         border: var(--border-width) solid var(--border-color);
     }
@@ -55,13 +62,6 @@
     &--flat {
         &::after {
             display: none;
-        }
-    }
-
-    &--kbd,
-    &--tactile {
-        @include tokens.state(active pressed) {
-            translate: 0 1px;
         }
     }
 
@@ -140,8 +140,10 @@
         }
     }
 
-    // Only its icon shows until it is active, when its label slides out beside it.
-    &--reveal.--active > &-reveal {
+    // Only its icon shows until it is active, or pointed at or focused with '--reveal-hover', when its label slides
+    // out beside it.
+    &--reveal.--active > &-reveal,
+    &--reveal-hover:is(:hover, :focus-visible) > &-reveal {
         grid-template-columns: 1fr;
         opacity: 1;
         padding-inline-start: var(--gap-horizontal);
