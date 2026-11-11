@@ -1,7 +1,7 @@
 @use 'css-utilities/reset';
 @use 'variables';
 
-// Each row is a 'field--row', which lays out the checkbox, label and description; the list adds the check's strike,
+// Each row is a 'group--row', which lays out the checkbox, label and description; the list adds the check's strike,
 // fade and reordering.
 .tasklist {
     @extend %reset-list;
@@ -46,8 +46,8 @@
         transition-delay: var(--strike-duration);
     }
 
-    // Block, not the field label's flex, so the text inside stays inline. Qualified by the row so it wins over the
-    // field label regardless of stylesheet order.
+    // Block, not the group label's flex, so the text inside stays inline. Qualified by the row so it wins over the
+    // group label regardless of stylesheet order.
     &-row > &-label {
         display: block;
     }

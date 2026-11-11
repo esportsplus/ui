@@ -253,3 +253,10 @@
         }
     }
 }
+
+
+// Segment buttons sit joined in whatever group holds them, rather than at the group's own spacing.
+.group:has(> .button--group) {
+    --gap-horizontal: calc(var(--size-100) / 4);
+    --gap-vertical: calc(var(--size-100) / 4);
+}

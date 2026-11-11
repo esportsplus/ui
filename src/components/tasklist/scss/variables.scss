@@ -58,6 +58,10 @@
         --opacity: var(--opacity-active);
     }
 
+    &-label {
+        --font-weight: var(--font-weight-500);
+    }
+
     &-row {
         &--sortable {
             &::after {

@@ -171,3 +171,14 @@
         --inset-horizontal: 1px;
     }
 }
+
+// The description reads as part of the option, so it sits right under the label. The row's control width is the
+// checkbox's own. Chained through '.group' so these win over the row's own regardless of stylesheet order.
+.group.group--row:has(> .checkbox) {
+    --gap-horizontal: var(--size-300);
+    --gap-vertical: calc(var(--size-100) / 4);
+
+    > .checkbox {
+        --control-width: var(--width);
+    }
+}

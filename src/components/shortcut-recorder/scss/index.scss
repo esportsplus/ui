@@ -1,37 +1,63 @@
 @use '/tokens';
 @use 'variables';
 
-// The field renders inside an 'error', which takes its place in the layout, so the wrapper keeps it from shrinking.
-.error:has(> .shortcut-recorder) {
-    flex-shrink: 0;
+// The recorder and its error, laid out by the row they sit in: the error takes a line of its own across it, which the
+// row wraps for, ending under the recorder, spaced from it by the row's gap.
+.shortcut-recorder-field {
+    display: contents;
+
+    > .error {
+        flex-basis: 100%;
+        text-align: end;
+    }
+
+    // In a 'group--row' the error, with the description it swaps for, sits under the label in the first column, and
+    // the recorder spans both beside them. The label's line takes whatever height the recorder leaves.
+    .group--row > & > .shortcut-recorder {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+    }
+
+    .group--row > & > .error {
+        align-self: start;
+        grid-column: 1;
+        grid-row: 2;
+        text-align: start;
+    }
 }
 
+.group--row:has(> .shortcut-recorder-field) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: 1fr auto;
+
+    > .group-label {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    // With a description under it, the label meets it in the middle. Alone, with no error open under it, it spans both
+    // lines, so it centers on the recorder rather than on the line the row gap leaves above an empty one.
+    &:has(> .shortcut-recorder-field .error-description) > .group-label {
+        align-self: end;
+    }
+
+    &:not(:has(> .shortcut-recorder-field .error-description, > .shortcut-recorder-field > .error.--active)) > .group-label {
+        grid-row: 1 / span 2;
+    }
+}
+
+// An input's box holding keycaps, as 'input.tag' holds chips: its edge, fill and states are the input's. Qualified by
+// the input so its own sizing and flow win over the input's regardless of stylesheet order.
 .shortcut-recorder {
-    align-items: center;
-    background: var(--background);
-    border: 0;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    color: var(--color);
-    cursor: pointer;
-    display: flex;
-    flex-shrink: 0;
-    font: inherit;
-    font-size: var(--font-size);
-    gap: var(--gap-vertical) var(--gap-horizontal);
-    height: var(--height);
-    justify-content: flex-end;
-    min-width: var(--min-width);
-    outline: none;
-    padding-block: 0;
-    padding-inline: var(--padding-horizontal);
-    transition:
-        background var(--transition-duration) var(--transition-timing-function),
-        box-shadow var(--transition-duration) var(--transition-timing-function);
-
-
-    @media (prefers-reduced-motion: reduce) {
-        transition: none;
+    &.input {
+        cursor: pointer;
+        flex: 0 0 auto;
+        flex-wrap: nowrap;
+        font-family: inherit;
+        justify-content: flex-end;
+        min-width: var(--min-width);
+        width: auto;
     }
 
 
@@ -50,6 +76,26 @@
             50% {
                 opacity: 0.25;
             }
+        }
+    }
+
+    // The keycaps or the placeholder, whichever shows, set against the box's end at their own width.
+    &-face {
+        align-items: center;
+        display: flex;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        justify-self: end;
+        width: max-content;
+    }
+
+    // The faces swap in one cell, as 'tooltip.shared' swaps its content, while the width glides from one face's to the
+    // other's; the box follows it, so its edge morphs around whichever shows.
+    &-faces {
+        display: grid;
+        transition: width var(--transition-duration) var(--transition-timing-function);
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
         }
     }
 
@@ -95,36 +141,13 @@
     }
 
     &-placeholder {
-        align-items: center;
         color: var(--color);
-        display: flex;
         font-size: var(--font-size);
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        padding-block: 0;
         padding-inline: var(--padding-horizontal);
-        transition: color var(--transition-duration) var(--transition-timing-function);
-
-        @media (prefers-reduced-motion: reduce) {
-            transition: none;
-        }
-
-        &--fade {
-            animation: shortcut-recorder-placeholder--fade var(--animation-duration) var(--animation-timing-function);
-
-            @media (prefers-reduced-motion: reduce) {
-                animation: none;
-            }
-
-            @keyframes shortcut-recorder-placeholder--fade {
-                from {
-                    opacity: 0;
-                }
-            }
-        }
     }
 
 
-    // Recording already draws a dark edge, a focus ring on top of it would double up.
+    // Recording already draws the input's active edge, a focus ring on top of it would double up.
     #{tokens.state(inactive)}:focus-visible {
         outline: var(--focus-width) solid var(--focus-color);
         outline-offset: var(--focus-offset);

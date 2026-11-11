@@ -3,7 +3,7 @@ import { flush, reactive, ReactiveArray } from '@esportsplus/reactivity';
 import { finished, measure, slides, timing } from '~/shared/animation';
 import checkbox from '~/components/checkbox';
 import sortable from '~/components/sortable';
-import '~/components/field/scss/index.scss';
+import '~/components/group/scss/index.scss';
 import './scss/index.scss';
 
 
@@ -198,7 +198,7 @@ export default component(
                         }
                     }}
                 >
-                    <label class='field field--row tasklist-row ${sorts && 'tasklist-row--sortable'}' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
+                    <label class='group group--row tasklist-row ${sorts && 'tasklist-row--sortable'}' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
                         ${checkbox.call(
                             { attributes: context?.[TASKLIST_CHECKBOX] },
                             {
@@ -207,11 +207,11 @@ export default component(
                                 [checkbox.input]: { ...box?.[checkbox.input], checked: !!task.checked }
                             }
                         )}
-                        <span class='field-label tasklist-label' ${context?.[TASKLIST_LABEL]} ${attributes[TASKLIST_LABEL]}>
+                        <span class='group-label tasklist-label' ${context?.[TASKLIST_LABEL]} ${attributes[TASKLIST_LABEL]}>
                             <span class='tasklist-text'>${task.label}</span>
                         </span>
                         ${task.description && html`
-                            <small class='field-description tasklist-description' ${context?.[TASKLIST_DESCRIPTION]} ${attributes[TASKLIST_DESCRIPTION]}>
+                            <small class='group-description tasklist-description' ${context?.[TASKLIST_DESCRIPTION]} ${attributes[TASKLIST_DESCRIPTION]}>
                                 ${task.description}
                             </small>
                         `}

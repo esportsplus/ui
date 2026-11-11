@@ -1,27 +1,25 @@
-@use '/tokens';
-@use 'css-utilities/background';
-@use 'css-utilities/box-shadow';
-@use 'css-utilities/surface';
-
-// TODO: Give this the same style as input/input tag
+// Keycaps inside the input's padding, as 'input.tag' sets chips: 6px around a row a keycap tall, so the box stands as
+// tall holding the placeholder as holding keys. Qualified by the input so they win over its own regardless of
+// stylesheet order.
 .shortcut-recorder {
-    @extend %background-state, %background-surface-primary, %box-shadow-state, %box-shadow-surface, %surface-raise;
-    --border-radius: var(--border-radius-500);
-    // Inherited by the keycaps, whose padding is inset by it.
-    --border-width: 0px;
-    --color: var(--color-text-500);
-    --font-size: var(--font-size-400);
-    --gap-horizontal: calc(var(--size-100) / 2);
-    --gap-vertical: calc(var(--size-100) / 2);
-    --height: 36px;
-    --min-width: 96px;
-    --padding-horizontal: calc(var(--size-300) / 2);
-    --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-
-    #{tokens.state(active)} {
-        --border-width: var(--border-width-500);
+    &.input {
+        --color: var(--color-text-500);
+        --gap-horizontal: calc(var(--size-100) / 2);
+        --gap-vertical: calc(var(--size-100) / 2);
+        --min-width: 96px;
+        --padding-horizontal: calc(var(--size-300) / 2);
+        --padding-vertical: calc(var(--size-300) / 2);
+        // A keycap's height.
+        --size: 28px;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     }
 
+
+    // The frames' own timing, so the width lands as the faces finish swapping.
+    &-faces {
+        --transition-duration: 0.32s;
+        --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
 
     &-dot {
         --animation-duration: 1.1s;
@@ -30,8 +28,11 @@
         --size: 6px;
     }
 
-    // Each key springs in as it is pressed; once the chord is recorded they settle in turn, a beat apart.
+    // Each key springs in as it is pressed; once the chord is recorded they settle in turn, a beat apart. Keycaps inset
+    // their padding by '--border-width', which they'd otherwise inherit from the input's edge.
     &-key {
+        --border-width: 0px;
+
         &--enter,
         &--settle {
             --animation-duration: 300ms;
@@ -49,16 +50,10 @@
         --gap-horizontal: calc(var(--size-300) / 2);
         --gap-vertical: 0px;
         --padding-horizontal: calc(var(--size-300) / 2);
-        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-
-        &--fade {
-            --animation-duration: 180ms;
-            --animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-        }
     }
 
-    // The 'error' it renders in turns the edge red; the placeholder turns with it.
-    &.--invalid .shortcut-recorder-placeholder {
+    // An invalid input's edge turns red; the placeholder turns with it.
+    &[aria-invalid='true'] .shortcut-recorder-placeholder {
         --color: var(--color-red-400);
     }
 }

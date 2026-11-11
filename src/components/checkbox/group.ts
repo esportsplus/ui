@@ -3,7 +3,7 @@ import { component, html, type Attributes, type Renderable } from '@esportsplus/
 import dash from '@esportsplus/ui/svg/dash.svg';
 import icon from '~/components/icon';
 import options, { type Attr } from './options';
-import '~/components/field/scss/index.scss';
+import '~/components/group/scss/index.scss';
 
 
 type A = Attributes & {
@@ -68,7 +68,7 @@ function header(ctx: Context, { counter = false, ...attributes }: Header = {}): 
     let tally = computed(() => count(ctx));
 
     return html`
-        <label class='field field--header field--row' ${attributes}>
+        <label class='group group-header group--row' ${attributes}>
             ${ctx.control(
                 {
                     style: () => `--progress: ${ctx.group.total && read(tally) / ctx.group.total}`,
@@ -94,10 +94,10 @@ function header(ctx: Context, { counter = false, ...attributes }: Header = {}): 
                 },
                 ctx.type === 'checkbox' && icon({ 'aria-hidden': true, class: 'checkbox-group-dash' }, dash)
             )}
-            <span class='field-label'>
+            <span class='group-label'>
                 ${ctx.label}
                 ${counter && html`
-                    <span class='field-label-counter'>
+                    <span class='group-label-counter'>
                         ${() => read(tally)} of ${() => ctx.group.total}
                     </span>
                 `}

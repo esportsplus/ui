@@ -23,7 +23,6 @@ export {
     resolveFileTreeIcon
 } from './editor';
 export { default as error } from './error';
-export { default as field } from './field';
 export { default as filter } from './filter';
 export { default as form } from './form';
 export { default as group } from './group';

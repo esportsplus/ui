@@ -140,3 +140,47 @@
         }
     }
 }
+
+// In a 'group--row' the checkbox, radio or switch keeps its own size and shares the first row with the label alone, so
+// it centers on the label however long the description runs; the description and any error sit under the label, in
+// its column. The control takes whichever side it's written on. Chained through '.group' so these win over the row's
+// own layout for a described control regardless of stylesheet order.
+.group.group--row:has(> .checkbox) {
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    justify-content: stretch;
+    user-select: none;
+
+    > .checkbox {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    > .error,
+    > .group-description {
+        align-self: auto;
+        grid-column: 2;
+        grid-row: auto;
+    }
+
+    > .group-label {
+        align-self: auto;
+        grid-column: 2;
+        grid-row: 1;
+    }
+}
+
+.group.group--row:has(> .group-label + .checkbox) {
+    grid-template-columns: 1fr auto;
+
+    > .checkbox {
+        grid-column: 2;
+    }
+
+    > .error,
+    > .group-description,
+    > .group-label {
+        grid-column: 1;
+    }
+}
