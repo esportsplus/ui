@@ -104,11 +104,7 @@ const groups: Record<string, Group[]> = {
     range: [
         { title: 'Heading · Value above the track', members: [['Heading · Value above the track', 'Default'], ['Heading · Value above the track · 10% ticks', '10% ticks'], ['Heading · Value above the track · 10% and 2% ticks', '10% and 2% ticks']] },
         { title: 'Inline · Label and value inside the track', members: [['Inline · Label and value inside the track', 'Default'], ['Inline · Label and value inside the track · 10% ticks', '10% ticks'], ['Inline · Label and value inside the track · 10% and 2% ticks', '10% and 2% ticks']] },
-        { title: 'vertical sliders', members: [['vertical sliders — single and dual thumb', 'Default'], ['vertical slider with label, value and ticks', 'Label, value and ticks'], ['disabled vertical slider', 'Disabled']] },
-        { title: 'slider', members: [['slider', 'Default'], ['disabled slider', 'Disabled'], ['slider with decimal steps, shared state and form field', 'Decimal steps, shared state and form field']] },
-        { title: 'slider with two thumbs', members: [['slider with two thumbs', 'Default'], ['disabled dual-thumb slider', 'Disabled']] },
-        { title: 'slider with label and value', members: [['slider with label and value', 'Default'], 'slider with reference labels', 'slider with ticks'] },
-        { title: 'min and max fields', members: [['min and max fields', 'Default'], ['fields, custom colors', 'Custom colors'], ['fields, controlled state, fractional step', 'Controlled state, fractional step']] },
+        { title: 'vertical sliders', members: [['vertical slider', 'Default'], ['vertical dual-thumb slider', 'Two thumbs'], ['disabled vertical slider', 'Disabled']] },
         { title: 'range filter', members: [['price range (hover outside the selection)', 'Default'], ['stepped price range', 'Stepped'], ['single value', 'Single value'], ['disabled', 'Disabled'], ['custom unit, shared state', 'Custom unit, shared state'], ['larger numbers', 'Larger numbers']] }
     ],
     'relative-time': [{ title: 'relative time', members: ['default', ['every unit, live seconds', 'Every unit'], ['unknown until set (placeholder)', 'Placeholder']] }],
