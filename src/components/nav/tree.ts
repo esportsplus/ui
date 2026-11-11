@@ -1,6 +1,7 @@
 import { effect, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import highlight, { type A as HighlightAttributes } from '~/components/highlight';
+import '~/components/group/scss/index.scss';
 
 
 type A = Attributes & {
@@ -109,11 +110,11 @@ const tree = ({ [NAV_TREE_HIGHLIGHT]: highlighting, active, current = 'page', se
             ${highlighting && highlight({
                 target: '.nav-tree-link:not([hidden])',
                 ...highlighting,
-                class: ['nav-tree-highlight', border && 'highlight--rail', ...[highlighting.class ?? []].flat()]
+                class: ['nav-tree-highlight', border ? 'highlight--rail' : 'highlight--surface', ...[highlighting.class ?? []].flat()]
             })}
             ${sections.map((section) => html`
                 <div
-                    class='nav-tree-group'
+                    class='group group--column'
                     ${section.groups.some((group) => group.links.some((link) => link.visible)) && { hidden: () => !section.groups.some((group) => group.links.some(visible)) }}
                     ${current === 'command' && { 'aria-label': section.label, role: 'group' }}
                     ${section.attributes}
@@ -131,7 +132,7 @@ const tree = ({ [NAV_TREE_HIGHLIGHT]: highlighting, active, current = 'page', se
 
                     ${section.groups.map((group) => html`
                         <div
-                            class='nav-tree-links ${border && `highlight-rail highlight-rail--${border}`}'
+                            class='group group--column ${border && `highlight-rail highlight-rail--${border}`}'
                             ${group.links.some((link) => link.visible) && { hidden: () => !group.links.some(visible) }}
                         >
                             ${group.label && html`

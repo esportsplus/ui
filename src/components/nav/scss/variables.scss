@@ -1,6 +1,5 @@
 @use '/tokens';
 @use 'css-utilities/background';
-@use 'css-utilities/box-shadow';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
@@ -11,10 +10,16 @@
 
     // The rail as wide as the highlight's border, which lies over it.
     &--rail {
-        .nav-tree-highlight,
-        .nav-tree-links {
+        .highlight-rail,
+        .nav-tree-highlight {
             --rail-width: var(--border-width-500);
         }
+    }
+
+    // Sections and their link lists stack flush; the tree's own gap spaces the sections.
+    .group {
+        --gap-horizontal: 0px;
+        --gap-vertical: 0px;
     }
 
 
@@ -53,13 +58,9 @@
     }
 
 
-    // Off a rail the highlight is a pill over raised links, kept inside the tree so no scroll container clips it; titles
-    // step in to line up with the links' text.
+    // Off a rail the highlight is a 'highlight--surface' pill over raised links, kept inside the tree so no scroll
+    // container clips it; titles step in to line up with the links' text.
     &:not(#{&}--rail) {
-        .nav-tree-highlight {
-            @extend %background-state, %background-surface, %box-shadow-surface, %surface-raise;
-        }
-
         .nav-tree-link {
             @extend %surface-raise;
             --background-hover: var(--surface-background-hover);

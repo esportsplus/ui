@@ -12,7 +12,7 @@
     &--rail {
         isolation: isolate;
 
-        .nav-tree-links {
+        .highlight-rail {
             border-color: transparent;
 
             &::before {
@@ -40,21 +40,6 @@
     }
 
 
-    // Hidden by a filter; their own display would otherwise outrank the attribute's.
-    &-group,
-    &-link,
-    &-links {
-        &[hidden] {
-            display: none;
-        }
-    }
-
-    &-group,
-    &-links {
-        display: flex;
-        flex-direction: column;
-    }
-
     // A link holds an icon, label and keys on one line, and keeps its label's case (file paths, commands).
     &-link {
         @extend %text;
@@ -71,14 +56,15 @@
             color var(--transition-duration) var(--transition-timing-function);
         user-select: none;
 
+        // Hidden by a filter; its own display would otherwise outrank the attribute's.
+        &[hidden] {
+            display: none;
+        }
+
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--focus-width) * -1);
         }
-    }
-
-    &-links {
-        position: relative;
     }
 
     &-title {
