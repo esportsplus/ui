@@ -1,5 +1,5 @@
 import { flush, reactive } from '@esportsplus/reactivity';
-import { component, html, type Attributes } from '@esportsplus/template';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import icon from '~/components/icon';
 import input from '~/components/input';
 import textarea from '~/components/textarea';
@@ -54,7 +54,9 @@ function template(
         value = '',
         state = reactive({ editing: false, saved: false, value }),
         ...attributes
-    }: A
+    }: A,
+    // Shown in place of the value while not editing, for a value drawn richer than its text.
+    content?: Renderable<unknown>
 ) {
     let display: HTMLElement | undefined,
         // The field's starting value, kept apart from 'local.draft' so typing doesn't render the field again.
@@ -155,7 +157,7 @@ function template(
                 }}
             >
                 <span class='inline-edit-label'>Edit ${label}: </span>
-                ${() => {
+                ${content ?? (() => {
                     // While editing it mirrors the draft so the cell (and a multiline field) grows with it; the trailing
                     // space keeps a new empty line from collapsing.
                     if (state.editing) {
@@ -163,7 +165,7 @@ function template(
                     }
 
                     return state.value.trim() === '' ? placeholder : state.value;
-                }}
+                })}
             </button>
             ${() => state.editing && field()}
             <span aria-hidden='true' class='inline-edit-icon'>
