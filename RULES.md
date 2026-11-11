@@ -74,7 +74,7 @@ src/components/{component}/
 
 - Block: `.button`
 - Modifier: `.button--kbd`, `.button--processing` (double dash)
-- Element: `.button-face`, `.button-split-chevron` (single dash, not `__`)
+- Element: `.button-face`, `.button-split-trigger` (single dash, not `__`)
 - Element modifier: `.button-face--error`, `.button-icon--draw`
 - Modifier element/sub-state: `.button--morph-error`, `.button--sidebar-right`
 - States use the `tokens.state(...)` mixin (`--active`, `pressed`, ...), not hand-written state classes.

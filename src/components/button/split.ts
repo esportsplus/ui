@@ -49,7 +49,7 @@ export default component(
                             class: ['button button-split-trigger', attributes[SPLIT_TRIGGER]?.class ?? []].flat()
                         }
                     },
-                    trigger ?? icon({ 'aria-hidden': 'true', class: 'button-icon button-split-chevron' }, chevron)
+                    trigger ?? icon({ 'aria-hidden': 'true', class: 'button-icon icon--rotate' }, chevron)
                 )}
             </div>
         `;

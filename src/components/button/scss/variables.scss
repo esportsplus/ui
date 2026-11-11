@@ -121,7 +121,6 @@
     &--sidebar {
         --open: 1;
 
-
         // Hidden panels thin the pill to a line; hover and focus preview the opposite state unless a toggle just
         // happened under them.
         &:not(&-held) {
@@ -245,11 +244,10 @@
         // Chained through the group so it wins over the trigger's own '.button' padding.
         & > &-trigger {
             --padding-horizontal: var(--size-200);
-        }
 
-        &-chevron {
-            --transition-duration: 0.2s;
-            --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+            &[aria-expanded='true'] .icon--rotate {
+                --rotate: 180deg;
+            }
         }
     }
 }

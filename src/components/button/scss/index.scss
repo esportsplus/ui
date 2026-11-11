@@ -362,19 +362,6 @@
                 border-inline-start: 0;
                 margin-inline-start: 0;
             }
-
-            &[aria-expanded='true'] .button-split-chevron {
-                rotate: 180deg;
-            }
-        }
-
-        &-chevron {
-            transition: rotate var(--transition-duration) var(--transition-timing-function);
-
-
-            @media (prefers-reduced-motion: reduce) {
-                transition: none;
-            }
         }
 
 
