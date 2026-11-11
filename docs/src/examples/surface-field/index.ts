@@ -142,6 +142,7 @@ function control(settings: Settings, key: keyof Settings, label: string, min: nu
         max,
         min,
         prefix: '',
+        reset: false,
         ticks: 0,
         value: settings[key] as number,
         // Reads and writes the setting itself, so a preset moves the thumb.
