@@ -29,7 +29,7 @@
         --padding-horizontal: var(--size-300);
         --padding-vertical: var(--size-100);
 
-        @include tokens.state(active hover) {
+        @include tokens.state(active) {
             --font-weight: var(--font-weight-500);
         }
     }
@@ -42,7 +42,7 @@
         --margin-vertical: var(--size-100);
 
         &.nav-tree-link {
-            @include tokens.state(active hover) {
+            @include tokens.state(active) {
                 --font-weight: var(--font-weight-600);
             }
         }
