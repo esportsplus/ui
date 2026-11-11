@@ -139,7 +139,7 @@
         @extend %surface;
         --background: var(--surface-background-default);
         --border-radius: var(--border-radius-600);
-        --margin-horizontal: var(--size-300);
+        --margin-horizontal: var(--size-100);
         --margin-vertical: var(--size-200);
         --padding-horizontal: calc(var(--size-100) / 4);
         --padding-vertical: calc(var(--size-100) / 4);
