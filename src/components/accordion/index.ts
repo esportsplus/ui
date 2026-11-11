@@ -7,16 +7,21 @@ import './scss/index.scss';
 
 
 type A = Attributes & {
+    [ACCORDION_CONTENT]?: Attributes,
     group?: Group,
     lines?: number,
     state?: { active: boolean | number, expandable?: boolean }
 };
 
 
+// Attributes for the clipped content element, which the accordion renders around what it's given.
+const ACCORDION_CONTENT = Symbol.for('@esportsplus/ui/accordion.content');
+
+
 // The attributes are typed on the parameter rather than as a type argument, which would stop the 'group' static
 // from being inferred.
 export default component(
-    function({ group, lines, state = reactive({ active: false, expandable: false }), ...attributes }: A, content) {
+    function({ [ACCORDION_CONTENT]: inner, group, lines, state = reactive({ active: false, expandable: false }), ...attributes }: A, content) {
         let a: Attributes | undefined,
             c: Attributes | undefined,
             property = lines === undefined ? 'grid-template-rows' : 'height',
@@ -104,10 +109,10 @@ export default component(
                     }
                 }}
             >
-                <div class='accordion-content' ${c}>${content}</div>
+                <div class='accordion-content' ${inner} ${c}>${content}</div>
             </div>
         `;
     },
-    { group }
+    { content: ACCORDION_CONTENT, group }
 );
 export type { Group };
