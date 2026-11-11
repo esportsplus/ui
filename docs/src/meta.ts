@@ -49,7 +49,7 @@ const meta: Record<string, Meta> = {
         label: 'Editor'
     },
     error: {
-        description: 'Wraps any control that keeps its error in state.error: the control shakes and turns red, and the message grows out of it in the morph tooltip on any side.'
+        description: 'An error set under its control: it takes no room until it opens, sliding what follows down, and swaps with the field description when there is one.'
     },
     filter: {
         description: 'Headless filter controller: bring your own triggers and layout, and matching items shift, scale, and fade into place.'
