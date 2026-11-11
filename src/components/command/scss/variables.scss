@@ -1,13 +1,12 @@
-@use '/tokens';
 @use 'css-utilities/background';
-@use 'css-utilities/border';
 @use 'css-utilities/box-shadow';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
+@use '/tokens';
 
 .command {
     --color: var(--color-text-500);
-    --font-size: calc(var(--font-size-400) * 0.875);
+    --font-size: var(--font-size-400);
 
 
     &--centered &-dialog.overlay {
@@ -38,7 +37,7 @@
     // The card lets the glass through too.
     &-dialog--glass &-body {
         --background: oklch(from var(--surface-background-default) l c h / var(--background-opacity));
-        --background-opacity: 0.5;
+        --background-opacity: 0.9;
     }
 
     // The views take no fill of their own, which would double the card's.
@@ -68,8 +67,8 @@
     // Chained through '.command-dialog' to outrank the dialog's own fill.
     &-dialog#{&}-dialog--glass.overlay {
         --background: oklch(from var(--surface-background-default) l c h / var(--background-opacity));
-        --background-opacity: 0.6;
-        --glass-blur: 24px;
+        --background-opacity: 0.9;
+        --glass-blur: 8px;
     }
 
     &-empty {
@@ -93,22 +92,14 @@
         }
     }
 
-    // 'inherit' passes the palette's '--font-size' through the input's own; 'var(--font-size)' here would refer to
-    // itself, and the cycle leaves the input at whatever font size its host happens to inherit.
+    // On the card's own surface, 44px tall. 'inherit' passes the palette's '--font-size' through the input's own;
+    // 'var(--font-size)' here would refer to itself, and the cycle leaves the input at whatever font size its host
+    // happens to inherit.
     &-input.input {
-        --border-width-active: 0px;
-        --border-width-default: 0px;
-        --color-default: var(--color-text-500);
-        --fade: 48px;
+        --background-default: var(--surface-background-default);
+        --border-radius: var(--border-radius-500);
         --font-size: inherit;
-        --mask: none;
-        --padding-horizontal: 0px;
-        --padding-vertical: 0px;
-        --size: 0px;
-
-        &::placeholder {
-            --color: var(--color-text-300);
-        }
+        --padding-vertical: calc((44px - var(--size)) / 2);
     }
 
     &-keys {
@@ -129,29 +120,9 @@
         --color-default: var(--color-text-300);
     }
 
-    // On the card's own surface, ringed rather than ruled off from the results.
     &-search {
-        @extend %border-state, %border-surface;
-        --background: var(--surface-background-default);
-        // --border-color: var(--surface-border-default);
-        --border-radius: var(--border-radius-500);
-        --border-width: var(--border-width-400);
-        --color: var(--color-text-300);
-        --gap-horizontal: var(--size-100);
-        --gap-vertical: 0px;
-        --height: 44px;
         --margin-horizontal: var(--size-100);
         --margin-vertical: var(--size-100);
-        --padding-horizontal: var(--size-200);
-
-        @include tokens.state(hover active) {
-            --border-width: var(--border-width-500);
-        }
-    }
-
-    // Long queries fade out before they reach the result count instead of running into it.
-    &-search:has(.command-count) &-input.input {
-        --mask: linear-gradient(to right, #000 calc(100% - var(--fade)), transparent);
     }
 
     // The highlight paints the tab backgrounds, so the buttons only carry colour; sized as the docs' preview and code
@@ -165,7 +136,7 @@
 
     // A level below the card, as the docs' preview and code switch is below the page.
     &-tabs {
-        @extend %surface-lower;
+        @extend %surface;
         --background: var(--surface-background-default);
         --border-radius: var(--border-radius-600);
         --margin-horizontal: var(--size-300);
@@ -175,36 +146,28 @@
         // Keep the tab strip hidden when an ancestor opts into site-wide scrollbar styling.
         --scrollbar-width: none;
 
+        :where([data-theme='dark']) & {
+            @include surface.step(-1);
+        }
+
+        :where([data-theme='light']) & {
+            @include surface.step(-2);
+        }
+
         // Raised off the track, as the docs' switch highlight is; qualified to outrank the highlight's own defaults.
         &-highlight.highlight {
             @extend %background-surface;
 
             :where([data-theme='dark']) & {
-                @include surface.step(4);
+                @include surface.step(1);
             }
 
             :where([data-theme='light']) & {
-                @include surface.step(3);
-            }
-        }
-    }
+                @include surface.step(-2);
 
-    // One 24px keycap line plus 6px either side makes the 36px trigger.
-    &-trigger {
-        @extend %color-text;
-        --background-default: var(--surface-background-default);
-        --border-radius: var(--border-radius-400);
-        --box-shadow-default: var(--surface-shadow-default);
-        --font-size: calc(var(--font-size-400) * 0.875);
-        --gap-horizontal: var(--size-100);
-        --line-height: 24px;
-        --padding-horizontal: var(--size-100);
-        --padding-vertical: var(--size-100);
-        --width: 240px;
-
-        &-icon {
-            &--search {
-                --margin-horizontal: calc(var(--size-100) / 2);
+                @include tokens.state(active) {
+                    @include surface.step(2);
+                }
             }
         }
     }

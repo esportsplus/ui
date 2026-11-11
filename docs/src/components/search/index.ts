@@ -43,7 +43,7 @@ const modal = () => {
     });
 };
 
-const trigger = () => search.trigger({ class: 'button--tactile', state });
+const trigger = () => search.trigger({ class: 'input--tactile', state });
 
 
 export { modal, trigger };

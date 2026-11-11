@@ -1,4 +1,3 @@
-@use '/tokens';
 @use 'css-utilities/text';
 @use 'variables';
 
@@ -77,16 +76,6 @@
         }
     }
 
-    &-input.input {
-        height: 100%;
-        mask-image: var(--mask);
-        outline: none;
-
-        &::placeholder {
-            color: var(--color);
-        }
-    }
-
     // Keycaps here are legends, not controls, so they take no hover or press.
     &-keys {
         display: flex;
@@ -120,21 +109,11 @@
         flex-direction: column;
     }
 
-    // A field of its own, inset in the card; the hotkey's keycaps sit at its end.
+    // Insets the search in the card.
     &-search {
-        align-items: center;
-        background: var(--background);
-        border: var(--border-width) solid var(--border-color);
-        border-radius: var(--border-radius);
-        color: var(--color);
-        display: flex;
         flex-shrink: 0;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        height: var(--height);
         margin-block: var(--margin-vertical) 0;
         margin-inline: var(--margin-horizontal);
-        // The border's growth comes out of the padding, so the contents hold still as it thickens.
-        padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
     }
 
     &-tab {
@@ -154,40 +133,6 @@
         padding-block: var(--padding-vertical);
         padding-inline: var(--padding-horizontal);
         scrollbar-width: none;
-
-
-        &-highlight {
-            @include tokens.state(active) {
-                box-shadow: var(--surface-shadow-hover);
-            }
-        }
-    }
-
-    &-trigger {
-        touch-action: manipulation;
-        user-select: none;
-
-        &-icon {
-            &--search {
-                margin-inline-start: var(--margin-horizontal);
-            }
-        }
-
-        &-label {
-            @extend %text-truncate;
-            flex: 1 1 auto;
-            text-align: start;
-        }
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--focus-offset);
-        }
-
-        // Pages with their own search buttons hide this one; `display: flex` from `.button` would otherwise override `hidden`.
-        &[hidden] {
-            display: none;
-        }
     }
 
     // The view scrolls rather than the list, so the scrollbar's edges sit beside the list instead of inside its gap,
