@@ -2,23 +2,27 @@
 @use 'variables';
 
 .shell {
+    background-color: var(--surface-background-default);
     display: grid;
-    grid-template-columns: var(--left-space) minmax(0, 1fr) var(--right-space);
-    height: 100dvh;
+    grid-template-columns: var(--left) minmax(0, 1fr) var(--right);
+    // One row the main area fills, held to the shell so it scrolls rather than growing it.
+    grid-template-rows: minmax(0, 1fr);
+    height: var(--height);
     overflow: clip;
     transition: grid-template-columns var(--slide-duration) var(--slide-timing-function);
 
-    // Keep the page readable on small screens: the left sidebar pushes the card aside, the right one slides it over.
+    // Keep the page readable on small screens: the left sidebar pushes the main area aside, the right one slides it
+    // over.
     @media (max-width: 1024px) {
-        grid-template-columns: var(--left-space) 100% 0px;
+        grid-template-columns: var(--left) 100% 0px;
     }
 
 
-    // A dragged drawer sets the space beside the card itself, which follows it without easing. Children only, here and
-    // below, so a shell nested in another's card keeps its own state.
+    // A dragged or resized drawer sets the space beside the main area itself, which follows it without easing. Children
+    // only, here and below, so a shell nested in another's main area keeps its own state.
     &--dragging,
     &--dragging > &-main,
-    &--dragging > &-surface {
+    &--resizing {
         transition: none;
     }
 
@@ -33,18 +37,13 @@
         opacity: 0;
     }
 
-
-    // The gaps around the card show the sidebars' surface, so the card reads as set into it.
-    &-backdrop,
-    &-main,
-    &-sidebar {
-        background-color: var(--surface-background-default);
+    @media not (max-width: 1024px) {
+        &--left-open > &-resize--left,
+        &--right-open > &-resize--right {
+            display: block;
+        }
     }
 
-    &-backdrop {
-        inset: 0;
-        position: fixed;
-    }
 
     &-edge {
         inset-block: 0;
@@ -53,7 +52,7 @@
         transition: visibility 0s var(--slide-duration);
         user-select: none;
         width: var(--width);
-        z-index: 30;
+        z-index: var(--z-index);
 
         // A single arrow the way the sidebar opens; platforms draw the resize fallbacks double-headed.
         &--left {
@@ -71,14 +70,14 @@
         }
     }
 
-    // Off the window until the pointer is on the edge, then over the card, just inside its edge.
+    // Off the window until the pointer is on the edge, then over the main area, just inside its edge.
     @each $side in 'left' 'right' {
         &-edge--#{$side} &-handle {
             #{$side}: calc(var(--width) * -1);
         }
 
         &-edge--#{$side}:is(:active, :hover) &-handle {
-            #{$side}: calc(var(--#{$side}-gap-horizontal) + var(--inset-horizontal));
+            #{$side}: var(--inset-horizontal);
         }
     }
 
@@ -98,35 +97,76 @@
         width: var(--width);
     }
 
-    // The surface paints the card, so its content keeps its layout while the surface draws back from it, cut off where
-    // the surface no longer reaches; it reflows once a sidebar settles open or closed.
+    // Unstyled: what it holds sets its look, such as a card to float it off the window.
     &-main {
-        background: transparent;
-        clip-path: inset(
-            0
-            max(0px, calc(var(--right-edge) - var(--right-space) - var(--right-gap-horizontal)))
-            0
-            max(0px, calc(var(--left-edge) - var(--left-space) - var(--left-gap-horizontal)))
-            round var(--border-radius)
-        );
         grid-column: 2;
-        height: var(--height);
-        margin: var(--gap-vertical) var(--right-gap-horizontal) var(--gap-vertical) var(--left-gap-horizontal);
         overflow: hidden auto;
-        transition:
-            clip-path var(--slide-duration) var(--slide-timing-function),
-            margin var(--slide-duration) var(--slide-timing-function),
-            translate var(--slide-duration) var(--slide-timing-function);
+        transition: translate var(--slide-duration) var(--slide-timing-function);
 
-        // The card keeps its width and slides on small screens, so it paints itself and moves outright.
+        // Keeps its width on small screens and slides over for the right sidebar.
         @media (max-width: 1024px) {
-            background: var(--background);
-            clip-path: none;
-            translate: calc(var(--right-space) * -1) 0;
+            translate: calc(var(--right) * -1) 0;
         }
     }
 
+    // Straddles an open sidebar's inner border, only where the sidebar narrows the main area rather than pushing it.
+    &-resize {
+        cursor: col-resize;
+        display: none;
+        inset-block: 0;
+        position: fixed;
+        touch-action: none;
+        width: var(--width);
+        z-index: var(--z-index);
+
+        &::before {
+            background: var(--color);
+            content: '';
+            inset-block: 0;
+            left: 50%;
+            opacity: var(--opacity);
+            position: absolute;
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+            translate: -50% 0;
+            width: var(--line-width);
+        }
+
+        @each $side in 'left' 'right' {
+            &--#{$side} {
+                #{$side}: calc(var(--#{$side}-width) - var(--width) / 2);
+            }
+        }
+    }
+
+    // Centered on the line, a line's width at each end and swelling to its own between; it grows out of the line as it
+    // shows and follows the pointer up and down.
+    &-resize-handle {
+        background: var(--color);
+        clip-path: polygon(
+            calc(50% - var(--line-width) / 2) 0,
+            calc(50% + var(--line-width) / 2) 0,
+            100% var(--taper),
+            100% calc(100% - var(--taper)),
+            calc(50% + var(--line-width) / 2) 100%,
+            calc(50% - var(--line-width) / 2) 100%,
+            0 calc(100% - var(--taper)),
+            0 var(--taper)
+        );
+        height: var(--height);
+        left: 50%;
+        opacity: var(--opacity);
+        position: absolute;
+        scale: 1 var(--scale);
+        top: 50%;
+        transition:
+            opacity var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
+        translate: -50% calc(var(--offset, 0px) - 50%);
+        width: var(--width);
+    }
+
     &-sidebar {
+        background-color: var(--surface-background-default);
         display: flex;
         flex-direction: column;
         inset-block: 0;
@@ -137,8 +177,7 @@
             translate var(--slide-duration) var(--slide-timing-function),
             visibility 0s var(--slide-duration);
         visibility: hidden;
-        width: min(var(--space), 100%);
-        z-index: 31;
+        z-index: var(--z-index);
 
         // Follows the pointer for the length of a drag, shown even while closed so it can be pulled out.
         &--dragging {
@@ -151,10 +190,11 @@
             &--#{$side} {
                 #{$side}: 0;
                 translate: $sign * 100% 0;
+                width: min(var(--#{$side}-width), 100%);
             }
         }
 
-        // Peeking shows it over the card, which keeps its place; only an open sidebar makes room.
+        // Peeking shows it over the main area, which keeps its place; only an open sidebar makes room.
         &.--peek,
         #{tokens.state(active)} {
             transition-delay: 0s;
@@ -163,29 +203,12 @@
         }
     }
 
-    &-surface {
-        background: var(--surface-background-default);
-        border-radius: var(--border-radius-500);
-        inset-block: var(--gap-vertical);
-        left: var(--left-edge);
-        position: fixed;
-        right: var(--right-edge);
-        transition:
-            left var(--slide-duration) var(--slide-timing-function),
-            right var(--slide-duration) var(--slide-timing-function);
-
-        @media (max-width: 1024px) {
-            display: none;
-        }
-    }
-
     &-toggle {
         display: flex;
         height: var(--size);
         position: fixed;
         top: var(--inset-vertical);
-        width: var(--size);
-        z-index: 40;
+        z-index: var(--z-index);
 
         @each $side in 'left' 'right' {
             &--#{$side} {

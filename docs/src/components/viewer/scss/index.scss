@@ -1,5 +1,9 @@
+@use 'css-utilities/surface';
+
 .viewer {
+    // A level above the shell, as the page's surfaces are drawn for; the shell leaves its main area unstyled.
     &-content {
+        @extend %surface-raise;
         display: grid;
         gap: 0 var(--size-700);
         grid-template-columns: minmax(0, 1fr) 220px;

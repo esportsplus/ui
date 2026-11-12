@@ -3,21 +3,21 @@ import { html, type Renderable } from '@esportsplus/template';
 import { drag } from '~/shared/drag';
 import button from '~/components/button';
 import scrollbar from '~/modifiers/scrollbar';
-import '~/components/card/scss/index.scss';
 import './scss/index.scss';
 
 
 type Edge = 'left' | 'right';
 
-// Each edge's sidebar and strip as they connect, whether its sidebar is being dragged, and where the drag holds the
-// sidebar and the card's edge; undefined leaves each to the stylesheet.
+// Each edge's sidebar and strip as they connect, whether its sidebar is being dragged or resized, the width a resize
+// left it at, and where a drag holds the sidebar and the space beside the main area; undefined leaves each to the
+// stylesheet.
 type Frame = Record<Edge, {
     dragging: boolean,
     edge?: HTMLElement,
-    gap: string | undefined,
     offset: number,
-    reach: string | undefined,
+    resizing: boolean,
     sidebar?: HTMLElement,
+    size: string | undefined,
     space: string | undefined,
     translate: string | undefined
 }>;
@@ -33,6 +33,9 @@ type Side = {
     hover?: boolean;
     id: string;
     label: string;
+    // An open sidebar's inner border drags to resize it, between the shell's '--sidebar-min-width' and
+    // '--sidebar-max-width'.
+    resizable?: boolean;
     state: { active: boolean };
 };
 
@@ -42,7 +45,7 @@ type Sides = Record<Edge, Side>;
 // Presses in these keep their own text editing rather than dragging the sidebar.
 const FIELDS = 'input, select, textarea, [contenteditable]';
 
-// Below this width an open sidebar pushes the card aside rather than narrowing it, so only one opens at a time.
+// Below this width an open sidebar pushes the main area aside rather than narrowing it, so only one opens at a time.
 const NARROW = '(max-width: 1024px)';
 
 
@@ -144,9 +147,9 @@ function leave(side: Side, peeking: Peeking, frame: Frame, edge: Edge, e: Pointe
 function motion(): Frame[Edge] {
     return reactive({
         dragging: false,
-        gap: undefined as string | undefined,
         offset: 0,
-        reach: undefined as string | undefined,
+        resizing: false,
+        size: undefined as string | undefined,
         space: undefined as string | undefined,
         translate: undefined as string | undefined
     });
@@ -240,27 +243,65 @@ function panel(side: Side, peeking: Peeking, frame: Frame, edge: Edge) {
     `;
 }
 
-// Shows 'shown' pixels of a sidebar 'width' wide and moves the card's edge to meet it, narrowing its gap to none as it
-// comes. The card's surface moves while its content keeps its layout, clipped where the sidebar covers it, until the
-// sidebar settles; on small screens the card keeps its width and slides, so it moves outright. The shell's transitions
-// stand down so both follow the pointer.
-function reveal(frame: Frame, edge: Edge, width: number, shown: number) {
-    let clamped = Math.max(0, Math.min(width, shown)),
-        rest = `calc(var(--gap-horizontal) * ${width ? 1 - clamped / width : 1})`,
+// An open sidebar's inner border: pressing it resizes the sidebar to wherever the pointer goes, and the handle marking
+// the border follows the pointer up and down as the edge strip's does. The stylesheet clamps the width.
+function resizer(frame: Frame, edge: Edge) {
+    let pointer = reactive({ offset: 0 }),
         state = frame[edge];
 
-    state.translate = `${(clamped - width) * direction(edge)}px 0`;
+    function end() {
+        state.resizing = false;
+    }
 
-    if (matchMedia(NARROW).matches) {
-        state.gap = rest;
-        state.reach = undefined;
-        state.space = `${clamped}px`;
-    }
-    else {
-        state.gap = undefined;
-        state.reach = `calc(${clamped}px + ${rest})`;
-        state.space = undefined;
-    }
+    return html`
+        <div
+            aria-hidden='true'
+            class='shell-resize shell-resize--${edge}'
+            ${{
+                class: () => state.resizing && '--active',
+                onlostpointercapture: end,
+                onpointerdown: function(this: HTMLElement, e: PointerEvent) {
+                    if (e.button !== 0) {
+                        return;
+                    }
+
+                    // Captured, so the moves and the release land here wherever the pointer goes; held from text selection.
+                    e.preventDefault();
+                    this.setPointerCapture(e.pointerId);
+                    state.resizing = true;
+                },
+                onpointermove: function(this: HTMLElement, e: PointerEvent) {
+                    let bounds = this.getBoundingClientRect();
+
+                    pointer.offset = e.clientY - bounds.top - bounds.height / 2;
+
+                    if (!state.resizing || !this.parentElement) {
+                        return;
+                    }
+
+                    // Measured against the shell rather than the window, so a shell inside a frame resizes within it.
+                    let shell = this.parentElement.getBoundingClientRect();
+
+                    state.size = `${edge === 'left' ? e.clientX - shell.left : shell.right - e.clientX}px`;
+                },
+                onpointerup: end,
+                style: () => `--offset: ${pointer.offset}px;`
+            }}
+        >
+            <span class='shell-resize-handle'></span>
+        </div>
+    `;
+}
+
+// Shows 'shown' pixels of a sidebar 'width' wide. On small screens the main area slides with it, so the space beside it
+// follows the pointer; elsewhere the sidebar passes over the main area, which keeps its layout until the sidebar
+// settles. The shell's transitions stand down so both follow the pointer.
+function reveal(frame: Frame, edge: Edge, width: number, shown: number) {
+    let clamped = Math.max(0, Math.min(width, shown)),
+        state = frame[edge];
+
+    state.space = matchMedia(NARROW).matches ? `${clamped}px` : undefined;
+    state.translate = `${(clamped - width) * direction(edge)}px 0`;
 }
 
 // Hands the sidebar and the card back to their transitions, which carry both from where the drag left them to open or
@@ -270,8 +311,6 @@ function settle(frame: Frame, edge: Edge) {
 
     state.dragging = false;
     flush();
-    state.gap = undefined;
-    state.reach = undefined;
     state.space = undefined;
     state.translate = undefined;
 }
@@ -299,9 +338,9 @@ function toggle(sides: Sides, peeking: Peeking, frame: Frame, edge: Edge) {
 }
 
 
-// The app frame: a sidebar on either edge, each with its toggle in its own top corner, around a card the page scrolls
-// in. The card insets from the window by a gap that closes on the side of an open sidebar, and a closed sidebar's gap
-// holds a handle to drag it open by, which slides in over the card while the pointer is on that edge.
+// The app frame: a sidebar on either edge, each with its toggle in its own top corner, around a main area the page
+// scrolls in. A closed sidebar's edge holds a handle to drag it open by, which slides in over the main area while the
+// pointer is on it. The main area is unstyled; what it holds sets its look.
 const shell = (sides: Sides, content: Renderable<unknown>) => {
     let frame: Frame = { left: motion(), right: motion() },
         peeking = reactive<Peeking>({ left: false, right: false });
@@ -310,26 +349,27 @@ const shell = (sides: Sides, content: Renderable<unknown>) => {
         <div
             class='shell ${() => sides.left.state.active && 'shell--left-open'} ${() => sides.right.state.active && 'shell--right-open'}'
             ${{
-                class: () => (frame.left.dragging || frame.right.dragging) && 'shell--dragging',
+                class: [
+                    () => (frame.left.dragging || frame.right.dragging) && 'shell--dragging',
+                    () => (frame.left.resizing || frame.right.resizing) && 'shell--resizing'
+                ],
                 style: () => ({
-                    '--left-edge': frame.left.reach,
-                    '--left-gap-horizontal': frame.left.gap,
-                    '--left-space': frame.left.space,
-                    '--right-edge': frame.right.reach,
-                    '--right-gap-horizontal': frame.right.gap,
-                    '--right-space': frame.right.space
+                    '--left': frame.left.space,
+                    '--left-size': frame.left.size,
+                    '--right': frame.right.space,
+                    '--right-size': frame.right.size
                 })
             }}
         >
-            <div aria-hidden='true' class='shell-backdrop'></div>
-            <div aria-hidden='true' class='shell-surface'></div>
             ${panel(sides.left, peeking, frame, 'left')}
             ${panel(sides.right, peeking, frame, 'right')}
             ${grip(sides, peeking, frame, 'left')}
             ${grip(sides, peeking, frame, 'right')}
+            ${sides.left.resizable && resizer(frame, 'left')}
+            ${sides.right.resizable && resizer(frame, 'right')}
             ${toggle(sides, peeking, frame, 'left')}
             ${toggle(sides, peeking, frame, 'right')}
-            <div class='card shell-main' ${scrollbar()}>
+            <div class='shell-main' ${scrollbar()}>
                 ${content}
             </div>
         </div>

@@ -1,23 +1,21 @@
+@use '/tokens';
 @use 'css-utilities/surface';
 
 .shell {
     @extend %surface-root;
-    // How far the card stands from the window.
-    --gap-horizontal: 0px;
-    --gap-vertical: 0px;
-    --height: calc(100dvh - var(--gap-vertical) * 2);
-    // How far the card's surface stands from each side of the window. It matches the laid-out card until hover or a drag
-    // moves it on its own, ahead of the layout.
-    --left-edge: calc(var(--left-space) + var(--left-gap-horizontal));
-    --left-gap-horizontal: 0px;
-    --left-space: 0px;
-    --right-edge: calc(var(--right-space) + var(--right-gap-horizontal));
-    --right-gap-horizontal: 0px;
-    --right-space: 0px;
+    // Inherited by what the shell holds, for content that sticks inside its main area.
+    --height: 100dvh;
+    // The room each side makes beside the main area: none while its sidebar is closed.
+    --left: 0px;
+    // Each sidebar's width: '--space' until a resize sets '--{side}-size', held between the bounds.
+    --left-width: clamp(var(--sidebar-min-width), var(--left-size, var(--space)), var(--sidebar-max-width));
+    --right: 0px;
+    --right-width: clamp(var(--sidebar-min-width), var(--right-size, var(--space)), var(--sidebar-max-width));
+    --sidebar-max-width: calc(100vw - 88px);
+    --sidebar-min-width: 200px;
     --slide-duration: 300ms;
     --slide-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-    // How wide an open sidebar is, and so the room it makes beside the card.
-    --space: min(280px, calc(100vw - 88px));
+    --space: 280px;
 
     @media (prefers-reduced-motion: reduce) {
         --slide-duration: 0s;
@@ -25,18 +23,17 @@
 
 
     &--left-open {
-        --left-gap-horizontal: 0px;
-        --left-space: var(--space);
+        --left: var(--left-width);
     }
 
     &--right-open {
-        --right-gap-horizontal: 0px;
-        --right-space: var(--space);
+        --right: var(--right-width);
     }
 
 
     &-edge {
         --width: 24px;
+        --z-index: 30;
     }
 
     &-edge:hover &-handle {
@@ -47,30 +44,35 @@
         --border-radius: var(--border-radius-200);
         --color: var(--surface-border-hover);
         --height: 10svh;
-        // How far inside the card's edge the handle comes to rest.
+        // How far inside the main area's edge the handle comes to rest.
         --inset-horizontal: 3px;
         --width: 3px;
     }
 
-    &-main {
-        @extend %surface-raise;
-        --border-radius: var(--border-radius-500);
-        --box-shadow: none;
+    // The line runs the border's length; the handle swells out of it where the pointer is, tapering back to the line
+    // over '--taper' at each end.
+    &-resize {
+        --color: var(--color-primary-400);
+        --line-width: 1px;
+        --opacity: 0;
+        --scale: 0;
+        --width: 12px;
+        --z-index: 32;
+
+        @include tokens.state(active hover) {
+            --opacity: 1;
+            --scale: 1;
+        }
     }
 
-    // Steps a sidebar a level below or above the shell's root surface; raised, it matches the card.
+    &-resize-handle {
+        --height: 10svh;
+        --taper: 30%;
+        --width: 3px;
+    }
+
     &-sidebar {
-        &--lower {
-            @extend %surface-lower;
-        }
-
-        &--raise {
-            @extend %surface-raise;
-        }
-    }
-
-    &-surface {
-        @extend %surface-root;
+        --z-index: 31;
     }
 
     &-toggle {
@@ -85,5 +87,6 @@
         --padding-vertical: 0px;
         --size: 32px;
         --width: var(--size);
+        --z-index: 40;
     }
 }

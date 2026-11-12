@@ -25,6 +25,7 @@ export default {
                         content: content('Navigation', ['Inbox', 'Projects', 'Calendar', 'Settings']),
                         id: 'shell-demo-left',
                         label: 'Navigation',
+                        resizable: true,
                         state: reactive({ active: false })
                     },
                     right = {
@@ -45,7 +46,7 @@ export default {
                                     to open the sidebar, or drag it to pull the sidebar out. Drag an open sidebar back
                                     toward its edge to close it. The right sidebar opens on hover instead, peeking while
                                     the pointer rests on its edge and closing once it leaves. Either opens from its corner
-                                    button too.
+                                    button too. The left sidebar is resizable: once open, drag its inner border.
                                 </p>
                             </div>
                         `)}
