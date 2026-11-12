@@ -72,14 +72,12 @@
             scale: var(--scale-default);
         }
     }
+}
 
-
-    &-rail {
-        @each $side in (bottom, left, right, top) {
-            &--#{$side} {
-                border-#{$side}: var(--rail-width) solid var(--rail-color);
-            }
-        }
+// Modifiers for the container a 'highlight--rail' layer rides, not the layer itself.
+@each $side in (bottom, left, right, top) {
+    .--highlight-rail-#{$side} {
+        border-#{$side}: var(--rail-width) solid var(--rail-color);
     }
 }
 

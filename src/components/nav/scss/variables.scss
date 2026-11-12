@@ -10,22 +10,20 @@
 
     // The rail as wide as the highlight's border, which lies over it.
     &--rail {
-        .highlight-rail,
+        .--highlight-rail,
         .nav-tree-highlight {
             --rail-width: var(--border-width-500);
         }
     }
 
-    // Sections and their link lists stack flush; the tree's own gap spaces the sections.
-    .group {
-        --gap-horizontal: 0px;
-        --gap-vertical: 0px;
+
+    &:not(#{&}--rail) &-title:not(&-link) {
+        --padding-horizontal: var(--size-300);
     }
 
-
     &-link {
-        @extend %background-state, %color-state, %color-text;
-        --background-default: transparent;
+        @extend %color-state, %color-text;
+        --background: transparent;
         --border-radius: var(--border-radius-400);
         --font-size: var(--font-size-300);
         --font-weight: var(--font-weight-300);
@@ -57,19 +55,9 @@
         }
     }
 
-
-    // Off a rail the highlight is a 'highlight--surface' pill over raised links, kept inside the tree so no scroll
-    // container clips it; titles step in to line up with the links' text.
-    &:not(#{&}--rail) {
-        .nav-tree-link {
-            @extend %surface-raise;
-            --background-hover: var(--surface-background-hover);
-            --background-pressed: var(--surface-background-pressed);
-            --color-active: var(--color-primary-500);
-        }
-
-        .nav-tree-title:not(.nav-tree-link) {
-            --padding-horizontal: var(--size-300);
-        }
+    // Sections and their link lists stack flush; the tree's own gap spaces the sections.
+    .group {
+        --gap-horizontal: 0px;
+        --gap-vertical: 0px;
     }
 }

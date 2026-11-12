@@ -30,18 +30,8 @@
 
         // Clear at rest and while active, so only the highlight's pill marks the chosen button.
         &-button {
-            @extend %background-surface-primary, %surface-lower;
-            --background-active: transparent;
-            --background-default: transparent;
-            --background-pressed: var(--surface-primary-pressed);
             --border-radius: var(--border-radius-300);
             --font-size: var(--font-size-300);
-        }
-
-        &-buttons {
-            &-highlight {
-                @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-lower;
-            }
         }
 
         &-select.select {

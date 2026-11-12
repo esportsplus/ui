@@ -5,9 +5,9 @@ import '~/components/group/scss/index.scss';
 
 
 type A = Attributes & {
-    // The highlight's attributes; left out, the links go unhighlighted. A 'border' lays the links along a rail on that
-    // edge, the border marking the active link's part of it; without one the fill is a pill.
-    [NAV_TREE_HIGHLIGHT]?: HighlightAttributes;
+    // The highlight's attributes, or `true` for its defaults; left out, the links go unhighlighted. A 'border' lays the
+    // links along a rail on that edge, the border marking the active link's part of it; without one the fill is a pill.
+    [NAV_TREE_HIGHLIGHT]?: HighlightAttributes | true;
     // The key of the active link or section title; each matches through its own `key`, which defaults to its `href`.
     active?: () => string | undefined;
     // 'page' marks the active link as the current page and 'location' as the current spot within it; 'command' is for
@@ -62,8 +62,9 @@ function visible(link: TreeLink) {
 }
 
 
-const tree = ({ [NAV_TREE_HIGHLIGHT]: highlighting, active, current = 'page', sections, truncate, ...attributes }: A) => {
-    let border = highlighting?.border;
+const tree = ({ [NAV_TREE_HIGHLIGHT]: layer, active, current = 'page', sections, truncate, ...attributes }: A) => {
+    let highlighting = layer === true ? {} : layer,
+        border = highlighting?.border;
 
     // A private mirror of the active key that every link selects on, so a change restyles the two links it moves
     // between rather than every link.
@@ -132,7 +133,7 @@ const tree = ({ [NAV_TREE_HIGHLIGHT]: highlighting, active, current = 'page', se
 
                     ${section.groups.map((group) => html`
                         <div
-                            class='group group--column ${border && `highlight-rail highlight-rail--${border}`}'
+                            class='group group--column ${border && `--highlight-rail --highlight-rail-${border}`}'
                             ${group.links.some((link) => link.visible) && { hidden: () => !group.links.some(visible) }}
                         >
                             ${group.label && html`

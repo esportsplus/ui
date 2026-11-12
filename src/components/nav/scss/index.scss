@@ -12,7 +12,7 @@
     &--rail {
         isolation: isolate;
 
-        .highlight-rail {
+        .--highlight-rail {
             border-color: transparent;
 
             &::before {
@@ -23,7 +23,7 @@
             }
 
             @each $side, $length, $axis in (bottom height inline, left width block, right width block, top height inline) {
-                &.highlight-rail--#{$side}::before {
+                &.--highlight-rail-#{$side}::before {
                     #{$length}: var(--rail-width);
                     #{$side}: calc(var(--rail-width) * -1);
                     inset-#{$axis}: 0;

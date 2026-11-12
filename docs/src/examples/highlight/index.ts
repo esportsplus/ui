@@ -17,7 +17,7 @@ function tabs(border: 'bottom' | 'left', fill: boolean) {
     return html`
         <div
             aria-orientation='${border === 'left' ? 'vertical' : 'horizontal'}'
-            class='highlight-demo-tabs highlight-rail highlight-rail--${border} ${border === 'left' && 'highlight-demo-tabs--vertical'}'
+            class='highlight-demo-tabs --highlight-rail --highlight-rail-${border} ${border === 'left' && 'highlight-demo-tabs--vertical'}'
             role='tablist'
         >
             ${highlight({ border, class: 'highlight-demo-highlight highlight--rail', fill })}

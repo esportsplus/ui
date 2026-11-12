@@ -120,14 +120,10 @@
                 @include surface.step(2);
             }
         }
-    }
 
-
-    // The rail a 'highlight--rail' layer rides, along the edge its side modifier names; the layer's 'border' names the
-    // same. Its own names, since the layer inherits them alongside its border's.
-    &-rail {
-        --rail-color: var(--surface-border-default);
-        --rail-width: var(--border-width-400);
+        &-primary {
+            @extend %background-surface-primary;
+        }
     }
 
 
@@ -140,4 +136,11 @@
             --glide-tail: 0s;
         }
     }
+}
+
+// The rail a 'highlight--rail' layer rides, along the edge its side modifier names; the layer's 'border' names the
+// same. Its own names, since the layer inherits them alongside its border's.
+.--highlight-rail {
+    --rail-color: var(--surface-border-default);
+    --rail-width: var(--border-width-400);
 }

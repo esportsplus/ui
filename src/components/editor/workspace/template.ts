@@ -852,7 +852,7 @@ const workspace = ({
                 }],
                 label: group.label
             })),
-            [nav.tree.highlight]: {}
+            [nav.tree.highlight]: true
         });
     }
 

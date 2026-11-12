@@ -14,7 +14,7 @@ function group(vertical: boolean, fill: boolean, border: boolean) {
     return html`
         <div
             aria-orientation='${vertical ? 'vertical' : 'horizontal'}'
-            class='link-demo-group highlight-rail highlight-rail--${vertical ? 'left' : 'bottom'} ${vertical && 'link-demo-group--vertical'}'
+            class='link-demo-group --highlight-rail --highlight-rail-${vertical ? 'left' : 'bottom'} ${vertical && 'link-demo-group--vertical'}'
             role='tablist'
         >
             ${highlight({ border: border ? (vertical ? 'left' : 'bottom') : undefined, class: 'link-demo-group-highlight highlight--rail', fill })}
