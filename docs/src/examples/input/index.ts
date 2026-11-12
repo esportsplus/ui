@@ -1,4 +1,4 @@
-import { command, form, group, icon, input, select } from '@esportsplus/ui/components';
+import { form, group, icon, input, select } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { moreFieldVariations } from 'docs/examples/form-options';
@@ -6,7 +6,6 @@ import alert from '@esportsplus/ui/svg/circle-alert.svg';
 import check from '@esportsplus/ui/svg/circle-check.svg';
 import help from '@esportsplus/ui/svg/help.svg';
 import user from '@esportsplus/ui/svg/user.svg';
-import type { Tab } from '@esportsplus/ui/components/command';
 import type { Style, Variant } from 'docs/types';
 
 
@@ -274,79 +273,6 @@ export default {
         {
             render: (style: string) => password(style, 'click', true),
             title: 'password strength'
-        },
-        {
-            render: (style: string) => html`
-                <div style='${stack}'>
-                    ${input.search({ class: style, kbd: ['Mod', 'K'], placeholder: 'Search documentation…' })}
-                    ${input.search({ class: `${style} input--compact`.trim(), kbd: ['/'] })}
-                </div>
-            `,
-            title: 'search · shortcut'
-        },
-        {
-            render: (style: string) => {
-                let result = reactive({ query: '' });
-
-                return html`
-                    <div class='group group--column' style='width: min(100%, 320px);'>
-                        ${input.search({
-                            class: style,
-                            oninput: (e: Event) => {
-                                result.query = (e.currentTarget as HTMLInputElement).value;
-                            }
-                        })}
-                        <small class='group-description'>${() => `Query: ${result.query || '—'}`}</small>
-                    </div>
-                `;
-            },
-            title: 'search · observed query'
-        },
-        {
-            render: (style: string) => {
-                let result = reactive({ ran: '' }),
-                    state = reactive({ active: false, index: -1, query: '', tab: 'all' as Tab });
-
-                function open() {
-                    state.active = true;
-                }
-
-                return html`
-                    <div class='group group--column' style='width: min(100%, 320px);'>
-                        ${input.search({
-                            'aria-haspopup': 'dialog',
-                            class: `${style} input--tactile`.trim(),
-                            kbd: ['Mod', 'J'],
-                            onclick: open,
-                            onkeydown: (e: KeyboardEvent) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                    e.preventDefault();
-                                    open();
-                                }
-                            },
-                            readonly: true,
-                            style: 'cursor: pointer;',
-                            value: 'Search commands…'
-                        })}
-                        <small class='group-description'>${() => `Ran: ${result.ran || '—'}`}</small>
-                        ${command({
-                            commands: [
-                                { group: 'File', id: 'new', label: 'New file' },
-                                { group: 'File', id: 'open', label: 'Open file' },
-                                { group: 'View', id: 'theme', label: 'Toggle theme' }
-                            ],
-                            // Mod+K belongs to the docs' own search.
-                            hotkey: ['Mod', 'J'],
-                            onrun: (entry) => {
-                                result.ran = entry.label;
-                            },
-                            state,
-                            trigger: false
-                        })}
-                    </div>
-                `;
-            },
-            title: 'search · opens a dialog on click'
         },
         ...moreFieldVariations('input'),
         {

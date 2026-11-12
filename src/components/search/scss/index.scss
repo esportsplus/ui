@@ -1,0 +1,36 @@
+@use 'variables';
+
+.search {
+    // The keycaps sit where the native clear button would.
+    & > .input::-webkit-search-cancel-button {
+        appearance: none;
+    }
+
+    // Fills the row like the field it stands in for, its label where the field's placeholder sits.
+    &-button {
+        flex: 1 1 auto;
+        justify-content: flex-start;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+    }
+
+    // Legends, not controls: no hover or press, and a press falls through to the field or button.
+    &-keys {
+        align-items: center;
+        display: flex;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        pointer-events: none;
+    }
+
+    // A tactile button sinks with its group, so the items floating over it go with it; they center by 'translate',
+    // which the button's own would fight. Qualified past the button's own pressed rule so it stays put.
+    &:has(> .search-button.button--tactile:is(:active, .--active, .--pressed)) {
+        translate: var(--translate-pressed);
+    }
+
+    & > .search-button.button--tactile:is(:active, .--active, .--pressed) {
+        translate: none;
+    }
+}

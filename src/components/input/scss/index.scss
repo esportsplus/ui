@@ -256,32 +256,6 @@
 
     }
 
-    &-search {
-        // The keycaps sit where the native clear button would.
-        & > .input::-webkit-search-cancel-button {
-            appearance: none;
-        }
-
-        // Read-only, it stands in for a button that opens a search elsewhere, so its placeholder reads as the button's
-        // label.
-        & > .input[readonly] {
-            cursor: pointer;
-
-            &::placeholder {
-                color: var(--color);
-                opacity: 1;
-            }
-        }
-
-        // Legends, not controls: no hover or press, and a press falls through to the field.
-        &-keys {
-            align-items: center;
-            display: flex;
-            gap: var(--gap-vertical) var(--gap-horizontal);
-            pointer-events: none;
-        }
-    }
-
     &-tag {
         color: var(--color);
         width: var(--width);

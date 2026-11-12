@@ -3,9 +3,9 @@ import { component, html, type Attributes, type On, type Renderable } from '@esp
 import button from '~/components/button';
 import group from '~/components/group';
 import icon from '~/components/icon';
-import input from '~/components/input';
 import nav from '~/components/nav';
 import overlay from '~/components/overlay';
+import search from '~/components/search';
 import scrollbar from '~/modifiers/scrollbar';
 import { mac } from '~/shared/platform';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
@@ -143,9 +143,7 @@ type Store = {
 // A command group's name opens that group's tab.
 type Tab = 'all' | 'shortcuts' | (string & {});
 
-type Trigger = Parameters<typeof input.search>[0] & {
-    label?: string;
-};
+type Trigger = Parameters<typeof search.button>[0];
 
 type View = {
     empty: string;
@@ -341,27 +339,18 @@ function match(hay: string, needle: string): [number, number][] | null {
     return ranges;
 }
 
-// A read-only search field standing in for the palette's: pressing it, or Enter or Space on it, opens the palette. The
-// keycaps only show the hotkey; the palette binds it. 'command-trigger' marks it as declaring the hotkey on the palette's
-// behalf.
+// A 'search.button' standing in for the palette's field: pressing it opens the palette. The keycaps only show the
+// hotkey; the palette binds it. 'command-trigger' marks it as declaring the hotkey on the palette's behalf.
 function opener({ kbd: keys = [], label = 'Search', ...attributes }: Trigger, state: State, open: () => void) {
-    return input.search({
+    return search.button({
         'aria-haspopup': 'dialog',
         ...(keys.length > 0 ? { 'aria-keyshortcuts': aria(keys, mac() ? 'Meta' : 'Control') } : {}),
-        'aria-label': label,
-        placeholder: label,
-        readonly: true,
         ...attributes,
         'aria-expanded': () => state.active ? 'true' : 'false',
         class: ['command-trigger', attributes.class].flat(),
         kbd: keys,
-        onclick: open,
-        onkeydown: (e: KeyboardEvent) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                open();
-            }
-        }
+        label,
+        onclick: open
     });
 }
 
@@ -593,7 +582,7 @@ export default component(
                     }],
                     label: group.label
                 })),
-                [nav.tree.highlight]: {}
+                [nav.tree.highlight]: true
             });
         }
 
@@ -705,7 +694,7 @@ export default component(
                         >
                             <div class='command-body'>
                                 <div class='command-search'>
-                                    ${input.search(
+                                    ${search.input(
                                         {
                                             'aria-activedescendant': () => read(active),
                                             'aria-autocomplete': 'list',

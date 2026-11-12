@@ -1,8 +1,8 @@
 import { effect, flush, onCleanup, reactive, ReactiveArray, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import icon from '~/components/icon';
-import input from '~/components/input';
 import overlay from '~/components/overlay';
+import searchbox from '~/components/search';
 import sortable, { type SortableOptions } from '~/components/sortable';
 import tooltip from '~/components/tooltip';
 import { content as surface } from '~/components/tooltip/utilities';
@@ -421,7 +421,7 @@ const toolbar = ({
                 <div class='toolbar-drawer-body'>
                     ${search && html`
                         <div class='toolbar-drawer-search'>
-                            ${input.search({
+                            ${searchbox.input({
                                 class: 'toolbar-drawer-input',
                                 oninput: (e: Event) => {
                                     launch.index = -1;

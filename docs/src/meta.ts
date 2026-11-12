@@ -129,6 +129,9 @@ const meta: Record<string, Meta> = {
     scrollbar: {
         description: 'Native scrollbar styling with thin, token-driven colors, plus edge fades and blurs that track the scroll position.'
     },
+    search: {
+        description: 'Search field with a magnifier and shortcut keycaps floating over it, and a button dressed the same way for opening a search that lives elsewhere, such as a command palette.'
+    },
     select: {
         description: 'Custom dropdown for choosing from a list of options, plus a macOS-style listbox that opens with the selected option over the trigger, with typeahead and hover scrolling.'
     },
