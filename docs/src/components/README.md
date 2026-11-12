@@ -14,8 +14,7 @@ its color palettes, contrast calculation, clipboard feedback, and swatch styles.
 | `page` | Docs page and section layout, and empty states |
 | `page/header` | Library page title and subtitle, optional breadcrumb and note, and previous/next navigation |
 | `root` | Docs-wide theme aliases |
-| `search` | Search state, trigger, and the library `command` palette wired to the library `nav.tree` renderer |
-| `sidebar` | Documentation navigation, rendered as the library `shell`'s left sidebar |
+| `sidebar` | Documentation navigation and its search, rendered as the library `shell`'s left sidebar |
 | `spec` | Shared data tables, token/value typography, and table-header surface and corner styling |
 | `toaster` | The shared docs toast queue, placement, and toast surface styles |
 | `viewer` | Routed content grid inside the shell's card, with the TOC column |
@@ -37,16 +36,15 @@ sidebar starts open on desktop and closed on small screens. An effect watches
 the request path and closes the sidebar after route changes on small screens;
 desktop navigation preserves its open state. CSS media queries control the
 layout; on small screens the card keeps its width as it shifts.
-The sidebar holds the brand, release badge and search control, so they slide with the shell's
-drawer. Header padding sizes the brand row and aligns the fixed sidebar toggle. The search control sits in a tools row below the brand, and
-the command palette mounts beside the shell
-so its keyboard shortcut also works with the sidebar closed. Navigation scrolls below
+The sidebar holds the brand, release badge and search field, so they slide with the shell's
+drawer. Header padding sizes the brand row and aligns the fixed sidebar toggle. The search field sits in a tools row below the brand
+and filters the tree in place through each link's `visible`: a link shows when its label matches, a section whose name
+matches shows all its links, and a section left with none hides. Matching ignores case, dashes and spaces. Mod+K
+focuses the field from anywhere, opening the sidebar first; Enter opens the first match, and Escape clears the query,
+then leaves the field. Navigation scrolls below
 the brand row and uses the library `nav.tree` and original responsive content spacing.
 Navigation data keeps links directly on each section; the sidebar supplies the
-group structure used by the tree renderer.
-The command palette passes its filtered groups to `nav.tree` through `command`'s
-`render` callback. Sidebar and command results use the same markup and tree styles;
-`current: 'command'` only changes their roles and focus, and the docs capitalize the labels the tree leaves as written.
+group structure used by the tree renderer, and the docs capitalize the labels the tree leaves as written.
 Scope documentation page styles under `.main > .page` so library pages in live
 examples keep their own presentation.
 

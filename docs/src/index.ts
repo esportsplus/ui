@@ -3,7 +3,6 @@ import '@esportsplus/ui/layer.scss';
 import './ui';
 import { fallback, html, middleware, reactive, render } from 'docs/app';
 import { toaster } from 'docs/components/toaster';
-import { modal } from 'docs/components/search';
 import { themeSwitcher } from 'docs/components/theme-switcher';
 import shell from '@esportsplus/ui/components/shell';
 import sidebar from 'docs/components/sidebar';
@@ -20,7 +19,6 @@ render(
     document.body,
     () => middleware(
         (request, next) => html`
-            ${modal()}
             ${themeSwitcher()}
             ${toaster.content}
 

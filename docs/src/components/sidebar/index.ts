@@ -1,12 +1,15 @@
-import { nav } from '@esportsplus/ui/components';
-import { effect, html, reactive, uri } from 'docs/app';
+import { nav, search } from '@esportsplus/ui/components';
+import { effect, html, reactive, redirect, uri } from 'docs/app';
 import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
 import shell from '@esportsplus/ui/components/shell';
 import { repository, version } from '@esportsplus/ui/package.json';
 import { sections } from 'docs/data/nav';
-import { trigger as searchTrigger } from 'docs/components/search';
 import type { Request } from 'docs/app';
+import type { On } from '@esportsplus/template';
 import 'docs/components/sidebar/scss/index.scss';
+
+
+const SEPARATOR = /[\s_-]+/g;
 
 
 let release = version.split('.').slice(0, 2).join('.'),
@@ -14,13 +17,23 @@ let release = version.split('.').slice(0, 2).join('.'),
         class: 'sidebar',
         id: 'docs-navigation',
         label: 'Documentation navigation',
+        resizable: true,
         state: reactive({ active: !matchMedia('(max-width: 1024px)').matches })
     };
 
 
-// The documentation navigation, as the shell's left sidebar.
+// Case, dashes and spaces fold away, so 'color picker' finds 'color-picker'.
+function fold(text: string) {
+    return text.toLowerCase().replace(SEPARATOR, ' ').trim();
+}
+
+
+// The documentation navigation, as the shell's left sidebar. Its search filters the tree in place: a link shows when its
+// label matches, every link of a section whose name matches shows, and a section left with none hides.
 export default (request: Request) => {
-    let navigation = sections(),
+    let field: HTMLInputElement | undefined,
+        filter = reactive({ query: '' }),
+        navigation = sections(),
         routes = new Set(navigation.flatMap((section) => section.links.map(key)));
 
     // Links match by route, so any URL their route accepts marks them; a section title matches its own path.
@@ -30,8 +43,66 @@ export default (request: Request) => {
         return routes.has(route) ? route : request.path;
     }
 
+    function first() {
+        for (let section of navigation) {
+            for (let link of section.links) {
+                if (shown(section.label, link.label)) {
+                    return link;
+                }
+            }
+        }
+    }
+
     function key(link: { name: string; slug: string }) {
         return `${link.name}:${link.slug}`;
+    }
+
+    // Enter opens the first match; Escape clears the query, then leaves the field.
+    function keydown(e: KeyboardEvent) {
+        if (e.key === 'Enter') {
+            let link = first();
+
+            e.preventDefault();
+
+            if (link) {
+                redirect(link.name, { slug: link.slug });
+            }
+
+            return;
+        }
+
+        if (e.key !== 'Escape') {
+            return;
+        }
+
+        // Kept from the shell, which would close the sidebar on Escape.
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (filter.query) {
+            filter.query = '';
+        }
+        else {
+            field?.blur();
+        }
+    }
+
+    // Mod+K reaches the field from anywhere, opening the sidebar first when it's closed.
+    function shortcut(e: KeyboardEvent) {
+        if (!(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey || e.key.toLowerCase() !== 'k') {
+            return;
+        }
+
+        e.preventDefault();
+        side.state.active = true;
+        field?.focus();
+        field?.select();
+    }
+
+    function shown(section: string, label: string) {
+        let query = fold(filter.query);
+
+        return !query || fold(section).includes(query) || fold(label).includes(query);
     }
 
     return {
@@ -64,13 +135,28 @@ export default (request: Request) => {
             </div>
 
             <div class='sidebar-tools'>
-                ${searchTrigger()}
+                ${search.input({
+                    'aria-controls': 'docs-navigation-tree',
+                    class: 'input--border',
+                    kbd: ['Mod', 'K'],
+                    onconnect: (element: HTMLInputElement, on: On) => {
+                        field = element;
+                        on(document, 'keydown', shortcut);
+                    },
+                    oninput: (e: Event) => {
+                        filter.query = (e.currentTarget as HTMLInputElement).value;
+                    },
+                    onkeydown: keydown,
+                    placeholder: 'Search documentation…',
+                    value: () => filter.query
+                })}
             </div>
 
             <div class='sidebar-scrollport' ${scrollbar({ fade: true, hidden: true })}>
                 <div class='sidebar-content'>
                     ${nav.tree({
                         active: current,
+                        id: 'docs-navigation-tree',
                         sections: navigation.map((section) => ({
                             label: section.label,
                             href: section.index ? section.href : undefined,
@@ -78,12 +164,15 @@ export default (request: Request) => {
                                 links: section.links.map((link) => ({
                                     label: link.label,
                                     href: link.href,
-                                    key: key(link)
+                                    key: key(link),
+                                    visible: () => shown(section.label, link.label)
                                 }))
                             }]
                         })),
-                        [nav.tree.highlight]: { hover: false }
+                        [nav.tree.highlight]: true
                     })}
+
+                    ${() => !first() && html`<p class='sidebar-empty'>No pages match “${filter.query}”.</p>`}
                 </div>
             </div>
         `
