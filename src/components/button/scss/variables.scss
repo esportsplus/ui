@@ -206,14 +206,12 @@
 
     &-morph {
         &-icon {
-            --icon-swap-duration: 300ms;
-            --icon-swap-timing-function: var(--spring);
-
+            --swap-duration: 300ms;
+            --swap-timing-function: var(--spring);
 
             &--loading svg {
                 --spin-duration: 700ms;
                 --spin-timing-function: linear;
-
 
                 @media (prefers-reduced-motion: reduce) {
                     --spin-duration: 0s;
@@ -225,7 +223,6 @@
         &-text {
             --transition-duration: 150ms;
             --transition-timing-function: ease-out;
-
 
             @include tokens.state(active) {
                 --transition-duration: 200ms;

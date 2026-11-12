@@ -252,7 +252,6 @@
             @extend %icon-stroke-draw;
             transition: stroke-dashoffset var(--transition-duration) var(--transition-timing-function);
 
-
             @media (prefers-reduced-motion: reduce) {
                 transition: none;
             }
