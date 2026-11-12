@@ -13,6 +13,12 @@
         --gap-vertical: var(--size-100);
     }
 
+    // One width for every row's control, so a column of rows lines its controls up whatever their labels say. Prefixed,
+    // since the control's own '--width' would otherwise be overwritten.
+    &--row > :not(#{&}-description, #{&}-label) {
+        --control-width: min(260px, 100%);
+    }
+
     // Qualified through the group so the buttons' sizes win over their own, whatever order the stylesheets load in. Its
     // highlight takes 'highlight--surface'.
     &--surface {
@@ -34,12 +40,6 @@
             --font-size: var(--font-size-300);
             --padding-vertical: var(--size-100);
         }
-    }
-
-    // One width for every row's control, so a column of rows lines its controls up whatever their labels say. Prefixed,
-    // since the control's own '--width' would otherwise be overwritten.
-    &--row > :not(#{&}-description, #{&}-label) {
-        --control-width: min(260px, 100%);
     }
 
 
@@ -109,7 +109,6 @@
 
         & > .group-item--overlay.icon {
             --color: var(--color-text-300);
-            // --size: var(--size-300);
         }
     }
 
