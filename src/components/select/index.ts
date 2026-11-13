@@ -2,6 +2,7 @@ import { component, html, type Attributes, type Renderable } from '@esportsplus/
 import { effect, onCleanup, reactive, signal, write } from '@esportsplus/reactivity';
 import { clamp } from '~/shared/clamp';
 import form from '~/components/form';
+import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import overlay from '~/components/overlay';
 import expand from './expand';
@@ -134,7 +135,7 @@ function template(
     }
 
     // Keyboard moves keep the highlight in view; pointer moves never scroll.
-    function highlight(index: number) {
+    function move(index: number) {
         if (!options.length) {
             return;
         }
@@ -190,7 +191,7 @@ function template(
 
             if (e.key in moves) {
                 e.preventDefault();
-                highlight(moves[e.key]);
+                move(moves[e.key]);
                 return;
             }
 
@@ -297,7 +298,7 @@ function template(
 
             // Closed, it changes the value directly, like a native select.
             if (state.active) {
-                highlight(index);
+                move(index);
             }
             else {
                 state.selected = options[index].value;
@@ -493,6 +494,7 @@ function template(
                             }
                         }}
                     >
+                        ${highlight({ class: 'highlight--surface-primary', hover: true, target: '.select-menu-option' })}
                         <div aria-labelledby='${id}-label' id='${id}-list' role='listbox'>
                             ${options.map((option, index) => html`
                                 <div
@@ -511,7 +513,7 @@ function template(
                                     }}
                                     ${{
                                         'aria-selected': () => signal.selector(chosen, option.value) ? 'true' : 'false',
-                                        class: () => signal.selector(highlighted, index) && 'select-menu-option--highlighted',
+                                        class: () => signal.selector(highlighted, index) && '--active',
                                         onclick: () => choose(index),
                                         onpointermove: (e: PointerEvent) => {
                                             // Scrolling under a still cursor can fire synthetic moves; only real movement

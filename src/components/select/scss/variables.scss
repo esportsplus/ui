@@ -106,23 +106,15 @@
             --color: var(--color-text-300);
         }
 
-        // No transition on the highlight: it follows every move, so easing would read as lag. Highlighting moves the
-        // option's resting fill, so the pointer's own hover adds nothing and pressing still steps from it.
+        // The scroller's highlight layer fills the highlighted option, marked '--active', so options keep no fill of
+        // their own.
         &-option {
-            @extend %background-state;
-            --background-highlighted: var(--surface-background-hover);
-            --background-pressed: var(--surface-background-pressed);
             --border-radius: var(--border-radius-400);
             --gap-horizontal: var(--size-200);
             --gap-vertical: 0px;
             --height: var(--row-height);
             --padding-horizontal: var(--size-100);
             --padding-vertical: 0px;
-
-            &--highlighted,
-            &:focus {
-                --background-default: var(--background-highlighted);
-            }
 
             &-detail {
                 --color: var(--color-text-300);
@@ -166,6 +158,14 @@
                 --color: currentColor;
                 --size: 14px;
             }
+        }
+
+        // The panel is a raised surface, already white in light mode, so the surface steps that lighten (active, hover)
+        // vanish on it; the primary default sits below it in light and above it in dark, so it reads in both.
+        &-scroller > .highlight {
+            // --background-active: var(--surface-primary-default);
+            // --background-hover: var(--surface-primary-default);
+            // --background-pressed: var(--surface-primary-pressed);
         }
 
         // Sized in rows, which each option takes its height from; its edges fade where there is more to scroll to.
