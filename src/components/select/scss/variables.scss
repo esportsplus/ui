@@ -1,30 +1,61 @@
 @use '/tokens';
 @use 'css-utilities/background';
+@use 'css-utilities/border';
 @use 'css-utilities/box-shadow';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
-// The trigger is a surface, lifting on hover, settling when pressed and holding the selected fill while open; its panel
-// is a surface above it, whose options take the panel's own hover and pressed steps. Raised over its neighbours while
-// open or hovered, so the panel covers them.
+// Closed, it reads as an input: the same fills, edge, shadow, ink and rounding through the same modifiers, raised over
+// its neighbours while open or hovered so the panel covers them. Its panel is a surface above it, whose highlight layer
+// marks the option the pointer or keys are on.
 .select {
-    @extend %background-state, %box-shadow-state, %surface-raise;
-    --background-active: var(--surface-background-active);
-    --background-default: var(--surface-background-default);
-    --background-hover: var(--surface-background-hover);
-    --background-pressed: var(--surface-background-pressed);
-    --box-shadow-active: var(--surface-shadow-active);
-    --box-shadow-default: var(--surface-shadow-default);
-    --box-shadow-hover: var(--surface-shadow-hover);
-    --box-shadow-pressed: var(--surface-shadow-pressed);
-    --color: var(--color-text-500);
-    --font-size: calc(var(--font-size-400) * 0.875);
-    --height: 40px;
+    @extend %background-state, %border-state, %box-shadow-surface, %box-shadow-state, %color-state;
+    --font-size: var(--font-size-400);
+    // The trigger's least height, an input's: its padding either side of an icon. Its text and border grow it past
+    // that as they grow an input.
+    --height: calc((var(--size-100) * 2) + var(--size-400));
     --width: min(260px, 100%);
     --z-index: 0;
 
     @include tokens.state(active hover) {
         --z-index: 9;
+    }
+
+
+    // Open is its active state, which thickens the edge inward, so the panel laid over it still covers it.
+    &--border {
+        --border-color-active: var(--color-primary-300);
+        --border-color-default: var(--surface-border-default);
+        --border-color-hover: var(--surface-border-hover);
+        --border-color-pressed: var(--surface-border-pressed);
+        --border-style: solid;
+        --border-width: var(--border-width-400);
+        --border-width-active: var(--border-width-500);
+        --outline-width: 0px;
+
+        @include tokens.state(active) {
+            --outline-width: max(0px, calc(var(--border-width-active) - var(--border-width)));
+        }
+    }
+
+    // An 'input--compact' height and inset. Qualified by the trigger so its padding wins over the trigger's own
+    // regardless of stylesheet order.
+    &--compact {
+        --font-size: var(--font-size-300);
+        --height: calc((6px * 2) + var(--size-100));
+
+        & > .select-menu-trigger {
+            --padding-start: var(--size-200);
+            --padding-vertical: 6px;
+        }
+    }
+
+    &--surface {
+        @extend %background-surface, %border-surface;
+
+        &-primary {
+            @extend %background-surface-primary, %border-surface, %box-shadow-surface;
+        }
     }
 
 
@@ -38,7 +69,7 @@
         // Chained through '.tooltip-content' so it wins over the tooltip's own surface regardless of stylesheet order.
         &-menu.tooltip-content {
             --background-default: var(--surface-background-default);
-            --border-radius: var(--trigger-border-radius);
+            --border-radius: var(--border-radius-300);
             --border-width: var(--border-width-400);
             --gap-horizontal: calc(var(--size-100) / 4);
             --gap-vertical: calc(var(--size-100) / 4);
@@ -106,7 +137,7 @@
             --color: var(--color-text-300);
         }
 
-        // The scroller's highlight layer fills the highlighted option, marked '--active', so options keep no fill of
+        // The scroller's highlight layer fills the highlighted option, marked '--hover', so options keep no fill of
         // their own.
         &-option {
             --border-radius: var(--border-radius-400);
@@ -123,12 +154,16 @@
         }
 
         // Leaves faster than it arrives, so choosing never waits on the list. Clear of the page's edges by the gutter
-        // either side, and over everything the select raises above.
+        // either side, and over everything the select raises above. Its fill and shadow hold through its own '--active',
+        // so it takes the surface's resting values rather than their states.
         &-panel {
-            @extend %background-state, %box-shadow-state, %surface-raise;
-            --background-default: var(--surface-background-default);
-            --border-radius: var(--border-radius-600);
-            --box-shadow-default: var(--surface-shadow-default);
+            @extend %surface-raise;
+            --background: var(--surface-background-default);
+            --border-radius: var(--border-radius-400);
+            --box-shadow: var(--surface-shadow-default);
+            --color: var(--color-text-500);
+            // How far it reaches past its placed box on every side, to cover whatever the trigger draws outside its own.
+            --cover: 0px;
             --max-width: calc(90vw - (var(--size-700) * 2));
             // Read by JS to place the panel, and by its scroller, which it sizes.
             --rows: 8;
@@ -156,42 +191,39 @@
 
             &-icon.icon {
                 --color: currentColor;
-                --size: 14px;
+                // --size: 14px;
             }
         }
 
-        // The panel is a raised surface, already white in light mode, so the surface steps that lighten (active, hover)
-        // vanish on it; the primary default sits below it in light and above it in dark, so it reads in both.
-        &-scroller > .highlight {
-            // --background-active: var(--surface-primary-default);
-            // --background-hover: var(--surface-primary-default);
-            // --background-pressed: var(--surface-primary-pressed);
-        }
-
-        // Sized in rows, which each option takes its height from; its edges fade where there is more to scroll to.
+        // Sized in rows, which each option takes its height from. Its scrolling is set by script, a step every frame
+        // while an arrow is hovered, which the scrollbar modifier's smooth behavior would turn into lag.
         &-scroller {
-            --fade: 24px;
-            --fade-bottom: 0px;
-            --fade-top: 0px;
             --padding-horizontal: 4px;
             --padding-vertical: 4px;
             --row-height: 36px;
-
-            &--down {
-                --fade-bottom: var(--fade);
-            }
-
-            &--up {
-                --fade-top: var(--fade);
-            }
+            --scrollbar-behavior: auto;
         }
 
         &-trigger {
-            --border-radius: var(--border-radius-300);
+            --border-radius: var(--border-radius-400);
             --gap-horizontal: var(--size-200);
             --gap-vertical: 0px;
-            --padding-end: var(--size-200);
+            --padding-end: var(--size-100);
             --padding-start: var(--size-300);
+            --padding-vertical: var(--size-100);
         }
+    }
+
+
+    // Disabled, it holds its resting look under the pointer and pressed.
+    &:has(> #{&}-menu-trigger:disabled) {
+        --background: var(--background-default);
+        --border-color: var(--border-color-default);
+        --box-shadow: var(--box-shadow-default);
+    }
+
+    // Keyboard focus rings the trigger outside its box, which the panel opening over it has to cover.
+    &:has(> #{&}-menu-trigger:focus-visible) #{&}-menu-panel {
+        --cover: calc(var(--focus-offset) + var(--focus-width));
     }
 }

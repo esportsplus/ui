@@ -80,7 +80,7 @@ function picker(label: string, options: Record<string, string>, state: typeof sw
                 [select.option]: { style: 'padding: var(--size-300) var(--size-400); white-space: nowrap;' },
                 state,
                 style: '--border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color); --padding-vertical: var(--size-300); width: 360px;',
-                [select.tooltipContent]: { style: '--background: var(--surface-background-default); --max-width: none; min-width: 100%;' }
+                [select.panel]: { style: '--background: var(--surface-background-default); --max-width: none; min-width: 100%;' }
             })}
         </div>
     `;

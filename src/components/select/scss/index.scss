@@ -1,4 +1,5 @@
 @use '/tokens';
+@use 'css-utilities/disabled';
 @use 'css-utilities/hidden';
 @use 'css-utilities/icon';
 @use 'css-utilities/reset';
@@ -11,6 +12,15 @@
     position: relative;
     width: var(--width);
     z-index: var(--z-index);
+
+
+    // Its padding gives the border back, as an input's does, so the value stays put.
+    &--border > #{&}-menu-trigger {
+        border: var(--border-width) var(--border-style) var(--border-color);
+        outline: var(--outline-width) solid var(--border-color);
+        outline-offset: calc((var(--border-width) + var(--outline-width)) * -1);
+        padding-inline: calc(var(--padding-start) - var(--border-width)) calc(var(--padding-end) - var(--border-width));
+    }
 
 
     &-expand {
@@ -97,10 +107,6 @@
             left: anchor(left);
             top: anchor(top);
             width: anchor-size(width);
-
-            > .select-menu-panel {
-                pointer-events: auto;
-            }
         }
 
         &-option {
@@ -132,16 +138,22 @@
             }
         }
 
-        // Closed, it is inert, so it takes no pointer or focus while it fades out.
+        // Closed, it is inert, so it takes no pointer or focus while it fades out. Its cover grows the box out past where
+        // it is placed while its content stays put: padding pushes the content in by as much as the margin pulls the box
+        // out, and the content box keeps the placed width.
         &-panel {
             background: var(--background);
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
+            box-sizing: content-box;
+            color: var(--color);
             left: 0;
+            margin: calc(var(--cover) * -1);
             max-width: var(--max-width);
-            min-width: auto;
             opacity: 0;
             overflow: hidden;
+            padding: var(--cover);
+            pointer-events: auto;
             position: absolute;
             scale: var(--scale);
             top: 0;
@@ -186,16 +198,9 @@
         }
 
         &-scroller {
-            mask-image: linear-gradient(to bottom, transparent, black var(--fade-top), black calc(100% - var(--fade-bottom)), transparent);
             max-height: calc(var(--rows) * var(--row-height) + var(--padding-vertical) * 2);
-            overflow-y: auto;
-            overscroll-behavior: contain;
             padding-block: var(--padding-vertical);
             padding-inline: var(--padding-horizontal);
-        }
-
-        &-tag {
-            display: none;
         }
 
         &-trigger {
@@ -207,14 +212,20 @@
             color: var(--color);
             display: flex;
             gap: var(--gap-vertical) var(--gap-horizontal);
-            height: var(--height);
             margin: 0;
+            min-height: var(--height);
             outline: none;
+            // An input's, so the two stand the same height side by side.
+            padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
             padding-inline: var(--padding-start) var(--padding-end);
             text-align: start;
             touch-action: manipulation;
             user-select: none;
             width: 100%;
+
+            &:disabled {
+                cursor: not-allowed;
+            }
 
             &:focus-visible {
                 outline: var(--focus-width) solid var(--color);
@@ -227,5 +238,10 @@
             flex: 1;
             min-width: 0;
         }
+    }
+
+
+    &:has(> #{&}-menu-trigger:disabled) {
+        @extend %disabled;
     }
 }

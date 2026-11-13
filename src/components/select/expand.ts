@@ -1,5 +1,5 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { flush, onCleanup, reactive } from '@esportsplus/reactivity';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import faces from '~/components/button/faces';
 import form from '~/components/form';
 import { morph, shape } from '~/components/tooltip/utilities';
@@ -54,6 +54,7 @@ function template({
     ...attributes
 }: A) {
     let elements: HTMLElement[] = [],
+        hover = openOn === 'hover',
         menu: HTMLElement | undefined,
         opening: VoidFunction | undefined,
         status = reactive({ active: false, landing: false, pinned: null as number | null }),
@@ -143,8 +144,6 @@ function template({
     onCleanup(() => {
         opening?.();
     });
-
-    let hover = openOn === 'hover';
 
     return html`
         <div

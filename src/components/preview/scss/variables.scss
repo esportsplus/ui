@@ -39,6 +39,11 @@
             --font-size: var(--font-size-200);
             --height: 28px;
             --width: auto;
+
+            // Its height is set outright, so the trigger keeps none of an input's padding.
+            & > .select-menu-trigger {
+                --padding-vertical: 0px;
+            }
         }
     }
 

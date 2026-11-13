@@ -3,6 +3,13 @@
     flex-direction: column;
     width: min(440px, 100%);
 
+
+    // One labelled select per fill, spaced as the input's showcase.
+    &--stack {
+        gap: var(--size-500);
+        width: min(320px, 100%);
+    }
+
     &-row {
         padding-block: var(--size-300);
 

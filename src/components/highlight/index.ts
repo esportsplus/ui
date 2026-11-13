@@ -137,24 +137,6 @@ function enqueue(measure: () => VoidFunction | undefined) {
 }
 
 
-function active(parent: Element, self: Element[], target?: string) {
-    if (target) {
-        return parent.querySelector(`${target}.--active`);
-    }
-
-    let children = parent.children;
-
-    for (let i = 0, n = children.length; i < n; i++) {
-        let child = children[i];
-
-        if (!self.includes(child) && child.classList.contains('--active')) {
-            return child;
-        }
-    }
-
-    return null;
-}
-
 // Laid out from the start, a change past an item can't shift it; centered, end-aligned or reversed, it can.
 function anchored(parent: Element) {
     let value = ANCHORED.get(parent);
@@ -222,6 +204,26 @@ function halt(glide: Glide) {
     }
 
     glide.slides = [];
+}
+
+// The item a state class marks: '--active' for the selection, '--hover' for what a script points at in place of the
+// pointer, such as a listbox's keyboard highlight while focus stays on its combobox.
+function marked(parent: Element, self: Element[], state: '--active' | '--hover', target?: string) {
+    if (target) {
+        return parent.querySelector(`${target}.${state}`);
+    }
+
+    let children = parent.children;
+
+    for (let i = 0, n = children.length; i < n; i++) {
+        let child = children[i];
+
+        if (!self.includes(child) && child.classList.contains(state)) {
+            return child;
+        }
+    }
+
+    return null;
 }
 
 // What is left of a glide's offset, eased: the layer shows at its target plus this.
@@ -524,7 +526,14 @@ export default component<A>(
 
         // What a change has to reach to matter: the items the layers rest on or are headed for, and the active one.
         function tracked() {
-            let items = [glides.active.item, glides.pointer.item, hovered, focused, parent && active(parent, self, target)];
+            let items = [
+                glides.active.item,
+                glides.pointer.item,
+                hovered,
+                focused,
+                parent && marked(parent, self, '--active', target),
+                parent && marked(parent, self, '--hover', target)
+            ];
 
             return items.filter((item): item is Element => !!item);
         }
@@ -548,8 +557,8 @@ export default component<A>(
 
             let container = parent,
                 box = parent.getBoundingClientRect(),
-                current = active(parent, self, target),
-                item = hovered || focused,
+                current = marked(parent, self, '--active', target),
+                item = hovered || focused || marked(parent, self, '--hover', target),
                 selected = measure('active', current, box, '--active'),
                 pointer = measure('pointer', item, box, 'highlight--hover');
 
