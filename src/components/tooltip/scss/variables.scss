@@ -257,6 +257,11 @@
         }
     }
 
+    // No track held open: the rows sit evenly inset until the panel is capped short enough to scroll.
+    &-menu-scroller {
+        --scrollbar-gutter: auto;
+    }
+
     &-menu-scroller > .highlight {
         --background-default: var(--item-background-hover);
         --background-pressed: var(--item-background-pressed);

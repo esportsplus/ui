@@ -505,6 +505,15 @@ function createMenu(context = false) {
                                     expand(node);
                                 }
                             },
+                            // The scrim and a branch's header aren't focusable, so pressing them would hand focus to the
+                            // page, and losing focus closes the menu before their click can go back a level.
+                            onmousedown: (event: MouseEvent) => {
+                                let target = event.target as Element;
+
+                                if (target === node.panel || target.closest('.tooltip-menu-header')) {
+                                    event.preventDefault();
+                                }
+                            },
                             ontransitionend: (e: TransitionEvent) => {
                                 if (e.target !== node.panel) {
                                     return;
