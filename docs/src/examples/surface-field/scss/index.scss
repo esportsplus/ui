@@ -284,8 +284,7 @@
             width: 32px;
 
             &-icon {
-                height: var(--size-400);
-                width: var(--size-400);
+                --size: var(--size-400);
             }
 
             &:focus-visible {

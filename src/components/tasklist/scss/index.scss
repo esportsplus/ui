@@ -60,7 +60,7 @@
             grid-column: 3;
             grid-row: 1;
             height: var(--size);
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='5' r='1.5'/%3E%3Ccircle cx='9' cy='12' r='1.5'/%3E%3Ccircle cx='9' cy='19' r='1.5'/%3E%3Ccircle cx='15' cy='5' r='1.5'/%3E%3Ccircle cx='15' cy='12' r='1.5'/%3E%3Ccircle cx='15' cy='19' r='1.5'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url('../../../../storage/svg/grip.svg') center / contain no-repeat;
             opacity: var(--opacity);
             transition: opacity var(--transition-duration) var(--transition-timing-function);
             width: var(--size);

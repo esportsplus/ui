@@ -2,6 +2,7 @@ import { form, group, icon, input, select } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { moreFieldVariations } from 'docs/examples/form-options';
+import angleSvg from '@esportsplus/ui/svg/angle.svg';
 import alert from '@esportsplus/ui/svg/circle-alert.svg';
 import check from '@esportsplus/ui/svg/circle-check.svg';
 import help from '@esportsplus/ui/svg/help.svg';
@@ -19,12 +20,7 @@ const STYLES: Style[] = [{ class: 'input--border', label: 'Border' }, { class: '
 const TAG_HINT = 'Press Enter or comma to add. Backspace twice removes the last tag.';
 
 
-let angle = html`
-    <svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
-        <path d='M3 3v10h10' />
-        <path d='M3 7.5a5.5 5.5 0 0 1 5.5 5.5' />
-    </svg>
-`,
+let angle = icon({ 'aria-hidden': 'true' }, angleSvg),
     countries = { de: '+49', fr: '+33', jp: '+81', us: '+1' },
     instance = 0,
     modifiers = [

@@ -1,6 +1,7 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import { announcement } from '@esportsplus/ui/components';
+import { announcement, icon } from '@esportsplus/ui/components';
+import bolt from '@esportsplus/ui/svg/bolt.svg';
 import close from '@esportsplus/ui/svg/close.svg';
 import 'docs/examples/announcement/scss/index.scss';
 
@@ -97,9 +98,7 @@ export default {
                         ${announcement({ 'aria-label': 'Announcement', role: 'region', state }, bar(
                             '',
                             html`
-                                <svg aria-hidden='true' class='announcement-demo-icon' viewBox='0 0 16 16'>
-                                    <path d='M9 1.75 3.5 9h4l-.75 5.25L12.5 7h-4L9 1.75Z' />
-                                </svg>
+                                ${icon({ 'aria-hidden': 'true', class: 'announcement-demo-icon' }, bolt)}
                                 <p class='announcement-demo-text'>Deploys now build twice as fast.</p>
                                 <a class='announcement-demo-link' href='#changelog'>See what changed</a>
                             `,

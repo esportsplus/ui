@@ -41,8 +41,7 @@
             scale 150ms ease-out;
 
         &-icon {
-            height: 14px;
-            width: 14px;
+            --size: 14px;
         }
 
         &:active {

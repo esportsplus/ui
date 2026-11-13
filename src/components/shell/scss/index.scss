@@ -56,12 +56,12 @@
 
         // A single arrow the way the sidebar opens; platforms draw the resize fallbacks double-headed.
         &--left {
-            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h15M13 6l6 6-6 6' stroke='white' stroke-width='5'/%3E%3Cpath d='M4 12h15M13 6l6 6-6 6' stroke='black' stroke-width='2'/%3E%3C/svg%3E") 12 12, e-resize;
+            cursor: url('../../../../storage/svg/cursor-arrow-right.svg') 12 12, e-resize;
             left: 0;
         }
 
         &--right {
-            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 12H5M11 6l-6 6 6 6' stroke='white' stroke-width='5'/%3E%3Cpath d='M20 12H5M11 6l-6 6 6 6' stroke='black' stroke-width='2'/%3E%3C/svg%3E") 12 12, w-resize;
+            cursor: url('../../../../storage/svg/cursor-arrow-left.svg') 12 12, w-resize;
             right: 0;
         }
 

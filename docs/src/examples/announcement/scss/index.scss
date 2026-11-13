@@ -153,12 +153,8 @@
     }
 
     &-icon {
-        fill: none;
         flex-shrink: 0;
         height: var(--size-400);
-        stroke: currentColor;
-        stroke-linejoin: round;
-        stroke-width: 1.5;
         width: var(--size-400);
     }
 

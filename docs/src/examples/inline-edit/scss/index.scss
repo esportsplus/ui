@@ -84,8 +84,12 @@
         translate: 0 2px;
 
         &-icon {
-            height: 14px;
-            width: 14px;
+            --size: 14px;
+            fill: none;
+            stroke: currentColor;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 2;
         }
 
         &.--active {
