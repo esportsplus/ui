@@ -35,7 +35,6 @@ export { default as input } from './input';
 export { default as json } from './json';
 export { default as loading } from './loading';
 export { default as marquee } from './marquee';
-export { default as metric } from './metric';
 export { default as nav } from './nav';
 export { default as notification } from './notification';
 export { default as number } from './number';

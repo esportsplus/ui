@@ -73,11 +73,6 @@ const groups: Record<string, Group[]> = {
     ],
     loading: [{ title: 'loading', members: ['default', 'small', 'bar'] }],
     marquee: [{ title: 'marquee', members: ['default', 'right', 'marks', 'select', 'paused state', 'velocity (scroll the page to speed it up)'] }],
-    metric: [
-        { title: 'metric', members: ['default', ['metric--accent, currency format', 'Accent, currency format'], ['resizable container (drag the corner)', 'Resizable'], ['controlled state', 'Controlled state']] },
-        { title: 'grid', members: [['small cards in a grid', 'Default'], ['live data (push to a ReactiveArray)', 'Live data']] },
-        { title: 'flash', members: [['flash, price', 'Price'], ['flash, request rate', 'Request rate'], ['flash, large, long hold', 'Large, long hold']] }
-    ],
     nav: [
         { title: 'tree', members: ['tree'] },
         { title: 'tree: border', members: [['tree: border', 'Border'], ['tree: border + background', 'Border + background']] },

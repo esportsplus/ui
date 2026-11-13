@@ -90,9 +90,6 @@ const meta: Record<string, Meta> = {
     marquee: {
         description: 'Infinitely scrolling logo strip that eases to a stop on hover or focus, and can speed up and reverse with the page scroll.'
     },
-    metric: {
-        description: 'Metric card with a line chart that draws itself in and redraws to fit its container, with a scrubbable readout for pointer, touch, and arrow keys, plus a live value that marks each change with a directional roll, tint, and arrow.'
-    },
     nav: {
         description: 'Navigation trees that mark the active link with a gliding highlight, a full-width background, a rail down their edge or both, an on-this-page table of contents, and a scroll spy that marks the section in view.'
     },
