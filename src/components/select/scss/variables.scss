@@ -24,7 +24,7 @@
 
     // Open is its active state, which thickens the edge inward, so the panel laid over it still covers it.
     &--border {
-        --border-color-active: var(--color-primary-300);
+        --border-color-active: var(--border-color-default);
         --border-color-default: var(--surface-border-default);
         --border-color-hover: var(--surface-border-hover);
         --border-color-pressed: var(--surface-border-pressed);
