@@ -25,7 +25,6 @@ export default {
                         content: content('Navigation', ['Inbox', 'Projects', 'Calendar', 'Settings']),
                         id: 'shell-demo-left',
                         label: 'Navigation',
-                        resizable: true,
                         state: reactive({ active: false })
                     },
                     right = {
@@ -46,7 +45,7 @@ export default {
                                     to open the sidebar, or drag it to pull the sidebar out. Drag an open sidebar back
                                     toward its edge to close it. The right sidebar opens on hover instead, peeking while
                                     the pointer rests on its edge and closing once it leaves. Either opens from its corner
-                                    button too. The left sidebar is resizable: once open, drag its inner border.
+                                    button too.
                                 </p>
                             </div>
                         `)}
@@ -54,6 +53,41 @@ export default {
                 `;
             },
             title: 'drag, hover and peek'
+        },
+        {
+            render: () => {
+                let left = {
+                        content: content('Navigation', ['Inbox', 'Projects', 'Calendar', 'Settings']),
+                        id: 'shell-demo-resize-left',
+                        label: 'Navigation',
+                        resizable: true,
+                        state: reactive({ active: true })
+                    },
+                    right = {
+                        content: content('Details', ['Owner', 'Status', 'Updated']),
+                        id: 'shell-demo-resize-right',
+                        label: 'Details',
+                        resizable: true,
+                        state: reactive({ active: true })
+                    };
+
+                return html`
+                    <div class='shell-demo'>
+                        ${shell({ left, right }, html`
+                            <div class='shell-demo-main'>
+                                <strong>Main content</strong>
+                                <p>
+                                    Both sidebars are resizable. Hover an open sidebar's inner border to bring out its
+                                    handle, which follows the pointer, then drag it to set the sidebar's width,
+                                    held between the shell's minimum and maximum. The width stays after a sidebar closes
+                                    and opens again.
+                                </p>
+                            </div>
+                        `)}
+                    </div>
+                `;
+            },
+            title: 'resizable'
         }
     ]
 } satisfies Entry;

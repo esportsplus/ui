@@ -119,18 +119,6 @@
         width: var(--width);
         z-index: var(--z-index);
 
-        &::before {
-            background: var(--color);
-            content: '';
-            inset-block: 0;
-            left: 50%;
-            opacity: var(--opacity);
-            position: absolute;
-            transition: opacity var(--transition-duration) var(--transition-timing-function);
-            translate: -50% 0;
-            width: var(--line-width);
-        }
-
         @each $side in 'left' 'right' {
             &--#{$side} {
                 #{$side}: calc(var(--#{$side}-width) - var(--width) / 2);
@@ -138,22 +126,13 @@
         }
     }
 
-    // Centered on the line, a line's width at each end and swelling to its own between; it grows out of the line as it
-    // shows and follows the pointer up and down.
+    // Grows out of the border as it shows and follows the pointer up and down. Centered by 'left' rather than a
+    // translate, so it snaps to whole pixels instead of blurring across two.
     &-resize-handle {
         background: var(--color);
-        clip-path: polygon(
-            calc(50% - var(--line-width) / 2) 0,
-            calc(50% + var(--line-width) / 2) 0,
-            100% var(--taper),
-            100% calc(100% - var(--taper)),
-            calc(50% + var(--line-width) / 2) 100%,
-            calc(50% - var(--line-width) / 2) 100%,
-            0 calc(100% - var(--taper)),
-            0 var(--taper)
-        );
+        border-radius: var(--border-radius);
         height: var(--height);
-        left: 50%;
+        left: calc(50% - var(--width) / 2);
         opacity: var(--opacity);
         position: absolute;
         scale: 1 var(--scale);
@@ -161,7 +140,7 @@
         transition:
             opacity var(--transition-duration) var(--transition-timing-function),
             scale var(--transition-duration) var(--transition-timing-function);
-        translate: -50% calc(var(--offset, 0px) - 50%);
+        translate: 0 calc(var(--offset, 0px) - 50%);
         width: var(--width);
     }
 

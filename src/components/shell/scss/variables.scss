@@ -49,13 +49,10 @@
         --width: 3px;
     }
 
-    // The line runs the border's length; the handle swells out of it where the pointer is, tapering back to the line
-    // over '--taper' at each end.
     &-resize {
-        --color: var(--color-primary-400);
-        --line-width: 1px;
+        --color: var(--surface-border-pressed);
         --opacity: 0;
-        --scale: 0;
+        --scale: 0.8;
         --width: 12px;
         --z-index: 32;
 
@@ -63,12 +60,12 @@
             --opacity: 1;
             --scale: 1;
         }
-    }
 
-    &-resize-handle {
-        --height: 10svh;
-        --taper: 30%;
-        --width: 3px;
+        &-handle {
+            --border-radius: var(--border-radius-200);
+            --height: 10svh;
+            --width: 3px;
+        }
     }
 
     &-sidebar {
