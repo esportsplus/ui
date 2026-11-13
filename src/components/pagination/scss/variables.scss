@@ -46,12 +46,10 @@
         }
     }
 
-    // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order. The offset is
-    // how far the glyph drifts toward its tail: a quarter of its own box.
+    // Qualified by the button so it wins over the icon's own variables regardless of stylesheet order.
     @each $element in (arrow, control) {
         &-#{$element} &-#{$element}-icon {
             --color: currentColor;
-            --offset: calc(var(--size) / -4);
             --size: var(--size-400);
         }
     }

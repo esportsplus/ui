@@ -214,14 +214,14 @@
     &-fold {
         @include tokens.state(active) {
             .code-editor-fold-icon.icon {
-                --rotate: -90deg;
+                --rotate: 0deg;
             }
         }
     }
 
     // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
     &-fold-icon.icon {
-        --rotate: 0deg;
+        --rotate: 90deg;
         --size: var(--size-100);
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;

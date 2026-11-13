@@ -2,7 +2,7 @@ import { effect, flush, onCleanup, reactive, read, root, signal, untrack, write,
 import { component, html, type Attributes, type On, type Renderable } from '@esportsplus/template';
 import breadcrumb, { type Crumb } from '~/components/breadcrumb';
 import sidebar from '~/components/button/sidebar';
-import command, { type Command, type ResultGroup, type Tab } from '~/components/command';
+import command, { type Command, type ResultGroup, type Sprite, type Tab } from '~/components/command';
 import fileTree, {
     FileTreeDecorations,
     FileTreeEditor,
@@ -39,8 +39,7 @@ import hosted from './session';
 import shortcuts, { OPEN, PALETTE } from './shortcuts';
 import statusbar from './statusbar';
 import tabStrip from './strip';
-import left from '@esportsplus/ui/svg/arrow-left.svg';
-import right from '@esportsplus/ui/svg/arrow-right.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import collapse from '@esportsplus/ui/svg/chevrons-up-down.svg';
 import close from '@esportsplus/ui/svg/close.svg';
 import cmd from '@esportsplus/ui/svg/command.svg';
@@ -98,6 +97,8 @@ type Confirmation = {
 
 type Control = {
     active?: () => boolean;
+    // A class turning the sprite, such as 'icon--left'.
+    direction?: () => string;
     disabled?: () => boolean;
     label: string | (() => string);
     onclick: VoidFunction;
@@ -149,7 +150,7 @@ const COMPACT_WIDTH = 520;
 let uid = 0;
 
 
-function control({ active, disabled, label, onclick, sprite }: Control) {
+function control({ active, direction, disabled, label, onclick, sprite }: Control) {
     return html`
         <button
             class='button code-workspace-control'
@@ -163,9 +164,17 @@ function control({ active, disabled, label, onclick, sprite }: Control) {
                 title: label
             }}
         >
-            ${() => icon({ 'aria-hidden': 'true', class: 'code-workspace-control-icon' }, typeof sprite === 'string' ? sprite : sprite())}
+            ${() => icon({ 'aria-hidden': 'true', class: ['code-workspace-control-icon', direction?.() ?? ''] }, typeof sprite === 'string' ? sprite : sprite())}
         </button>
     `;
+}
+
+function glyph(sprite: Sprite) {
+    if (typeof sprite === 'string') {
+        return icon({ 'aria-hidden': 'true', class: 'code-workspace-command-icon' }, sprite);
+    }
+
+    return icon({ 'aria-hidden': 'true', class: ['code-workspace-command-icon', sprite.class] }, sprite.href);
 }
 
 // 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere, as the command palette spells it. Text, for titles; keycaps swap
@@ -843,7 +852,7 @@ const workspace = ({
                         attributes: item.attributes,
                         content: html`
                             ${item.command?.icon
-                                ? icon({ 'aria-hidden': 'true', class: 'code-workspace-command-icon' }, item.command.icon)
+                                ? glyph(item.command.icon)
                                 : fileTreeIcon({ name: name(item.id), type: 'file' }, false)}
                             ${item.content}
                         `,
@@ -1209,9 +1218,10 @@ const workspace = ({
                 <div class='code-workspace-explorer-content' ${{ inert: () => view.collapsed && !ui.ready }}>
                     <div class='code-workspace-explorer-header'>
                         ${control({
+                            direction: () => (view.left ? '' : 'icon--left'),
                             label: () => (view.left ? 'Move file explorer to right' : 'Move file explorer to left'),
                             onclick: api.toggleExplorerSide,
-                            sprite: () => (view.left ? right : left)
+                            sprite: arrow
                         })}
                         ${control({ label: 'Collapse all folders', onclick: api.collapseAll, sprite: collapse })}
                         ${control({

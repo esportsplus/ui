@@ -181,7 +181,6 @@
         }
 
         &-icon.icon {
-            rotate: var(--rotate);
             transition: rotate var(--transition-duration) var(--transition-timing-function);
         }
     }
@@ -347,7 +346,6 @@
         }
 
         &-icon.icon {
-            rotate: var(--rotate);
             transition: rotate var(--transition-duration) var(--transition-timing-function);
         }
     }

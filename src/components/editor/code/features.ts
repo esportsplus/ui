@@ -16,8 +16,7 @@ import { markup, tokens as lineTokens, type Mark } from './rows';
 import type { Entry } from './services';
 import type { Language, SyntaxCache, Token } from './syntax';
 import { describeSuspect, suspects, type Suspect } from './unicode';
-import arrowDown from '@esportsplus/ui/svg/arrow-down.svg';
-import arrowUp from '@esportsplus/ui/svg/arrow-up.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import close from '@esportsplus/ui/svg/close.svg';
 import undo from '@esportsplus/ui/svg/undo.svg';
 
@@ -1070,10 +1069,10 @@ const features = (host: Host, apple: boolean) => {
                     <div class='code-editor-peek-bar'>
                         <span class='code-editor-peek-title'>${() => peek.label}</span>
                         <button aria-label='Previous change' class='code-editor-peek-button' type='button' ${{ onclick: () => navigate('change', true), onmousedown: keep }}>
-                            ${icon({ 'aria-hidden': 'true', class: 'code-editor-peek-icon' }, arrowUp)}
+                            ${icon({ 'aria-hidden': 'true', class: 'code-editor-peek-icon icon--up' }, arrow)}
                         </button>
                         <button aria-label='Next change' class='code-editor-peek-button' type='button' ${{ onclick: () => navigate('change', false), onmousedown: keep }}>
-                            ${icon({ 'aria-hidden': 'true', class: 'code-editor-peek-icon' }, arrowDown)}
+                            ${icon({ 'aria-hidden': 'true', class: 'code-editor-peek-icon icon--down' }, arrow)}
                         </button>
                         <button
                             aria-label='Revert change'

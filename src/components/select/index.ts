@@ -1,16 +1,16 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, signal, write } from '@esportsplus/reactivity';
-import { clamp } from '~/shared/clamp';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import check from '@esportsplus/ui/svg/check.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
+import chevrons from '@esportsplus/ui/svg/chevrons-up-down.svg';
 import form from '~/components/form';
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import overlay from '~/components/overlay';
+import scrollbar from '~/modifiers/scrollbar';
+import { clamp } from '~/shared/clamp';
 import expand from './expand';
 import place, { ROWS } from './placement';
-import check from '@esportsplus/ui/svg/check.svg';
-import chevronDown from '@esportsplus/ui/svg/chevron-down.svg';
-import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
-import chevrons from '@esportsplus/ui/svg/chevrons-up-down.svg';
 import './scss/index.scss';
 
 
@@ -557,7 +557,7 @@ function template(
                             onpointerleave: stop
                         }}
                     >
-                        ${icon({ class: 'select-menu-scroll-icon' }, chevronUp)}
+                        ${icon({ class: 'select-menu-scroll-icon icon--up' }, chevron)}
                     </div>
                     <div
                         aria-hidden='true'
@@ -568,7 +568,7 @@ function template(
                             onpointerleave: stop
                         }}
                     >
-                        ${icon({ class: 'select-menu-scroll-icon' }, chevronDown)}
+                        ${icon({ class: 'select-menu-scroll-icon icon--down' }, chevron)}
                     </div>
                 </div>
             </div>

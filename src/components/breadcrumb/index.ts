@@ -3,7 +3,7 @@ import { component, html, type Attributes, type Element } from '@esportsplus/tem
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import { observer } from '~/shared/resize';
-import chevron from '@esportsplus/ui/svg/chevron-right.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 import dots from '@esportsplus/ui/svg/dots.svg';
 import folder from '@esportsplus/ui/svg/folder.svg';
 import slash from '@esportsplus/ui/svg/slash.svg';

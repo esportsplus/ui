@@ -252,17 +252,11 @@
     }
 
     &-menu {
-        &-chevron {
-            border-color: currentColor;
-            border-style: solid;
-            border-width: 0 var(--border-width) var(--border-width) 0;
-            flex-shrink: 0;
-            height: var(--size);
-            margin-inline: var(--margin-horizontal);
+        // The path is a quarter of the box wide on either side of its centre, which it turns about, so the box's
+        // empty sides are taken back out of the row.
+        &-chevron.icon {
+            margin-inline: calc(var(--margin-horizontal) - var(--size) / 4);
             opacity: var(--opacity);
-            rotate: var(--rotate);
-            transition: rotate var(--transition-duration) var(--transition-timing-function);
-            width: var(--size);
         }
 
         // An item's 'hidden' takes its whole row out; the item's own 'display' would outrank the attribute.

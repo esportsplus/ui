@@ -1,7 +1,6 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import icon from '~/components/icon';
-import next from '@esportsplus/ui/svg/chevron-right.svg';
-import previous from '@esportsplus/ui/svg/chevron-left.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 import type { Link } from './arrows';
 import '~/components/card/scss/index.scss';
 
@@ -28,7 +27,7 @@ type A = Attributes & {
 
 
 function card(attributes: A, direction: 'next' | 'previous', link: Link) {
-    let arrow = icon({ 'aria-hidden': 'true', class: 'pagination-card-arrow' }, direction === 'next' ? next : previous);
+    let arrow = icon({ 'aria-hidden': 'true', class: ['pagination-card-arrow', direction === 'previous' && 'icon--left'] }, chevron);
 
     return html`
         <a

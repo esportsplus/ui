@@ -243,7 +243,7 @@
             --padding-horizontal: var(--size-200);
 
             &[aria-expanded='true'] .icon--rotate {
-                --rotate: 180deg;
+                --rotate: 270deg;
             }
         }
     }

@@ -160,12 +160,12 @@
         }
     }
 
-    &-menu-chevron {
-        --border-width: 1.5px;
+    // Qualified past '.icon' and '.icon--rotate', which set the same properties.
+    &-menu-chevron.icon {
         --margin-horizontal: calc(var(--size-100) / 4);
         --opacity: 0.6;
-        --rotate: -45deg;
-        --size: 6px;
+        --rotate: 0deg;
+        --size: var(--size-400);
         --transition-duration: var(--open-duration);
         --transition-timing-function: var(--open-timing-function);
 
@@ -174,8 +174,8 @@
         }
 
         // A branch panel's header points down into the panel it heads.
-        &--down {
-            --rotate: 45deg;
+        &.tooltip-menu-chevron--down {
+            --rotate: 90deg;
         }
     }
 

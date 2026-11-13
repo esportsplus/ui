@@ -7,4 +7,4 @@ const command: typeof palette & { search: typeof search } = Object.assign(palett
 
 
 export default command;
-export type { Command, Matcher, Result, ResultGroup, Shortcut, State, Store, Tab } from './palette';
+export type { Command, Matcher, Result, ResultGroup, Shortcut, Sprite, State, Store, Tab } from './palette';

@@ -64,13 +64,13 @@
         --color-pressed: var(--color-hover);
 
         &[aria-expanded='false'] .code-viewer-fold-icon.icon {
-            --rotate: -90deg;
+            --rotate: 0deg;
         }
     }
 
     // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
     &-fold-icon.icon {
-        --rotate: 0deg;
+        --rotate: 90deg;
         --size: var(--size-100);
         --transition-duration: 130ms;
         --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);

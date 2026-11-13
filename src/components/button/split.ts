@@ -1,5 +1,5 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
-import chevron from '@esportsplus/ui/svg/chevron-down.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import type { A as MenuAttributes } from '~/components/tooltip/menu';
@@ -51,7 +51,7 @@ export default component(
                             class: ['button button-split-trigger', attributes[SPLIT_TRIGGER]?.class ?? []].flat()
                         }
                     },
-                    trigger ?? icon({ 'aria-hidden': 'true', class: 'button-icon icon--rotate' }, chevron)
+                    trigger ?? icon({ 'aria-hidden': 'true', class: 'button-icon icon--down icon--rotate' }, chevron)
                 )}
             </div>
         `;

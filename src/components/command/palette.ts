@@ -8,8 +8,7 @@ import overlay from '~/components/overlay';
 import search from '~/components/search';
 import scrollbar from '~/modifiers/scrollbar';
 import { mac } from '~/shared/platform';
-import down from '@esportsplus/ui/svg/arrow-down.svg';
-import up from '@esportsplus/ui/svg/arrow-up.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
 import '~/components/frame/scss/index.scss';
 
@@ -49,8 +48,7 @@ type A = Attributes & {
 
 type Command = {
     group: string;
-    // Sprite id, as imported from '@esportsplus/ui/svg/*.svg'.
-    icon?: string;
+    icon?: Sprite;
     id: string;
     label: string;
     // 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere.
@@ -74,7 +72,7 @@ type Dialog = Attributes<HTMLDialogElement> & {
 type Entry = {
     command?: Command;
     group: string;
-    icon?: string;
+    icon?: Sprite;
     id: string;
     keys?: string[];
     label: string;
@@ -118,13 +116,15 @@ type ResultGroup = {
 
 type Shortcut = {
     group: string;
-    // Sprite id, as imported from '@esportsplus/ui/svg/*.svg'.
-    icon?: string;
+    icon?: Sprite;
     id: string;
     // 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere.
     keys: string[];
     label: string;
 };
+
+// A sprite id, as imported from '@esportsplus/ui/svg/*.svg', or one with a class to add, such as 'icon--left'.
+type Sprite = string | { class: string; href: string };
 
 type State = {
     active: boolean;
@@ -371,8 +371,12 @@ function spans(indices: number[]) {
     return ranges;
 }
 
-function sprite(href: string, name: Attributes['class'] = '') {
-    return icon({ 'aria-hidden': 'true', class: name }, href);
+function sprite(target: Sprite, name: Attributes['class'] = '') {
+    if (typeof target === 'string') {
+        return icon({ 'aria-hidden': 'true', class: name }, target);
+    }
+
+    return icon({ 'aria-hidden': 'true', class: [name, target.class].flat() }, target.href);
 }
 
 
@@ -845,8 +849,8 @@ export default component(
                                 ${hint([button.kbd({ key: 'escape' })], 'Close')}
                                 ${views.length > 1 && hint([button.kbd({ key: 'tab' })], 'Switch')}
                                 ${hint([
-                                    button.kbd({ key: 'up' }, sprite(up, 'button-kbd-icon')),
-                                    button.kbd({ key: 'down' }, sprite(down, 'button-kbd-icon'))
+                                    button.kbd({ key: 'up' }, sprite(arrow, 'button-kbd-icon icon--up')),
+                                    button.kbd({ key: 'down' }, sprite(arrow, 'button-kbd-icon icon--down'))
                                 ], 'Navigate')}
                                 ${hint([button.kbd({ key: 'enter' }, sprite(enter, 'button-kbd-icon'))], 'Select')}
                             </div>
@@ -867,4 +871,4 @@ export default component(
     }
 );
 export { opener };
-export type { Command, Matcher, Result, ResultGroup, Shortcut, State, Store, Tab };
+export type { Command, Matcher, Result, ResultGroup, Shortcut, Sprite, State, Store, Tab };

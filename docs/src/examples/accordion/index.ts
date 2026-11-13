@@ -2,7 +2,7 @@ import { accordion, icon } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
 import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
-import chevron from '@esportsplus/ui/svg/chevron-right.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 import 'docs/examples/accordion/scss/index.scss';
 
 

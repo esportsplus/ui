@@ -7,7 +7,7 @@ import { observeSize } from '~/shared/resize';
 import { minimap, type Source } from '../code/minimap';
 import { languageFor, type Language, type Token } from '../code/syntax';
 import { hidden, outline, type Line } from './model';
-import chevron from '@esportsplus/ui/svg/chevron-down.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 
 
 type CodeViewerAttributes = Attributes & {

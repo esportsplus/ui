@@ -1,8 +1,7 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
-import next from '@esportsplus/ui/svg/arrow-right.svg';
-import previous from '@esportsplus/ui/svg/arrow-left.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import arrows from './arrows';
 import cards from './cards';
 import '~/components/button/scss/index.scss';
@@ -77,7 +76,7 @@ const plain = ({ caption = false, onchange, siblings = 1, state: api = reactive(
                 onclick='${() => go(api.page - 1)}'
                 type='button'
             >
-                ${icon({ 'aria-hidden': 'true', class: 'pagination-control-icon' }, previous)}
+                ${icon({ 'aria-hidden': 'true', class: 'pagination-control-icon icon--left' }, arrow)}
                 Previous
             </button>
 
@@ -103,7 +102,7 @@ const plain = ({ caption = false, onchange, siblings = 1, state: api = reactive(
                 type='button'
             >
                 Next
-                ${icon({ 'aria-hidden': 'true', class: 'pagination-control-icon' }, next)}
+                ${icon({ 'aria-hidden': 'true', class: 'pagination-control-icon' }, arrow)}
             </button>
 
             ${caption && html`<span class='pagination-caption'>Page ${() => api.page} of ${total}</span>`}

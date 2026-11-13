@@ -5,7 +5,7 @@ import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import fuzzy from '~/shared/fuzzy';
-import chevron from '@esportsplus/ui/svg/chevron-right.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 import symlink from '@esportsplus/ui/svg/corner-down-right.svg';
 import lock from '@esportsplus/ui/svg/lock.svg';
 import Clipboard from './clipboard';

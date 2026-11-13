@@ -6,8 +6,7 @@ import { languageFor, type Language, type Token } from '../code/syntax';
 import { diffTexts, hunks, type Diff, type DiffChange } from './hunks';
 import { highlighter, markup } from './render';
 import { words } from './words';
-import down from '@esportsplus/ui/svg/arrow-down.svg';
-import up from '@esportsplus/ui/svg/arrow-up.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import expand from '@esportsplus/ui/svg/chevrons-up-down.svg';
 
 
@@ -441,7 +440,7 @@ export default component(
                             type='button'
                             ${{ disabled: () => !ui.changes, onclick: () => move(-1) }}
                         >
-                            ${icon({ 'aria-hidden': 'true', class: 'diffs-button-icon' }, up)}
+                            ${icon({ 'aria-hidden': 'true', class: 'diffs-button-icon icon--up' }, arrow)}
                         </button>
                         <button
                             aria-label='Next change (Alt+F5)'
@@ -450,7 +449,7 @@ export default component(
                             type='button'
                             ${{ disabled: () => !ui.changes, onclick: () => move(1) }}
                         >
-                            ${icon({ 'aria-hidden': 'true', class: 'diffs-button-icon' }, down)}
+                            ${icon({ 'aria-hidden': 'true', class: 'diffs-button-icon icon--down' }, arrow)}
                         </button>
                     </div>
                 </div>

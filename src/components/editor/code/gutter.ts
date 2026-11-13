@@ -2,7 +2,7 @@ import { html } from '@esportsplus/template';
 import icon from '~/components/icon';
 import type { Reactive } from '@esportsplus/reactivity';
 import type { Slot } from './rows';
-import chevron from '@esportsplus/ui/svg/chevron-down.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 
 
 // Clicks must not move focus out of the text: the gutter is hidden from assistive technology and its markers are

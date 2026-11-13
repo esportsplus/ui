@@ -137,7 +137,7 @@
     &-fold {
         @include tokens.state(active) {
             .markdown-editor-fold-icon.icon {
-                --rotate: -90deg;
+                --rotate: 0deg;
             }
         }
     }
@@ -146,7 +146,7 @@
     // like a fold marker: right while closed, down once open.
     &-fold-icon.icon,
     &-summary-icon.icon {
-        --rotate: 0deg;
+        --rotate: 90deg;
         --size: var(--size-100);
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;
@@ -208,10 +208,10 @@
         --gap-vertical: 0px;
 
         &-icon.icon {
-            --rotate: -90deg;
+            --rotate: 0deg;
 
             details[open] > .markdown-editor-summary > & {
-                --rotate: 0deg;
+                --rotate: 90deg;
             }
         }
     }

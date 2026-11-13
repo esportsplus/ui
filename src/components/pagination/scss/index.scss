@@ -58,18 +58,6 @@
         }
     }
 
-    // Pulling each arrow icon outward by its glyph's drift centres it in a square arrow button and evens the padding of
-    // a labelled control.
-    @each $element in (arrow, control) {
-        &-#{$element}--next &-#{$element}-icon {
-            margin-right: var(--offset);
-        }
-
-        &-#{$element}--previous &-#{$element}-icon {
-            margin-left: var(--offset);
-        }
-    }
-
     &-caption {
         color: var(--color);
         flex-basis: 100%;

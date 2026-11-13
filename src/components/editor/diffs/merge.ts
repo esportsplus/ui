@@ -7,8 +7,7 @@ import { EditorDocument } from '../code/document';
 import { languageFor, type Language } from '../code/syntax';
 import { conflictMarkers, diff3, resolveMarker, type ConflictMarker, type MergeChoice, type MergeRegion } from './diff3';
 import { highlighter, markup } from './render';
-import down from '@esportsplus/ui/svg/arrow-down.svg';
-import up from '@esportsplus/ui/svg/arrow-up.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import check from '@esportsplus/ui/svg/check.svg';
 
 
@@ -335,7 +334,7 @@ export default component(
                             type='button'
                             ${{ disabled: () => !ui.conflicts, onclick: () => go(-1) }}
                         >
-                            ${icon({ 'aria-hidden': 'true', class: 'diffs-button-icon' }, up)}
+                            ${icon({ 'aria-hidden': 'true', class: 'diffs-button-icon icon--up' }, arrow)}
                         </button>
                         <button
                             aria-label='Next conflict (Alt+F8)'
@@ -344,7 +343,7 @@ export default component(
                             type='button'
                             ${{ disabled: () => !ui.conflicts, onclick: () => go(1) }}
                         >
-                            ${icon({ 'aria-hidden': 'true', class: 'diffs-button-icon' }, down)}
+                            ${icon({ 'aria-hidden': 'true', class: 'diffs-button-icon icon--down' }, arrow)}
                         </button>
                         <button
                             class='diffs-button diffs-button--primary diffs-button--text'

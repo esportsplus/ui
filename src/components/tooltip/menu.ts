@@ -1,12 +1,14 @@
 import { flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import highlight, { type A as HighlightAttributes } from '~/components/highlight';
+import icon from '~/components/icon';
 import overlay from '~/components/overlay';
 import scrollbar from '~/modifiers/scrollbar';
 import { finished } from '~/shared/animation';
 import { expand as cover, margin, place, type Corner, type Side } from '~/shared/placement';
 import { viewport } from '~/shared/viewport';
 import { morph, px } from './utilities';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 
 
 type A = Attributes & {
@@ -300,12 +302,12 @@ function createMenu(context = false) {
 
             function entry(node: MenuNode): Renderable<unknown> {
                 let branch = node.children.length > 0,
-                    { danger, disabled, hint, icon, items: _items, label, onselect: _onselect, ...itemAttributes } = node.item!,
+                    { danger, disabled, hint, icon: glyph, items: _items, label, onselect: _onselect, ...itemAttributes } = node.item!,
                     contents = html`
-                        ${icon && html`<span class='tooltip-menu-icon'>${icon()}</span>`}
+                        ${glyph && html`<span class='tooltip-menu-icon'>${glyph()}</span>`}
                         <span class='tooltip-menu-label'>${label}</span>
                         ${hint && html`<span class='tooltip-menu-hint'>${hint}</span>`}
-                        ${branch && html`<span class='tooltip-menu-chevron'></span>`}
+                        ${branch && icon({ 'aria-hidden': 'true', class: 'tooltip-menu-chevron icon--rotate' }, chevron)}
                     `,
                     bindings = {
                         'aria-expanded': branch && (() => String(node.state.open)),
@@ -531,7 +533,7 @@ function createMenu(context = false) {
                                     <span class='tooltip-menu-title-regular'>${item.label}</span>
                                     <span aria-hidden='true' class='tooltip-menu-title-bold'>${item.label}</span>
                                 </span>
-                                <span class='tooltip-menu-chevron tooltip-menu-chevron--down'></span>
+                                ${icon({ 'aria-hidden': 'true', class: 'tooltip-menu-chevron tooltip-menu-chevron--down icon--rotate' }, chevron)}
                             </div>
                         `}
 

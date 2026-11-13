@@ -62,7 +62,6 @@
         width: var(--fold-width);
 
         &-icon.icon {
-            rotate: var(--rotate);
             transition: rotate var(--transition-duration) var(--transition-timing-function);
         }
 
