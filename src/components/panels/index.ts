@@ -7,7 +7,7 @@ import { mac } from '~/shared/platform';
 import { observe } from '~/shared/resize';
 import manager, { type Active, type Point, type Target } from './dnd';
 import { group, launcher, title, type Catalog, type Context, type Kind } from './group';
-import state, { allGroups, bounded, contains, docked, findGroup, MIN_FRACTION, stationary, type Group, type Layout, type Node, type Placement, type Split, type Surface } from './model';
+import state, { allGroups, bounded, contains, docked, findGroup, MIN_FRACTION, stationary, type Group, type Layout, type Node, type Placement, type Saved, type Split, type Store, type Surface } from './model';
 import { resize, resized } from './resize';
 import { frame, grip, NARROW, resizer, sidebar, toggle, type Edge, type Options, type Sidebars } from './sidebar';
 import subtree from './subtree';
@@ -801,4 +801,4 @@ const layout: typeof panels & { state: typeof state } = Object.assign(panels, { 
 
 
 export default layout;
-export type { Catalog, Kind, Layout, Node, Placement, Surface };
+export type { Catalog, Kind, Layout, Node, Placement, Saved, Store, Surface };

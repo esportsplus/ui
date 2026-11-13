@@ -36,11 +36,14 @@ type Options = {
     // Which docks start open; each does unless set false.
     open?: Partial<Record<Placement, boolean>>;
     root?: Node | null;
-    // A localStorage key the layout restores from and saves to.
-    storage?: string;
+    // Restores the layout's tree once it reads back, unless the tree changed first, and saves it after each change.
+    store?: Store;
 };
 
 type Placement = 'bottom' | 'left' | 'right';
+
+// What the store keeps: the tree of groups, splits and surfaces.
+type Saved = { root: Node | null };
 
 type Side = 'after' | 'before';
 
@@ -57,11 +60,19 @@ type Split = {
 // group; alone there, the group is static and shows it without a tab strip.
 type Surface = { id: string; kind: string; sortable?: boolean };
 
+// The slice of @esportsplus/web-storage's Local<T> the layout uses, so any Local<{ panels: Saved }> is a store.
+type Store = {
+    get(key: typeof KEY): Promise<unknown>;
+    set(key: typeof KEY, value: Saved): Promise<boolean>;
+};
+
 
 // A pane never shrinks below this share of its split.
 const MIN_FRACTION = 0.1;
 
 const BOTTOM_SIZE = 0.25;
+
+const KEY = 'panels';
 
 
 function allGroups(node: Node | null): Group[] {
@@ -337,8 +348,9 @@ function updateSplit(node: Node | null, id: string, sizes: number[]): Node | nul
 
 // The layout's one source of truth: an immutable tree in a signal, replaced whole by each operation. Structural
 // operations restore a maximized group first, as moving panes around under it would leave it covering the wrong one.
-const state = ({ open = {}, root = null, storage }: Options = {}) => {
+const state = ({ open = {}, root = null, store }: Options = {}) => {
     let counter = 1,
+        touched = false,
         layout = signal<Layout>(normalizeLayout({
             active: null,
             bottom: { maximized: false, open: open.bottom ?? true, size: BOTTOM_SIZE },
@@ -346,33 +358,40 @@ const state = ({ open = {}, root = null, storage }: Options = {}) => {
             main: null,
             maximized: null,
             right: { open: open.right ?? true, size: null },
-            root: load() ?? root,
+            root,
             zoom: []
         }));
 
-    // Generated ids continue past every id the restored tree holds, so a new group never collides with an old one.
-    for (let group of allGroups(read(layout).root)) {
-        counter = Math.max(counter, Number(/-(\d+)$/.exec(group.id)?.[1] ?? 0) + 1);
+    advance(read(layout).root);
+
+    store?.get(KEY).then(
+        (value) => {
+            let saved = (value as Partial<Saved> | null | undefined)?.root;
+
+            if (touched || !saved || (saved.kind !== 'group' && saved.kind !== 'split')) {
+                return;
+            }
+
+            advance(saved);
+            write(layout, normalizeLayout({ ...read(layout), root: saved }));
+        },
+        () => {}
+    );
+
+    // Generated ids continue past every id the tree holds, so a new group never collides with a restored one.
+    function advance(node: Node | null) {
+        for (let group of allGroups(node)) {
+            counter = Math.max(counter, Number(/-(\d+)$/.exec(group.id)?.[1] ?? 0) + 1);
+        }
     }
 
     function id(prefix: string) {
         return `${prefix}-${counter++}`;
     }
 
-    function load(): Node | null {
-        if (!storage || typeof localStorage === 'undefined') {
-            return null;
-        }
-
-        try {
-            return JSON.parse(localStorage.getItem(storage) ?? 'null')?.root ?? null;
-        }
-        catch {
-            return null;
-        }
-    }
-
+    // A tree changed before the store reads back keeps its change rather than the saved one.
     function structural(change: (current: Layout) => Layout) {
+        touched = true;
         update((current) => change({ ...current, bottom: { ...current.bottom, maximized: false }, maximized: null }));
     }
 
@@ -385,10 +404,7 @@ const state = ({ open = {}, root = null, storage }: Options = {}) => {
         }
 
         write(layout, next);
-
-        if (storage && typeof localStorage !== 'undefined') {
-            localStorage.setItem(storage, JSON.stringify({ root: next.root }));
-        }
+        void store?.set(KEY, { root: next.root });
     }
 
     function visible(group: Group, current: Layout): Layout {
@@ -611,6 +627,7 @@ const state = ({ open = {}, root = null, storage }: Options = {}) => {
         // 'shown' names the nodes a zoomed view shows of the split, one per size: their new shares are fitted into the
         // space those children held, leaving the hidden ones theirs.
         resize(split: string, sizes: number[], shown?: string[]) {
+            touched = true;
             update((current) => {
                 let found = findSplit(current.root, split);
 
@@ -744,4 +761,4 @@ const state = ({ open = {}, root = null, storage }: Options = {}) => {
 
 export default state;
 export { allGroups, bounded, contains, docked, findGroup, fixed, MIN_FRACTION, stationary };
-export type { Direction, Dock, Group, Layout, Node, Placement, Side, Split, Surface };
+export type { Direction, Dock, Group, Layout, Node, Placement, Saved, Side, Split, Store, Surface };
