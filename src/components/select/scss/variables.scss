@@ -196,12 +196,14 @@
         }
 
         // Sized in rows, which each option takes its height from. Its scrolling is set by script, a step every frame
-        // while an arrow is hovered, which the scrollbar modifier's smooth behavior would turn into lag.
+        // while an arrow is hovered, which the scrollbar modifier's smooth behavior would turn into lag. No gutter held
+        // open, so a list that fits keeps even insets either side.
         &-scroller {
             --padding-horizontal: 4px;
             --padding-vertical: 4px;
             --row-height: 36px;
             --scrollbar-behavior: auto;
+            --scrollbar-gutter: auto;
         }
 
         &-trigger {
