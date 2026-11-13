@@ -1,7 +1,7 @@
 import { nav, search } from '@esportsplus/ui/components';
 import { effect, html, reactive, redirect, uri } from 'docs/app';
 import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
-import shell from '@esportsplus/ui/components/shell';
+import type panels from '@esportsplus/ui/components/panels';
 import { repository, version } from '@esportsplus/ui/package.json';
 import { sections } from 'docs/data/nav';
 import type { Request } from 'docs/app';
@@ -12,14 +12,7 @@ import 'docs/components/sidebar/scss/index.scss';
 const SEPARATOR = /[\s_-]+/g;
 
 
-let release = version.split('.').slice(0, 2).join('.'),
-    side = {
-        class: 'sidebar',
-        id: 'docs-navigation',
-        label: 'Documentation navigation',
-        resizable: true,
-        state: reactive({ active: !matchMedia('(max-width: 1024px)').matches })
-    };
+let release = version.split('.').slice(0, 2).join('.');
 
 
 // Case, dashes and spaces fold away, so 'color picker' finds 'color-picker'.
@@ -28,9 +21,9 @@ function fold(text: string) {
 }
 
 
-// The documentation navigation, as the shell's left sidebar. Its search filters the tree in place: a link shows when its
-// label matches, every link of a section whose name matches shows, and a section left with none hides.
-export default (request: Request) => {
+// The documentation navigation, as the layout's static left sidebar. Its search filters the tree in place: a link shows
+// when its label matches, every link of a section whose name matches shows, and a section left with none hides.
+export default (request: Request, layout: ReturnType<typeof panels.state>) => {
     let field: HTMLInputElement | undefined,
         filter = reactive({ query: '' }),
         navigation = sections(),
@@ -75,7 +68,7 @@ export default (request: Request) => {
             return;
         }
 
-        // Kept from the shell, which would close the sidebar on Escape.
+        // Kept from the layout, which would close the static sidebar on Escape.
         e.preventDefault();
         e.stopPropagation();
 
@@ -94,7 +87,7 @@ export default (request: Request) => {
         }
 
         e.preventDefault();
-        side.state.active = true;
+        layout.toggle('left', true);
         field?.focus();
         field?.select();
     }
@@ -105,16 +98,15 @@ export default (request: Request) => {
         return !query || fold(section).includes(query) || fold(label).includes(query);
     }
 
-    return {
-        ...side,
-        content: html`
+    return html`
+        <div class='sidebar'>
             <div
                 class='sidebar-header'
                 ${{
                     onconnect: () => {
                         effect(() => request.path, (path, previous) => {
                             if (previous !== undefined && path !== previous && matchMedia('(max-width: 1024px)').matches) {
-                                shell.close(side);
+                                layout.toggle('left', false);
                             }
                         });
                     }
@@ -175,6 +167,6 @@ export default (request: Request) => {
                     ${() => !first() && html`<p class='sidebar-empty'>No pages match “${filter.query}”.</p>`}
                 </div>
             </div>
-        `
-    };
+        </div>
+    `;
 };

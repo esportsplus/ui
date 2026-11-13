@@ -1,13 +1,53 @@
+@use '/tokens';
 @use 'css-utilities/background';
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
-// The drop colors light every target a dragged tab can land on: an edge, the dock and a group's tab strip.
+// The drop colors light every target a dragged tab can land on: an edge, a dock and a group's tab strip.
 .panels {
     --border-color: var(--surface-border-default);
     --drop-background: oklch(from var(--color-primary-400) l c h / 0.12);
     --drop-ring: oklch(from var(--color-primary-400) l c h / 0.5);
+    // The room each sidebar makes beside the main area: none while it is closed.
+    --left: 0px;
+    // Each sidebar's width: '--space' until a resize sets '--{side}-size', held between the bounds and short of leaving
+    // the main area less than '--main-min-width'. The left yields to the right's claim and the right takes what
+    // remains, so neither depends on the other in a cycle.
+    --left-width: clamp(var(--sidebar-min-width), var(--left-size, var(--space)), min(var(--sidebar-max-width), 100% - var(--main-min-width) - var(--right-claim)));
+    --main-min-width: 320px;
     --muted-color: var(--color-text-300);
+    --right: 0px;
+    // The right sidebar's width before the left's, which the left makes room for: none while it is closed.
+    --right-claim: 0px;
+    --right-width: clamp(var(--sidebar-min-width), var(--right-size, var(--space)), min(var(--sidebar-max-width), 100% - var(--main-min-width) - var(--left)));
+    --sidebar-max-width: calc(100% - 88px);
+    --sidebar-min-width: 200px;
+    --slide-duration: 300ms;
+    --slide-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+    --space: 280px;
+    // Where the sidebar toggles sit in the top corners, and their size; corner groups' headers clear them.
+    --toggle-inset-horizontal: var(--size-100);
+    --toggle-inset-vertical: var(--size-100);
+    --toggle-size: 28px;
+
+    // An open sidebar pushes the main area aside here rather than narrowing it.
+    @media (max-width: 1024px) {
+        --main-min-width: 0px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        --slide-duration: 0s;
+    }
+
+
+    &--left-open {
+        --left: var(--left-width);
+    }
+
+    &--right-open {
+        --right: var(--right-width);
+        --right-claim: clamp(var(--sidebar-min-width), var(--right-size, var(--space)), var(--sidebar-max-width));
+    }
 
 
     &-action {
@@ -38,14 +78,36 @@
     &-dock {
         --min-height: 80px;
 
+        // Over the sidebars and their toggles, lit while a tab is dragged.
         &-target {
-            --height: 48px;
+            --size: 48px;
+            --z-index: 45;
         }
     }
 
     &-dock-target,
     &-edge {
         --ring-width: var(--border-width-500);
+    }
+
+    &-edge-grip {
+        --width: 24px;
+        --z-index: 30;
+    }
+
+    &-edge-grip:hover &-edge-handle {
+        --color: var(--color-primary-400);
+    }
+
+    &-edge-handle {
+        --border-radius: var(--border-radius-200);
+        --color: var(--surface-border-hover);
+        --height: 10svh;
+        // How far inside the main area's edge the handle comes to rest.
+        --inset-horizontal: 3px;
+        --transition-duration: 0.16s;
+        --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        --width: 3px;
     }
 
     &-ghost {
@@ -149,6 +211,32 @@
         }
     }
 
+    &-sidebar {
+        --background: var(--surface-background-default);
+        --z-index: 31;
+
+        &-resize {
+            --color: var(--surface-border-pressed);
+            --opacity: 0;
+            --scale: 0.8;
+            --transition-duration: 0.16s;
+            --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            --width: 12px;
+            --z-index: 32;
+
+            @include tokens.state(active hover) {
+                --opacity: 1;
+                --scale: 1;
+            }
+        }
+
+        &-resize-handle {
+            --border-radius: var(--border-radius-200);
+            --height: 10svh;
+            --width: 3px;
+        }
+    }
+
     // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
     &-tab {
         @extend %color-text;
@@ -182,6 +270,19 @@
         &-icon.icon {
             --size: 12px;
         }
+    }
+
+    &-toggle {
+        --background-default: transparent;
+        --border-radius: var(--border-radius-400);
+        --color-default: var(--color-text-400);
+        --color-hover: var(--color-text-400);
+        --color-pressed: var(--color-text-500);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: var(--toggle-size);
+        --width: var(--toggle-size);
+        --z-index: 40;
     }
 
     &-tabs {

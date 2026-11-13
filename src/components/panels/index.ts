@@ -7,8 +7,9 @@ import { mac } from '~/shared/platform';
 import { observe } from '~/shared/resize';
 import manager, { type Active, type Point, type Target } from './dnd';
 import { group, launcher, title, type Catalog, type Context, type Kind } from './group';
-import state, { allGroups, bounded, contains, findGroup, MIN_FRACTION, type Group, type Layout, type Node, type Split, type Surface } from './model';
+import state, { allGroups, bounded, contains, docked, findGroup, MIN_FRACTION, stationary, type Group, type Layout, type Node, type Placement, type Split, type Surface } from './model';
 import { resize, resized } from './resize';
+import { frame, grip, NARROW, resizer, sidebar, toggle, type Edge, type Options, type Sidebars } from './sidebar';
 import subtree from './subtree';
 import './scss/index.scss';
 
@@ -18,10 +19,14 @@ type A = Attributes & {
     // Tabs show their kind's icon alone, closing from their menu.
     icons?: boolean;
     onconnect?: never;
+    // Each sidebar's label, whether it peeks while the pointer rests on its edge, and whether it resizes.
+    sidebars?: Partial<Record<Edge, Options>>;
     state: ReturnType<typeof state>;
 };
 
 type Host = { dispose: VoidFunction; element: HTMLElement };
+
+type Shown = Record<Placement | 'main', Node | null>;
 
 type Side = 'bottom' | 'left' | 'right' | 'top';
 
@@ -38,7 +43,7 @@ const EDGES = {
 } as const;
 
 
-// The groups on one side of the dock, as their own tree: every split keeps its children there, resized to share what
+// The groups of one dock or the main area, as their own tree: every split keeps its children there, resized to share what
 // the dropped ones leave.
 function filter(node: Node | null, keep: (group: Group) => boolean): Node | null {
     if (node === null) {
@@ -104,12 +109,13 @@ function findSurface(node: Node | null, id: string) {
     return null;
 }
 
-// Every surface that should own a place on screen: the active surface of each group showing.
+// Every surface that should own a place on screen: the active surface of each group showing. A closed sidebar's
+// groups stay mounted, so it slides out with its content in place.
 function mounted(layout: Layout) {
     let ids = new Set<string>(),
-        { docked, main } = shown(layout);
+        trees = shown(layout);
 
-    for (let group of [...allGroups(main), ...allGroups(docked)]) {
+    for (let group of [trees.bottom, trees.left, trees.main, trees.right].flatMap(allGroups)) {
         if (group.active !== null) {
             ids.add(group.active);
         }
@@ -119,7 +125,8 @@ function mounted(layout: Layout) {
 }
 
 // Inside its group's tab strip the pointer drops a tab among the tabs; anywhere else in the group it targets the half
-// toward the nearest edge, which splits the group there. Over the bottom strip, a tab docks.
+// toward the nearest edge, which splits the group there. Over a strip along the layout's edge, a tab docks. A static
+// group only splits.
 function collide(_: Active, pointer: Point, targets: Target[]) {
     let inside = (target: Target) => {
             let { bottom, left, right, top } = target.rect;
@@ -138,7 +145,7 @@ function collide(_: Active, pointer: Point, targets: Target[]) {
         return null;
     }
 
-    if (pointer.y <= (container.data.strip as () => number)()) {
+    if (!container.data.fixed && pointer.y <= (container.data.strip as () => number)()) {
         return container.id;
     }
 
@@ -149,7 +156,16 @@ function collide(_: Active, pointer: Point, targets: Target[]) {
             .reduce((nearest, candidate) => candidate[1] < nearest[1] ? candidate : nearest)[0];
 
     return targets.find((target) => target.data.kind === 'edge' && target.data.group === container.data.group && target.data.side === side)?.id
-        ?? container.id;
+        ?? (container.data.fixed ? null : container.id);
+}
+
+// The group at a tree's top corner on 'edge': the first child down each split, but a row's last toward the right.
+function corner(node: Node | null, edge: Edge): Group | null {
+    if (node === null || node.kind === 'group') {
+        return node;
+    }
+
+    return corner((edge === 'right' && node.direction === 'row' ? node.children.at(-1) : node.children[0]) ?? null, edge);
 }
 
 // The tab position under the pointer: past every tab whose middle it has crossed, the dragged tab aside.
@@ -174,20 +190,22 @@ function position(strip: HTMLElement, dragged: HTMLElement, x: number) {
     return index;
 }
 
-// What the layout shows: under a zoom, its groups fill the layout together, docked or not; otherwise the main groups,
-// with the docked ones below while the dock is open.
-function shown(layout: Layout) {
+// What the layout shows: under a zoom, its groups fill the main area together, docked or not; otherwise the main
+// groups, the bottom dock's below them while it is open, and each sidebar's on its edge, open or not.
+function shown(layout: Layout): Shown {
     let zoom = layout.zoom.at(-1);
 
     if (zoom) {
         let ids = new Set(zoom);
 
-        return { docked: null, main: filter(layout.root, (group) => ids.has(group.id)) };
+        return { bottom: null, left: null, main: filter(layout.root, (group) => ids.has(group.id)), right: null };
     }
 
     return {
-        docked: layout.bottom.open ? filter(layout.root, (group) => group.placement === 'bottom') : null,
-        main: filter(layout.root, (group) => group.placement !== 'bottom')
+        bottom: layout.bottom.open ? filter(layout.root, (group) => docked(group, 'bottom')) : null,
+        left: filter(layout.root, (group) => docked(group, 'left')),
+        main: filter(layout.root, (group) => group.placement === undefined),
+        right: filter(layout.root, (group) => docked(group, 'right'))
     };
 }
 
@@ -206,23 +224,39 @@ function structure(node: Node | null): unknown {
 }
 
 
-// Tabbed groups of surfaces in resizable splits. Tabs drag to reorder, into another group, onto a group's edge to
-// split beside it, or onto the bottom strip to dock; groups clicked with ⌘ (Ctrl elsewhere) held fill the layout
-// together once it is let go. An empty group offers the catalog. A surface's content is
-// rendered once and moved, never rebuilt, so it keeps its state across every layout change until its tab closes.
+// The app frame: tabbed groups of surfaces in resizable splits, in a main area between a sidebar on either edge, above
+// a bottom dock. Tabs drag to reorder, into another group, onto a group's edge to split beside it, or onto a strip
+// along the layout's left, right or bottom edge to dock there; groups clicked with ⌘ (Ctrl elsewhere) held fill the
+// main area together once it is let go. An empty group offers the catalog. A surface's content is rendered once and
+// moved, never rebuilt, so it keeps its state across every layout change until its tab closes.
+//
+// A sidebar slides over the main area's edge and makes room as it opens; below 1024px it pushes the main area aside,
+// one at a time, and the main area shows one group, switched from its header. Its toggle sits in its top corner, and a
+// closed sidebar's edge holds a handle to drag it out by. A sidebar holding a single unsortable surface is static: it
+// shows the surface without tabs, takes no drops, and swipes closed toward its edge.
 const panels = component(
-    function({ catalog, icons = false, state, ...attributes }: A) {
+    function({ catalog, icons = false, sidebars: options = {}, state, ...attributes }: A) {
         let adding: Controller | undefined,
             apple = mac(),
             controller: Controller | undefined,
+            frames = { left: frame(), right: frame() },
             hosts = new Map<string, Host>(),
             parking: HTMLElement = document.createElement('div'),
             picks = signal<string[]>([]),
             size = reactive({ height: 0 }),
             slots = new Map<string, HTMLElement>(),
             subject = reactive({ group: '', surface: '' }),
+            switching: Controller | undefined,
             unobserve: VoidFunction | undefined,
             workspace: HTMLElement | undefined;
+
+        let edges: Sidebars = {
+            frames,
+            id: `panels-${crypto.randomUUID().slice(0, 8)}`,
+            options,
+            stationary: (edge) => stationary(state.layout.root, edge),
+            state
+        };
 
         let drag = manager({
             collide,
@@ -235,7 +269,7 @@ const panels = component(
                     surface = active.data.surface as string;
 
                 if (data.kind === 'dock') {
-                    state.dock(surface);
+                    state.dock(surface, data.placement as Placement);
                     return;
                 }
 
@@ -297,6 +331,7 @@ const panels = component(
             },
             held: (e: MouseEvent) => apple ? e.metaKey : e.ctrlKey,
             icons,
+            inset: () => false,
             manager: drag,
             menu(e: MouseEvent, group: string, surface: string) {
                 if (!controller) {
@@ -331,7 +366,8 @@ const panels = component(
                     }}
                 ></div>
             `,
-            state
+            state,
+            switcher: null
         };
 
         setProperties(parking as Bound, { class: 'panels-parking' });
@@ -390,6 +426,13 @@ const panels = component(
             if (focused instanceof HTMLElement && element.contains(focused)) {
                 focused.focus({ preventScroll: true });
             }
+        }
+
+        // A sidebar makes room while it is open and has groups to show, outside a zoom.
+        function open(edge: Edge) {
+            let layout = state.layout;
+
+            return layout.zoom.length === 0 && layout[edge].open && allGroups(layout.root).some((group) => docked(group, edge));
         }
 
         function park() {
@@ -471,8 +514,8 @@ const panels = component(
 
             // As shown: a zoom shows a split with only some of its children, sharing the space between them.
             function sizes() {
-                let { docked, main } = shown(state.layout),
-                    found = find(main, current.id) ?? find(docked, current.id);
+                let trees = shown(state.layout),
+                    found = find(trees.main, current.id) ?? find(trees.bottom, current.id) ?? find(trees.left, current.id) ?? find(trees.right, current.id);
 
                 return found?.kind === 'split' ? [...found.sizes] : [...current.sizes];
             }
@@ -493,16 +536,18 @@ const panels = component(
                         <div
                             class='panels-pane'
                             ${{
+                                // Holding the main group a narrow layout shows alone.
+                                class: () => state.layout.main !== null && contains(child, state.layout.main) && 'panels-pane--current',
                                 style: () => {
                                     let maximized = state.layout.maximized;
 
                                     if (maximized === null || !contains(current, maximized)) {
-                                        return `flex: 0 0 ${(sizes()[index] ?? 0) * 100}%;`;
+                                        return `--flex: 0 0 ${(sizes()[index] ?? 0) * 100}%;`;
                                     }
 
                                     return contains(current.children[index], maximized)
-                                        ? `flex: 0 0 calc(100% - ${(current.children.length - 1) * COLLAPSED}px);`
-                                        : `flex: 0 0 ${COLLAPSED}px;`;
+                                        ? `--flex: 0 0 calc(100% - ${(current.children.length - 1) * COLLAPSED}px);`
+                                        : `--flex: 0 0 ${COLLAPSED}px;`;
                                 }
                             }}
                         >
@@ -514,36 +559,103 @@ const panels = component(
             `;
         }
 
+        // Strips along the layout's edges a dragged tab docks onto; a static sidebar has none.
+        function targets() {
+            return (['bottom', 'left', 'right'] as const)
+                .filter((placement) => placement === 'bottom' || !stationary(state.layout.root, placement))
+                .map((placement) => html`
+                    <div
+                        aria-hidden='true'
+                        class='panels-dock-target panels-dock-target--${placement}'
+                        ${drag.droppable(() => ({ data: { kind: 'dock', placement }, id: `dock:${placement}` }))}
+                    ></div>
+                `);
+        }
+
+        // Rebuilt by every structural change, so which groups sit where is read once here. The toggles cover the top
+        // corners: each sidebar's corner group clears its toggle, and the main area's while that sidebar is closed.
         function tree(): Renderable<unknown> {
-            let { docked, main } = shown(state.layout);
+            let trees = shown(state.layout),
+                groups = allGroups(trees.main),
+                corners = {
+                    left: [corner(trees.left, 'left')?.id, corner(trees.main, 'left')?.id],
+                    right: [corner(trees.right, 'right')?.id, corner(trees.main, 'right')?.id]
+                };
+
+            context.inset = (group, edge) => {
+                let [side, main] = corners[edge];
+
+                return trees[edge] !== null && (group === side || (group === main && !state.layout[edge].open));
+            };
+            context.switcher = groups.length > 1
+                ? (e: MouseEvent) => {
+                    let { bottom, left } = (e.currentTarget as HTMLElement).getBoundingClientRect();
+
+                    switching?.open({ x: left, y: bottom });
+                }
+                : null;
 
             return html`
-                <div class='panels-main'>
-                    ${main ? node(main) : launcher(context)}
-                </div>
-                ${docked && html`
-                    ${handle(
-                        'y',
-                        () => {
-                            let share = bounded(state.layout.bottom.size);
+                <div class='panels-frame'>
+                    ${(['left', 'right'] as const).map((edge) => {
+                        let dock = trees[edge];
 
-                            return [1 - share, share];
-                        },
-                        0,
-                        () => size.height,
-                        (next) => state.resizeBottom(next[1]),
-                        () => state.layout.bottom.maximized
-                    )}
-                    <div
-                        class='panels-dock'
-                        ${{
-                            class: () => state.layout.bottom.maximized && 'panels-dock--maximized',
-                            style: () => `flex: 0 0 ${bounded(state.layout.bottom.size) * 100}%;`
-                        }}
-                    >
-                        ${node(docked)}
+                        return dock && html`
+                            ${sidebar(edges, edge, node(dock))}
+                            ${grip(edges, edge)}
+                            ${options[edge]?.resizable && resizer(edges, edge)}
+                            ${toggle(edges, edge)}
+                        `;
+                    })}
+                    <div class='panels-center'>
+                        <div class='panels-main'>
+                            ${trees.main ? node(trees.main) : launcher(context)}
+                        </div>
+                        ${trees.bottom && html`
+                            ${handle(
+                                'y',
+                                () => {
+                                    let share = bounded(state.layout.bottom.size);
+
+                                    return [1 - share, share];
+                                },
+                                0,
+                                () => size.height,
+                                (next) => state.resizeDock('bottom', next[1]),
+                                () => state.layout.bottom.maximized
+                            )}
+                            <div
+                                class='panels-dock'
+                                ${{
+                                    class: () => state.layout.bottom.maximized && 'panels-dock--maximized',
+                                    style: () => `flex: 0 0 ${bounded(state.layout.bottom.size) * 100}%;`
+                                }}
+                            >
+                                ${node(trees.bottom)}
+                            </div>
+                        `}
                     </div>
-                `}
+                </div>
+                ${targets()}
+                ${context.switcher && tooltip.context(
+                    {
+                        class: 'panels-menu',
+                        controller: (value: Controller) => {
+                            switching = value;
+                        },
+                        items: groups.map((entry) => ({
+                            label: () => {
+                                let found = findGroup(state.layout.root, entry.id),
+                                    surface = found?.surfaces.find((item) => item.id === found.active);
+
+                                return surface ? title(context, surface) : 'Empty group';
+                            },
+                            onselect: () => state.focus(entry.id)
+                        })),
+                        [tooltip.context.panel]: { 'aria-label': 'Switch group' }
+                    },
+                    ''
+                )}
             `;
         }
 
@@ -581,12 +693,23 @@ const panels = component(
             parking.remove();
         });
 
+        // Narrow, opening a sidebar closes the other, so both starting open leaves the left.
+        if (matchMedia(NARROW).matches && state.layout.left.open && state.layout.right.open) {
+            state.toggle('right', false);
+        }
+
         return html`
             <div
                 class='panels'
                 ${attributes}
                 ${{
-                    class: () => read(drag.active) && 'panels--dragging',
+                    class: [
+                        () => read(drag.active) && 'panels--dragging',
+                        () => (frames.left.dragging || frames.right.dragging) && 'panels--sliding',
+                        () => (frames.left.resizing || frames.right.resizing) && 'panels--resizing',
+                        () => open('left') && 'panels--left-open',
+                        () => open('right') && 'panels--right-open'
+                    ],
                     onconnect: (element: HTMLElement) => {
                         workspace = element;
                         element.append(parking);
@@ -611,6 +734,16 @@ const panels = component(
 
                         write(picks, []);
                         state.zoom(chosen);
+                    },
+                    style: () => {
+                        let { left, right } = state.layout;
+
+                        return {
+                            '--left': frames.left.space,
+                            '--left-size': left.size === null ? undefined : `${left.size}px`,
+                            '--right': frames.right.space,
+                            '--right-size': right.size === null ? undefined : `${right.size}px`
+                        };
                     }
                 }}
             >
@@ -632,11 +765,6 @@ const panels = component(
                     tree,
                     { class: 'panels-tree' }
                 )}
-                <div
-                    aria-hidden='true'
-                    class='panels-dock-target'
-                    ${drag.droppable(() => ({ data: { kind: 'dock' }, id: 'dock' }))}
-                ></div>
                 ${tooltip.context(
                     {
                         class: 'panels-menu',
@@ -673,4 +801,4 @@ const layout: typeof panels & { state: typeof state } = Object.assign(panels, { 
 
 
 export default layout;
-export type { Catalog, Kind, Layout, Node, Surface };
+export type { Catalog, Kind, Layout, Node, Placement, Surface };

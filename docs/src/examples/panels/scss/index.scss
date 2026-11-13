@@ -24,6 +24,26 @@
         }
     }
 
+    // Clears the corner toggle, which sits over the static sidebar's top.
+    &-navigation {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: var(--size-100);
+        padding: calc(var(--size-100) * 2 + 28px) var(--size-300) var(--size-300);
+
+        &-link {
+            border-radius: var(--border-radius-300);
+            color: var(--color-text-400);
+            font-size: var(--font-size-300);
+            padding: var(--size-100) var(--size-300);
+
+            &:hover {
+                background: var(--surface-background-hover);
+            }
+        }
+    }
+
     &-notes {
         background: transparent;
         border: 0;

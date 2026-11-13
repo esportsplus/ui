@@ -48,7 +48,6 @@ export { default as range } from './range';
 export { default as relativeTime } from './relative-time';
 export { default as search } from './search';
 export { default as select } from './select';
-export { default as shell } from './shell';
 export { default as shortcutRecorder } from './shortcut-recorder';
 export { default as sortable } from './sortable';
 export { default as story } from './story';

@@ -3,19 +3,28 @@ import { read, signal, write } from '@esportsplus/reactivity';
 
 type Direction = 'column' | 'row';
 
+// Whether a dock shows, and its size: a fraction of the main area for the bottom, pixels for a sidebar, which holds
+// the stylesheet's width until a resize sets one.
+type Dock = { open: boolean; size: number | null };
+
 type Group = {
     active: string | null;
     id: string;
     kind: 'group';
-    // Docked groups span the whole layout's width below everything else, and show and hide together.
-    placement?: 'bottom';
+    // Docked groups show and hide together: the bottom dock spans the main area below it, a sidebar the layout's
+    // height on its edge.
+    placement?: Placement;
     surfaces: Surface[];
 };
 
 type Layout = {
     active: string | null;
-    bottom: { maximized: boolean; open: boolean; size: number };
+    bottom: Dock & { maximized: boolean; size: number };
+    left: Dock;
+    // The main group a narrow layout shows alone: the focused one, or the last focused while a dock holds focus.
+    main: string | null;
     maximized: string | null;
+    right: Dock;
     root: Node | null;
     // Each zoom narrows the view to a set of groups, the last one showing; leaving a zoom returns to the one before.
     zoom: string[][];
@@ -24,10 +33,14 @@ type Layout = {
 type Node = Group | Split;
 
 type Options = {
+    // Which docks start open; each does unless set false.
+    open?: Partial<Record<Placement, boolean>>;
     root?: Node | null;
     // A localStorage key the layout restores from and saves to.
     storage?: string;
 };
+
+type Placement = 'bottom' | 'left' | 'right';
 
 type Side = 'after' | 'before';
 
@@ -40,8 +53,9 @@ type Split = {
     sizes: number[];
 };
 
-// What a tab shows: 'kind' names the catalog entry that titles and renders it.
-type Surface = { id: string; kind: string };
+// What a tab shows: 'kind' names the catalog entry that titles and renders it. An unsortable surface stays in its
+// group; alone there, the group is static and shows it without a tab strip.
+type Surface = { id: string; kind: string; sortable?: boolean };
 
 
 // A pane never shrinks below this share of its split.
@@ -70,12 +84,21 @@ function contains(node: Node, id: string): boolean {
     return node.id === id || (node.kind === 'split' && node.children.some((child) => contains(child, id)));
 }
 
+function docked(group: Group, placement: Placement) {
+    return group.placement === placement;
+}
+
 function equalSizes(count: number) {
     return Array.from({ length: count }, () => 1 / count);
 }
 
 function findGroup(node: Node | null, id: string) {
     return allGroups(node).find((group) => group.id === id) ?? null;
+}
+
+// A group showing one surface that cannot move: it renders without a tab strip and nothing joins it.
+function fixed(group: Group) {
+    return group.surfaces.length === 1 && group.surfaces[0].sortable === false;
 }
 
 function findSplit(node: Node | null, id: string): Split | null {
@@ -200,12 +223,14 @@ function normalize(node: Node | null): Node | null {
 
 function normalizeLayout(layout: Layout): Layout {
     let root = normalize(layout.root),
-        groups = allGroups(root);
+        groups = allGroups(root),
+        main = groups.filter((group) => group.placement === undefined).map((group) => group.id);
 
     return {
         ...layout,
         active: groups.some((group) => group.id === layout.active) ? layout.active : (groups[0]?.id ?? null),
         bottom: { ...layout.bottom, size: bounded(layout.bottom.size) },
+        main: main.find((id) => id === layout.active) ?? main.find((id) => id === layout.main) ?? main[0] ?? null,
         root
     };
 }
@@ -246,6 +271,13 @@ function removeLeaf(node: Node | null, id: string): Node | null {
             return next === null ? [] : [next];
         })
     });
+}
+
+// A sidebar given a single static surface, which takes nothing else.
+function stationary(root: Node | null, placement: Placement) {
+    let groups = allGroups(root).filter((group) => docked(group, placement));
+
+    return groups.length === 1 && fixed(groups[0]);
 }
 
 // Takes the surface out of its group, handing the group's active tab to a neighbour, and drops the group with it when
@@ -305,12 +337,15 @@ function updateSplit(node: Node | null, id: string, sizes: number[]): Node | nul
 
 // The layout's one source of truth: an immutable tree in a signal, replaced whole by each operation. Structural
 // operations restore a maximized group first, as moving panes around under it would leave it covering the wrong one.
-const state = ({ root = null, storage }: Options = {}) => {
+const state = ({ open = {}, root = null, storage }: Options = {}) => {
     let counter = 1,
         layout = signal<Layout>(normalizeLayout({
             active: null,
-            bottom: { maximized: false, open: true, size: BOTTOM_SIZE },
+            bottom: { maximized: false, open: open.bottom ?? true, size: BOTTOM_SIZE },
+            left: { open: open.left ?? true, size: null },
+            main: null,
             maximized: null,
+            right: { open: open.right ?? true, size: null },
             root: load() ?? root,
             zoom: []
         }));
@@ -357,7 +392,9 @@ const state = ({ root = null, storage }: Options = {}) => {
     }
 
     function visible(group: Group, current: Layout): Layout {
-        return group.placement === 'bottom' ? { ...current, bottom: { ...current.bottom, open: true } } : current;
+        let placement = group.placement;
+
+        return placement ? { ...current, [placement]: { ...current[placement], open: true } } : current;
     }
 
     return {
@@ -420,28 +457,40 @@ const state = ({ root = null, storage }: Options = {}) => {
             }));
         },
 
-        // Moves the surface into a group of its own docked along the bottom, spanning the whole layout.
-        dock(surface: string, side: Side = 'after') {
+        // Moves the surface into a group of its own in the dock: beside the dock's last group, across the dock, or along
+        // the layout's edge while the dock is empty. A static sidebar takes nothing.
+        dock(surface: string, placement: Placement = 'bottom') {
             structural((current) => {
                 let source = findSurfaceGroup(current.root, surface),
                     item = source?.surfaces.find((entry) => entry.id === surface);
 
-                if (!source || !item || (current.root?.kind === 'group' && source.surfaces.length === 1)) {
+                if (
+                    !source ||
+                    !item ||
+                    item.sortable === false ||
+                    stationary(current.root, placement) ||
+                    (current.root?.kind === 'group' && source.surfaces.length === 1)
+                ) {
                     return current;
                 }
 
-                let group: Group = { active: item.id, id: id('group'), kind: 'group', placement: 'bottom', surfaces: [item] },
+                let group: Group = { active: item.id, id: id('group'), kind: 'group', placement, surfaces: [item] },
                     root = take(current.root, source, surface);
 
                 if (root === null) {
                     return current;
                 }
 
+                let last = allGroups(root).filter((entry) => docked(entry, placement)).at(-1),
+                    sidebar = placement !== 'bottom';
+
                 return {
                     ...current,
                     active: group.id,
-                    bottom: { ...current.bottom, open: true },
-                    root: insertRoot(root, 'column', group, side, id)
+                    [placement]: { ...current[placement], open: true },
+                    root: last
+                        ? insertSplit(root, last.id, sidebar ? 'column' : 'row', group, 'after', id)
+                        : insertRoot(root, sidebar ? 'row' : 'column', group, placement === 'left' ? 'before' : 'after', id)
                 };
             });
         },
@@ -458,7 +507,7 @@ const state = ({ root = null, storage }: Options = {}) => {
                 return {
                     ...current,
                     active: group,
-                    maximized: found.placement !== 'bottom' && current.maximized !== null ? group : current.maximized
+                    maximized: found.placement === undefined && current.maximized !== null ? group : current.maximized
                 };
             });
         },
@@ -468,12 +517,13 @@ const state = ({ root = null, storage }: Options = {}) => {
             return read(layout);
         },
 
-        // The bottom dock fills the layout; any other group fills its splits while its siblings collapse to a strip.
+        // The bottom dock fills the main area; a main group fills its splits while its siblings collapse to a strip.
+        // Sidebars keep their size.
         maximize(group: string) {
             update((current) => {
                 let found = findGroup(current.root, group);
 
-                if (!found) {
+                if (!found || docked(found, 'left') || docked(found, 'right')) {
                     return current;
                 }
 
@@ -497,7 +547,7 @@ const state = ({ root = null, storage }: Options = {}) => {
                     target = findGroup(current.root, group),
                     item = source?.surfaces.find((entry) => entry.id === surface);
 
-                if (!source || !target || !item) {
+                if (!source || !target || !item || (source.id !== target.id && (item.sortable === false || fixed(target)))) {
                     return current;
                 }
 
@@ -534,8 +584,8 @@ const state = ({ root = null, storage }: Options = {}) => {
 
                 target ??= findGroup(current.root, current.active ?? '');
 
-                if (!group && target?.placement === 'bottom') {
-                    target = allGroups(current.root).find((entry) => entry.placement !== 'bottom') ?? null;
+                if (target && ((!group && target.placement !== undefined) || fixed(target))) {
+                    target = allGroups(current.root).find((entry) => entry.placement === undefined && !fixed(entry)) ?? null;
                 }
 
                 if (!target) {
@@ -594,21 +644,30 @@ const state = ({ root = null, storage }: Options = {}) => {
             });
         },
 
-        resizeBottom(size: number) {
-            update((current) => ({ ...current, bottom: { ...current.bottom, size } }));
+        // A fraction of the main area for the bottom dock, pixels for a sidebar.
+        resizeDock(placement: Placement, size: number) {
+            update((current) => ({ ...current, [placement]: { ...current[placement], size } }));
         },
 
-        // Moves the surface into a new group beside 'group', splitting along 'direction'.
+        // Moves the surface into a new group beside 'group', splitting along 'direction' in the group's own dock.
         split(surface: string, group: string, direction: Direction, side: Side) {
             structural((current) => {
                 let source = findSurfaceGroup(current.root, surface),
+                    target = findGroup(current.root, group),
                     item = source?.surfaces.find((entry) => entry.id === surface);
 
-                if (!source || !item || !findGroup(current.root, group) || (source.id === group && source.surfaces.length === 1)) {
+                if (
+                    !source ||
+                    !item ||
+                    !target ||
+                    item.sortable === false ||
+                    (source.id === group && source.surfaces.length === 1) ||
+                    (target.placement !== undefined && stationary(current.root, target.placement))
+                ) {
                     return current;
                 }
 
-                let created: Group = { active: item.id, id: id('group'), kind: 'group', surfaces: [item] },
+                let created: Group = { active: item.id, id: id('group'), kind: 'group', placement: target.placement, surfaces: [item] },
                     root = take(current.root, source, surface);
 
                 // The source was the target and held only this surface: nothing is left to split beside.
@@ -620,15 +679,28 @@ const state = ({ root = null, storage }: Options = {}) => {
             });
         },
 
-        // An empty bottom group appears when the dock opens without one, so the launcher has somewhere to render.
-        toggleBottom() {
+        // Shows or hides the dock, flipping it unless 'open' says which. The bottom dock opening without a group gets an
+        // empty one, so the launcher has somewhere to render; a sidebar without groups stays shut.
+        toggle(placement: Placement, open?: boolean) {
             update((current) => {
-                if (current.bottom.open) {
-                    return { ...current, bottom: { ...current.bottom, maximized: false, open: false } };
+                let next = open ?? !current[placement].open;
+
+                if (next === current[placement].open) {
+                    return current;
                 }
 
-                if (allGroups(current.root).some((group) => group.placement === 'bottom')) {
-                    return { ...current, bottom: { ...current.bottom, open: true } };
+                if (!next) {
+                    return placement === 'bottom'
+                        ? { ...current, bottom: { ...current.bottom, maximized: false, open: false } }
+                        : { ...current, [placement]: { ...current[placement], open: false } };
+                }
+
+                if (allGroups(current.root).some((group) => docked(group, placement))) {
+                    return { ...current, [placement]: { ...current[placement], open: true } };
+                }
+
+                if (placement !== 'bottom') {
+                    return current;
                 }
 
                 let group: Group = { active: null, id: id('group'), kind: 'group', placement: 'bottom', surfaces: [] };
@@ -671,5 +743,5 @@ const state = ({ root = null, storage }: Options = {}) => {
 
 
 export default state;
-export { allGroups, bounded, contains, findGroup, MIN_FRACTION };
-export type { Direction, Group, Layout, Node, Side, Split, Surface };
+export { allGroups, bounded, contains, docked, findGroup, fixed, MIN_FRACTION, stationary };
+export type { Direction, Dock, Group, Layout, Node, Placement, Side, Split, Surface };

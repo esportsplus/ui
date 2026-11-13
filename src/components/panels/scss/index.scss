@@ -20,6 +20,31 @@
         pointer-events: auto;
     }
 
+    // A dragged or resized sidebar sets the space beside the main area itself, which follows it without easing.
+    // Children only, here and below, so a layout nested in a surface keeps its own state.
+    &--resizing > &-tree > &-frame,
+    &--sliding > &-tree > &-frame,
+    &--sliding > &-tree > &-frame > &-center {
+        transition: none;
+    }
+
+    @each $side in 'left' 'right' {
+        &--#{$side}-open > &-tree > &-frame > &-edge-grip--#{$side} {
+            transition-delay: 0s;
+            visibility: hidden;
+        }
+
+        &--#{$side}-open > &-tree > &-frame > &-edge-grip--#{$side} &-edge-handle {
+            opacity: 0;
+        }
+
+        @media not (max-width: 1024px) {
+            &--#{$side}-open > &-tree > &-frame > &-sidebar-resize--#{$side} {
+                display: block;
+            }
+        }
+    }
+
 
     &-action,
     &-add {
@@ -38,6 +63,21 @@
         position: relative;
     }
 
+    // The main area over the bottom dock. Keeps its width on small screens and slides over for the right sidebar.
+    &-center {
+        display: flex;
+        flex-direction: column;
+        grid-column: 2;
+        min-height: 0;
+        min-width: 0;
+        position: relative;
+        transition: translate var(--slide-duration) var(--slide-timing-function);
+
+        @media (max-width: 1024px) {
+            translate: calc(var(--right) * -1) 0;
+        }
+    }
+
     &-dock {
         display: flex;
         min-height: var(--min-height);
@@ -51,14 +91,27 @@
             z-index: 3;
         }
 
-        // Covers the bottom of the layout while a tab is dragged, so dropping it there docks it across the whole width.
+        // Strips along the layout's edges while a tab is dragged, so dropping it there docks it on that side: the
+        // bottom's spans the main area, a sidebar's the layout's height.
         &-target {
-            bottom: 0;
-            height: var(--height);
-            inset-inline: 0;
             pointer-events: none;
             position: absolute;
-            z-index: 4;
+            z-index: var(--z-index);
+
+            &--bottom {
+                bottom: 0;
+                height: var(--size);
+                left: var(--left);
+                right: var(--right);
+            }
+
+            @each $side in 'left' 'right' {
+                &--#{$side} {
+                    #{$side}: 0;
+                    inset-block: 0;
+                    width: var(--size);
+                }
+            }
         }
     }
 
@@ -85,12 +138,84 @@
         }
     }
 
+    // A strip along a closed sidebar's edge. A single arrow the way the sidebar opens; platforms draw the resize
+    // fallbacks double-headed.
+    &-edge-grip {
+        inset-block: 0;
+        position: absolute;
+        touch-action: none;
+        transition: visibility 0s var(--slide-duration);
+        user-select: none;
+        width: var(--width);
+        z-index: var(--z-index);
+
+        &--left {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12h15M13 6l6 6-6 6' stroke='white' stroke-width='5'/%3E%3Cpath d='M4 12h15M13 6l6 6-6 6' stroke='black' stroke-width='2'/%3E%3C/svg%3E") 12 12, e-resize;
+            left: 0;
+        }
+
+        &--right {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 12H5M11 6l-6 6 6 6' stroke='white' stroke-width='5'/%3E%3Cpath d='M20 12H5M11 6l-6 6 6 6' stroke='black' stroke-width='2'/%3E%3C/svg%3E") 12 12, w-resize;
+            right: 0;
+        }
+
+        &:active {
+            cursor: grabbing;
+        }
+    }
+
+    // Off the layout until the pointer is on the edge, then over the main area, just inside its edge.
+    @each $side in 'left' 'right' {
+        &-edge-grip--#{$side} &-edge-handle {
+            #{$side}: calc(var(--width) * -1);
+        }
+
+        &-edge-grip--#{$side}:is(:active, :hover) &-edge-handle {
+            #{$side}: var(--inset-horizontal);
+        }
+    }
+
+    // Centered on the layout until the pointer in the strip moves it; it stays where the pointer leaves it.
+    &-edge-handle {
+        background: var(--color);
+        border-radius: var(--border-radius);
+        height: var(--height);
+        position: absolute;
+        top: 50%;
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            left var(--slide-duration) var(--slide-timing-function),
+            opacity var(--slide-duration) var(--slide-timing-function),
+            right var(--slide-duration) var(--slide-timing-function);
+        translate: 0 calc(var(--offset, 0px) - 50%);
+        width: var(--width);
+    }
+
     // Collapsed beside a maximized group; a press anywhere on it maximizes it instead.
     &-expand {
         @extend %reset-button;
         inset: 0;
         position: absolute;
         z-index: 2;
+    }
+
+    // The sidebars either side of the center, each column the room its sidebar makes. Clipped, so a closed sidebar
+    // waits off its edge.
+    &-frame {
+        display: grid;
+        flex: 1;
+        grid-template-columns: var(--left) minmax(0, 1fr) var(--right);
+        grid-template-rows: minmax(0, 1fr);
+        min-height: 0;
+        overflow: clip;
+        position: relative;
+        transition: grid-template-columns var(--slide-duration) var(--slide-timing-function);
+
+        // Keep the page readable on small screens: the left sidebar pushes the main area aside, the right one slides
+        // it over.
+        @media (max-width: 1024px) {
+            grid-template-columns: var(--left) 100% 0px;
+        }
     }
 
     &-ghost {
@@ -118,6 +243,13 @@
         overflow: hidden;
         position: relative;
 
+        // Clears the sidebar toggle over its top corner.
+        @each $side, $end in ('left': 'start', 'right': 'end') {
+            &--inset-#{$side} > .panels-header {
+                padding-inline-#{$end}: calc(var(--toggle-inset-horizontal) * 2 + var(--toggle-size));
+            }
+        }
+
         // Picked to zoom to once the modifier is let go.
         &--picked {
             background: var(--drop-background);
@@ -126,6 +258,11 @@
 
         @include tokens.state(active) {
             border-color: var(--border-color);
+        }
+
+        // Its surface fills it edge to edge, with no tabs to mark it active.
+        &--static {
+            border-width: 0;
         }
 
         // The tab strip is where a dragged tab joins the group rather than splitting it.
@@ -292,13 +429,106 @@
 
     &-pane {
         display: flex;
+        flex: var(--flex);
         min-height: 0;
         min-width: 0;
         overflow: hidden;
     }
 
+    // Narrow, the main area shows the one group its header switches between, rather than splits too thin to use.
+    @media (max-width: 1024px) {
+        &-main &-handle,
+        &-main &-pane {
+            display: none;
+        }
+
+        &-main &-pane--current {
+            display: flex;
+            flex: 1 1 100%;
+        }
+    }
+
+    @media not (max-width: 1024px) {
+        &-switch {
+            display: none;
+        }
+    }
+
     &-parking {
         display: none;
+    }
+
+    // A sidebar over its column, sliding in from its edge; peeking shows it over the main area, which keeps its place.
+    &-sidebar {
+        background-color: var(--background);
+        display: flex;
+        flex-direction: column;
+        inset-block: 0;
+        overflow: hidden;
+        position: absolute;
+        touch-action: pan-y;
+        transition:
+            translate var(--slide-duration) var(--slide-timing-function),
+            visibility 0s var(--slide-duration);
+        visibility: hidden;
+        z-index: var(--z-index);
+
+        // Follows the pointer for the length of a drag, shown even while closed so it can be pulled out.
+        &--dragging {
+            cursor: grabbing;
+            transition: none;
+            visibility: visible;
+        }
+
+        @each $side, $sign in ('left': -1, 'right': 1) {
+            &--#{$side} {
+                #{$side}: 0;
+                translate: $sign * 100% 0;
+                width: min(var(--#{$side}-width), 100%);
+            }
+        }
+
+        &.--peek,
+        #{tokens.state(active)} {
+            transition-delay: 0s;
+            translate: 0 0;
+            visibility: visible;
+        }
+
+        // Straddles an open sidebar's inner border, only where the sidebar narrows the main area rather than pushing it.
+        &-resize {
+            cursor: col-resize;
+            display: none;
+            inset-block: 0;
+            position: absolute;
+            touch-action: none;
+            width: var(--width);
+            z-index: var(--z-index);
+
+            @each $side in 'left' 'right' {
+                &--#{$side} {
+                    #{$side}: calc(var(--#{$side}-width) - var(--width) / 2);
+                }
+            }
+        }
+
+        // Grows out of the border as it shows and follows the pointer up and down. Centered by 'left' rather than a
+        // translate, so it snaps to whole pixels instead of blurring across two.
+        &-resize-handle {
+            background: var(--color);
+            border-radius: var(--border-radius);
+            height: var(--height);
+            left: calc(50% - var(--width) / 2);
+            opacity: var(--opacity);
+            position: absolute;
+            scale: 1 var(--scale);
+            top: 50%;
+            transition:
+                opacity var(--transition-duration) var(--transition-timing-function),
+                scale var(--transition-duration) var(--transition-timing-function);
+            translate: 0 calc(var(--offset, 0px) - 50%);
+            width: var(--width);
+        }
     }
 
     &-split {
@@ -345,6 +575,26 @@
             @extend %text-truncate;
             flex: 1;
             min-width: 0;
+        }
+    }
+
+    &-toggle {
+        display: flex;
+        height: var(--toggle-size);
+        position: absolute;
+        top: var(--toggle-inset-vertical);
+        width: var(--toggle-size);
+        z-index: var(--z-index);
+
+        @each $side in 'left' 'right' {
+            &--#{$side} {
+                #{$side}: var(--toggle-inset-horizontal);
+            }
+        }
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
         }
     }
 

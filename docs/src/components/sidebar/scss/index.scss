@@ -4,12 +4,16 @@
 @use '../../../../../tokens.scss';
 
 
-// The navigation inside the shell's left sidebar, which owns the frame and its surface.
+// The navigation filling the layout's static left sidebar, which owns the frame and its surface.
 .sidebar {
     --content-padding-horizontal: var(--size-600);
     --scrollbar-color-default: var(--surface-border-hover);
     --scrollbar-color-hover: var(--surface-border-pressed);
     --scrollbar-color-pressed: var(--color-primary-300);
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
 
 
     @media (max-width: 720px) {

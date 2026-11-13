@@ -4,13 +4,14 @@ import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import scrollbar from '~/modifiers/scrollbar';
 import type manager from './dnd';
-import type { Group, Layout, Surface } from './model';
+import { fixed, type Group, type Layout, type Surface } from './model';
 import type state from './model';
 import subtree from './subtree';
 import close from '@esportsplus/ui/svg/close.svg';
 import collapse from '@esportsplus/ui/svg/collapse.svg';
 import expand from '@esportsplus/ui/svg/expand.svg';
 import plus from '@esportsplus/ui/svg/plus.svg';
+import stack from '@esportsplus/ui/svg/stack.svg';
 
 
 type Catalog = Record<string, Kind>;
@@ -25,6 +26,8 @@ type Context = {
     held: (e: MouseEvent) => boolean;
     // Tabs show their kind's icon alone, closing from their menu.
     icons: boolean;
+    // Whether the group's header clears a sidebar toggle sitting over that corner.
+    inset: (group: string, edge: 'left' | 'right') => boolean;
     manager: ReturnType<typeof manager>;
     // Opens the tab context menu for the surface.
     menu: (e: MouseEvent, group: string, surface: string) => void;
@@ -34,6 +37,9 @@ type Context = {
     // The slot a surface's long-lived host moves into while it shows.
     slot: (surface: string) => Renderable<unknown>;
     state: ReturnType<typeof state>;
+    // Opens the menu of main groups under the pressed button, for a narrow layout showing one at a time; null while
+    // the main area holds a single group.
+    switcher: ((e: MouseEvent) => void) | null;
 };
 
 type Kind = {
@@ -123,7 +129,7 @@ function tab(context: Context, live: Live, surface: Surface) {
                     }
                 },
                 onpointerdown: function(this: HTMLElement, e: PointerEvent) {
-                    if (context.held(e)) {
+                    if (context.held(e) || surface.sortable === false) {
                         return;
                     }
 
@@ -276,13 +282,14 @@ const launcher = (context: Context, group?: string) => {
 };
 
 // One group: its tabs, the add menu and group actions, then the active surface, with a drop zone on each half while a
-// tab is dragged.
+// tab is dragged. A static group shows its surface alone, without a header; in a sidebar it takes no drops at all.
 const group = (context: Context, live: Live) => {
     // Tabs and placement render once from this snapshot: a change to either is structural and rebuilds the tree,
     // whereas reading the live layout would rebuild every tab when a press focuses the group, mid-press.
     let { group } = live(),
+        stationary = fixed(group),
         drop = context.manager.droppable(() => ({
-            data: { group: group.id, kind: 'group', strip: () => header?.getBoundingClientRect().bottom ?? 0 },
+            data: { fixed: stationary, group: group.id, kind: 'group', strip: () => header?.getBoundingClientRect().bottom ?? -Infinity },
             id: `group:${group.id}`
         })),
         header: HTMLElement | undefined,
@@ -319,7 +326,10 @@ const group = (context: Context, live: Live) => {
             ${{
                 class: [
                     () => context.state.layout.active === group.id && '--active',
-                    () => live().group.placement === 'bottom' && 'panels-group--bottom',
+                    group.placement && `panels-group--${group.placement}`,
+                    stationary && 'panels-group--static',
+                    () => context.inset(group.id, 'left') && 'panels-group--inset-left',
+                    () => context.inset(group.id, 'right') && 'panels-group--inset-right',
                     () => context.picked(group.id) && 'panels-group--picked'
                 ],
                 // Listened to directly: the tabs bind presses of their own, which delegation would stop at.
@@ -336,7 +346,7 @@ const group = (context: Context, live: Live) => {
                 }
             }}
         >
-            <div
+            ${!stationary && html`<div
                 class='panels-header'
                 ${{
                     onconnect: (element: HTMLElement) => {
@@ -369,6 +379,18 @@ const group = (context: Context, live: Live) => {
                         ${icon({ 'aria-hidden': 'true' }, plus)}
                     </button>
                 </div>
+                ${group.placement === undefined && context.switcher && html`
+                    <button
+                        aria-haspopup='menu'
+                        aria-label='Switch group'
+                        class='button panels-action panels-switch'
+                        title='Switch group'
+                        type='button'
+                        ${{ onclick: context.switcher }}
+                    >
+                        ${icon({ 'aria-hidden': 'true' }, stack)}
+                    </button>
+                `}
                 ${group.placement === 'bottom' && html`
                     <button
                         class='button panels-action'
@@ -392,7 +414,7 @@ const group = (context: Context, live: Live) => {
                 >
                     ${icon({ 'aria-hidden': 'true' }, close)}
                 </button>
-            </div>
+            </div>`}
             <div class='panels-body'>
                 ${subtree(
                     () => live().group.active ?? '',
@@ -419,7 +441,7 @@ const group = (context: Context, live: Live) => {
                     `;
                 }}
             </div>
-            ${SIDES.map((side) => edge(context, live, side))}
+            ${!(stationary && group.placement) && SIDES.map((side) => edge(context, live, side))}
         </section>
     `;
 };

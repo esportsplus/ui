@@ -14,10 +14,10 @@ its color palettes, contrast calculation, clipboard feedback, and swatch styles.
 | `page` | Docs page and section layout, and empty states |
 | `page/header` | Library page title and subtitle, optional breadcrumb and note, and previous/next navigation |
 | `root` | Docs-wide theme aliases |
-| `sidebar` | Documentation navigation and its search, rendered as the library `shell`'s left sidebar |
+| `sidebar` | Documentation navigation and its search, rendered as the library `panels` layout's static left sidebar |
 | `spec` | Shared data tables, token/value typography, and table-header surface and corner styling |
 | `toaster` | The shared docs toast queue, placement, and toast surface styles |
-| `viewer` | Routed content grid inside the shell's card, with the TOC column |
+| `viewer` | Routed content grid in the layout's main area, with the TOC column |
 
 Components with TypeScript renderers import their own styles. `ui.ts` loads the
 global shell and shared page/table styles. Use the library's components and CSS
@@ -30,13 +30,13 @@ that; the not-found middleware does the same. The TOC is the library `nav.toc`,
 driven by a `nav.spy` scroll spy over the page's headings.
 
 Shell classes use component names such as `.page` and `.sidebar`.
-The library `shell` owns each sidebar's frame, surface, toggle, Escape handling and swipe; the docs pass
-the navigation as its left sidebar and an empty right one for now. The navigation
+The library `panels` layout owns the sidebar's frame, surface, toggle, Escape handling and swipe; the docs give it the
+navigation and the routed page as single unsortable surfaces, so the sidebar is static and the page has no tabs. The navigation
 sidebar starts open on desktop and closed on small screens. An effect watches
 the request path and closes the sidebar after route changes on small screens;
 desktop navigation preserves its open state. CSS media queries control the
 layout; on small screens the card keeps its width as it shifts.
-The sidebar holds the brand, release badge and search field, so they slide with the shell's
+The sidebar holds the brand, release badge and search field, so they slide with the layout's
 drawer. Header padding sizes the brand row and aligns the fixed sidebar toggle. The search field sits in a tools row below the brand
 and filters the tree in place through each link's `visible`: a link shows when its label matches, a section whose name
 matches shows all its links, and a section left with none hides. Matching ignores case, dashes and spaces. Mod+K

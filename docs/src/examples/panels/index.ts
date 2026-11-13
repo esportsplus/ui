@@ -1,7 +1,7 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { panels } from '@esportsplus/ui/components';
-import type { Catalog, Node } from '@esportsplus/ui/components/panels';
+import type { Catalog, Node, Placement, Surface } from '@esportsplus/ui/components/panels';
 import type { Entry } from 'docs/types';
 import file from '@esportsplus/ui/svg/file-text.svg';
 import gear from '@esportsplus/ui/svg/gear.svg';
@@ -53,8 +53,10 @@ const catalog: Catalog = {
         render: () => html`
             <div class='panels-demo-surface panels-demo-surface--text'>
                 <p>Drag a tab along the strip to reorder it, into another group to move it, onto a group's half to split
-                it, or onto the bottom strip to dock it. Drag a separator to resize, double-click a header to maximize.
-                Hold Ctrl (⌘ on a Mac) and click panels, then let go, to focus on them.</p>
+                it, or onto the strip along the left, right or bottom edge to dock it there. Drag a separator to resize,
+                double-click a header to maximize. Hold Ctrl (⌘ on a Mac) and click panels, then let go, to focus on
+                them. Sidebars open from their corner toggle, or by clicking or dragging their edge, and these two resize
+                from their inner border.</p>
             </div>
         `,
         shortcut: 'R',
@@ -94,6 +96,56 @@ function demo(root: Node | null = null, icons = false) {
     `;
 }
 
+// A static navigation on the left, a single surface that stays put, and a tabbed sidebar on the right that peeks
+// while the pointer rests on its edge.
+function sidebars() {
+    let docked = (id: string, placement: Placement, surfaces: Surface[]) => ({
+            active: surfaces[0].id,
+            id,
+            kind: 'group' as const,
+            placement,
+            surfaces
+        });
+
+    return html`
+        <div class='panels-demo'>
+            ${panels({
+                catalog: {
+                    ...catalog,
+                    navigation: {
+                        render: () => html`
+                            <nav class='panels-demo-navigation'>
+                                ${['Inbox', 'Projects', 'Calendar', 'Settings'].map((item) => html`<a class='panels-demo-navigation-link' href='#'>${item}</a>`)}
+                            </nav>
+                        `,
+                        title: 'Navigation'
+                    }
+                },
+                sidebars: { left: { label: 'Navigation', resizable: true }, right: { hover: true, label: 'Details', resizable: true } },
+                state: panels.state({
+                    open: { right: false },
+                    root: {
+                        children: [
+                            docked('group-1', 'left', [{ id: 'navigation', kind: 'navigation', sortable: false }]),
+                            {
+                                active: 'readme',
+                                id: 'group-2',
+                                kind: 'group',
+                                surfaces: [{ id: 'readme', kind: 'readme' }, { id: 'notes', kind: 'notes' }]
+                            },
+                            docked('group-3', 'right', [{ id: 'inbox', kind: 'inbox' }, { id: 'counter-1', kind: 'counter' }])
+                        ],
+                        direction: 'row',
+                        id: 'split-1',
+                        kind: 'split',
+                        sizes: [0.2, 0.6, 0.2]
+                    }
+                })
+            })}
+        </div>
+    `;
+}
+
 
 export default {
     name: 'panels',
@@ -120,6 +172,10 @@ export default {
                 sizes: [0.5, 0.5]
             }),
             title: 'workspace'
+        },
+        {
+            render: sidebars,
+            title: 'sidebars'
         },
         {
             render: () => demo(grid(2, 3)),
