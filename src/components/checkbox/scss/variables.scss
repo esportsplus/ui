@@ -33,7 +33,7 @@
         --background: var(--background-default);
         --background-active: var(--color-primary-500);
         --background-default: transparent;
-        --indicator-color-default: var(--color-primary);
+        --indicator-color-default: var(--color-surface);
     }
 
     :where([data-theme='light']) & {
