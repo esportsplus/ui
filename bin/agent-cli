@@ -1,11 +1,75 @@
 #!/usr/bin/env node
 // Agent CLI: terse subcommands replacing shell commands agents repeat in this repo.
 // Dependency-free Node ESM; node: builtins only.
+import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 
 const COMMANDS = {
+    log: {
+        help: 'log [<repo>...] [--n <n>] [--status <n>] [--no-status] [--json]\n  Branch, last <n> commits (oneline, default 15) and short status (first 30) per repo in one call.',
+        replaces: 'git log --oneline -<n> (17 threads/73 calls), git log --oneline -<n> + git status --short (17 back-to-back calls)',
+        run(args) {
+            let { flags, paths } = parse(args, ['n', 'status']),
+                limit = Number(flags.n) || 15,
+                max = flags.status === undefined ? 30 : Number(flags.status),
+                out = [];
+
+            if (!paths.length) {
+                paths.push('.');
+            }
+
+            for (let i = 0, n = paths.length; i < n; i++) {
+                out.push(repo(paths[i], limit, flags['no-status'] ? 0 : max, !flags['no-status']));
+            }
+
+            if (flags.json) {
+                print(JSON.stringify(out));
+                return out.some((o) => o.error) ? 1 : 0;
+            }
+
+            for (let i = 0, n = out.length; i < n; i++) {
+                let o = out[i];
+
+                if (o.error) {
+                    print(`${o.path}: ERROR ${o.error}`);
+                    continue;
+                }
+
+                if (n > 1 || o.path !== '.') {
+                    print(`== ${o.path}`);
+                }
+
+                print(`[${o.branch}]`);
+
+                for (let j = 0, m = o.commits.length; j < m; j++) {
+                    print(`${o.commits[j].hash} ${o.commits[j].subject}`);
+                }
+
+                if (!o.status) {
+                    continue;
+                }
+
+                if (!o.status.total) {
+                    print('-- clean');
+                    continue;
+                }
+
+                print(`-- status (${o.status.total})`);
+
+                for (let j = 0, m = o.status.files.length; j < m; j++) {
+                    print(o.status.files[j]);
+                }
+
+                if (o.status.total > o.status.files.length) {
+                    print(`+${o.status.total - o.status.files.length} more`);
+                }
+            }
+
+            return out.some((o) => o.error) ? 1 : 0;
+        }
+    },
     peek: {
         help: 'peek <path>... [--head <n>] [--lines <a>,<b>] [--json]\n  List dirs (files with line counts) and print files (optionally a line range) in one call.',
         replaces: 'ls <path> (10 threads/98 calls)',
@@ -78,6 +142,10 @@ function countLines(file) {
     catch {
         return '?';
     }
+}
+
+function git(cwd, args) {
+    return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 }
 
 function inspect(path, range) {
@@ -174,6 +242,37 @@ function parse(args, valued) {
 
 function print(s) {
     process.stdout.write(s + '\n');
+}
+
+function repo(path, limit, max, status) {
+    let abs = resolve(path),
+        rel = relative(process.cwd(), abs).replace(/\\/g, '/') || '.';
+
+    try {
+        let branch = git(abs, ['rev-parse', '--abbrev-ref', 'HEAD']).trim(),
+            commits = git(abs, ['log', '--oneline', '--no-decorate', `-${limit}`])
+                .split(/\r?\n/)
+                .filter(Boolean)
+                .map((l) => {
+                    let k = l.indexOf(' ');
+
+                    return { hash: l.slice(0, k), subject: l.slice(k + 1) };
+                }),
+            o = { branch, commits, path: rel };
+
+        if (status) {
+            let files = git(abs, ['status', '--short']).split(/\r?\n/).filter(Boolean);
+
+            o.status = { files: files.slice(0, max), total: files.length };
+        }
+
+        return o;
+    }
+    catch (e) {
+        let msg = String(e.stderr || e.message || e).trim().split(/\r?\n/)[0];
+
+        return { error: msg, path: rel };
+    }
 }
 
 function usage(name) {
