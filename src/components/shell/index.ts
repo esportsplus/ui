@@ -34,7 +34,7 @@ type Side = {
     id: string;
     label: string;
     // An open sidebar's inner border drags to resize it, between the shell's '--sidebar-min-width' and
-    // '--sidebar-max-width'.
+    // '--sidebar-max-width', and never past leaving the main area '--main-min-width'.
     resizable?: boolean;
     state: { active: boolean };
 };
