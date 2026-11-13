@@ -1,21 +1,16 @@
 import { computed, effect, flush, onCleanup, reactive, ReactiveArray, read, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import icon from '~/components/icon';
+import inlineEdit from '~/components/inline-edit';
 import overlay from '~/components/overlay';
 import searchbox from '~/components/search';
-import sortable, { type SortableOptions } from '~/components/sortable';
+import sortable, { type SortableCombine, type SortableOptions } from '~/components/sortable';
 import tooltip from '~/components/tooltip';
 import { content as surface } from '~/components/tooltip/utilities';
 import scrollbar from '~/modifiers/scrollbar';
 import { observer } from '~/shared/resize';
-import down from '@esportsplus/ui/svg/arrow-down.svg';
-import left from '@esportsplus/ui/svg/arrow-left.svg';
-import right from '@esportsplus/ui/svg/arrow-right.svg';
-import up from '@esportsplus/ui/svg/arrow-up.svg';
-import chevronDown from '@esportsplus/ui/svg/chevron-down.svg';
-import chevronLeft from '@esportsplus/ui/svg/chevron-left.svg';
-import chevronRight from '@esportsplus/ui/svg/chevron-right.svg';
-import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
+import arrowSvg from '@esportsplus/ui/svg/arrow.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 import enter from '@esportsplus/ui/svg/enter.svg';
 import grid from '@esportsplus/ui/svg/grid.svg';
 import '~/components/button/scss/index.scss';
@@ -39,11 +34,21 @@ type A = Attributes & {
     // A drawer the bar morphs into, opened by the button 'toolbar.drawer()' places among 'items' (appended when
     // missing, dropped without a drawer).
     drawer?: boolean;
+    // A dragged button let go over the middle of another, on the bar or in a group's panel, groups the two, or over a
+    // group, joins it at its end; what it is over swells the moment the pointer reaches its middle. A group opens a
+    // panel of its own buttons, sorted by dragging, and
+    // gives way to its last button once the others have left. Groups nest; the drawer only ever holds buttons, and
+    // a group dropped in it, or thrown off the bar, spreads its buttons there.
+    groups?: boolean;
     items: Entry[] | ReactiveArray<Entry>;
     label?: string;
+    // Names each button on the bar under it, rather than as the pointer rests on it.
+    labels?: boolean;
     // 'dock' treats the buttons as apps: a click launches one with a hop and lights its running dot.
     mode?: Mode;
     onlaunch?: (label: string) => void;
+    // A group renamed from its panel, its 'label' already the new name ('' unnamed).
+    onrename?: (group: Group, label: string) => void;
     onsort?: SortableOptions<Entry>['onsort'];
     // A search over the drawer's buttons.
     search?: boolean;
@@ -77,7 +82,7 @@ type Direction = 'e' | 'n' | 's' | 'w';
 
 type Divider = { readonly [DIVIDER]: true };
 
-type Entry = Button | Custom | Divider | typeof TOOLBAR_DRAWER;
+type Entry = Button | Custom | Divider | Group | typeof TOOLBAR_DRAWER;
 
 type Face =
     // A sprite id, or a function rendering it: a button shows in the bar, the drawer and the copy being dragged at
@@ -86,18 +91,32 @@ type Face =
     // An image url, covering the whole button.
     { icon?: never, thumbnail: string };
 
+// Buttons gathered under one button, which opens a panel of them; a group's members can be groups too.
+type Group = {
+    readonly [GROUP]: true;
+    items: ReactiveArray<Member>;
+    // Unnamed by default; a name shows as its hover label, or under it with 'labels', and is edited at the top of its
+    // panel.
+    label?: Label;
+};
+
 type Hint = Renderable<unknown> | (() => Renderable<unknown>);
 
 type Label = string | (() => string);
 
+// What a group holds.
+type Member = Button | Group;
+
 type Mode = 'dock' | 'toolbar';
 
-type Slot = HTMLElement & { [LABEL]: Hint };
+// 'MEMBER' is the button or group an element shows, which letting another go over it groups with.
+type Slot = HTMLElement & { [LABEL]: Hint, [MEMBER]?: Member };
 
 
+// Turns of the chevron, which points right.
 const ARROWS: Record<'horizontal' | 'vertical', [previous: string, next: string]> = {
-    horizontal: [chevronLeft, chevronRight],
-    vertical: [chevronUp, chevronDown]
+    horizontal: ['icon--left', ''],
+    vertical: ['icon--up', 'icon--down']
 };
 
 const CUSTOM = Symbol();
@@ -111,10 +130,17 @@ const FOCUSABLE = 'button, input, select, textarea, [contenteditable], [tabindex
 // retargets it on every letter.
 const GLIDE = 150;
 
+const GROUP = Symbol();
+
 const LABEL = Symbol();
 
 // An alphabetical drawer's headings and rail, '#' taking every label that starts with anything but a letter.
 const LETTERS = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
+
+const MEMBER = Symbol();
+
+// How far the pointer may stray past a group's panel, carrying a button out of it, before the panel closes, px.
+const SLACK = 8;
 
 // Keys that rove the bar's controls, by orientation; Home and End jump to its ends.
 const ROVE: Record<'horizontal' | 'vertical', Record<string, -1 | 1>> = {
@@ -139,7 +165,8 @@ function alphabetize(items: ReactiveArray<Button>) {
     items.$length;
 
     for (let i = 0, n = items.length; i < n; i++) {
-        let label = text(items[i].label);
+        // A group passing through on its way to being spread out has no label to file.
+        let label = grouped(items[i]) ? '' : text(items[i].label);
 
         sorted.push({ item: items[i], label, letter: initial(label) });
     }
@@ -153,8 +180,36 @@ function alphabetize(items: ReactiveArray<Button>) {
     return places;
 }
 
+// Every button a member holds, however deep.
+function buttons(member: Member): Button[] {
+    if (!grouped(member)) {
+        return [member];
+    }
+
+    let list: Button[] = [];
+
+    for (let i = 0, n = member.items.length; i < n; i++) {
+        list.push(...buttons(member.items[i]));
+    }
+
+    return list;
+}
+
+// Whether 'member' sits anywhere inside 'group'.
+function contains(group: Group, member: Member): boolean {
+    for (let i = 0, n = group.items.length; i < n; i++) {
+        let item = group.items[i];
+
+        if (item === member || (grouped(item) && contains(item, member))) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // The copy following the pointer: the bar's slot with a stand-in for the button.
-function copy(item: Button) {
+function copy(item: Member) {
     return html`<div class='toolbar-item'>${stand(item)}</div>`;
 }
 
@@ -171,6 +226,10 @@ function glyph(item: Button) {
     }
 
     return typeof item.icon === 'string' ? sprite(item.icon) : item.icon();
+}
+
+function grouped(value: unknown): value is Group {
+    return typeof value === 'object' && value !== null && GROUP in value;
 }
 
 function hint(keys: Renderable<unknown>[], label: string) {
@@ -198,8 +257,52 @@ function keep(e: MouseEvent) {
     }
 }
 
+// A member as one cell of a group's preview: a button's face, small, or a group's own preview, smaller.
+function mini(member: Member): DocumentFragment | Element | Text {
+    if (grouped(member)) {
+        return html`<span class='toolbar-group-face toolbar-group-face--group'>${preview(member)}</span>`;
+    }
+
+    return html`
+        <span
+            class='toolbar-group-face'
+            style='${member.thumbnail !== undefined ? `--thumbnail: url(${JSON.stringify(thumbnail(member.thumbnail))})` : '--thumbnail: none'}'
+        >
+            ${glyph(member)}
+        </span>
+    `;
+}
+
+// A button or a group: what drags, and what groups.
+function movable(entry: Entry): entry is Member {
+    return typeof entry === 'object' && !(CUSTOM in entry) && !(DIVIDER in entry);
+}
+
 function name(trigger: HTMLElement) {
     return (trigger as Slot)[LABEL];
+}
+
+// A group's face: its members in a 2x2 grid, which shows the first four. Follows the group as it changes.
+function preview(group: Group) {
+    return html`<span aria-hidden='true' class='toolbar-group-preview'>${html.reactive(group.items, mini)}</span>`;
+}
+
+// A click on a slot or tile around its button, its label or padding, presses the button. A drag's closing click never
+// reaches here, since the drag swallows it.
+function relay(e: MouseEvent) {
+    let target = e.target as Element;
+
+    if (target.closest('button, input, [contenteditable]')) {
+        return;
+    }
+
+    let button = (e.currentTarget as HTMLElement).querySelector<HTMLButtonElement>(':scope > button');
+
+    if (!button) {
+        return;
+    }
+
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, detail: e.detail, view: window }));
 }
 
 function sprite(href: string, name = '') {
@@ -207,7 +310,11 @@ function sprite(href: string, name = '') {
 }
 
 // A dragged copy's button, which keeps no controls.
-function stand(item: Button) {
+function stand(item: Member) {
+    if (grouped(item)) {
+        return html`<span class='button button--feedback toolbar-button toolbar-button--group'>${preview(item)}</span>`;
+    }
+
     return html`<span class='button button--feedback toolbar-button' ${face(item)}>${glyph(item)}</span>`;
 }
 
@@ -222,7 +329,7 @@ function thumbnail(src: string) {
 
 // The copy dragged out of the drawer: its cell, with a stand-in for the button. CSS turns it into the bar's button as
 // it lifts.
-function tile(item: Button) {
+function tile(item: Member) {
     return html`
         <div class='toolbar-app'>
             ${stand(item)}
@@ -239,6 +346,9 @@ const divider = (): Divider => ({ [DIVIDER]: true });
 
 const drawer = () => TOOLBAR_DRAWER;
 
+const group = ({ items, label }: { items: Member[] | ReactiveArray<Member>, label?: Label }): Group =>
+    ({ [GROUP]: true, items: items instanceof ReactiveArray ? items : new ReactiveArray(items), label });
+
 const item = (render: Custom['render'], { hint, label }: Pick<Custom, 'hint' | 'label'> = {}): Custom => ({ [CUSTOM]: true, hint, label, render });
 
 const toolbar = ({
@@ -248,13 +358,16 @@ const toolbar = ({
     delay = TOOLTIP_DELAY,
     direction = 'n',
     drawer: drawn = false,
+    groups: gathering = false,
     items,
+    labels = false,
     mode = 'toolbar',
     label = mode === 'dock' ? 'Dock' : 'Toolbar',
     onlaunch,
+    onrename,
     onsort,
     search = true,
-    sortable: sorting = mode === 'dock',
+    sortable: sorting = mode === 'dock' || gathering,
     state = reactive({ active: false }),
     ...attributes
 }: A) => {
@@ -269,18 +382,25 @@ const toolbar = ({
         // from opening until it has landed back. 'morphing' turns the transitions on a frame after 'sized' pins the
         // bar's box, so the pin itself (a pill's '999px' rounding held to what it draws) is instant.
         fit = reactive({ height: 0, morphing: false, radius: 0, sized: false, width: 0 }),
+        // A group's panel: whether it shows, and where on the bar it opens from, the middle of the group's slot.
+        folder = reactive({ active: false, x: 0, y: 0 }),
         frame = 0,
-        group = `toolbar-${++uid}`,
         // An alphabetical drawer's headings, by letter, which the rail scrolls to.
         headings: HTMLElement[] = [],
+        // Also the name the bar, the drawer and the groups' panels trade buttons under.
+        id = `toolbar-${++uid}`,
         // The drawer's search, and the button the keys rest on among those it shows: none (-1) until an arrow picks one.
         launch = reactive({ index: -1, query: '' }),
         // Kept per button rather than per render, since moving between lists renders it afresh.
         launching = new WeakMap<Button, { launching: boolean }>(),
+        // Each group's name as its panel edits it, which every place the name shows follows.
+        names = new WeakMap<Group, { editing: boolean, saved: boolean, value: string }>(),
         marker = entries.indexOf(TOOLBAR_DRAWER),
         // Shows the buttons off the page for as long as 'measure()' reads them.
         measuring = reactive({ active: false }),
         more = mode === 'dock' ? 'All apps' : 'More',
+        // The bar's group button its panel opened from, which takes focus back as it closes.
+        opener: HTMLElement | undefined,
         panel: HTMLElement | undefined,
         // The rail's letter under the pointer, none (-1) once it leaves.
         pointed = signal(-1),
@@ -294,11 +414,15 @@ const toolbar = ({
         // The frame of a glide to a letter.
         scrolling = 0,
         shelf: HTMLElement | undefined,
+        // A group's panel.
+        sheet: HTMLElement | undefined,
         // The drawer's buttons.
         stash = drawn ? (apps instanceof ReactiveArray ? apps : new ReactiveArray(apps ?? [])) : undefined,
         // Each drawer button's element, for the keys to find the one above or below it.
         tiles = new WeakMap<Button, HTMLElement>(),
         track: HTMLElement | undefined,
+        // The groups a panel has opened into, from the bar's: it shows the last.
+        trail = signal<Group[]>([]),
         vertical = direction === 'e' || direction === 'w',
         viewport: HTMLElement | undefined,
         // An alphabetical drawer's letter and place for each of its buttons.
@@ -359,6 +483,14 @@ const toolbar = ({
         return best;
     }
 
+    // Whether a dragged entry can group with the member an element shows: a button or a group, held over another,
+    // and never a group over something inside itself.
+    function admits(entry: Entry, element: HTMLElement) {
+        let target = (element as Slot)[MEMBER];
+
+        return movable(entry) && !!target && target !== entry && !(grouped(entry) && contains(entry, target));
+    }
+
     // Lines an alphabetical drawer's headings and first column of buttons up with the search's magnifier, which the
     // search places once it has measured itself. Skipped while the drawer is out of the layout.
     function align() {
@@ -382,7 +514,28 @@ const toolbar = ({
                     onclick: () => page(step)
                 }}
             >
-                ${sprite(ARROWS[vertical ? 'vertical' : 'horizontal'][step < 0 ? 0 : 1])}
+                ${sprite(chevron, ARROWS[vertical ? 'vertical' : 'horizontal'][step < 0 ? 0 : 1])}
+            </button>
+        `;
+    }
+
+    // A group's button. On the bar it opens the group's panel; in a panel, it opens the group in the panel's place.
+    function bunch(member: Group, nested: boolean) {
+        return html`
+            <button
+                aria-controls='${id}-group'
+                aria-haspopup='dialog'
+                class='button button--feedback toolbar-button toolbar-button--group'
+                type='button'
+                ${{
+                    'aria-expanded': () => !nested && folder.active && read(trail)[0] === member ? 'true' : 'false',
+                    'aria-label': () => `${naming(member).value || 'Group'}, ${member.items.$length} items`,
+                    onclick: (e: MouseEvent) => {
+                        reveal(member, e.currentTarget as HTMLElement, nested, e.detail === 0);
+                    }
+                }}
+            >
+                ${preview(member)}
             </button>
         `;
     }
@@ -392,6 +545,70 @@ const toolbar = ({
         cancelAnimationFrame(frame);
         expanded.active = false;
         land();
+    }
+
+    // Groups a dragged member with the one it was let go on: at a group's end, or with a button, as a new
+    // group in the button's place.
+    function combine(entry: Entry, element: HTMLElement, items: ReactiveArray<Entry>, from: number, source: ReactiveArray<Entry>) {
+        let target = (element as Slot)[MEMBER];
+
+        if (!target || !movable(entry)) {
+            return;
+        }
+
+        if (grouped(target)) {
+            target.items.push(entry);
+            sorted(entry, from, target.items.length - 1, source, target.items);
+        }
+        else {
+            let made = group({ items: [target, entry] });
+
+            items.splice(items.indexOf(target), 1, made);
+            sorted(entry, from, 1, source, made.items);
+        }
+
+        tidy();
+    }
+
+    // A group's card in its panel: its name, edited in place, over a grid of its members sorted by dragging.
+    function contents(current: Group) {
+        let list = sortable(current.items, (member, attributes) => html`
+                <div
+                    class='toolbar-app'
+                    ${attributes}
+                    ${{
+                        onclick: relay,
+                        onconnect: (element: Slot) => {
+                            element[MEMBER] = member;
+                        }
+                    }}
+                >
+                    ${grouped(member) ? bunch(member, true) : control(member)}
+                    <span class='toolbar-app-label'>${() => grouped(member) ? naming(member).value : text(member.label)}</span>
+                </div>
+            `, { combine: combining as SortableCombine<Member> | undefined, drag: tile, group: id, onland: landed, onlift: lifted, onsort: sorted, onthrow: stash ? thrown : undefined });
+
+        return html`
+            <div class='toolbar-group-header'>
+                ${inlineEdit({
+                    class: 'toolbar-group-name',
+                    label: 'Group name',
+                    onsave: (value: string) => {
+                        current.label = value;
+                        onrename?.(current, value);
+                    },
+                    placeholder: 'Name',
+                    state: naming(current)
+                })}
+            </div>
+            <div
+                class='toolbar-group-apps'
+                ${list.attributes}
+                ${{ style: () => `--columns: ${Math.min(Math.max(current.items.$length, 2), 4)};` }}
+            >
+                ${list.render()}
+            </div>
+        `;
     }
 
     // A button in the bar or the drawer: the consumer's attributes, and in a dock, its launch and running state.
@@ -459,7 +676,7 @@ const toolbar = ({
                 }}
             >
                 <button
-                    aria-controls='${group}-drawer'
+                    aria-controls='${id}-drawer'
                     aria-haspopup='dialog'
                     aria-label='${more}'
                     class='button button--feedback toolbar-button'
@@ -488,6 +705,7 @@ const toolbar = ({
                     ${sorting ? attributes : {}}
                     ${{
                         class: [() => !matches(item) && 'toolbar-app--hidden', () => signal.selector(current, item) && '--active'],
+                        onclick: relay,
                         onconnect: (element: HTMLElement) => {
                             tiles.set(item, element);
                         },
@@ -502,7 +720,16 @@ const toolbar = ({
                     ${control(item)}
                     <span class='toolbar-app-label'>${item.label}</span>
                 </div>
-            `, { drag: tile, group, onland: () => lift(false), onlift: () => lift(true), onsort: sorted }),
+            `, {
+                drag: tile,
+                group: id,
+                onland: () => {
+                    lift(false);
+                    tidy();
+                },
+                onlift: () => lift(true),
+                onsort: sorted
+            }),
             // Without a search, the drawer itself takes focus and the keys. Kept out of the literal below, which
             // compiles each handler to a listener even when unset.
             keys: Attributes = search ? {} : { onkeydown: navigate, tabindex: '-1' };
@@ -522,6 +749,7 @@ const toolbar = ({
 
             launch.index = -1;
             launch.query = '';
+            shut();
             expand();
         });
 
@@ -529,7 +757,7 @@ const toolbar = ({
             <div
                 aria-label='${more}'
                 class='tooltip-content toolbar-drawer ${alphabet && 'toolbar-drawer--alphabetical'}'
-                id='${group}-drawer'
+                id='${id}-drawer'
                 role='dialog'
                 ${keys}
                 ${{
@@ -611,7 +839,7 @@ const toolbar = ({
 
                 <div aria-hidden='true' class='toolbar-drawer-footer'>
                     ${hint(['esc'], 'Close')}
-                    ${hint([left, right, up, down].map((href) => sprite(href, 'toolbar-drawer-kbd-icon')), 'Navigate')}
+                    ${hint(['icon--left', '', 'icon--up', 'icon--down'].map((direction) => sprite(arrowSvg, `toolbar-drawer-kbd-icon ${direction}`)), 'Navigate')}
                     ${hint([sprite(enter, 'toolbar-drawer-kbd-icon')], 'Open')}
                 </div>
             </div>
@@ -746,6 +974,19 @@ const toolbar = ({
         Object.assign(fit, resting);
     }
 
+    // A button carried out of a group's panel has landed. Let go off every list without a drawer to go back to, it
+    // landed back in the group, which opens again to show it.
+    function landed(member: Member) {
+        let path = read(trail);
+
+        removeEventListener('pointermove', stray);
+        tidy();
+
+        if (!folder.active && path.length && path[path.length - 1].items.includes(member)) {
+            folder.active = true;
+        }
+    }
+
     // Dragging a button out of the drawer shows the bar to drop it in; once it has landed, wherever that is, the bar
     // grows back into the drawer if it is still open.
     function lift(active: boolean) {
@@ -757,7 +998,17 @@ const toolbar = ({
         }
     }
 
+    // Lifted out of a group's panel: the panel closes once the pointer carries it away.
+    function lifted() {
+        addEventListener('pointermove', stray);
+    }
+
     function matches(item: Button) {
+        // A group dropped in the drawer is spread out as it lands.
+        if (grouped(item)) {
+            return true;
+        }
+
         let query = launch.query.trim().toLowerCase();
 
         return !query || text(item.label).toLowerCase().includes(query);
@@ -805,6 +1056,19 @@ const toolbar = ({
         return current;
     }
 
+    // A group's name as its panel's inline edit holds it, kept per group: the edit's own state, so the bar, the trail
+    // and the hover label follow it as it changes. Unnamed, it is ''.
+    function naming(member: Group) {
+        let current = names.get(member);
+
+        if (!current) {
+            current = reactive({ editing: false, saved: false, value: member.label ? text(member.label) : '' });
+            names.set(member, current);
+        }
+
+        return current;
+    }
+
     // The first arrow picks the first button, later ones step through the shown buttons as the grid lays them out;
     // Enter presses the one they rest on, or the first shown before any is picked.
     function navigate(e: KeyboardEvent) {
@@ -839,9 +1103,10 @@ const toolbar = ({
         }
     }
 
-    // Pressing a button closes the drawer; in a dock, it also launches the app.
+    // Pressing a button closes the drawer and any group's panel; in a dock, it also launches the app.
     function open(item: Button) {
         state.active = false;
+        shut();
 
         if (!dock) {
             return;
@@ -863,10 +1128,111 @@ const toolbar = ({
         scroll.first = Math.max(0, Math.min(scroll.first + step * scroll.count, entries.length - scroll.count));
     }
 
+    // A group's panel, beside the bar over the group's slot. Opened into a group inside, the groups on the way there
+    // list above it as a menu panel under its sub-panel, the nearest last, each row going back to its group when pressed. It stays in the page
+    // while closed, since a button carried out of it is still its to land, and closes on a press anywhere off the bar,
+    // or Escape.
+    function pane() {
+        return html`
+            <div
+                class='toolbar-group'
+                id='${id}-group'
+                role='dialog'
+                ${{
+                    'aria-label': () => {
+                        let path = read(trail),
+                            current = path[path.length - 1];
+
+                        return (current && naming(current).value) || 'Group';
+                    },
+                    class: () => folder.active && '--active',
+                    inert: () => !folder.active,
+                    onconnect: (element: HTMLElement) => {
+                        sheet = element;
+                    },
+                    ondocumentkeydown: (e: KeyboardEvent) => {
+                        if (e.key === 'Escape' && folder.active && !e.defaultPrevented) {
+                            e.preventDefault();
+                            shut(true);
+                        }
+                    },
+                    ondocumentpointerdown: (e: PointerEvent) => {
+                        if (folder.active && !shelf?.contains(e.target as Node | null)) {
+                            shut();
+                        }
+                    },
+                    style: () => `--group-x: ${folder.x}px; --group-y: ${folder.y}px;`
+                }}
+            >
+                ${() => {
+                    let path = read(trail);
+
+                    if (path.length < 2) {
+                        return '';
+                    }
+
+                    return html`
+                        <div class='toolbar-group-trail'>
+                            ${path.slice(0, -1).map((member, index) => html`
+                                <button
+                                    class='toolbar-group-trail-item'
+                                    type='button'
+                                    ${{
+                                        'aria-label': () => `Back to ${naming(member).value || 'Group'}`,
+                                        onclick: () => {
+                                            write(trail, path.slice(0, index + 1));
+                                        }
+                                    }}
+                                >
+                                    <span class='toolbar-group-trail-name'>${() => naming(member).value || 'Group'}</span>
+                                </button>
+                            `)}
+                        </div>
+                    `;
+                }}
+                <div class='toolbar-group-card ${() => read(trail).length > 1 && 'toolbar-group-card--nested'}'>
+                    ${() => {
+                        let path = read(trail),
+                            current = path[path.length - 1];
+
+                        return current && contents(current);
+                    }}
+                </div>
+            </div>
+        `;
+    }
+
     // Where a heading, or a button under it, falls in an alphabetical drawer: each letter's heading, then its buttons
     // in order. Laid out by CSS 'order', so the drawer's own order stays the consumer's.
     function place(letter: number, rank = -1) {
         return letter * ((stash?.$length ?? 0) + 1) + rank + 1;
+    }
+
+    // Groups down to one member give way to it, in their place, and empty ones go, deepest first.
+    function prune<T>(items: ReactiveArray<T>) {
+        for (let i = items.length - 1; i >= 0; i--) {
+            let entry = items[i];
+
+            if (!grouped(entry)) {
+                continue;
+            }
+
+            prune(entry.items);
+
+            if (entry.items.length > 1) {
+                continue;
+            }
+
+            items.splice(i, 1);
+
+            if (entry.items.length) {
+                let only = entry.items[0];
+
+                entry.items.splice(0, 1);
+                items.splice(i, 0, only as T);
+                sorted(only, 0, i, entry.items, items);
+            }
+        }
     }
 
     // The letters beside an alphabetical drawer. The pointer's letter is read from where it falls along the rail, which
@@ -958,6 +1324,35 @@ const toolbar = ({
         return min === Infinity ? 1 : min;
     }
 
+    // Opens a group's panel. From the bar it opens over the group's slot, and closes again on a second press; from a
+    // panel, the group opens in the panel's place, with a way back. Opened by the keys, they move into it.
+    function reveal(member: Group, button: HTMLElement, nested: boolean, keyed: boolean) {
+        if (nested) {
+            write(trail, [...read(trail), member]);
+        }
+        else if (folder.active && read(trail)[0] === member) {
+            shut();
+            return;
+        }
+        else if (shelf) {
+            let bar = shelf.getBoundingClientRect(),
+                slot = (button.closest('.toolbar-item') ?? button).getBoundingClientRect();
+
+            state.active = false;
+            opener = button;
+            folder.x = slot.left + slot.width / 2 - bar.left;
+            folder.y = slot.top + slot.height / 2 - bar.top;
+            write(trail, [member]);
+            folder.active = true;
+        }
+
+        if (keyed) {
+            requestAnimationFrame(() => {
+                sheet?.querySelector<HTMLElement>('.toolbar-app > .toolbar-button')?.focus();
+            });
+        }
+    }
+
     // The ARIA toolbar's one tab stop, on 'current' or else the first control, every other control out of the tab
     // order. Kept on the elements themselves, since a custom item's control is the consumer's to render.
     function rove(current?: Element | null) {
@@ -1011,7 +1406,20 @@ const toolbar = ({
         return list;
     }
 
-    // Dividers, custom items and the drawer's button sort with the rest, but only buttons are dragged.
+    // Closes a group's panel; closed by the keys, focus goes back to the group's button on the bar.
+    function shut(restore = false) {
+        if (!folder.active) {
+            return;
+        }
+
+        folder.active = false;
+
+        if (restore && sheet?.contains(document.activeElement)) {
+            opener?.focus();
+        }
+    }
+
+    // Dividers, custom items and the drawer's button sort with the rest, but only buttons and groups are dragged.
     function slot(entry: Entry, attributes: Attributes) {
         if (entry === TOOLBAR_DRAWER) {
             return door();
@@ -1025,25 +1433,32 @@ const toolbar = ({
             return custom(entry);
         }
 
+        // A group is named by its panel, as it is edited; unnamed, it has no hover label.
+        let named = grouped(entry) ? () => naming(entry).value : undefined;
+
         return html`
             <div
                 class='toolbar-item'
                 ${sorting ? attributes : {}}
                 ${{
-                    class: () => hidden(entry) && 'toolbar-item--hidden',
+                    class: [() => hidden(entry) && 'toolbar-item--hidden', () => named && !named() && 'toolbar-item--quiet'],
+                    onclick: relay,
                     onconnect: (element: Slot) => {
-                        element[LABEL] = entry.hint ?? entry.label;
+                        element[LABEL] = named ?? (grouped(entry) ? '' : entry.hint ?? entry.label);
+                        element[MEMBER] = entry;
                     }
                 }}
             >
-                ${control(entry)}
-                ${dock && html`<span aria-hidden='true' class='toolbar-light ${() => status(entry).running && '--active'}'></span>`}
+                ${grouped(entry) ? bunch(entry, false) : control(entry)}
+                ${labels && html`<span class='toolbar-item-label'>${named ?? entry.label}</span>`}
+                ${dock && !grouped(entry) && html`<span aria-hidden='true' class='toolbar-light ${() => status(entry).running && '--active'}'></span>`}
             </div>
         `;
     }
 
-    // Shared by the bar's list and the drawer's, whose arrays trade entries; either end of a move can be either.
-    function sorted<T extends Entry>(item: T, from: number, to: number, source: ReactiveArray<T>, target: ReactiveArray<T>) {
+    // Shared by the bar's list, the drawer's and the groups', whose arrays trade entries; either end of a move can be
+    // any of them.
+    function sorted<S, T>(item: Entry, from: number, to: number, source: ReactiveArray<S>, target: ReactiveArray<T>) {
         scroll.order++;
         onsort?.(item, from, to, source as unknown as ReactiveArray<Entry>, target as unknown as ReactiveArray<Entry>);
     }
@@ -1081,12 +1496,65 @@ const toolbar = ({
         next.focus();
     }
 
-    // Thrown off the bar, a button goes back to the drawer, at its end.
-    function thrown(item: Entry, from: number, list: ReactiveArray<Entry>) {
-        let target = stash as unknown as ReactiveArray<Entry>;
+    // Carrying a button out of a group's panel closes the panel once the pointer is clear of it, leaving the bar free
+    // to drop on.
+    function stray(e: PointerEvent) {
+        let box = sheet?.getBoundingClientRect();
 
-        target.push(item);
-        sorted(item, from, target.length - 1, list, target);
+        if (box && (e.clientX < box.left - SLACK || e.clientX > box.right + SLACK || e.clientY < box.top - SLACK || e.clientY > box.bottom + SLACK)) {
+            removeEventListener('pointermove', stray);
+            shut();
+        }
+    }
+
+    // Thrown off the bar or out of a group's panel, a button goes back to the drawer, at its end; a group spreads its
+    // buttons there.
+    function thrown<T>(item: Entry, from: number, list: ReactiveArray<T>) {
+        if (!stash || !movable(item)) {
+            return;
+        }
+
+        let spread = buttons(item);
+
+        for (let i = 0, n = spread.length; i < n; i++) {
+            stash.push(spread[i]);
+        }
+
+        sorted(item, from, stash.length - 1, list, stash);
+        tidy();
+    }
+
+    // After every move: a group down to one member gives way to it, the drawer spreads out any group dropped in it,
+    // since it only holds buttons, and a panel whose group has gone falls back to what remains of its way in.
+    function tidy() {
+        prune(entries);
+
+        if (stash) {
+            for (let i = stash.length - 1; i >= 0; i--) {
+                let item: Member = stash[i];
+
+                if (grouped(item)) {
+                    stash.splice(i, 1, ...buttons(item));
+                }
+            }
+        }
+
+        let path = read(trail),
+            kept = 0;
+
+        while (kept < path.length && (kept === 0 ? entries : path[kept - 1].items).includes(path[kept])) {
+            kept++;
+        }
+
+        if (kept === path.length) {
+            return;
+        }
+
+        write(trail, path.slice(0, kept));
+
+        if (!kept) {
+            shut();
+        }
     }
 
     if (!stash && marker !== -1) {
@@ -1097,8 +1565,22 @@ const toolbar = ({
     }
 
     // One label glides between the buttons; hidden from assistive tech, since each button is already named by it. Only
-    // buttons are dragged, so 'copy' only ever gets one, and only one is ever thrown back to the drawer.
-    let list = sortable(entries, slot, { drag: copy as (item: Entry) => Renderable<unknown>, group, onsort: sorted, onthrow: sorting && stash ? thrown : undefined }),
+    // buttons and groups are dragged, so 'copy' only ever gets one, and only those are ever thrown back to the drawer.
+    // Dragging a group whose panel shows closes the panel, which could otherwise take the group into itself.
+    let combining: SortableCombine<Entry> | undefined = gathering ? { accepts: admits, oncombine: combine } : undefined,
+        list = sortable(entries, slot, {
+            combine: combining,
+            drag: copy as (item: Entry) => Renderable<unknown>,
+            group: id,
+            onland: tidy,
+            onlift: (entry) => {
+                if (grouped(entry) && read(trail).includes(entry)) {
+                    shut();
+                }
+            },
+            onsort: sorted,
+            onthrow: sorting && stash ? thrown : undefined
+        }),
         tip = tooltip.shared({ 'aria-hidden': 'true', axis: vertical ? 'x' : 'y', class: 'toolbar-label', delay: { open: delay }, swap: false });
 
     // A toolbar takes one tab stop, kept on a control the bar still shows as its items change.
@@ -1112,9 +1594,9 @@ const toolbar = ({
 
     return html`
         <div
-            class='toolbar toolbar--${direction} ${stash && 'tooltip'}'
+            class='toolbar toolbar--${direction} ${labels && 'toolbar--labels'} ${stash && 'tooltip'}'
             ${attributes}
-            ${tip.delegate({ content: name, edge: true, selector: '.toolbar-item, .toolbar-custom--hinted' })}
+            ${!labels && tip.delegate({ content: name, edge: true, selector: '.toolbar-item:not(.toolbar-item--quiet), .toolbar-custom--hinted' })}
             ${popup}
             ${{
                 'aria-label': label,
@@ -1181,10 +1663,11 @@ const toolbar = ({
             ${arrows && arrow(1)}
             ${tip.render()}
             ${stash && drawer(stash)}
+            ${pane()}
         </div>
     `;
 };
 
 
-export default component(toolbar, { button, divider, drawer, item });
-export type { Button, Custom, Direction, Divider, Entry, Mode };
+export default component(toolbar, { button, divider, drawer, group, item });
+export type { Button, Custom, Direction, Divider, Entry, Group, Member, Mode };

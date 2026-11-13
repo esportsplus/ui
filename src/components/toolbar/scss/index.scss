@@ -1,4 +1,5 @@
 @use '/tokens';
+@use 'css-utilities/layer';
 @use 'css-utilities/reset';
 @use 'css-utilities/text';
 @use 'variables';
@@ -98,18 +99,41 @@
         }
     }
 
-    // Per screen edge: the running light sits between the glyph and that edge, centred across the bar; while the bar
-    // is sized, its far side takes whatever the bar has grown, holding the bar at its resting depth against the edge.
-    @each $direction, $edge, $across, $far, $length, $inset in (e, left, block, right, width, horizontal), (n, bottom, inline, top, height, vertical), (s, top, inline, bottom, height, vertical), (w, right, block, left, width, horizontal) {
-        &--#{$direction} &-light {
-            #{$edge}: var(--offset);
-            inset-#{$across}: 0;
-            margin-#{$across}: auto;
-        }
-
+    // Per screen edge, while the bar is sized, its far side takes whatever the bar has grown, holding the bar at its
+    // resting depth against the edge.
+    @each $direction, $far, $length, $inset in (e, right, width, horizontal), (n, top, height, vertical), (s, bottom, height, vertical), (w, left, width, horizontal) {
         &--#{$direction}#{&}--sized {
             padding-#{$far}: calc(var(--fit-#{$length}) - var(--fit-depth) + var(--inset-#{$inset}));
         }
+    }
+
+    // The running light sits between the glyph and the screen edge. Placed from the button, which heads its slot and
+    // is centred across it, rather than from the slot's edge, so a name under the button doesn't move it.
+    &--n &-light,
+    &--s &-light {
+        inset-inline: 0;
+        margin-inline: auto;
+    }
+
+    &--n &-light {
+        top: calc(var(--button-size) - var(--offset) - var(--size));
+    }
+
+    &--s &-light {
+        top: var(--offset);
+    }
+
+    &--e &-light,
+    &--w &-light {
+        top: calc((var(--button-size) - var(--size)) / 2);
+    }
+
+    &--e &-light {
+        left: calc(50% - var(--button-size) / 2 + var(--offset));
+    }
+
+    &--w &-light {
+        right: calc(50% - var(--button-size) / 2 + var(--offset));
     }
 
 
@@ -418,11 +442,192 @@
         }
     }
 
+    // A group's panel, off the bar over the group's slot, growing out from the bar as it shows. It stays in the page
+    // while closed, so it lets the pointer through until it shows.
+    &-group {
+        display: flex;
+        flex-direction: column;
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        scale: var(--scale);
+        transition:
+            opacity var(--transition-duration) var(--transition-timing-function),
+            scale var(--transition-duration) var(--transition-timing-function);
+        z-index: 1;
+
+
+        @include tokens.state(active) {
+            opacity: 1;
+            pointer-events: auto;
+            scale: 1;
+        }
+
+        &-apps {
+            display: grid;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            grid-template-columns: repeat(var(--columns), var(--column-width));
+        }
+
+        // The group shown, on the bar's surface; opened from another, it stands a level above the trail of groups on
+        // the way to it, as a menu's sub-panel does over its parent, and covers the trail's rounded foot.
+        &-card {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
+            position: relative;
+            z-index: 1;
+
+            &--nested {
+                margin-top: calc(var(--border-radius) * -1);
+            }
+        }
+
+        // The name lines up with the first column's tiles, centred in their columns.
+        &-header {
+            align-items: center;
+            display: flex;
+            min-height: var(--height);
+            padding-inline-start: var(--tile-offset);
+        }
+
+        // Its foot, rounded, runs on under the card shown, so the rows end where the card starts.
+        &-trail {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            padding: var(--inset-vertical) var(--inset-horizontal);
+            padding-bottom: calc(var(--inset-vertical) + var(--border-radius));
+            position: relative;
+
+            // The scrim over the rows, as over a menu panel with a sub-panel open; the rows still take the pointer.
+            &::after {
+                @extend %layer;
+                background: var(--scrim);
+                content: '';
+                z-index: 1;
+            }
+
+            // A row's name starts where the shown card's name does.
+            &-item {
+                @extend %reset-button;
+                align-items: center;
+                background: var(--background);
+                border-radius: var(--border-radius);
+                color: var(--color);
+                cursor: pointer;
+                display: flex;
+                flex-shrink: 0;
+                font-size: var(--font-size);
+                font-weight: var(--font-weight);
+                height: var(--height);
+                padding-inline: calc(var(--edge) + var(--tile-offset) - var(--inset-horizontal)) var(--edge);
+                transition: background var(--transition-duration) var(--transition-timing-function);
+            }
+
+            &-name {
+                @extend %text-truncate;
+                min-width: 0;
+            }
+        }
+    }
+
+    // Per screen edge, the panel opens away from it, centred on the group's slot.
+    &--e > &-group,
+    &--w > &-group {
+        top: var(--group-y);
+        translate: 0 -50%;
+    }
+
+    &--n > &-group,
+    &--s > &-group {
+        left: var(--group-x);
+        translate: -50% 0;
+    }
+
+    @each $direction, $edge, $origin in (e, left, left center), (n, bottom, center bottom), (s, top, center top), (w, right, right center) {
+        &--#{$direction} > &-group {
+            #{$edge}: calc(100% + var(--spacer));
+            transform-origin: $origin;
+        }
+    }
+
+    // A group's face: its first four members in a 2x2 grid, inset in its button.
+    &-group-preview {
+        display: grid;
+        gap: var(--gap);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        height: 100%;
+        pointer-events: none;
+        width: 100%;
+    }
+
+    &-group-face {
+        align-items: center;
+        background: var(--thumbnail) center / cover no-repeat, var(--background);
+        border-radius: var(--border-radius);
+        color: var(--color);
+        display: flex;
+        justify-content: center;
+        min-height: 0;
+        min-width: 0;
+        overflow: hidden;
+
+        > .icon,
+        > svg {
+            height: 70%;
+            width: 70%;
+        }
+
+        &:nth-child(n + 5) {
+            display: none;
+        }
+
+        // A group inside a group shows its own preview, smaller.
+        &--group {
+            padding: var(--padding);
+        }
+    }
+
     &-item {
         cursor: default;
         display: flex;
         flex-shrink: 0;
         position: relative;
+    }
+
+    // Held over, a button or group swells to take the one carried to it.
+    &-app.sortable-item--target > &-button,
+    &-item.sortable-item--target > &-button {
+        outline: var(--outline-width) solid var(--outline-color);
+        outline-offset: var(--outline-offset);
+        scale: var(--target-scale);
+    }
+
+    // Each button over its name, rather than naming it on hover.
+    &--labels &-item {
+        align-items: center;
+        flex-direction: column;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+    }
+
+    &-item-label {
+        @extend %text-truncate;
+        color: var(--color);
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        max-width: var(--max-width);
+        pointer-events: none;
+        text-align: center;
+        user-select: none;
     }
 
     &-items {

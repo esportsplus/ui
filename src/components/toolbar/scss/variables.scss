@@ -164,6 +164,15 @@
         }
 
 
+        // A tinted square around its preview, so a group reads as one among the flat buttons.
+        &--group {
+            --background-default: color-mix(in oklab, var(--color-text-500) 6%, transparent);
+            --background-hover: color-mix(in oklab, var(--color-text-500) 10%, transparent);
+            --padding-horizontal: calc(var(--size-100) / 2);
+            --padding-vertical: calc(var(--size-100) / 2);
+        }
+
+
         // A toggle that is on.
         &[aria-pressed='true'] {
             --background-default: color-mix(in oklab, var(--color-text-500) 8%, transparent);
@@ -177,6 +186,15 @@
             --size: var(--size-400);
             --stroke-width: 2.25;
         }
+    }
+
+    // Held over, ringed in the primary colour as it swells.
+    &-app.sortable-item--target > &-button,
+    &-item.sortable-item--target > &-button {
+        --outline-color: var(--color-primary-400);
+        --outline-offset: 2px;
+        --outline-width: var(--border-width-500);
+        --target-scale: 1.12;
     }
 
     &-divider {
@@ -291,7 +309,7 @@
             --border-radius: var(--border-radius-600);
             --box-shadow-default: none;
             --color: var(--color-text-500);
-            --font-size: calc(var(--font-size-400) * 0.875);
+            --font-size: var(--font-size-300);
             --min-height: auto;
             --min-width: 100%;
             --scale: 1;
@@ -301,6 +319,93 @@
 
     &-drawer-apps > .sortable-drag &-button {
         --size-rest: var(--button-size);
+    }
+
+    // A group's panel: its cards on the bar's own surface and shadow, with the drawer's tiles. '--column-width' and
+    // '--tile-size' are the tiles', which the name lines up with, '--tile-offset' in from a column's edge.
+    &-group {
+        --column-width: 80px;
+        // The cards' inline padding, which the trail's names start the same way in from.
+        --edge: var(--size-200);
+        --scale: 0.94;
+        --spacer: var(--size-200);
+        --tile-offset: calc((var(--column-width) - var(--tile-size)) / 2);
+        --tile-size: 48px;
+        --transition-duration: 0.16s;
+        --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+        @media (prefers-reduced-motion: reduce) {
+            --scale: 1;
+        }
+
+
+        &-apps {
+            --gap-horizontal: var(--size-100);
+            --gap-vertical: var(--size-100);
+        }
+
+        &-card {
+            --background: var(--surface-background-default);
+            --border-radius: var(--border-radius-400);
+            --box-shadow: var(--surface-shadow-default);
+            --gap-horizontal: 0px;
+            --gap-vertical: var(--size-100);
+            --padding-horizontal: var(--edge);
+            --padding-vertical: var(--size-200);
+
+            &--nested {
+                @extend %surface-raise;
+            }
+        }
+
+        &-header {
+            --height: 28px;
+        }
+
+        // The groups on the way to the one shown, as rows of a menu panel under its open sub-panel: on the bar's
+        // surface, behind the menu's scrim.
+        &-trail {
+            --background: var(--surface-background-default);
+            --border-radius: var(--border-radius-400);
+            --box-shadow: var(--surface-shadow-default);
+            --inset-horizontal: calc(var(--size-100) / 2);
+            --inset-vertical: calc(var(--size-100) / 2);
+            --scrim: oklch(from #{surface.shadow-color(0.9)} 0 0 0 / alpha);
+
+            &-item {
+                @extend %background-state;
+                --background-default: transparent;
+                --background-hover: var(--surface-primary-default);
+                --background-pressed: var(--surface-primary-pressed);
+                --border-radius: var(--border-radius-400);
+                --color: var(--color-text-500);
+                --font-size: var(--font-size-300);
+                --font-weight: var(--font-weight-400);
+                --height: 32px;
+                --transition-duration: 130ms;
+                --transition-timing-function: ease-out;
+
+                &:focus-visible {
+                    --background: var(--background-hover);
+                }
+            }
+        }
+    }
+
+    &-group-face {
+        --background: var(--surface-background-default);
+        --border-radius: calc(var(--border-radius-400) / 2);
+        --color: var(--color-text-400);
+        --padding: 1px;
+
+        // A group inside a group is tinted as the group button is.
+        &--group {
+            --background: color-mix(in oklab, var(--color-text-500) 8%, transparent);
+        }
+    }
+
+    &-group-preview {
+        --gap: 2px;
     }
 
     // '--toolbar-drawer-inset' is where the search's magnifier starts, from the apps' edge: written inline once
@@ -380,6 +485,18 @@
     }
 
     // Spaced as the editor's formatting buttons are; the shared label keeps open across the gaps.
+    &-item-label {
+        --color: var(--color-text-400);
+        --font-size: var(--font-size-100);
+        --font-weight: var(--font-weight-500);
+        --max-width: calc(var(--button-size) + var(--size-300));
+    }
+
+    &--labels &-item {
+        --gap-horizontal: 0px;
+        --gap-vertical: 2px;
+    }
+
     &-items {
         --gap-horizontal: calc(var(--size-100) / 4);
         --gap-vertical: calc(var(--size-100) / 4);

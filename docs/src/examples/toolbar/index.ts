@@ -3,13 +3,19 @@ import { html } from '@esportsplus/template';
 import { icon, toolbar } from '@esportsplus/ui/components';
 import type { Entry } from 'docs/types';
 import boldSvg from '@esportsplus/ui/svg/bold.svg';
+import calendarSvg from '@esportsplus/ui/svg/calendar.svg';
 import codeSvg from '@esportsplus/ui/svg/code.svg';
 import copySvg from '@esportsplus/ui/svg/copy.svg';
 import downloadSvg from '@esportsplus/ui/svg/download.svg';
 import highlightSvg from '@esportsplus/ui/svg/highlight.svg';
+import homeSvg from '@esportsplus/ui/svg/home.svg';
 import italicSvg from '@esportsplus/ui/svg/italic.svg';
 import linkSvg from '@esportsplus/ui/svg/link.svg';
+import mailSvg from '@esportsplus/ui/svg/mail.svg';
+import musicSvg from '@esportsplus/ui/svg/music.svg';
 import redoSvg from '@esportsplus/ui/svg/redo.svg';
+import searchSvg from '@esportsplus/ui/svg/search.svg';
+import slidersSvg from '@esportsplus/ui/svg/sliders.svg';
 import strikeSvg from '@esportsplus/ui/svg/strikethrough.svg';
 import trashSvg from '@esportsplus/ui/svg/trash.svg';
 import undoSvg from '@esportsplus/ui/svg/undo.svg';
@@ -33,27 +39,27 @@ const SCENES: Record<string, [string, string, string]> = {
 function apps(running: string[]) {
     return [
         {
-            icon: () => html`<svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'><path d='M3.5 10.5 12 4l8.5 6.5V19a1 1 0 0 1-1 1H15v-5.5H9V20H4.5a1 1 0 0 1-1-1Z' /></svg>`,
+            icon: homeSvg,
             label: 'Home'
         },
         {
-            icon: () => html`<svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'><circle cx='11' cy='11' r='6.5' /><path d='m20 20-4.35-4.35' /></svg>`,
+            icon: searchSvg,
             label: 'Search'
         },
         {
-            icon: () => html`<svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'><rect height='13' rx='2' width='17' x='3.5' y='5.5' /><path d='m4 7 8 6 8-6' /></svg>`,
+            icon: mailSvg,
             label: 'Mail'
         },
         {
-            icon: () => html`<svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'><rect height='15' rx='2' width='17' x='3.5' y='5' /><path d='M3.5 10h17M8 3v4M16 3v4' /></svg>`,
+            icon: calendarSvg,
             label: 'Calendar'
         },
         {
-            icon: () => html`<svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'><path d='M9 18V5l11-2v13' /><circle cx='6' cy='18' r='3' /><circle cx='17' cy='16' r='3' /></svg>`,
+            icon: musicSvg,
             label: 'Music'
         },
         {
-            icon: () => html`<svg aria-hidden='true' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'><path d='M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12' /><circle cx='16' cy='6' r='2' /><circle cx='10' cy='12' r='2' /><circle cx='18' cy='18' r='2' /></svg>`,
+            icon: slidersSvg,
             label: 'Settings'
         }
     ].map((app) => toolbar.button({ ...app, running: running.includes(app.label) }));
@@ -180,6 +186,37 @@ export default {
                 </div>
             `,
             title: 'alphabetical drawer'
+        },
+        {
+            render: () => html`
+                <div class='toolbar-demo toolbar-demo--alphabetical toolbar-demo--drawer'>
+                    ${toolbar({
+                        alphabetical: true,
+                        apps: catalog(),
+                        drawer: true,
+                        groups: true,
+                        items: [...apps(['Home']), toolbar.group({ items: thumbnails().slice(0, 3) })],
+                        mode: 'dock'
+                    })}
+                </div>
+            `,
+            title: 'groups'
+        },
+        {
+            render: () => html`
+                <div class='toolbar-demo toolbar-demo--alphabetical toolbar-demo--drawer'>
+                    ${toolbar({
+                        alphabetical: true,
+                        apps: catalog(),
+                        drawer: true,
+                        groups: true,
+                        items: [...apps(['Home']), toolbar.group({ items: thumbnails().slice(0, 5), label: 'Places' })],
+                        labels: true,
+                        mode: 'dock'
+                    })}
+                </div>
+            `,
+            title: 'groups + labels'
         },
         {
             render: () => html`
