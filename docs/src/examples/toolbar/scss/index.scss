@@ -29,6 +29,11 @@
         height: 540px;
         justify-content: flex-end;
         padding-top: 0;
+
+        // An alphabetical drawer is as tall as its rail of letters.
+        &.toolbar-demo--alphabetical {
+            height: 660px;
+        }
     }
 
     &--narrow {

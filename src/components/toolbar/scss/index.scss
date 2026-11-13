@@ -113,14 +113,6 @@
     }
 
 
-    // Out of the drawer's search, or off the bar's page: shown again only while the page is measured.
-    &-app--hidden,
-    &-custom--hidden,
-    &-divider--hidden,
-    &-item--hidden {
-        display: none;
-    }
-
     &-app {
         align-items: center;
         background: var(--background);
@@ -157,7 +149,6 @@
         outline: none;
         transition: opacity var(--transition-duration) var(--transition-timing-function);
         width: var(--width);
-
 
         &:disabled {
             cursor: default;
@@ -267,11 +258,17 @@
             overflow: hidden;
         }
 
+        // Over the emptied grid, which keeps its height as a drop target, so it passes the pointer through to it.
         &-empty {
+            align-items: center;
             color: var(--color);
+            display: flex;
+            font-weight: var(--font-weight);
+            inset: 0;
+            justify-content: center;
             margin: 0;
-            padding-bottom: var(--padding-bottom);
-            text-align: center;
+            pointer-events: none;
+            position: absolute;
         }
 
         // The row below the apps.
@@ -299,11 +296,45 @@
             }
         }
 
+        // An alphabetical drawer's letter, over its buttons across the grid.
+        &-heading {
+            color: var(--color);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
+            grid-column: 1 / -1;
+            padding-block: var(--padding-vertical) 0;
+            padding-inline: var(--padding-horizontal);
+            user-select: none;
+        }
+
+        &-heading--hidden {
+            display: none;
+        }
+
+        // Columns of one width, so each tile is centred the same distance in from its column's edge: the grid starts
+        // that far short of the magnifier, putting the first column's tiles under it, and the headings take the same
+        // distance back.
+        &--alphabetical &-apps {
+            --tile-offset: calc((var(--column-width) - var(--tile-size)) / 2);
+            grid-template-columns: repeat(auto-fill, var(--column-width));
+            padding-inline-start: max(0px, calc(var(--toolbar-drawer-inset) - var(--tile-offset)));
+        }
+
+        &--alphabetical &-heading {
+            padding-inline: var(--tile-offset) var(--padding-horizontal);
+        }
+
         // Keycaps here are legends, not controls, so they take no hover or press.
         &-keys {
             display: flex;
             gap: var(--gap-vertical) var(--gap-horizontal);
             pointer-events: none;
+        }
+
+        // The apps, and an alphabetical drawer's rail beside them, as tall as each other.
+        &-main {
+            display: flex;
+            min-height: 0;
         }
 
         // Insets the search in the card above the apps.
@@ -314,9 +345,47 @@
         }
 
         &-view {
+            flex: 1 1 auto;
             max-height: var(--max-height);
+            min-width: 0;
             overflow-y: auto;
             overscroll-behavior: contain;
+            position: relative;
+        }
+    }
+
+    // The letters share the rail evenly, which is how the pointer's letter is found. Each swells in place; '--scale'
+    // leaves the layout alone.
+    &-rail {
+        cursor: default;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        max-height: var(--max-height);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
+        touch-action: none;
+        user-select: none;
+
+
+        &-letter {
+            align-items: center;
+            color: var(--color);
+            display: flex;
+            flex: 1 1 var(--height);
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
+            justify-content: center;
+            line-height: 1;
+            min-height: 0;
+            opacity: var(--opacity);
+            pointer-events: none;
+            scale: var(--scale);
+            transition:
+                color var(--transition-duration) var(--transition-timing-function),
+                opacity var(--transition-duration) var(--transition-timing-function),
+                scale var(--transition-duration) var(--transition-timing-function);
+            width: var(--width);
         }
     }
 
@@ -403,6 +472,15 @@
         min-height: 0;
         min-width: 0;
         transition: opacity var(--fade-duration) var(--fade-timing-function) var(--fade-delay);
+    }
+
+    // Out of the drawer's search, or off the bar's page: shown again only while the page is measured. After every
+    // rule that displays these, which outrank it at equal specificity once later.
+    &-app--hidden,
+    &-custom--hidden,
+    &-divider--hidden,
+    &-item--hidden {
+        display: none;
     }
 
 

@@ -16,6 +16,20 @@ import undoSvg from '@esportsplus/ui/svg/undo.svg';
 import 'docs/examples/toolbar/scss/index.scss';
 
 
+// Sky, horizon and ground.
+const SCENES: Record<string, [string, string, string]> = {
+    Canyon: ['#f4a261', '#fcd5a5', '#9c4a1a'],
+    Desert: ['#8ecae6', '#ffe8b0', '#d4a256'],
+    Dune: ['#ffb4a2', '#ffe5d9', '#c9844a'],
+    Forest: ['#a8dadc', '#e9f5db', '#2d6a4f'],
+    Glacier: ['#5fa8d3', '#e0f4ff', '#cfe8f5'],
+    Harbor: ['#4a6fa5', '#f6c28b', '#1d3557'],
+    Lagoon: ['#48cae4', '#caf0f8', '#0f9d8a'],
+    Meadow: ['#90e0ef', '#f1faee', '#6a994e'],
+    Reef: ['#0077b6', '#90e0ef', '#f28482'],
+    Tundra: ['#adb5bd', '#e9ecef', '#7f8c6b']
+};
+
 function apps(running: string[]) {
     return [
         {
@@ -45,15 +59,44 @@ function apps(running: string[]) {
     ].map((app) => toolbar.button({ ...app, running: running.includes(app.label) }));
 }
 
+// Out of order on purpose, since the drawer sorts them; a number and an accent show where those file.
+function catalog() {
+    let scenes = Object.keys(SCENES);
+
+    return [
+        'Summit', 'Aurora', '7 Seas', 'Meadow', 'Éclair', 'Beacon', 'Orbit', 'Cascade', 'Willow', 'Harbor', 'Atlas',
+        'Delta', 'Fjord', 'Zenith', 'Bloom', 'Glacier', 'Kelp', 'Nova', 'Prism', 'Reef', '2048', 'Lagoon', 'Cinder',
+        'Ember', 'Grove', 'Horizon', 'Island', 'Jade', 'Lumen', 'Mesa', 'Oasis', 'Quarry', 'Ridge', 'Tundra', 'Vale',
+        'Canyon', 'Dune', 'Forest', 'Desert'
+    ].map((label, index) => toolbar.button({
+        label,
+        thumbnail: landscape(scenes[index % scenes.length])
+    }));
+}
+
 // The formatting glyphs are outlines that carry no stroke of their own once inlined.
 function glyph(href: string) {
     return () => icon({ 'aria-hidden': 'true', class: 'toolbar-demo-glyph' }, href);
 }
 
+// A sky over a ridge, in the scene's own colours: inline, so the demo needs no image host.
+function landscape(scene: string) {
+    let [sky, horizon, ground] = SCENES[scene];
+
+    return `data:image/svg+xml,${encodeURIComponent(
+        `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'>` +
+            `<defs><linearGradient id='s' x2='0' y2='1'><stop offset='0' stop-color='${sky}'/><stop offset='1' stop-color='${horizon}'/></linearGradient></defs>` +
+            `<rect fill='url(#s)' height='120' width='120'/>` +
+            `<path d='M0 80 30 58 52 72 82 46 120 74V120H0Z' fill='${ground}' opacity='0.6'/>` +
+            `<path d='M0 96 40 78 74 92 120 82V120H0Z' fill='${ground}'/>` +
+        `</svg>`
+    )}`;
+}
+
 function library() {
     return ['Canyon', 'Desert', 'Dune', 'Forest', 'Glacier', 'Harbor', 'Lagoon', 'Meadow', 'Reef', 'Tundra'].map((label) => toolbar.button({
         label,
-        thumbnail: `https://picsum.photos/seed/${label.toLowerCase()}/120/120`
+        thumbnail: landscape(label)
     }));
 }
 
@@ -78,7 +121,7 @@ function thumbnails() {
     return ['Harbor', 'Desert', 'Forest', 'Glacier', 'Canyon', 'Meadow'].map((label) => toolbar.button({
         label,
         running: label === 'Harbor',
-        thumbnail: `https://picsum.photos/seed/${label.toLowerCase()}/120/120`
+        thumbnail: landscape(label)
     }));
 }
 
@@ -129,6 +172,14 @@ export default {
                 </div>
             `,
             title: 'dock drawer'
+        },
+        {
+            render: () => html`
+                <div class='toolbar-demo toolbar-demo--alphabetical toolbar-demo--drawer'>
+                    ${toolbar({ alphabetical: true, apps: catalog(), drawer: true, items: apps(['Home', 'Mail']), mode: 'dock' })}
+                </div>
+            `,
+            title: 'alphabetical drawer'
         },
         {
             render: () => html`

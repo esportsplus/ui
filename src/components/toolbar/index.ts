@@ -1,4 +1,4 @@
-import { effect, flush, onCleanup, reactive, ReactiveArray, signal, write } from '@esportsplus/reactivity';
+import { computed, effect, flush, onCleanup, reactive, ReactiveArray, read, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import icon from '~/components/icon';
 import overlay from '~/components/overlay';
@@ -23,6 +23,10 @@ import './scss/index.scss';
 
 
 type A = Attributes & {
+    // Lays the drawer's buttons out by label, under '#' and A to Z headings, with a rail of those letters beside them:
+    // pointing along it scrolls to each letter's buttons, and leaving it leaves the drawer where it got to. Only the
+    // layout is sorted; 'apps' keeps its own order.
+    alphabetical?: boolean;
     // The buttons kept out of the bar, in a drawer that opens from its own button; dragging moves them in and out of
     // 'items', and throwing one off the bar puts it back.
     apps?: Button[] | ReactiveArray<Button>;
@@ -103,7 +107,14 @@ const DIVIDER = Symbol();
 // A custom item's control, the one the arrow keys reach.
 const FOCUSABLE = 'button, input, select, textarea, [contenteditable], [tabindex]';
 
+// How long pointing at a letter takes to scroll there, ms: short enough to keep up with a sweep down the rail, which
+// retargets it on every letter.
+const GLIDE = 150;
+
 const LABEL = Symbol();
+
+// An alphabetical drawer's headings and rail, '#' taking every label that starts with anything but a letter.
+const LETTERS = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
 
 // Keys that rove the bar's controls, by orientation; Home and End jump to its ends.
 const ROVE: Record<'horizontal' | 'vertical', Record<string, -1 | 1>> = {
@@ -119,6 +130,28 @@ const TOOLTIP_DELAY = 240;
 
 let uid = 0;
 
+
+// Each button's letter and its place among them all, sorted by letter and then by label.
+function alphabetize(items: ReactiveArray<Button>) {
+    let places = new Map<Button, { letter: number, rank: number }>(),
+        sorted: { item: Button, label: string, letter: number }[] = [];
+
+    items.$length;
+
+    for (let i = 0, n = items.length; i < n; i++) {
+        let label = text(items[i].label);
+
+        sorted.push({ item: items[i], label, letter: initial(label) });
+    }
+
+    sorted.sort((a, b) => a.letter - b.letter || a.label.localeCompare(b.label));
+
+    for (let i = 0, n = sorted.length; i < n; i++) {
+        places.set(sorted[i].item, { letter: sorted[i].letter, rank: i });
+    }
+
+    return places;
+}
 
 // The copy following the pointer: the bar's slot with a stand-in for the button.
 function copy(item: Button) {
@@ -149,6 +182,13 @@ function hint(keys: Renderable<unknown>[], label: string) {
             ${label}
         </span>
     `;
+}
+
+// The letter a label files under, accents aside: 'Éclair' under E, '1Password' under '#'.
+function initial(label: string) {
+    let letter = LETTERS.indexOf(label.normalize('NFD').charAt(0).toUpperCase());
+
+    return letter === -1 ? 0 : letter;
 }
 
 // Clicks anywhere in the drawer keep focus where the keys go, so typing and the arrow keys carry on after a stray click.
@@ -202,6 +242,7 @@ const drawer = () => TOOLBAR_DRAWER;
 const item = (render: Custom['render'], { hint, label }: Pick<Custom, 'hint' | 'label'> = {}): Custom => ({ [CUSTOM]: true, hint, label, render });
 
 const toolbar = ({
+    alphabetical = false,
     apps,
     arrows = false,
     delay = TOOLTIP_DELAY,
@@ -230,6 +271,8 @@ const toolbar = ({
         fit = reactive({ height: 0, morphing: false, radius: 0, sized: false, width: 0 }),
         frame = 0,
         group = `toolbar-${++uid}`,
+        // An alphabetical drawer's headings, by letter, which the rail scrolls to.
+        headings: HTMLElement[] = [],
         // The drawer's search, and the button the keys rest on among those it shows: none (-1) until an arrow picks one.
         launch = reactive({ index: -1, query: '' }),
         // Kept per button rather than per render, since moving between lists renders it afresh.
@@ -239,6 +282,8 @@ const toolbar = ({
         measuring = reactive({ active: false }),
         more = mode === 'dock' ? 'All apps' : 'More',
         panel: HTMLElement | undefined,
+        // The rail's letter under the pointer, none (-1) once it leaves.
+        pointed = signal(-1),
         popup = drawn && overlay.popup({ state, target: surface }),
         // The bar's own box, which it grows from and lands back on.
         resting = { height: 0, radius: 0, width: 0 },
@@ -246,12 +291,85 @@ const toolbar = ({
         // The page of buttons the bar shows: the first, and how many fit (none while they all do). 'order' moves with
         // every sort, which can reorder the bar without changing its length.
         scroll = reactive({ count: 0, first: 0, order: 0 }),
+        // The frame of a glide to a letter.
+        scrolling = 0,
         shelf: HTMLElement | undefined,
         // The drawer's buttons.
         stash = drawn ? (apps instanceof ReactiveArray ? apps : new ReactiveArray(apps ?? [])) : undefined,
+        // Each drawer button's element, for the keys to find the one above or below it.
+        tiles = new WeakMap<Button, HTMLElement>(),
         track: HTMLElement | undefined,
         vertical = direction === 'e' || direction === 'w',
-        viewport: HTMLElement | undefined;
+        viewport: HTMLElement | undefined,
+        // An alphabetical drawer's letter and place for each of its buttons.
+        alphabet = alphabetical && stash ? computed(() => alphabetize(stash)) : undefined,
+        // The letters an alphabetical drawer shows any button under, after its search.
+        filled = alphabet && computed(() => {
+            let letters = new Set<number>(),
+                list = shown(),
+                places = read(alphabet);
+
+            for (let i = 0, n = list.length; i < n; i++) {
+                letters.add(places.get(list[i])!.letter);
+            }
+
+            return letters;
+        });
+
+    // The button in the next row up or down whose middle is nearest across. Rows are read from the layout, since an
+    // alphabetical drawer's headings break them wherever the letter changes. Where there is none, the keys stay put.
+    function across(list: Button[], from: number, row: -1 | 1) {
+        let origin = tiles.get(list[from])?.getBoundingClientRect();
+
+        if (!origin) {
+            return from;
+        }
+
+        let best = from,
+            distance = Infinity,
+            middle = origin.left + origin.width / 2,
+            nearest = Infinity,
+            rects: (DOMRect | undefined)[] = [];
+
+        for (let i = 0, n = list.length; i < n; i++) {
+            let rect = rects[i] = tiles.get(list[i])?.getBoundingClientRect(),
+                offset = rect ? (rect.top - origin.top) * row : 0;
+
+            // A row away, not the same row drawn a pixel off.
+            if (offset > 1) {
+                nearest = Math.min(nearest, offset);
+            }
+        }
+
+        for (let i = 0, n = list.length; i < n; i++) {
+            let rect = rects[i];
+
+            if (!rect || Math.abs((rect.top - origin.top) * row - nearest) > 1) {
+                continue;
+            }
+
+            let gap = Math.abs(rect.left + rect.width / 2 - middle);
+
+            if (gap < distance) {
+                best = i;
+                distance = gap;
+            }
+        }
+
+        return best;
+    }
+
+    // Lines an alphabetical drawer's headings and first column of buttons up with the search's magnifier, which the
+    // search places once it has measured itself. Skipped while the drawer is out of the layout.
+    function align() {
+        let glass = field?.parentElement?.querySelector('.group-item--overlay.icon');
+
+        if (!alphabet || !cells?.offsetWidth || !glass || !panel) {
+            return;
+        }
+
+        panel.style.setProperty('--toolbar-drawer-inset', `${glass.getBoundingClientRect().left - cells.getBoundingClientRect().left}px`);
+    }
 
     function arrow(step: -1 | 1) {
         return html`
@@ -368,7 +486,18 @@ const toolbar = ({
                 <div
                     class='toolbar-app'
                     ${sorting ? attributes : {}}
-                    ${{ class: [() => !matches(item) && 'toolbar-app--hidden', () => signal.selector(current, item) && '--active'] }}
+                    ${{
+                        class: [() => !matches(item) && 'toolbar-app--hidden', () => signal.selector(current, item) && '--active'],
+                        onconnect: (element: HTMLElement) => {
+                            tiles.set(item, element);
+                        },
+                        style: () => {
+                            // Unset for the moment a button dragged out of the drawer still shows there.
+                            let at = alphabet && read(alphabet).get(item);
+
+                            return at && `order: ${place(at.letter, at.rank)}`;
+                        }
+                    }}
                 >
                     ${control(item)}
                     <span class='toolbar-app-label'>${item.label}</span>
@@ -386,6 +515,7 @@ const toolbar = ({
         // it; every close shrinks it back.
         effect(() => state.active, (open) => {
             if (!open) {
+                write(pointed, -1);
                 collapse();
                 return;
             }
@@ -398,7 +528,7 @@ const toolbar = ({
         return html`
             <div
                 aria-label='${more}'
-                class='tooltip-content toolbar-drawer'
+                class='tooltip-content toolbar-drawer ${alphabet && 'toolbar-drawer--alphabetical'}'
                 id='${group}-drawer'
                 role='dialog'
                 ${keys}
@@ -406,6 +536,8 @@ const toolbar = ({
                     // Followed while open, so a search that changes its rows resizes the bar around them.
                     onconnect: (element: HTMLElement) => {
                         let resize = observer(() => {
+                            align();
+
                             if (expanded.active) {
                                 grow();
                             }
@@ -422,7 +554,7 @@ const toolbar = ({
                     ${search && html`
                         <div class='toolbar-drawer-search'>
                             ${searchbox.input({
-                                class: 'toolbar-drawer-input',
+                                class: 'input--border toolbar-drawer-input',
                                 oninput: (e: Event) => {
                                     launch.index = -1;
                                     launch.query = (e.target as HTMLInputElement).value;
@@ -437,21 +569,43 @@ const toolbar = ({
                         </div>
                     `}
 
-                    <div class='toolbar-drawer-view' ${scrollbar({ fade: true })}>
-                        <div
-                            class='toolbar-drawer-apps'
-                            ${sorting && library.attributes}
-                            ${{
-                                onconnect: (element: HTMLElement) => {
-                                    cells = element;
-                                }
-                            }}
-                        >
-                            ${library.render()}
+                    <div class='toolbar-drawer-main'>
+                        <div class='toolbar-drawer-view' ${scrollbar({ fade: true })}>
+                            <div
+                                class='toolbar-drawer-apps'
+                                ${sorting && library.attributes}
+                                ${{
+                                    onconnect: (element: HTMLElement) => {
+                                        cells = element;
+                                    },
+                                    // Taking the scroll back from a glide still under way.
+                                    onwheel: () => {
+                                        cancelAnimationFrame(scrolling);
+                                    }
+                                }}
+                            >
+                                ${library.render()}
+                                ${filled && LETTERS.map((letter, index) => html`
+                                    <div
+                                        aria-hidden='true'
+                                        class='toolbar-drawer-heading'
+                                        ${{
+                                            class: () => !read(filled).has(index) && 'toolbar-drawer-heading--hidden',
+                                            onconnect: (element: HTMLElement) => {
+                                                headings[index] = element;
+                                            },
+                                            style: () => `order: ${place(index)}`
+                                        }}
+                                    >
+                                        ${letter}
+                                    </div>
+                                `)}
+                            </div>
+                            ${() => !shown().length && html`
+                                <p class='toolbar-drawer-empty' role='status'>${launch.query.trim() ? 'No results' : 'Nothing here'}</p>
+                            `}
                         </div>
-                        ${() => !shown().length && html`
-                            <p class='toolbar-drawer-empty' role='status'>${launch.query.trim() ? 'No results' : 'Nothing here'}</p>
-                        `}
+                        ${filled && rail(filled)}
                     </div>
                 </div>
 
@@ -480,10 +634,58 @@ const toolbar = ({
             frame = requestAnimationFrame(() => {
                 expanded.active = true;
                 fit.morphing = true;
+                align();
                 grow();
                 (field ?? panel)?.focus({ preventScroll: true });
             });
         });
+    }
+
+    // Scrolls the drawer to a letter's heading, or with nothing under it, to the nearest letter after it that has
+    // anything (before it, past the last). Eased, and retargeted from wherever a glide already under way has got to.
+    function glide(letter: number, letters: Set<number>) {
+        let target = -1;
+
+        for (let i = letter, n = LETTERS.length; i < n && target === -1; i++) {
+            if (letters.has(i)) {
+                target = i;
+            }
+        }
+
+        for (let i = letter - 1; i >= 0 && target === -1; i--) {
+            if (letters.has(i)) {
+                target = i;
+            }
+        }
+
+        let heading = headings[target],
+            view = cells?.parentElement;
+
+        if (!cells || !heading || !view) {
+            return;
+        }
+
+        // The heading where the first one rests, at the top of the grid's padding.
+        let duration = matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : GLIDE,
+            from = view.scrollTop,
+            start = performance.now(),
+            to = Math.max(0, Math.min(
+                heading.getBoundingClientRect().top - view.getBoundingClientRect().top + from - (parseFloat(getComputedStyle(cells).paddingTop) || 0),
+                view.scrollHeight - view.clientHeight
+            ));
+
+        let tick = (now: number) => {
+            let progress = duration ? Math.min((now - start) / duration, 1) : 1;
+
+            view.scrollTop = from + (to - from) * (1 - (1 - progress) ** 3);
+
+            if (progress < 1) {
+                scrolling = requestAnimationFrame(tick);
+            }
+        };
+
+        cancelAnimationFrame(scrolling);
+        tick(start);
     }
 
     // The drawer's size, which the bar grows to; layout lengths, so a scaled ancestor doesn't skew them.
@@ -611,14 +813,16 @@ const toolbar = ({
         }
 
         let list = shown(),
-            columns = cells ? getComputedStyle(cells).gridTemplateColumns.split(' ').length : 1,
-            step = ({ ArrowDown: columns, ArrowLeft: -1, ArrowRight: 1, ArrowUp: -columns } as Record<string, number>)[e.key];
+            row = ({ ArrowDown: 1, ArrowUp: -1 } as Record<string, -1 | 1>)[e.key],
+            step = ({ ArrowLeft: -1, ArrowRight: 1 } as Record<string, number>)[e.key];
 
-        if (step) {
+        if (row || step) {
             e.preventDefault();
 
             if (list.length) {
-                launch.index = launch.index < 0 ? 0 : Math.min(Math.max(selected() + step, 0), list.length - 1);
+                launch.index = launch.index < 0
+                    ? 0
+                    : row ? across(list, selected(), row) : Math.min(Math.max(selected() + step, 0), list.length - 1);
 
                 // Scrolling needs the element, which the rendered '--active' marks once the step has landed.
                 requestAnimationFrame(() => {
@@ -657,6 +861,81 @@ const toolbar = ({
 
     function page(step: -1 | 1) {
         scroll.first = Math.max(0, Math.min(scroll.first + step * scroll.count, entries.length - scroll.count));
+    }
+
+    // Where a heading, or a button under it, falls in an alphabetical drawer: each letter's heading, then its buttons
+    // in order. Laid out by CSS 'order', so the drawer's own order stays the consumer's.
+    function place(letter: number, rank = -1) {
+        return letter * ((stash?.$length ?? 0) + 1) + rank + 1;
+    }
+
+    // The letters beside an alphabetical drawer. The pointer's letter is read from where it falls along the rail, which
+    // the letters share evenly, so a touch dragged along it scrubs as a mouse does, and their swell moves none of them.
+    // Hidden from assistive tech, which has the search to find a button by name.
+    function rail(letters: NonNullable<typeof filled>) {
+        let element: HTMLElement | undefined;
+
+        function leave() {
+            write(pointed, -1);
+        }
+
+        function point(e: PointerEvent) {
+            let first = element?.firstElementChild,
+                last = element?.lastElementChild;
+
+            if (!first || !last) {
+                return;
+            }
+
+            // From the first letter's top to the last's bottom, inside the rail's padding.
+            let top = first.getBoundingClientRect().top,
+                height = last.getBoundingClientRect().bottom - top,
+                letter = Math.max(0, Math.min(Math.floor((e.clientY - top) / height * LETTERS.length), LETTERS.length - 1));
+
+            if (letter === read(pointed)) {
+                return;
+            }
+
+            write(pointed, letter);
+            glide(letter, read(letters));
+        }
+
+        return html`
+            <div
+                aria-hidden='true'
+                class='toolbar-rail'
+                ${{
+                    onconnect: (connected: HTMLElement) => {
+                        element = connected;
+                    },
+                    onpointercancel: leave,
+                    onpointerdown: (e: PointerEvent) => {
+                        // Held by a touch, which would otherwise leave it at the first letter it crosses.
+                        if (e.pointerType !== 'mouse') {
+                            element?.setPointerCapture(e.pointerId);
+                        }
+
+                        point(e);
+                    },
+                    onpointerleave: leave,
+                    onpointermove: point,
+                    onpointerup: (e: PointerEvent) => {
+                        if (e.pointerType !== 'mouse') {
+                            leave();
+                        }
+                    }
+                }}
+            >
+                ${LETTERS.map((letter, index) => html`
+                    <span
+                        class='toolbar-rail-letter'
+                        ${{ class: [() => !read(letters).has(index) && 'toolbar-rail-letter--empty', () => signal.selector(pointed, index) && '--active'] }}
+                    >
+                        ${letter}
+                    </span>
+                `)}
+            </div>
+        `;
     }
 
     // The bar sizes itself again.
@@ -721,7 +1000,15 @@ const toolbar = ({
 
         stash.$length;
 
-        return stash.filter(matches);
+        let list = stash.filter(matches);
+
+        if (alphabet) {
+            let places = read(alphabet);
+
+            list.sort((a, b) => places.get(a)!.rank - places.get(b)!.rank);
+        }
+
+        return list;
     }
 
     // Dividers, custom items and the drawer's button sort with the rest, but only buttons are dragged.

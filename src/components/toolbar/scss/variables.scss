@@ -102,7 +102,7 @@
         --background-hover: var(--background-default);
         --background-pressed: var(--background-default);
         --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-border-default);
-        --size: 48px;
+        --size: var(--tile-size);
     }
 
     &-app > &-button:not(#{&}-button--thumbnail) {
@@ -195,6 +195,7 @@
             --gap-vertical: var(--size-200);
             --padding-horizontal: var(--size-300);
             --padding-vertical: var(--size-300);
+            --tile-size: 48px;
         }
 
         // Come in once the bar has opened enough to hold them.
@@ -221,7 +222,15 @@
 
         &-empty {
             --color: var(--color-text-300);
-            --padding-bottom: var(--size-500);
+            --font-weight: var(--font-weight-400);
+        }
+
+        &-heading {
+            --color: var(--color-text-400);
+            --font-size: var(--font-size-300);
+            --font-weight: var(--font-weight-500);
+            --padding-horizontal: var(--size-100);
+            --padding-vertical: var(--size-200);
         }
 
         &-footer {
@@ -267,6 +276,11 @@
             --max-height: min(320px, 50vh);
         }
 
+        // Tall enough for the rail's letters at their own height, which it shares.
+        &--alphabetical &-view {
+            --max-height: var(--toolbar-rail-max-height);
+        }
+
 
         // Chained through '.tooltip-content' so it wins over the tooltip's own surface regardless of stylesheet order.
         // A level below the bar, as the command palette's dialog is below the page; the bar clips it and casts its
@@ -287,6 +301,75 @@
 
     &-drawer-apps > .sortable-drag &-button {
         --size-rest: var(--button-size);
+    }
+
+    // '--toolbar-drawer-inset' is where the search's magnifier starts, from the apps' edge: written inline once
+    // measured, this until then, or without a search. '--toolbar-rail-max-height' is shared with the apps beside it.
+    &-drawer--alphabetical {
+        --toolbar-drawer-inset: var(--size-300);
+        --toolbar-rail-max-height: min(calc(27 * var(--toolbar-rail-letter-height)), 60vh);
+        --toolbar-rail-letter-height: 16px;
+    }
+
+    &-rail {
+        --max-height: var(--toolbar-rail-max-height);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: var(--size-200);
+    }
+
+    // At rest every letter is the same; the pointed one peaks and its two neighbours either side step back down, as
+    // the chat minimap's lines do. A letter with nothing under it fades, and still swells as it is passed.
+    &-rail-letter {
+        --color: var(--color-text-300);
+        --font-size: var(--font-size-100);
+        --font-weight: var(--font-weight-500);
+        --height: var(--toolbar-rail-letter-height);
+        --opacity: 1;
+        --scale: 1;
+        --scale-far: 1.2;
+        --scale-near: 1.45;
+        --scale-peak: 1.9;
+        --transition-duration: 0.16s;
+        --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        --width: 20px;
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
+
+
+        &--empty {
+            --opacity: 0.35;
+        }
+
+        &:has(+ .toolbar-rail-letter + .toolbar-rail-letter.--active),
+        &.--active + .toolbar-rail-letter + & {
+            --color: var(--color-text-400);
+            --scale: var(--scale-far);
+        }
+
+        &:has(+ .toolbar-rail-letter.--active),
+        &.--active + & {
+            --color: var(--color-text-400);
+            --scale: var(--scale-near);
+        }
+
+        &.--active {
+            --color: var(--color-text-500);
+            --opacity: 1;
+            --scale: var(--scale-peak);
+        }
+
+        // The swell is motion, so it stays still; the colors still follow the pointer.
+        @media (prefers-reduced-motion: reduce) {
+            &:has(+ .toolbar-rail-letter + .toolbar-rail-letter.--active),
+            &.--active + .toolbar-rail-letter + &,
+            &:has(+ .toolbar-rail-letter.--active),
+            &.--active + &,
+            &.--active {
+                --scale: 1;
+            }
+        }
     }
 
     // The dashed outline a held slot shows in its place. Its fill leaves, so only the outline does.
