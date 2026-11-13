@@ -138,12 +138,12 @@
     // Sinks 1px while pressed, as 'button--tactile' does. Held by ':active' rather than the pressed state, since the
     // press focuses the field and focus is its active state. Inside a group with overlay items the group sinks
     // instead, so the items floating over the field go with it; they center by 'translate', which the field's own
-    // would fight.
-    &--tactile:active:not(.group:has(> .group-item--overlay) > *) {
+    // would fight. A press on a field already focused ('--focused') holds it still.
+    &--tactile:active:not(.--focused, .group:has(> .group-item--overlay) > *) {
         translate: var(--translate-pressed);
     }
 
-    @at-root .group:has(> .group-item--overlay):has(> #{&}--tactile:active) {
+    @at-root .group:has(> .group-item--overlay):has(> #{&}--tactile:active:not(.--focused)) {
         translate: var(--translate-pressed);
     }
 

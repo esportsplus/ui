@@ -104,7 +104,7 @@ export default component(
             ghosts = new ReactiveArray<Ghost>(),
             id = `input-tag-${++uid}`,
             list: HTMLElement | undefined,
-            local = reactive({ announcement: '', armed: '', text: '' }),
+            local = reactive({ announcement: '', armed: '', focused: false, text: '' }),
             stand = html.reactive(ghosts, (ghost) => html`
                 <li
                     aria-hidden='true'
@@ -351,10 +351,15 @@ export default component(
                 <div
                     class='input ${variant && `input--${variant}`} input-tag-box'
                     ${{
-                        class: () => state.active && '--active',
+                        class: [() => state.active && '--active', () => local.focused && '--focused'],
+                        onfocusout: () => {
+                            local.focused = false;
+                        },
                         // Pressing the field's empty space types into it, like a real input.
                         onpointerdown: (e: PointerEvent) => {
                             let target = e.target as HTMLElement;
+
+                            local.focused = state.active;
 
                             if (target !== e.currentTarget && target !== list) {
                                 return;

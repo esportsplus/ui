@@ -39,7 +39,7 @@
             --outline-width: max(0px, calc(var(--border-width-active) - var(--border-width)));
 
             // Keep the same outline while mouse is held down
-            &:active {
+            &:active:not(.--focused) {
                 --outline-width: 0px;
             }
         }
@@ -104,7 +104,7 @@
 
     // Read by the field, and by a group floating items over it, which sinks in its place; held still under reduced motion.
     @at-root #{&}--tactile,
-    .group:has(> .group-item--overlay):has(> #{&}--tactile) {
+        .group:has(> .group-item--overlay):has(> #{&}--tactile) {
         --translate-pressed: 0 1px;
 
         @media (prefers-reduced-motion: reduce) {
@@ -113,18 +113,19 @@
     }
 
     // A field takes focus, and so its active state, as the press starts, which the pressed state steps aside for. Held
-    // here instead, so every press shows, focused or not. Chained through ':active' so it wins over the active state
-    // regardless of stylesheet order; before '--tactile', which drops the shadow while pressed.
-    #{tokens.state(active)}:active {
+    // here instead, so the press that focuses it shows; one on a field already focused ('--focused') only moves the
+    // caret, so it keeps the active state. Chained through ':active' so it wins over the active state regardless of
+    // stylesheet order; before '--tactile', which drops the shadow while pressed.
+    #{tokens.state(active)}:active:not(.--focused) {
         --background: var(--background-pressed);
         --border-color: var(--border-color-pressed);
         --box-shadow: var(--box-shadow-pressed);
         --color: var(--color-pressed);
     }
 
-    // Its shadow drops while pressed, focused or not. Chained through '.input' so it wins over the state's own shadow
-    // regardless of stylesheet order.
-    &#{&}--tactile:active {
+    // Its shadow drops while pressed, unless already focused. Chained through '.input' so it wins over the state's own
+    // shadow regardless of stylesheet order.
+    &#{&}--tactile:active:not(.--focused) {
         --box-shadow: none;
     }
 
