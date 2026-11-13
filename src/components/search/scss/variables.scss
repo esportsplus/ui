@@ -8,7 +8,7 @@
 .search {
     &-button {
         @extend %color-text;
-        --font-size: calc(var(--font-size-400) * 0.875);
+        --font-size: var(--font-size-300);
         --line-height: 24px;
         --padding-horizontal: var(--size-300);
         --padding-vertical: var(--size-100);
@@ -33,7 +33,7 @@
         --border-width-active: var(--border-width-500);
 
         &:not(.input--compact) {
-            --font-size: calc(var(--font-size-400) * 0.875);
+            --font-size: var(--font-size-300);
             --padding-vertical: var(--size-100);
             --size: 24px;
         }

@@ -43,7 +43,7 @@
         }
 
         &-heading {
-            font-size: calc(var(--font-size-400) * 0.875);
+            font-size: var(--font-size-300);
             font-weight: var(--font-weight-600);
             margin: 0;
         }
@@ -66,20 +66,20 @@
 
             &-text {
                 color: var(--color-text-300);
-                font-size: calc(var(--font-size-400) * 0.875);
+                font-size: var(--font-size-300);
                 line-height: 1.5;
                 margin: 0;
             }
 
             &-title {
-                font-size: calc(var(--font-size-400) * 1.25);
+                font-size: var(--font-size-500);
                 margin: 0;
             }
         }
 
         &-intro {
             color: var(--color-text-300);
-            font-size: calc(var(--font-size-400) * 0.8125);
+            font-size: var(--font-size-300);
             line-height: 1.5;
             margin: 0;
         }
@@ -87,19 +87,19 @@
         &-label {
             display: flex;
             flex-direction: column;
-            font-size: calc(var(--font-size-400) * 0.8125);
+            font-size: var(--font-size-300);
             gap: calc(var(--size-100) / 4);
             justify-content: space-between;
 
             &-hint {
                 color: var(--color-text-300);
-                font-size: calc(var(--font-size-400) * 0.75);
+                font-size: var(--font-size-300);
             }
         }
 
         &-note {
             color: var(--color-text-300);
-            font-size: calc(var(--font-size-400) * 0.8125);
+            font-size: var(--font-size-300);
             line-height: 1.5;
             margin: 0;
         }
@@ -172,7 +172,7 @@
             @extend %surface-lower;
             --background-default: var(--surface-background-default);
             --border-radius: var(--border-radius-400);
-            --font-size: calc(var(--font-size-400) * 0.875);
+            --font-size: var(--font-size-300);
             --padding-horizontal: 12px;
             --padding-vertical: var(--size-100);
         }
@@ -195,7 +195,7 @@
         }
 
         &-slider {
-            font-size: calc(var(--font-size-400) * 0.8125);
+            font-size: var(--font-size-300);
             width: 100%;
         }
 
@@ -384,7 +384,7 @@
                 }
 
                 &-field-surface-title {
-                    font-size: calc(var(--font-size-400) * 0.8125);
+                    font-size: var(--font-size-300);
                 }
             }
         }

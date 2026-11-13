@@ -10,7 +10,7 @@
     // Shown under anything see-through: the surface the picker sits on, checked with its own border color.
     --checker: repeating-conic-gradient(var(--surface-border-default) 0 25%, var(--surface-background-default) 0 50%) 0 0 / 8px 8px;
     --color: var(--color-text-500);
-    --font-size: calc(var(--font-size-400) * 0.875);
+    --font-size: var(--font-size-300);
     --gap-horizontal: 12px;
     --gap-vertical: 12px;
     --hairline: inset 0 0 0 1px var(--surface-border-default);
