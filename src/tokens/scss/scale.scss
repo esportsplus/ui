@@ -5,8 +5,12 @@
 $factor: 1.618;
 
 
+// Whole, even pixels: an odd length can't be halved onto the pixel grid, so whatever centres in it lands on a
+// half pixel and blurs.
 @function px($n, $base: 16) {
-    @return math.div(math.round($n * $base * 100), 100) * 1px;
+    $value: math.round($n * $base);
+
+    @return ($value - $value % 2) * 1px;
 }
 
 @function rem($n) {
