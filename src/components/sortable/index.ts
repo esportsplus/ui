@@ -6,9 +6,19 @@ import press from '~/shared/press';
 import './scss/index.scss';
 
 
+// Letting a dragged item go over the middle of another hands the two to 'oncombine' instead of sorting them; from the
+// moment the pointer reaches the middle, the other is marked 'sortable-item--target'. Read from the list the pointer is
+// over. Sorting waits for the pointer to settle near an item's edge, so it can cross to the middle.
+type Combine<T> = {
+    accepts?: (item: T, target: HTMLElement) => boolean;
+    // The item is out of 'source', where it sat at 'from', by now; its copy lands on 'target' once this returns.
+    oncombine: (item: T, target: HTMLElement, items: ReactiveArray<T>, from: number, source: ReactiveArray<T>) => void;
+};
+
 // One container's list. A dragged item moves through the lists live, standing in its own place; the copy that
 // follows the pointer belongs to the list it was picked up from.
 type List<T> = {
+    combine?: Combine<T>;
     container?: HTMLElement;
     // The item dragged out of this list, shown by its copy until it has landed.
     dragging: Signal<T | null>;
@@ -42,6 +52,7 @@ type Motion = {
 };
 
 type Options<T> = {
+    combine?: Combine<T>;
     // Renders the copy that follows the pointer; the item's own template when omitted.
     drag?: (item: T) => Renderable<unknown>;
     // Containers sharing a group name trade items; the list the drag started in receives 'onsort'.
@@ -81,6 +92,15 @@ const ENTER = 0.15;
 // Treats the item as hanging below the grab point, so a centered grab still swings.
 const HANG = 0.5;
 
+// How far in from each side an item's middle starts, as a share of its size.
+const MIDDLE = 0.25;
+
+// In a list that combines, how long the pointer rests, within 'SLOP', before the item sorts past another or moves into
+// the list, ms. A pointer still on its way to an item's middle moves nothing out from under it.
+const SETTLE = 200;
+
+const SLOP = 6;
+
 // Seconds; low-pass on pointer velocity so uneven pointer/frame timing doesn't jolt the swing.
 const SMOOTHING = 0.04;
 
@@ -92,8 +112,10 @@ let groups = new Map<string, Set<List<unknown>>>();
 
 
 function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: PointerEvent, { group, onland, onlift, onsort, onthrow }: Options<unknown>) {
-    // Whether this drag counts toward 'carrying'.
-    let carried = false,
+    // The item in a combining list whose middle the pointer is over.
+    let aiming: HTMLElement | null = null,
+        // Whether this drag counts toward 'carrying'.
+        carried = false,
         // 'current' is the list the item sits in now.
         current = source,
         frame = 0,
@@ -104,9 +126,14 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         lastTop = NaN,
         layout: Rect[] = [],
         lists = group ? [...(groups.get(group) ?? [source])] : [source],
+        // Combined with another item, so the press no longer ends the drag.
+        merged = false,
         motion = source.motion,
         originX = e.clientX,
         originY = e.clientY,
+        // What a combining list waits for the pointer to rest on before sorting past it or entering it: an item, or the
+        // list itself; since when, and from where.
+        pending: { key: unknown, since: number, x: number, y: number } | null = null,
         previousX = e.clientX,
         previousY = e.clientY,
         // From the container's CSS, read on lift; no duration is no slide.
@@ -144,6 +171,17 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         carry(true);
         onlift?.(value);
         frame = requestAnimationFrame(tick);
+    }
+
+    // Marks the item the pointer is over in a combining list, which letting go combines with.
+    function aim(element: HTMLElement | null) {
+        if (element === aiming) {
+            return;
+        }
+
+        aiming?.classList.remove('sortable-item--target');
+        aiming = element;
+        element?.classList.add('sortable-item--target');
     }
 
     // Marks the root from the lift until the copy starts landing. Not ':root:has(.sortable-drag)' in CSS: that makes
@@ -220,10 +258,8 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
     // rows above it, then those to its left in its own row.
     function enter(target: List<unknown>) {
         // The layout is still the last reflow's, in the list's own coordinates.
-        let bounds = target.container!.getBoundingClientRect(),
-            index = 0,
-            left = x - bounds.left + target.container!.scrollLeft,
-            top = y - bounds.top + target.container!.scrollTop;
+        let index = 0,
+            { left, top } = local(target);
 
         for (let i = 0, n = layout.length; i < n; i++) {
             let rect = layout[i];
@@ -240,12 +276,25 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
     function end(e: PointerEvent | null, started: boolean) {
         cancelAnimationFrame(frame);
 
-        if (!started) {
+        if (!started || merged) {
             return;
         }
 
+        aim(null);
+
         if (e) {
-            if (onthrow && !hit()) {
+            let list = over(),
+                combine = list?.combine,
+                point = list && local(list),
+                rect = list && point && combine ? under(list, point.left, point.top) : null;
+
+            if (
+                list && point && rect && middle(rect, point.left, point.top) &&
+                (combine!.accepts?.(value, rect.element) ?? true)
+            ) {
+                merge(list, rect);
+            }
+            else if (onthrow && !hit()) {
                 toss(onthrow);
             }
             else {
@@ -279,6 +328,65 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         }
 
         return null;
+    }
+
+    // The pointer in a list's own coordinates, which its layout is measured in.
+    function local(list: List<unknown>) {
+        let bounds = list.container!.getBoundingClientRect();
+
+        return { left: x - bounds.left + list.container!.scrollLeft, top: y - bounds.top + list.container!.scrollTop };
+    }
+
+    // Hands the item to its list's 'oncombine' with the one under it. It leaves its own list first, so the others close
+    // up, and its copy lands on the other as a drop lands on its slot.
+    function merge(list: List<unknown>, rect: Rect) {
+        let ghost = source.ghost,
+            sitting = current,
+            from = sitting.items.indexOf(value);
+
+        merged = true;
+        cancelAnimationFrame(frame);
+        aim(null);
+        reflow(() => {
+            sitting.items.splice(from, 1);
+            write(sitting.held, null);
+        });
+
+        // Where it rests once the others have closed up, not partway through sliding there.
+        for (let animation of rect.element.getAnimations()) {
+            animation.finish();
+        }
+
+        let box = rect.element.getBoundingClientRect();
+
+        list.combine!.oncombine(value, rect.element, list.items, from, sitting.items);
+        flush();
+
+        if (ghost) {
+            motion.angle = 0;
+            motion.dropping = true;
+            motion.height = box.height;
+            motion.width = box.width;
+            motion.x = box.left - motion.left;
+            motion.y = box.top - motion.top;
+            flush();
+        }
+
+        carry(false);
+
+        void (ghost ? finished(ghost) : Promise.resolve()).then(() => {
+            write(source.dragging, null);
+            flush();
+            onland?.(value);
+        });
+    }
+
+    // Whether a point falls in an item's middle, where holding it combines rather than sorts.
+    function middle(rect: Rect, left: number, top: number) {
+        let insetX = (rect.right - rect.left) * MIDDLE,
+            insetY = (rect.bottom - rect.top) * MIDDLE;
+
+        return left > rect.left + insetX && left < rect.right - insetX && top > rect.top + insetY && top < rect.bottom - insetY;
     }
 
     function over() {
@@ -350,6 +458,17 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         }
     }
 
+    // Whether the pointer has rested on 'key' for 'SETTLE', straying no further than 'SLOP' from where it settled.
+    function rested(key: unknown, now: number) {
+        let rest = pending;
+
+        if (!rest || rest.key !== key || Math.hypot(x - rest.x, y - rest.y) > SLOP) {
+            rest = pending = { key, since: now, x, y };
+        }
+
+        return now - rest.since >= SETTLE;
+    }
+
     // Within its list the item is sorted into place, keeping its node and the touch dragging it; into another it is
     // spliced, rendering afresh there.
     function relocate(target: List<unknown>, to: number) {
@@ -371,59 +490,77 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         current = target;
     }
 
-    function sort() {
+    function sort(now: number) {
         let slot = hole,
             target = over();
 
         if (!slot || !target) {
+            aim(null);
+            pending = null;
             return;
         }
 
-        if (target !== current) {
+        let combine = target.combine;
+
+        // Into another list at once, unless it combines: then only once the pointer rests there, so one carried in
+        // over an item's middle, to combine with it, doesn't push that item aside.
+        if (target !== current && !combine) {
             reflow(() => enter(target));
             return;
         }
 
-        let bounds = target.container!.getBoundingClientRect(),
-            left = x - bounds.left + target.container!.scrollLeft,
-            top = y - bounds.top + target.container!.scrollTop;
+        let { left, top } = local(target);
 
-        // Nothing moved under the pointer: not the pointer, the page or the list's own scroll.
-        if (left === lastLeft && top === lastTop) {
+        // Nothing moved under the pointer: not the pointer, the page or the list's own scroll. A combining list still
+        // counts the time it rests.
+        if (left === lastLeft && top === lastTop && !combine) {
             return;
         }
 
         lastLeft = left;
         lastTop = top;
 
-        for (let i = 0, n = layout.length; i < n; i++) {
-            let rect = layout[i];
+        let rect = under(target, left, top);
 
-            if (
-                rect === slot ||
-                rect.list !== target ||
-                left < rect.left ||
-                left > rect.right ||
-                top < rect.top ||
-                top > rect.bottom
-            ) {
-                continue;
-            }
+        if (combine && rect && middle(rect, left, top) && (combine.accepts?.(value, rect.element) ?? true)) {
+            aim(rect.element);
+            pending = null;
+            return;
+        }
 
-            let row = rect.top < slot.bottom && rect.bottom > slot.top,
-                depth = row
-                    ? (rect.left > slot.left ? left - rect.left : rect.right - left)
-                    : (rect.top > slot.top ? top - rect.top : rect.bottom - top),
-                size = row ? rect.right - rect.left : rect.bottom - rect.top;
+        aim(null);
 
-            // How far the pointer must travel into the hovered item (from the edge facing the held one) before
-            // they swap. Same-size items swap almost on entry; a larger item needs half its surplus over the held
-            // one, which leaves the pointer short of the swap-back point afterwards.
-            if (depth > Math.max(0, (size - (row ? slot.right - slot.left : slot.bottom - slot.top)) / 2) + size * ENTER) {
-                reflow(() => relocate(target, rect.index));
+        if (target !== current) {
+            if (rested(target, now)) {
+                reflow(() => enter(target));
             }
 
             return;
+        }
+
+        if (!rect) {
+            pending = null;
+            return;
+        }
+
+        if (combine && !rested(rect.element, now)) {
+            return;
+        }
+
+        let row = rect.top < slot.bottom && rect.bottom > slot.top,
+            depth = row
+                ? (rect.left > slot.left ? left - rect.left : rect.right - left)
+                : (rect.top > slot.top ? top - rect.top : rect.bottom - top),
+            size = row ? rect.right - rect.left : rect.bottom - rect.top;
+
+        // How far the pointer must travel into the hovered item (from the edge facing the held one) before they swap.
+        // Same-size items swap almost on entry; a larger item needs half its surplus over the held one, which leaves
+        // the pointer short of the swap-back point afterwards.
+        if (depth > Math.max(0, (size - (row ? slot.right - slot.left : slot.bottom - slot.top)) / 2) + size * ENTER) {
+            let index = rect.index;
+
+            pending = null;
+            reflow(() => relocate(target, index));
         }
     }
 
@@ -441,7 +578,7 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         motion.x = x - originX;
         motion.y = y - originY;
 
-        sort();
+        sort(now);
     }
 
     // Out of its list at once, so the items around it close up. The copy coasts on at the speed it was thrown,
@@ -472,6 +609,19 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
             thrown(value, from, list.items);
             onland?.(value);
         });
+    }
+
+    // The item of 'list' under a point in its coordinates, other than the one held.
+    function under(list: List<unknown>, left: number, top: number) {
+        for (let i = 0, n = layout.length; i < n; i++) {
+            let rect = layout[i];
+
+            if (rect !== hole && rect.list === list && left >= rect.left && left <= rect.right && top >= rect.top && top <= rect.bottom) {
+                return rect;
+            }
+        }
+
+        return null;
     }
 
     source.press.begin(e, {
@@ -541,9 +691,10 @@ function page() {
 export default <T>(
     items: ReactiveArray<T>,
     template: (item: T, attributes: Attributes) => Renderable<unknown>,
-    { drag: copy, group, handle, onland, onlift, onsort, onthrow }: Options<T> = {}
+    { combine, drag: copy, group, handle, onland, onlift, onsort, onthrow }: Options<T> = {}
 ) => {
     let list: List<T> = {
+            combine,
             dragging: signal<T | null>(null),
             held: signal<T | null>(null),
             items,
@@ -662,4 +813,4 @@ export default <T>(
 };
 
 
-export type { Options as SortableOptions };
+export type { Combine as SortableCombine, Options as SortableOptions };
