@@ -492,7 +492,7 @@ const formatting = (host: Host) => {
                 }}
             >
                 <div
-                    class='tooltip-content tooltip-content--context markdown-editor-toolbar'
+                    class='tooltip-content markdown-editor-toolbar'
                     ${{
                         'aria-hidden': () => panel.open ? 'false' : 'true',
                         class: [

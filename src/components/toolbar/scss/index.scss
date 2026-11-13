@@ -88,6 +88,16 @@
         width: var(--fit-width);
     }
 
+    // Per screen edge, the drawer is pinned on that edge, centred along the bar, and grows away from it.
+    @each $direction, $edge, $center, $translate in (e, left, bottom, 0 50%), (n, bottom, right, 50% 0), (s, top, right, 50% 0), (w, right, bottom, 0 50%) {
+        &--#{$direction} > &-drawer {
+            #{$center}: 50%;
+            #{$edge}: 0;
+            transform-origin: center $edge;
+            translate: $translate;
+        }
+    }
+
     // Per screen edge: the running light sits between the glyph and that edge, centred across the bar; while the bar
     // is sized, its far side takes whatever the bar has grown, holding the bar at its resting depth against the edge.
     @each $direction, $edge, $across, $far, $length, $inset in (e, left, block, right, width, horizontal), (n, bottom, inline, top, height, vertical), (s, top, inline, bottom, height, vertical), (w, right, block, left, width, horizontal) {

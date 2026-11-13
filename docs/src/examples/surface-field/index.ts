@@ -125,7 +125,7 @@ function accent(settings: Settings) {
                         style='${() => `--swatch: ${settings.accent};`}'
                         type='button'
                     ></button>
-                    <div class='tooltip-content tooltip-content--se surface-field-demo-picker'>
+                    <div class='tooltip-content surface-field-demo-picker'>
                         ${colorPicker({ state: picker, value: settings.accent })}
                     </div>
                 `

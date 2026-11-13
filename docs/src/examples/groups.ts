@@ -136,12 +136,12 @@ const groups: Record<string, Group[]> = {
     ],
     tooltip: [
         { title: 'tooltip', members: [['onhover', 'Hover'], ['onclick', 'Click'], 'scale', 'scale + spring', 'spring'] },
-        { title: 'menu', members: [['menu', 'Flat'], ['menu (drill down)', 'Nested'], ['menu (instant)', 'Nested (instant)'], ['menu (onhover)', 'Hover'], ['menu (expand, se)', 'Expand (south-east)'], ['menu (expand, sw)', 'Expand (south-west)'], ['menu (expand, ne)', 'Expand (north-east)'], ['menu (expand, es)', 'Expand (east-south)']] },
-        { title: 'morph', members: [['morph (onhover, s)', 'Hover (south)'], ['morph (onclick, n)', 'Click (north)'], ['morph message (onhover, e)', 'Message (east)']] },
+        { title: 'menu', members: [['menu', 'Flat'], ['menu (drill down)', 'Nested'], ['menu (instant)', 'Nested (instant)'], ['menu (onhover)', 'Hover'], ['menu (expand)', 'Expand']] },
+        { title: 'expand', members: [['expand (onclick)', 'Click']] },
+        { title: 'morph', members: [['morph (onhover)', 'Hover'], ['morph (onclick)', 'Click'], ['morph message (onhover)', 'Message']] },
         { title: 'shared', members: [
-            ['shared.delegate (toolbar, edge, n)', 'Toolbar (north)'],
-            ['shared.delegate (toolbar, edge, s)', 'Toolbar (south)'],
-            ['shared.delegate (vertical, edge, e)', 'Vertical toolbar'],
+            ['shared.delegate (toolbar, edge, y)', 'Toolbar'],
+            ['shared.delegate (vertical, edge, x)', 'Vertical toolbar'],
             ['shared.delegate (grid, template)', 'Color grid'],
             ['shared (labels, open delay)', 'Labels with delay'],
             ['shared (interactive cards, open + close delay)', 'Interactive cards'],

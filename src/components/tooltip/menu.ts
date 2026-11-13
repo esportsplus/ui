@@ -2,18 +2,23 @@ import { flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import highlight, { type A as HighlightAttributes } from '~/components/highlight';
 import overlay from '~/components/overlay';
+import scrollbar from '~/modifiers/scrollbar';
 import { finished } from '~/shared/animation';
-import { flip, viewport } from '~/shared/viewport';
-import { morph } from './utilities';
+import { expand as cover, margin, place, type Corner, type Side } from '~/shared/placement';
+import { viewport } from '~/shared/viewport';
+import { morph, px } from './utilities';
 
 
 type A = Attributes & {
     [MENU_TRIGGER]?: Attributes & { onclick?: never };
     [MENU_ITEM]?: Attributes;
     [MENU_PANEL]?: Attributes;
+    // Lines the menu up with the trigger's start or end edge; a context menu opens from the point.
+    align?: 'end' | 'start';
     animate?: boolean;
     controller?: (controller: Controller) => void;
-    expand?: boolean | 'c' | 'e' | 'en' | 'es' | 'n' | 'ne' | 'nw' | 's' | 'se' | 'sw' | 'w' | 'wn' | 'ws';
+    // Grows out of the trigger over it rather than opening beside it, toward the corner with room.
+    expand?: boolean;
     // A layer gliding between rows on hover and keyboard focus, in place of each item's own fill; an object configures
     // the highlight.
     highlight?: boolean | HighlightAttributes;
@@ -53,7 +58,9 @@ type MenuNode = {
     item?: Item;
     panel?: HTMLElement;
     parent?: MenuNode;
-    state: { open: boolean, render: boolean, settled: boolean };
+    // A branch panel's place over its parent: 'top' in the parent's box, how far it is lifted above the row that opened
+    // it to stay on screen, and the height it scrolls past.
+    state: { height: number | undefined, lift: number, open: boolean, render: boolean, settled: boolean, top: number };
 };
 
 type Point = { x: number, y: number };
@@ -65,8 +72,6 @@ const MENU_ITEM = Symbol.for('@esportsplus/ui/tooltip.menu.item');
 
 const MENU_PANEL = Symbol.for('@esportsplus/ui/tooltip.menu.panel');
 
-// Keeps the shifted stack this far from the viewport edges.
-const VIEWPORT_MARGIN = 8;
 
 
 // Names each menu's anchor, which its layer is placed over.
@@ -105,7 +110,7 @@ function tree(items: Item[], parent?: MenuNode) {
             children: [],
             item: items[i],
             parent,
-            state: reactive({ open: false, render: false, settled: false })
+            state: reactive({ height: undefined as number | undefined, lift: 0, open: false, render: false, settled: false, top: 0 })
         };
 
         node.children = tree(items[i].items ?? [], node);
@@ -115,20 +120,29 @@ function tree(items: Item[], parent?: MenuNode) {
     return nodes;
 }
 
-
 function createMenu(context = false) {
     return component(
-        ({ animate = true, controller, expand: expansion = false, highlight: highlighted = false, items, onselect, openOn = 'click', state = reactive({ active: false }), ...attributes }: A, content) => {
-            let root: MenuNode = { children: [], state: reactive({ open: true, render: true, settled: true }) },
+        ({ align = 'start', animate = true, controller, expand: expansion = false, highlight: highlighted = false, items, onselect, openOn = 'click', state = reactive({ active: false }), ...attributes }: A, content) => {
+            let root: MenuNode = { children: [], state: reactive({ height: undefined as number | undefined, lift: 0, open: true, render: true, settled: true, top: 0 }) },
                 stack: MenuNode[] = [root],
                 hiding = 0,
                 host: HTMLElement | undefined,
+                // Where the root panel last opened, kept while it still fits there.
+                last: { corner?: Corner, side?: Side } = {},
                 layer: HTMLElement | undefined,
                 leaving: ReturnType<typeof setTimeout> | undefined,
                 name = `--tooltip-menu-${++anchors}`,
+                // Where a context menu was asked to open, as a viewport point.
+                origin: Point | undefined,
                 pending: VoidFunction | undefined,
-                // The root panel's place, and how far the stack shifts sideways to stay on screen.
-                placement = reactive({ shift: 0, style: '' }),
+                // The root panel's place over the layer, the height it scrolls past, and the way an expanding one grows
+                // across, 1 rightward and -1 leftward.
+                placement = reactive({
+                    direction: 1,
+                    height: undefined as number | undefined,
+                    x: undefined as number | undefined,
+                    y: undefined as number | undefined
+                }),
                 trigger: HTMLElement | undefined;
 
             root.children = tree(items, root);
@@ -149,12 +163,12 @@ function createMenu(context = false) {
                         open();
                     }
                     else if (position) {
-                        place(position);
+                        at(position);
                     }
                     else if (host) {
                         let focused = document.activeElement;
 
-                        place(anchor(focused && host.contains(focused) && !root.panel?.contains(focused) ? focused : host));
+                        at(anchor(focused && host.contains(focused) && !root.panel?.contains(focused) ? focused : host));
                     }
                 }
             });
@@ -169,6 +183,77 @@ function createMenu(context = false) {
                 let bounds = element.getBoundingClientRect();
 
                 return { x: bounds.left, y: element === host ? bounds.top : bounds.bottom };
+            }
+
+            // Places the root panel beside its trigger, or a context menu's point, on the side it last opened on while it
+            // still fits there, else where there's room, capped to scroll past the room it has; an expanding panel
+            // covers its trigger and grows out of it toward the corner it last grew toward, or one with room. Measured at its natural size first; nothing paints in between.
+            function arrange() {
+                let element = root.panel;
+
+                if (!element || !host || !layer) {
+                    return;
+                }
+
+                placement.height = undefined;
+                placement.x = undefined;
+                placement.y = undefined;
+                flush();
+
+                let bounds = host.getBoundingClientRect(),
+                    box = layer.getBoundingClientRect(),
+                    height = element.offsetHeight,
+                    space = margin(element),
+                    width = element.offsetWidth;
+
+                if (expansion) {
+                    let grown = cover({ anchor: bounds, corner: last.corner, height, margin: space, width });
+
+                    last.corner = grown.corner;
+                    placement.direction = grown.corner[1] === 'e' ? 1 : -1;
+                    placement.height = grown.maxHeight;
+                    placement.x = grown.x - box.left;
+                    placement.y = grown.y - box.top;
+                    return;
+                }
+
+                let { maxHeight, side, x, y } = place({
+                        align,
+                        anchor: context && origin ? new DOMRect(origin.x, origin.y, 0, 0) : bounds,
+                        gap: context ? 0 : parseFloat(getComputedStyle(element).getPropertyValue('--offset')) || 0,
+                        height,
+                        margin: space,
+                        side: last.side,
+                        width
+                    });
+
+                last.side = side;
+                placement.height = maxHeight;
+                placement.x = x - box.left;
+                placement.y = y - box.top;
+            }
+
+            // Opens a context menu at 'point', or moves it there while open.
+            function at(point: Point) {
+                if (!host || !root.panel) {
+                    return;
+                }
+
+                let focused = document.activeElement;
+
+                // Kept while focus is already in the menu, so moving an open menu still returns to the original holder.
+                if (!root.panel.contains(focused)) {
+                    trigger = focused instanceof HTMLElement && focused !== document.body ? focused : host;
+                }
+
+                origin = point;
+
+                if (state.active || pending) {
+                    reset();
+                    arrange();
+                }
+
+                open();
             }
 
             function close(focus: boolean) {
@@ -246,7 +331,7 @@ function createMenu(context = false) {
                     };
 
                 return html`
-                    <div class='tooltip-menu-entry ${disabled && '--disabled'}' ${{ class: () => node.state.open && 'tooltip-menu-entry--open' }}>
+                    <div class='tooltip-menu-entry ${disabled && '--disabled'}'>
                         ${itemAttributes.href ? html`<a
                             class='tooltip-menu-item ${danger && 'tooltip-menu-item--danger'}'
                             role='menuitem'
@@ -264,13 +349,13 @@ function createMenu(context = false) {
                             ${bindings}
                             ${{ disabled: disabled === true }}
                         >${contents}</button>`}
-
-                        ${() => branch && node.state.render && panel(node)}
                     </div>
                 `;
             }
 
             function expand(node: MenuNode) {
+                nest(node);
+
                 // No transitionend will settle it: either still open from a pending close, or motion is off
                 node.state.settled = node.state.open || instant();
                 node.state.open = true;
@@ -300,6 +385,33 @@ function createMenu(context = false) {
                 });
             }
 
+            // Lays a branch's panel over its parent with its header on the row that opened it, lifted only as far as it
+            // must be to stay on screen and capped to scroll past what is left.
+            function nest(node: MenuNode) {
+                let button = node.button,
+                    element = node.panel,
+                    parent = node.parent?.panel;
+
+                if (!button || !element || !parent) {
+                    return;
+                }
+
+                node.state.height = undefined;
+                node.state.lift = 0;
+                flush();
+
+                let header = element.querySelector<HTMLElement>(':scope > .tooltip-menu-header'),
+                    row = button.getBoundingClientRect(),
+                    space = margin(element),
+                    bottom = viewport().height - space,
+                    top = row.top - (header?.offsetTop ?? 0),
+                    lift = Math.max(0, Math.min(top + element.offsetHeight - bottom, top - space));
+
+                node.state.height = bottom - top + lift;
+                node.state.lift = lift;
+                node.state.top = top - lift - parent.getBoundingClientRect().top - parent.clientTop;
+            }
+
             function open(focus = true) {
                 stay();
 
@@ -311,7 +423,7 @@ function createMenu(context = false) {
                 reset();
                 root.state.settled = !expansion || instant();
                 flush();
-                shift();
+                arrange();
 
                 function reveal() {
                     pending = undefined;
@@ -341,19 +453,21 @@ function createMenu(context = false) {
 
                 // Synthetic events carry no point.
                 if (event.clientX === 0 && event.clientY === 0) {
-                    place(anchor(event.target instanceof Element ? event.target : host));
+                    at(anchor(event.target instanceof Element ? event.target : host));
                 }
                 else {
-                    place({ x: event.clientX, y: event.clientY });
+                    at({ x: event.clientX, y: event.clientY });
                 }
             }
 
+            // Items scroll inside the panel; a branch's panel sits over it, outside the scroller, so the scroller never
+            // clips it.
             function panel(node: MenuNode): Renderable<unknown> {
                 let item = node.item;
 
                 return html`
                     <div
-                        class='tooltip-menu-panel ${node === root && expansion && `tooltip-content tooltip-menu-panel--expand tooltip-content--${expansion === true ? 'se' : expansion}`}'
+                        class='tooltip-menu-panel ${node === root && expansion && 'tooltip-menu-panel--expand'}'
                         role='menu'
                         ${node === root && attributes[MENU_PANEL]}
                         ${{
@@ -363,7 +477,18 @@ function createMenu(context = false) {
                                 () => node.state.settled && 'tooltip-menu-panel--settled'
                             ],
                             inert: () => node === root ? !state.active : !node.state.open,
-                            style: node === root && [attributes[MENU_PANEL]?.style, () => `${placement.style} --shift-x: ${placement.shift}px;`].flat(),
+                            style: node === root
+                                ? [attributes[MENU_PANEL]?.style, () => ({
+                                    '--expand-direction': expansion ? placement.direction : undefined,
+                                    '--max-height': px(placement.height),
+                                    left: px(placement.x),
+                                    top: px(placement.y)
+                                })].flat()
+                                : () => ({
+                                    '--lift': `${node.state.lift}px`,
+                                    '--max-height': px(node.state.height),
+                                    top: `${node.state.top}px`
+                                }),
                             // A dimmed parent panel's scrim takes the click; return to that level
                             onclick: (event: MouseEvent) => {
                                 if (event.target === node.panel && node !== stack[stack.length - 1]) {
@@ -410,40 +535,14 @@ function createMenu(context = false) {
                             </div>
                         `}
 
-                        ${node.children.map(entry)}
-                        ${highlighted && highlight({ ...(highlighted === true ? {} : highlighted), target: '.tooltip-menu-entry' })}
+                        <div class='tooltip-menu-scroller' ${scrollbar({ fade: true })}>
+                            ${node.children.map(entry)}
+                            ${highlighted && highlight({ ...(highlighted === true ? {} : highlighted), target: '.tooltip-menu-entry' })}
+                        </div>
+
+                        ${node.children.map((child) => child.children.length > 0 && html`${() => child.state.render && panel(child)}`)}
                     </div>
                 `;
-            }
-
-            function place({ x, y }: Point) {
-                if (!host || !root.panel) {
-                    return;
-                }
-
-                let focused = document.activeElement;
-
-                // Kept while focus is already in the menu, so moving an open menu still returns to the original holder.
-                if (!root.panel.contains(focused)) {
-                    trigger = focused instanceof HTMLElement && focused !== document.body ? focused : host;
-                }
-
-                raise();
-                reset();
-                // Measured unshifted, so the bound shift is flushed back to none first.
-                placement.shift = 0;
-                flush();
-
-                let bounds = host.getBoundingClientRect(),
-                    scale = bounds.width / host.offsetWidth || 1,
-                    width = root.panel.offsetWidth * scale,
-                    height = root.panel.offsetHeight * scale,
-                    view = viewport();
-
-                x = flip(x, width, view.width, VIEWPORT_MARGIN);
-                y = flip(y, height, view.height, VIEWPORT_MARGIN);
-                placement.style = `left: ${(x - bounds.left) / scale - host.clientLeft + host.scrollLeft}px; top: ${(y - bounds.top) / scale - host.clientTop + host.scrollTop}px;`;
-                open();
             }
 
             function pop() {
@@ -501,36 +600,6 @@ function createMenu(context = false) {
                 onselect?.(item);
             }
 
-            // Moves the whole stack horizontally to stay inside the viewport; sub-panels inherit the
-            // offset because they're positioned within the root panel.
-            function shift() {
-                let element = root.panel;
-
-                if (!element) {
-                    return;
-                }
-
-                // The rect is read against the shift the panel is drawn with.
-                flush();
-
-                let current = placement.shift,
-                    rect = element.getBoundingClientRect(),
-                    left = rect.left - current,
-                    right = rect.right - current,
-                    width = viewport().width,
-                    x = 0;
-
-                if (right > width - VIEWPORT_MARGIN) {
-                    x = width - VIEWPORT_MARGIN - right;
-                }
-
-                if (left + x < VIEWPORT_MARGIN) {
-                    x = VIEWPORT_MARGIN - left;
-                }
-
-                placement.shift = x;
-            }
-
             function connect(element: HTMLElement) {
                 host = element;
                 trigger = element;
@@ -545,7 +614,7 @@ function createMenu(context = false) {
                     e.preventDefault();
 
                     if (!root.panel?.contains(e.target as Node)) {
-                        place(anchor(e.target as Element));
+                        at(anchor(e.target as Element));
                     }
 
                     return;
@@ -673,7 +742,7 @@ function createMenu(context = false) {
                         onconnect: (element: HTMLElement) => {
                             layer = element;
                         },
-                        onwindowresize: () => state.active && shift()
+                        onwindowresize: () => state.active && arrange()
                     }}
                     ${popup}
                     ${spanning}

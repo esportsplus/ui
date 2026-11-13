@@ -222,7 +222,7 @@ function template({
 
             <div
                 aria-label='${label}'
-                class='select-expand-menu tooltip-content tooltip-content--c tooltip-content--morph'
+                class='select-expand-menu tooltip-content tooltip-content--morph'
                 role='radiogroup'
                 ${{
                     inert: () => !status.active,

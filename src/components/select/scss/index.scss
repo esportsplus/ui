@@ -16,15 +16,18 @@
     &-expand {
         display: inline-flex;
 
-        // The tooltip morph grows the row out of the trigger and closes it back onto it. Centred on the trigger by
-        // '--c', then moved along the row so the current option sits where the trigger's content was. Raised over the
-        // trigger, unlike a morph tooltip, since it covers it rather than leaving it.
+        // The tooltip morph grows the row out of the trigger and closes it back onto it. Centred on the trigger, then
+        // moved along the row so the current option sits where the trigger's content was. Raised over the trigger,
+        // unlike a morph tooltip, since it covers it rather than leaving it.
         &-menu.tooltip-content {
             border: var(--border-width) solid var(--surface-border-default);
+            bottom: 50%;
             display: flex;
             gap: var(--gap-vertical) var(--gap-horizontal);
             padding-block: var(--padding-vertical);
             padding-inline: var(--padding-horizontal);
+            right: 50%;
+            transform-origin: center center;
             translate:
                 calc(50% + ((var(--count) - 1) / 2 - var(--index)) * (var(--option-size) + var(--gap-horizontal)))
                 50%;

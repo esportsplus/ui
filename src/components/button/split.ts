@@ -33,6 +33,8 @@ export default component(
 
                 ${tooltip.menu(
                     {
+                        // Hangs from the trigger's end edge, so it stays under the whole group.
+                        align: 'end',
                         animate,
                         controller,
                         expand,

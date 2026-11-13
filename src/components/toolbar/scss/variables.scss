@@ -270,9 +270,8 @@
 
         // Chained through '.tooltip-content' so it wins over the tooltip's own surface regardless of stylesheet order.
         // A level below the bar, as the command palette's dialog is below the page; the bar clips it and casts its
-        // shadow. '--spacer' cancels the 100% each placement pushes a tooltip past its trigger by, so it sits on the
-        // bar's own screen edge, and it is never narrower than the bar. '--border-radius' is the rounding the bar
-        // eases into.
+        // shadow. It is never narrower than the bar, and doesn't move or scale as it opens: the bar grows into it.
+        // '--border-radius' is the rounding the bar eases into.
         &.tooltip-content {
             @extend %surface-lower;
             --border-radius: var(--border-radius-600);
@@ -281,9 +280,7 @@
             --font-size: calc(var(--font-size-400) * 0.875);
             --min-height: auto;
             --min-width: 100%;
-            --offset: 0px;
             --scale: 1;
-            --spacer: -100%;
             --width: 480px;
         }
     }

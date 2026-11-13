@@ -364,13 +364,6 @@
         }
 
 
-        // Hangs from the trigger's end edge so it stays under the whole group. Qualified past the menu's own root
-        // panel placement, whatever the load order.
-        & > .tooltip-menu-layer.tooltip > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
-            left: auto;
-            right: 0;
-        }
-
         // A bordered trigger is divided off by the action's end edge, bordered or not.
         &:has(> #{&}-trigger.button--border) > #{&}-action {
             border-inline-end: var(--border-width-400) solid var(--border-color);

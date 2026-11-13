@@ -211,7 +211,7 @@ function mention(profile: Profile, tip: ReturnType<typeof tooltip.shared>) {
 // and 'state.index' rests the highlight on the open section.
 function navigation() {
     let state = reactive({ active: false, index: -1 }),
-        tip = tooltip.shared({ class: 'tooltip-nav-demo-surface', delay: { close: 150, open: 50 }, direction: 's', dismiss: 'a[href]', interactive: true, keep: true, state });
+        tip = tooltip.shared({ axis: 'y', class: 'tooltip-nav-demo-surface', delay: { close: 150, open: 50 }, dismiss: 'a[href]', interactive: true, keep: true, state });
 
     return html`
         <nav
@@ -249,8 +249,8 @@ function navigation() {
     `;
 }
 
-function toolbar(direction: 'e' | 'n' | 's' | 'w', buttons: [string, string][], column = false) {
-    let tip = tooltip.shared({ direction });
+function toolbar(axis: 'x' | 'y', buttons: [string, string][], column = false) {
+    let tip = tooltip.shared({ axis });
 
     return html`
         <div
@@ -274,8 +274,8 @@ export default {
                 { class: trigger },
                 html`
                     hover me
-                    <div class='tooltip-message tooltip-message--s'>
-                        Tooltip shown on hover (direction s)
+                    <div class='tooltip-message'>
+                        Tooltip shown on hover
                     </div>
                 `
             ),
@@ -286,8 +286,8 @@ export default {
                 { class: trigger },
                 html`
                     click me
-                    <div class='tooltip-message tooltip-message--n'>
-                        Tooltip toggled on click (direction n)
+                    <div class='tooltip-message'>
+                        Tooltip toggled on click
                     </div>
                 `
             ),
@@ -300,13 +300,26 @@ export default {
             ),
             title: 'menu'
         },
-        ...(['se', 'sw', 'ne', 'es'] as const).map((direction) => ({
+        // Grows out of the trigger over it, toward whichever corner has room.
+        {
             render: () => tooltip.menu(
-                { expand: direction, items: nested, [tooltip.menu.trigger]: { class: trigger } },
+                { expand: true, items: nested, [tooltip.menu.trigger]: { class: trigger } },
                 'expand menu'
             ),
-            title: `menu (expand, ${direction})`
-        })),
+            title: 'menu (expand)'
+        },
+        {
+            render: () => tooltip.onclick(
+                { class: trigger },
+                html`
+                    click me
+                    <div class='tooltip-content tooltip-content--expand' style='--background: var(--surface-background-default); --width: 240px; color: var(--color-text-500); padding: var(--size-400) var(--size-500); white-space: normal;'>
+                        Covers the button and grows out of it, toward whichever corner has room.
+                    </div>
+                `
+            ),
+            title: 'expand (onclick)'
+        },
         {
             render: () => tooltip.menu(
                 { items: nested, openOn: 'hover', [tooltip.menu.trigger]: { class: trigger } },
@@ -352,7 +365,7 @@ export default {
                 { class: trigger },
                 html`
                     hover me
-                    <div class='tooltip-message tooltip-message--s ${variant}'>
+                    <div class='tooltip-message ${variant}'>
                         ${title}
                     </div>
                 `
@@ -364,10 +377,10 @@ export default {
                 { class: trigger },
                 html`
                     hover me
-                    <div class='tooltip-message tooltip-message--s tooltip-message--morph'>Morphs out of the button, then deblurs</div>
+                    <div class='tooltip-message tooltip-message--morph'>Morphs out of the button, then deblurs</div>
                 `
             ),
-            title: 'morph (onhover, s)'
+            title: 'morph (onhover)'
         },
         // Rich content: a 'tooltip-content' styled as the surface, wrapping instead of the message's single line.
         {
@@ -376,7 +389,7 @@ export default {
                 html`
                     click me
                     <div
-                        class='tooltip-content tooltip-content--n tooltip-content--morph'
+                        class='tooltip-content tooltip-content--morph'
                         style='--background: var(--color-primary-400); --width: 280px; color: var(--surface-background-default); padding: var(--size-400) var(--size-500); white-space: normal;'
                     >
                         <div class='tooltip-morph-demo-body' style='--gap-vertical: var(--size-200);'>
@@ -386,41 +399,38 @@ export default {
                     </div>
                 `
             ),
-            title: 'morph (onclick, n)'
+            title: 'morph (onclick)'
         },
         {
             render: () => tooltip.onhover(
                 { class: trigger },
                 html`
                     hover me
-                    <div class='tooltip-message tooltip-message--e tooltip-message--morph'>Plain text message, no wrapper</div>
+                    <div class='tooltip-message tooltip-message--morph'>Plain text message, no wrapper</div>
                 `
             ),
-            title: 'morph message (onhover, e)'
+            title: 'morph message (onhover)'
         },
         // Delegate: every '[data-tooltip]' in the container is a trigger. 'edge' lines the tooltip up past the
         // container's edge, and the content slides the way the tooltip travels.
-        ...([
-            ['n', 'shared.delegate (toolbar, edge, n)'],
-            ['s', 'shared.delegate (toolbar, edge, s)']
-        ] as const).map(([direction, title]) => ({
-            render: () => toolbar(direction, [
+        {
+            render: () => toolbar('y', [
                 ['B', 'Bold'],
                 ['I', 'Italic'],
                 ['U', 'Underline'],
                 ['Link', 'Insert link'],
                 ['Clear', 'Clear all formatting']
             ]),
-            title
-        })),
+            title: 'shared.delegate (toolbar, edge, y)'
+        },
         {
-            render: () => toolbar('e', [
+            render: () => toolbar('x', [
                 ['Home', 'Dashboard'],
                 ['Inbox', '3 unread messages'],
                 ['Teams', 'Teams'],
                 ['Settings', 'Account & preferences']
             ], true),
-            title: 'shared.delegate (vertical, edge, e)'
+            title: 'shared.delegate (vertical, edge, x)'
         },
         // Anchored on each item, with a template per item; moving diagonally slides the content diagonally.
         {
@@ -428,7 +438,7 @@ export default {
                 let swatches = [300, 400, 500].flatMap((shade) =>
                         ['black', 'blue', 'green', 'purple', 'red', 'yellow'].map((color) => `${color}-${shade}`)
                     ),
-                    tip = tooltip.shared({ direction: 's' });
+                    tip = tooltip.shared({ axis: 'y' });
 
                 return html`
                     <div
@@ -476,7 +486,7 @@ export default {
         },
         {
             render: () => {
-                let tip = tooltip.shared({ class: 'tooltip-card-demo-card', delay: { close: 150, open: 500 }, direction: 's', interactive: true });
+                let tip = tooltip.shared({ axis: 'y', class: 'tooltip-card-demo-card', delay: { close: 150, open: 500 }, interactive: true });
 
                 return html`
                     <div>

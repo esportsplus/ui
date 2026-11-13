@@ -1,7 +1,8 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import overlay from '~/components/overlay';
-import { content, cool, morph, morphs, wait, warm, type Delay } from './utilities';
+import { content, cool, morph, morphs, position, wait, warm, type Delay } from './utilities';
+import type { Axis } from '~/shared/placement';
 
 
 type A = Attributes & Options & {
@@ -20,6 +21,8 @@ type A = Attributes & Options & {
 };
 
 type Options = {
+    // Keeps the content beside the trigger ('x') or above and below it ('y'); left out, either.
+    axis?: Axis,
     // Keyboard focus never waits for the open delay.
     delay?: Delay,
     state?: { active: boolean }
@@ -98,7 +101,7 @@ function safe(element: HTMLElement, x: number, y: number) {
 
 // The hover behaviour without an element of its own: spread it on any '.tooltip' element that holds a
 // '.tooltip-content' or '.tooltip-message'.
-function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state = reactive({ active: false }) }: Options = {}) {
+function trigger({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, state = reactive({ active: false }) }: Options = {}) {
     let leaving: ReturnType<typeof setTimeout> | undefined,
         local = reactive({ instant: false, morphing: false, safe: '' }),
         morphed: VoidFunction | undefined,
@@ -123,6 +126,7 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
 
     function open(element: HTMLElement) {
         pending = undefined;
+        position(element, axis);
         morphed = morph(element, () => {
             morphed = undefined;
             state.active = true;
@@ -223,8 +227,8 @@ function trigger({ delay: { close: closing = 0, open: opening = 0 } = {}, state 
 
 
 export default component(
-    ({ delay, state, ...attributes }: A, content) => html`
-        <div class='tooltip' ${attributes} ${trigger({ delay, state })}>
+    ({ axis, delay, state, ...attributes }: A, content) => html`
+        <div class='tooltip' ${attributes} ${trigger({ axis, delay, state })}>
             ${content}
         </div>
     `,

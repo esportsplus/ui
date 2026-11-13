@@ -58,7 +58,6 @@
     // Opens from slightly below, smaller and blurred; closes faster than it opens.
     &-tooltip.tooltip-message {
         filter: blur(var(--blur-300));
-        transform-origin: bottom center;
         transition:
             filter var(--transition-duration) var(--transition-timing-function),
             opacity var(--transition-duration) var(--transition-timing-function),

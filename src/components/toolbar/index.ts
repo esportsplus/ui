@@ -398,7 +398,7 @@ const toolbar = ({
         return html`
             <div
                 aria-label='${more}'
-                class='tooltip-content tooltip-content--${direction} toolbar-drawer'
+                class='tooltip-content toolbar-drawer'
                 id='${group}-drawer'
                 role='dialog'
                 ${keys}
@@ -812,7 +812,7 @@ const toolbar = ({
     // One label glides between the buttons; hidden from assistive tech, since each button is already named by it. Only
     // buttons are dragged, so 'copy' only ever gets one, and only one is ever thrown back to the drawer.
     let list = sortable(entries, slot, { drag: copy as (item: Entry) => Renderable<unknown>, group, onsort: sorted, onthrow: sorting && stash ? thrown : undefined }),
-        tip = tooltip.shared({ 'aria-hidden': 'true', class: 'toolbar-label', delay: { open: delay }, direction, swap: false });
+        tip = tooltip.shared({ 'aria-hidden': 'true', axis: vertical ? 'x' : 'y', class: 'toolbar-label', delay: { open: delay }, swap: false });
 
     // A toolbar takes one tab stop, kept on a control the bar still shows as its items change.
     if (!dock) {
