@@ -476,19 +476,36 @@ const panels = component(
         }
 
         function handle(axis: 'x' | 'y', sizes: () => number[], index: number, length: () => number, apply: (sizes: number[]) => void, hidden?: () => boolean) {
+            // TEMPORARY: the sidebar's resize pill over the separator, following the pointer along it, to compare looks.
+            let { onpointermove, ...attributes } = resize(axis, () => {
+                    let from = sizes(),
+                        total = length();
+
+                    return (delta) => apply(resized(from, index, delta, total, MIN_FRACTION));
+                }),
+                pointer = reactive({ offset: 0 });
+
             return html`
                 <div
                     aria-orientation='${axis === 'x' ? 'vertical' : 'horizontal'}'
                     class='panels-handle panels-handle--${axis}'
                     role='separator'
-                    ${resize(axis, () => {
-                        let from = sizes(),
-                            total = length();
+                    ${attributes}
+                    ${{
+                        hidden: () => hidden?.() ?? false,
+                        onpointermove: function(this: HTMLElement, e: PointerEvent) {
+                            let bounds = this.getBoundingClientRect();
 
-                        return (delta) => apply(resized(from, index, delta, total, MIN_FRACTION));
-                    })}
-                    ${{ hidden: () => hidden?.() ?? false }}
-                ></div>
+                            pointer.offset = axis === 'x'
+                                ? e.clientY - bounds.top - bounds.height / 2
+                                : e.clientX - bounds.left - bounds.width / 2;
+                            onpointermove(e);
+                        },
+                        style: () => `--offset: ${pointer.offset}px;`
+                    }}
+                >
+                    <span class='panels-handle-pill'></span>
+                </div>
             `;
         }
 

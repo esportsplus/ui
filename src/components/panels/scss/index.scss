@@ -317,6 +317,40 @@
         &[hidden] {
             display: none;
         }
+
+        // TEMPORARY: the sidebar's resize pill, grown out of the line on hover and following the pointer along it.
+        &-pill {
+            background: var(--pill-color);
+            border-radius: var(--pill-border-radius);
+            left: 50%;
+            opacity: var(--pill-opacity);
+            pointer-events: none;
+            position: absolute;
+            top: 50%;
+            transition:
+                opacity var(--transition-duration) var(--transition-timing-function),
+                scale var(--transition-duration) var(--transition-timing-function);
+            z-index: 1;
+        }
+
+        &--x &-pill {
+            height: var(--pill-length);
+            scale: 1 var(--pill-scale);
+            translate: -50% calc(var(--offset, 0px) - 50%);
+            width: var(--pill-thickness);
+        }
+
+        &--y &-pill {
+            height: var(--pill-thickness);
+            scale: var(--pill-scale) 1;
+            translate: calc(var(--offset, 0px) - 50%) -50%;
+            width: var(--pill-length);
+        }
+
+        &:is(:active, :hover) &-pill {
+            --pill-opacity: 1;
+            --pill-scale: 1;
+        }
     }
 
     &-header {

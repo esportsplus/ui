@@ -134,6 +134,13 @@
         --background-hover: var(--surface-border-pressed);
         --background-pressed: var(--color-primary-400);
         --line-width: 1px;
+        // TEMPORARY: the sidebar resize pill's look.
+        --pill-border-radius: var(--border-radius-200);
+        --pill-color: var(--surface-border-pressed);
+        --pill-length: 10svh;
+        --pill-opacity: 0;
+        --pill-scale: 0.8;
+        --pill-thickness: 3px;
         --size: 8px;
         --transition-duration: 0.16s;
         --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
