@@ -173,8 +173,10 @@ const saver = (
         timer: ReturnType<typeof setTimeout> | undefined;
 
     return {
+        // A state passed in outlives the field, so the moment's flag is put down with the timer that would have.
         dispose: () => {
             clearTimeout(timer);
+            state.saved = false;
         },
         save: (value: string) => {
             state.value = value;
