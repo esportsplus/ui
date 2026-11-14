@@ -1,5 +1,6 @@
-// The modifiers retime the tracks, where the roll's timing lives; the counter's own '--transition-duration' also
-// delays its transform until the digits settle.
+// The modifiers retime the roll through '--roll-duration', which the tracks inherit. They can't inherit
+// '--transition-duration': the root resets that on every element. The counter's own '--transition-duration' follows
+// the roll, delaying its transform until the digits settle.
 .counter {
     --color: var(--color-text-400);
     // Paints the glyphs; a gradient here replaces the flat '--color'.
@@ -9,8 +10,9 @@
     --font-weight: var(--font-weight-400);
     --gap-horizontal: calc(var(--size-100) / 4);
     --gap-vertical: calc(var(--size-100) / 4);
+    --roll-duration: 2s;
     --transform-timing-function: ease;
-    --transition-duration: 2s;
+    --transition-duration: var(--roll-duration);
 
 
     &--blur .counter-character-track {
@@ -28,7 +30,7 @@
     }
 
     &--snap {
-        --transition-duration: 0.6s;
+        --roll-duration: 0.6s;
 
         .counter-character-track {
             --transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
@@ -36,7 +38,7 @@
     }
 
     &--spring {
-        --transition-duration: 1.2s;
+        --roll-duration: 1.2s;
 
         .counter-character-track {
             --transition-timing-function: linear(0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1);
@@ -46,7 +48,7 @@
     &--ticker {
         --gap-horizontal: 0px;
         --gap-vertical: 0px;
-        --transition-duration: 0.9s;
+        --roll-duration: 0.9s;
 
         .counter-character-track {
             --stagger: 0.06s;
@@ -64,9 +66,10 @@
 
         // Bounce-out
         &-track {
-            --animation-duration: var(--transition-duration);
+            --animation-duration: var(--roll-duration);
             --animation-timing-function: ease-out;
             --stagger: 0s;
+            --transition-duration: var(--roll-duration);
             --transition-timing-function: linear(0, 0.004, 0.016, 0.035, 0.063, 0.098, 0.141 13.6%, 0.25, 0.391, 0.563, 0.765, 1, 0.891 40.9%, 0.848, 0.813, 0.785, 0.766, 0.754, 0.75, 0.754, 0.766, 0.785, 0.813, 0.848, 0.891 68.2%, 1 72.7%, 0.973, 0.953, 0.941, 0.938, 0.941, 0.953, 0.973, 1, 0.988, 0.984, 0.988, 1);
         }
     }
