@@ -106,12 +106,14 @@
 
         // A circle: its corner radius is what tells the field to clear a circle.
         &-orb {
-            --surface-border-radius: 50%;
+            --border-radius: 50%;
 
             .surface-field-surface-content {
+                --padding-bottom: 24px;
+                --padding-horizontal: 24px;
+                --padding-top: 24px;
                 align-items: center;
                 justify-content: center;
-                padding: 0 24px 24px;
                 text-align: center;
             }
         }
@@ -148,11 +150,10 @@
         }
 
         &-pill {
-            --surface-border-radius: 36px;
-            rotate: -6deg;
+            --border-radius: 36px;
 
             .surface-field-surface-content {
-                padding-inline: 24px;
+                --padding-horizontal: 24px;
             }
         }
 
@@ -307,8 +308,32 @@
             z-index: 2;
         }
 
+        // Sized to nothing and left to overflow, so its path draws in world px under the cards.
+        &-edge {
+            fill: none;
+            height: 1px;
+            left: 0;
+            overflow: visible;
+            pointer-events: none;
+            position: absolute;
+            stroke: var(--color-primary-300);
+            stroke-width: 1.5px;
+            top: 0;
+            width: 1px;
+
+            &--pending {
+                stroke-dasharray: 4 4;
+            }
+
+            &.--hidden {
+                display: none;
+            }
+        }
+
+        // The part of the world the viewport shows, tinted so it reads over the nodes.
         &-lens {
-            border: 1px solid var(--surface-border-pressed);
+            background: color-mix(in oklab, var(--color-primary-300) 8%, transparent);
+            border: 1px solid var(--color-primary-300);
             border-radius: 3px;
             pointer-events: none;
             position: absolute;
@@ -325,64 +350,43 @@
             position: absolute;
             right: 16px;
             top: 16px;
+            touch-action: none;
+            user-select: none;
             width: 150px;
             z-index: 2;
 
+            &.--active {
+                cursor: grabbing;
+            }
+
+            // Solid marks rather than tiny cards: a surface fill would vanish against the minimap's own surface.
             &-node {
-                @extend %surface-lower;
-                background: var(--surface-background-default);
+                background: color-mix(in oklab, var(--color-text-300) 45%, transparent);
                 border-radius: var(--border-radius-100);
                 position: absolute;
             }
         }
 
-        // Compact cards with connection dots on both sides, where the field's links leave and arrive.
+        // Compact cards: links leave from the dot on the right and arrive on the left.
         &-node {
-            --surface-border-radius: var(--border-radius-500);
-            --surface-grip-width: 22px;
-            --surface-handle-height: 32px;
-            cursor: default;
-
             &-kind {
                 color: var(--color-text-300);
                 font-size: var(--font-size-200);
                 text-transform: uppercase;
             }
 
-            &::after {
-                right: -4px;
-            }
-
-            &::after,
-            &::before {
-                @extend %surface-raise;
-                background: var(--surface-background-default);
-                border: 1px solid var(--color-primary-300);
-                border-radius: 50%;
-                content: '';
-                height: 7px;
-                position: absolute;
-                top: 50%;
-                translate: 0 -50%;
-                width: 7px;
-            }
-
-            &::before {
-                left: -4px;
-            }
-
-            .surface {
-                // The field exposes no variables for its surface parts, so a compact card reaches them directly.
-                &-field-surface-content {
-                    gap: calc(var(--size-100) / 4);
-                    padding: 0 14px var(--size-200);
+            .surface-field-surface {
+                &-content {
+                    --gap-vertical: calc(var(--size-100) / 4);
+                    --padding-bottom: var(--size-200);
+                    --padding-horizontal: 14px;
                 }
 
-                &-field-surface-header {
-                    padding-inline-start: 14px;
+                &-header {
+                    --padding-horizontal: 14px;
                 }
 
-                &-field-surface-title {
+                &-title {
                     font-size: var(--font-size-300);
                 }
             }

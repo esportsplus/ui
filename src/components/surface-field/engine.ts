@@ -30,7 +30,10 @@ type Link = {
     motion: 'bounce' | 'loop' | 'still';
     // Flattened x, y pairs in field px.
     points: number[];
+    // Empty for a link that carries its own wave.
+    sequence: string;
     speed: number;
+    strength: number;
     width: number;
 };
 
@@ -38,12 +41,20 @@ type Path = {
     along: Float64Array;
     box: Box;
     crest: number;
+    // The link whose wave this one carries: itself, or the first of its sequence, which holds the motion, speed, phase
+    // and the whole run's length.
+    head: Path;
     length: number;
     motion: 0 | 1 | 2;
-    push: number;
+    // Shifts the crest's travel so a rebuilt link carries on from the same share of its cycle.
+    phase: number;
+    sequence: string;
     sigma: number;
     speed: number;
-    spread: number;
+    // Where along its sequence's run this link starts.
+    start: number;
+    strength: number;
+    total: number;
     xs: Float64Array;
     ys: Float64Array;
 };
@@ -105,11 +116,10 @@ const LINK_CREST = 44;
 
 const LINK_FRAME = 40;
 
-const LINK_LIFT = 0.55;
-
 const LINK_SPEED = 160;
 
-const LINK_WIDTH = 16;
+// The corridor a crest runs in, about three dots across at the default gap; the resting line is half as wide.
+const LINK_WIDTH = 56;
 
 // The floor under a camera scales by zoom ^ 0.4 within these bounds, so it reads as a plane below the content rather
 // than a sticker on it, and never crowds into a wash or thins into scattered points.
@@ -262,8 +272,13 @@ function simplify(points: number[]) {
 
 
 const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Scheduler) => {
-    // The field owns its canvas and never asks it for another kind of context, so 2d is always granted.
-    let ctx = canvas.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+    // The field paints only what changed, so it relies on the canvas keeping the last picture, and a committed frame
+    // can lose it (a failed buffer copy on the worker path leaves a black field with only the newest cells drawn). So
+    // the picture lives on a canvas that never reaches the compositor, and each painted frame is copied whole to the
+    // visible one. Both are owned here and never asked for another kind of context, so 2d is always granted.
+    let back = typeof OffscreenCanvas === 'function' ? new OffscreenCanvas(1, 1) : null,
+        screen = canvas.getContext('2d') as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+        ctx = back ? back.getContext('2d') as OffscreenCanvasRenderingContext2D : screen,
         accent: Rgb = [102, 131, 232],
         base: Rgb = [128, 128, 128],
         breathed = -Infinity,
@@ -338,7 +353,10 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
     }
 
     function build(link: Link): Path | null {
-        if (link.points.length < 4) {
+        // Past 4 a dot is pushed beyond its neighbour at the default gap, and the fabric folds over itself.
+        let strength = clamp(link.strength, 0, 4);
+
+        if (link.points.length < 4 || !strength) {
             return null;
         }
 
@@ -361,26 +379,28 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
             return null;
         }
 
-        let step = lattice?.step ?? o!.gap,
-            width = link.width > 0 ? link.width : LINK_WIDTH,
-            sigma = width / 2,
-            spread = Math.max(sigma, step),
-            push = Math.min(width / 3, step / 5),
-            pad = 3 * spread + push + step * 2;
+        let sigma = (link.width > 0 ? link.width : LINK_WIDTH) / 2,
+            pad = extent(sigma, strength),
+            path = {
+                along: distance,
+                box: { bottom: box.bottom + pad, left: box.left - pad, right: box.right + pad, top: box.top - pad },
+                crest: -Infinity,
+                length,
+                motion: link.motion === 'loop' ? 1 : link.motion === 'bounce' ? 2 : 0,
+                phase: 0,
+                sequence: link.sequence,
+                sigma,
+                speed: link.speed > 0 ? link.speed : LINK_SPEED,
+                start: 0,
+                strength,
+                total: length,
+                xs,
+                ys
+            } as Path;
 
-        return {
-            along: distance,
-            box: { bottom: box.bottom + pad, left: box.left - pad, right: box.right + pad, top: box.top - pad },
-            crest: -Infinity,
-            length,
-            motion: link.motion === 'loop' ? 1 : link.motion === 'bounce' ? 2 : 0,
-            push,
-            sigma,
-            speed: link.speed > 0 ? link.speed : LINK_SPEED,
-            spread,
-            xs,
-            ys
-        };
+        path.head = path;
+
+        return path;
     }
 
     function crestBox(path: Path): Box | null {
@@ -413,7 +433,12 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
             return null;
         }
 
-        return pad(box, 3 * path.spread + path.push + (lattice?.step ?? 0) * 2);
+        return pad(box, extent(path.sigma, path.strength));
+    }
+
+    // A wave's run past both ends by two crest widths, there and back for a bounce.
+    function cycle(head: Path) {
+        return (head.motion === 2 ? 2 : 1) * (head.total + 4 * LINK_CREST);
     }
 
     function draw(c0: number, c1: number, r0: number, r1: number) {
@@ -485,40 +510,33 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
                         }
 
                         let d2 = nearest(x, y, path),
-                            w2 = path.spread * path.spread;
+                            s2 = path.sigma * path.sigma;
 
-                        if (d2 > 9 * w2) {
+                        if (d2 >= 9 * s2) {
                             continue;
                         }
 
-                        let moving = path.motion !== 0 && path.crest !== -Infinity,
-                            pulse = 0,
-                            reach = 3 * path.sigma;
+                        // A link is lit as a surface's rim is, moving or not: the line is the gaussian of half the
+                        // corridor, and a crest fills the whole corridor as it passes and swells it outward.
+                        let across = Math.exp(-d2 / (2 * s2)),
+                            vein = across * across * across * across * Math.min(1, path.strength);
 
-                        if (moving) {
-                            let off = along - path.crest;
+                        if (path.crest !== -Infinity) {
+                            let off = along - path.crest,
+                                wave = across * Math.exp(-(off * off) / (2 * LINK_CREST * LINK_CREST)) * path.strength;
 
-                            pulse = Math.exp(-(off * off) / (2 * LINK_CREST * LINK_CREST));
+                            vein = Math.max(vein, Math.min(1, wave));
+
+                            if (d2 > 0.0001) {
+                                let s = settings.ripplePush * wave / Math.sqrt(d2);
+
+                                x += offX * s;
+                                y += offY * s;
+                            }
                         }
 
-                        if (d2 < reach * reach) {
-                            let t = 1 - Math.sqrt(d2) / reach,
-                                vein = t * t * (3 - 2 * t) * (moving ? 0.45 + 0.55 * pulse : 0.8);
-
-                            dot = Math.max(dot, vein);
-                            line = Math.max(line, vein);
-                        }
-
-                        dot += Math.exp(-d2 / (2 * path.sigma * path.sigma))
-                            * (moving ? LINK_LIFT / 3 + (1 - LINK_LIFT / 3) * pulse : LINK_LIFT) * 0.5;
-
-                        // The fabric parts a little either side of the vein, so the lattice bends round it.
-                        if (d2 > 0.0001) {
-                            let s = path.push * Math.exp(0.5 - d2 / (2 * w2)) / path.spread;
-
-                            x += offX * s;
-                            y += offY * s;
-                        }
+                        dot = Math.max(dot, vein);
+                        line = Math.max(line, vein);
                     }
                 }
 
@@ -678,6 +696,11 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
         ctx.globalAlpha = 1;
     }
 
+    // How far a link's light and push reach past its path, with a spacing more for the lines to its neighbours.
+    function extent(sigma: number, strength: number) {
+        return 3 * sigma + strength * Math.abs(o!.ripplePush) + (lattice?.step ?? o!.gap) * 2;
+    }
+
     function grow(n: number) {
         if (px.length >= n) {
             return;
@@ -734,10 +757,6 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
             for (let i = 0; i < cols; i++) {
                 seed[j * cols + i] = hash(lattice!.col + i, lattice!.row + j);
             }
-        }
-
-        for (let i = 0, n = paths.length; i < n; i++) {
-            paths[i].spread = Math.max(paths[i].sigma, step);
         }
 
         full = true;
@@ -899,6 +918,7 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
             ctx.clearRect(0, 0, width, height);
             draw(0, cols, 0, rows);
             full = false;
+            present();
             return;
         }
 
@@ -929,6 +949,8 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
             );
             ctx.restore();
         }
+
+        present();
     }
 
     function prepare() {
@@ -961,11 +983,22 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
                 continue;
             }
 
-            let span = path.length + 4 * LINK_CREST,
-                travel = (linked / 1000 * path.speed) % (path.motion === 2 ? 2 * span : span);
+            let span = path.head.total + 4 * LINK_CREST,
+                travel = travelled(path.head);
 
-            path.crest = (path.motion === 2 && travel > span ? 2 * span - travel : travel) - 2 * LINK_CREST;
+            path.crest = (path.head.motion === 2 && travel > span ? 2 * span - travel : travel) - 2 * LINK_CREST - path.start;
         }
+    }
+
+    function present() {
+        if (!back) {
+            return;
+        }
+
+        screen.setTransform(1, 0, 0, 1, 0, 0);
+        screen.globalCompositeOperation = 'copy';
+        screen.drawImage(back, 0, 0);
+        screen.globalCompositeOperation = 'source-over';
     }
 
     function queue(a: number, b: number, segments: number, brightness: number) {
@@ -1012,11 +1045,18 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
             return;
         }
 
+        // Resetting the visible canvas frees its buffers; the kept picture refills it unchanged.
         let { width } = canvas;
 
         canvas.width = width + 1;
         canvas.width = width;
-        paint(null);
+
+        if (back) {
+            present();
+        }
+        else {
+            paint(null);
+        }
     }
 
     // Starts a travelling ring, making room by dropping the oldest ring that is not held.
@@ -1037,6 +1077,11 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
         }
 
         rings.push({ ...next, born: now });
+    }
+
+    // The crests' clock: it only advances on a crest frame, and starts at the first.
+    function seconds() {
+        return linked === -Infinity ? 0 : linked / 1000;
     }
 
     function seeded(gap: number, view: Camera): Lattice {
@@ -1291,6 +1336,13 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
         }
     }
 
+    // Distance the crest has covered through its cycle.
+    function travelled(head: Path) {
+        let length = cycle(head);
+
+        return ((seconds() * head.speed + head.phase) % length + length) % length;
+    }
+
     function wake() {
         if (!o || !lattice || !shown || !size.width) {
             return;
@@ -1308,6 +1360,7 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
 
     // The GPU can take a canvas back; the browser returns it blank, and only a full paint refills it.
     (canvas as EventTarget).addEventListener('contextrestored', restored);
+    back?.addEventListener('contextrestored', restored);
 
     return {
         camera(next: Camera | null) {
@@ -1404,6 +1457,7 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
             scheduler.clear(trim);
             frame = timer = trim = 0;
             (canvas as EventTarget).removeEventListener('contextrestored', restored);
+            back?.removeEventListener('contextrestored', restored);
         },
         // Runs a pending frame now, so a frame's layout reads and its paint land in the same vsync.
         flush() {
@@ -1425,6 +1479,42 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
 
             for (let i = 0, n = paths.length; i < n; i++) {
                 damage.push(paths[i].box);
+            }
+
+            // Moving links sharing a sequence are laid end to end in list order, and one crest runs the whole run: it
+            // leaves one link's far end as it enters the next one's, under the surface they share.
+            let heads = new Map<string, Path>();
+
+            for (let i = 0, n = built.length; i < n; i++) {
+                let path = built[i];
+
+                if (!path.motion || !path.sequence) {
+                    continue;
+                }
+
+                let head = heads.get(path.sequence);
+
+                if (!head) {
+                    heads.set(path.sequence, path);
+                    continue;
+                }
+
+                path.head = head;
+                path.start = head.total;
+                head.total += path.length;
+            }
+
+            // A drag or a speed change rebuilds the links; each wave keeps the share of its cycle it had covered, or
+            // the crest would jump. Links are matched by their place in the list, as the host resends them.
+            for (let i = 0, n = Math.min(built.length, paths.length); i < n; i++) {
+                let path = built[i],
+                    was = paths[i].head;
+
+                if (path.head !== path || !path.motion || path.motion !== was.motion) {
+                    continue;
+                }
+
+                path.phase = travelled(was) / cycle(was) * cycle(path) - seconds() * path.speed;
             }
 
             for (let i = 0, n = built.length; i < n; i++) {
@@ -1497,6 +1587,12 @@ const engine = (canvas: HTMLCanvasElement | OffscreenCanvas, scheduler: Schedule
 
             canvas.height = Math.max(1, Math.round(height * dpr));
             canvas.width = Math.max(1, Math.round(width * dpr));
+
+            if (back) {
+                back.height = canvas.height;
+                back.width = canvas.width;
+            }
+
             size = { dpr, height, width };
             layout();
             wake();

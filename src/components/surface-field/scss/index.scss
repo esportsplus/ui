@@ -39,17 +39,25 @@
 
     // Geometry is written every pointer move, so only the lift eases: a scale and the fade of a second shadow, both
     // composited rather than repainted per frame. A surface of its own, so its background is a level above whatever it
-    // floats over.
+    // floats over. The body carries it; selecting it shows the frame that resizes and turns it.
     &-surface {
         background: var(--surface-background-default);
         border-radius: var(--border-radius);
         box-shadow: 0 0 0 var(--border-width) var(--border-color), var(--box-shadow);
+        cursor: var(--cursor);
         display: flex;
         flex-direction: column;
         inset: 0 auto auto 0;
         position: absolute;
         scale: var(--scale);
+        touch-action: none;
         transition: scale var(--transition-duration) var(--transition-timing-function);
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+        }
+
 
         &-body {
             color: var(--color);
@@ -66,60 +74,56 @@
             gap: var(--gap-vertical) var(--gap-horizontal);
             min-height: 0;
             overflow: hidden;
-            padding-block: 0 var(--padding-bottom);
+            padding-block: var(--padding-top) var(--padding-bottom);
             padding-inline: var(--padding-horizontal);
         }
 
-        &-handle {
-            align-self: stretch;
-            border-radius: 0 var(--border-radius) 0 0;
-            cursor: inherit;
-            flex-shrink: 0;
-            position: relative;
+        &-corner {
+            height: var(--size);
+            left: var(--left);
+            top: var(--top);
+            translate: -50% -50%;
+            width: var(--size);
+        }
+
+        &-corner,
+        &-port,
+        &-rotate {
+            background: var(--background);
+            border: var(--border-width) solid var(--border-color);
+            border-radius: var(--border-radius);
+            position: absolute;
+        }
+
+        &-edge {
+            height: var(--height);
+            inset: var(--inset);
+            position: absolute;
             width: var(--width);
-
-            &::before {
-                @extend %absolute-center;
-                background: currentColor;
-                border-radius: 999px;
-                content: '';
-                height: var(--height);
-                opacity: var(--opacity);
-                width: var(--width);
-            }
-
-            // Alone in the header it is the whole bar, grip centred.
-            &:only-child {
-                border-radius: var(--border-radius) var(--border-radius) 0 0;
-                flex: 1;
-                margin-inline-start: calc(var(--size-400) * -1);
-            }
         }
 
-        &-handle,
-        &-resize {
-            background: none;
-            border: 0;
-            color: var(--color);
-            padding: 0;
-            touch-action: none;
-
-            &:focus-visible {
-                outline: var(--focus-width) solid var(--focus-color);
-                outline-offset: var(--focus-offset);
-            }
+        &-corner,
+        &-edge,
+        &-rotate {
+            cursor: var(--cursor);
+            pointer-events: auto;
         }
 
-        // Carries the surface from anywhere but an editable title; the grip is its keyboard handle.
+        &-frame {
+            border: var(--border-width) solid var(--border-color);
+            border-radius: var(--border-radius);
+            display: var(--display);
+            inset: calc(var(--offset) * -1);
+            pointer-events: none;
+            position: absolute;
+        }
+
         &-header {
             align-items: center;
-            cursor: var(--cursor);
             display: flex;
             flex-shrink: 0;
-            gap: var(--gap-vertical) var(--gap-horizontal);
             min-height: var(--height);
-            padding-inline-start: var(--padding-start);
-            touch-action: none;
+            padding-inline: var(--padding-horizontal);
         }
 
         // An element rather than a pseudo-element, so both of those stay free for the surface's own decoration.
@@ -130,32 +134,42 @@
             transition: opacity var(--transition-duration) var(--transition-timing-function);
         }
 
-        // Two diagonal ticks in the corner, drawn with a gradient so no icon is needed.
-        &-resize {
-            background:
-                linear-gradient(135deg, transparent 45%, currentColor 45%, currentColor 52%, transparent 52%) 4px 4px / 12px 12px no-repeat,
-                linear-gradient(135deg, transparent 70%, currentColor 70%, currentColor 77%, transparent 77%) 4px 4px / 12px 12px no-repeat;
-            border-radius: 0 0 var(--border-radius) 0;
-            bottom: 0;
-            cursor: nwse-resize;
+        // Above the frame, whose side strip would otherwise take the press meant for the out port.
+        &-port {
+            cursor: var(--cursor);
             height: var(--size);
-            opacity: var(--opacity);
-            position: absolute;
-            right: 0;
+            left: var(--left);
+            top: 50%;
+            translate: -50% -50%;
             width: var(--size);
+            z-index: var(--z-index);
         }
 
-        // Sized to its text, so the rest of the header stays free to carry the surface.
+        // A knob on a stem above the top edge's middle, the stem reaching back down to the frame.
+        &-rotate {
+            height: var(--size);
+            left: 50%;
+            top: calc((var(--size) + var(--stem)) * -1);
+            translate: -50% 0;
+            width: var(--size);
+
+            &::before {
+                background: var(--border-color);
+                content: '';
+                height: var(--stem);
+                left: 50%;
+                position: absolute;
+                top: 100%;
+                translate: -50% 0;
+                width: var(--border-width);
+            }
+        }
+
         &-title {
             @extend %text-truncate;
             color: var(--color);
-            flex: 0 1 auto;
             font-weight: var(--font-weight-600);
             min-width: 0;
-
-            & + .surface-field-surface-handle {
-                margin-inline-start: auto;
-            }
         }
     }
 }

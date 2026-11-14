@@ -17,10 +17,14 @@ type Link = {
     motion?: 'bounce' | 'loop' | 'still';
     // The path itself, in field px (world units when a camera is set); wins over the curve between `from` and `to`.
     points?: { x: number, y: number }[];
+    // Moving links sharing a sequence carry one wave through them in list order; the first sets its motion and speed.
+    sequence?: string;
     // Crest speed in px per second.
     speed?: number;
+    // 1 pushes a dot as far as a click's ring does; up to 4, and 0 hides the link.
+    strength?: number;
     to?: string;
-    // Width of the lit vein in px.
+    // Width of the crest's corridor in px; the lit line is half as wide.
     width?: number;
 };
 
@@ -137,6 +141,28 @@ function angle(value: string) {
 }
 
 // Resolves any CSS colour (oklch, named, hex…) to rgb by painting it once.
+function inside(shape: Shape, x: number, y: number) {
+    let angle = shape.rotation * Math.PI / 180,
+        cos = Math.cos(angle),
+        sin = Math.sin(angle),
+        dx = x - shape.x,
+        dy = y - shape.y,
+        hx = shape.width / 2,
+        hy = shape.height / 2,
+        lx = Math.abs(dx * cos + dy * sin),
+        ly = Math.abs(dy * cos - dx * sin);
+
+    if (shape.ellipse) {
+        return (lx * lx) / (hx * hx) + (ly * ly) / (hy * hy) <= 1;
+    }
+
+    let r = Math.max(0, Math.min(shape.radius, hx, hy)),
+        qx = Math.max(0, lx - hx + r),
+        qy = Math.max(0, ly - hy + r);
+
+    return lx <= hx && ly <= hy && qx * qx + qy * qy <= r * r;
+}
+
 function rgb(color: string): Rgb {
     let cached = colors.get(color);
 
@@ -281,16 +307,38 @@ export default component(
                 c1x = across ? a.x + dx / 2 : a.x,
                 c1y = across ? a.y : a.y + dy / 2,
                 c2x = across ? b.x - dx / 2 : b.x,
-                c2y = across ? b.y : b.y - dy / 2;
+                c2y = across ? b.y : b.y - dy / 2,
+                x = (t: number) => (1 - t) ** 3 * a.x + 3 * (1 - t) ** 2 * t * c1x + 3 * (1 - t) * t * t * c2x + t ** 3 * b.x,
+                y = (t: number) => (1 - t) ** 3 * a.y + 3 * (1 - t) ** 2 * t * c1y + 3 * (1 - t) * t * t * c2y + t ** 3 * b.y;
+
+            // Aimed centre to centre but cut where it leaves one shape and enters the other: the field shows nothing
+            // under a surface, so only the stretch between them is drawn and a crest never stalls out of sight.
+            let edge = (shape: Shape, from: number, to: number) => {
+                for (let i = 0; i < 12; i++) {
+                    let mid = (from + to) / 2;
+
+                    if (inside(shape, x(mid), y(mid))) {
+                        from = mid;
+                    }
+                    else {
+                        to = mid;
+                    }
+                }
+
+                return (from + to) / 2;
+            };
+
+            let t0 = edge(a, 0, 1),
+                t1 = edge(b, 1, t0);
+
+            if (t1 - t0 < 0.001) {
+                return points;
+            }
 
             for (let i = 0; i <= 32; i++) {
-                let t = i / 32,
-                    u = 1 - t;
+                let t = t0 + (t1 - t0) * i / 32;
 
-                points.push(
-                    u * u * u * a.x + 3 * u * u * t * c1x + 3 * u * t * t * c2x + t * t * t * b.x,
-                    u * u * u * a.y + 3 * u * u * t * c1y + 3 * u * t * t * c2y + t * t * t * b.y
-                );
+                points.push(x(t), y(t));
             }
 
             return points;
@@ -435,7 +483,14 @@ export default component(
                 }
 
                 if (points.length >= 4) {
-                    result.push({ motion: link.motion ?? 'still', points, speed: link.speed ?? 0, width: link.width ?? 0 });
+                    result.push({
+                        motion: link.motion ?? 'still',
+                        points,
+                        sequence: link.sequence ?? '',
+                        speed: link.speed ?? 0,
+                        strength: link.strength ?? 1,
+                        width: link.width ?? 0
+                    });
                 }
             }
 
