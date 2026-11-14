@@ -414,10 +414,10 @@ $icons: (
 
     &-toggle {
         --background-hover: inherit;
+        --bottom: 4px;
         --color-default: var(--toggle-color);
+        --end: var(--size-100);
         --height: 32px;
-        --inset-horizontal: var(--size-100);
-        --inset-vertical: 4px;
         --padding-horizontal: var(--size-100);
         --padding-vertical: 0px;
     }

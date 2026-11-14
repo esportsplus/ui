@@ -12,8 +12,8 @@
 
     &-copy {
         --background-default: transparent;
-        --inset-horizontal: var(--size-300);
-        --inset-vertical: var(--size-300);
+        --right: var(--size-300);
+        --top: var(--size-300);
     }
 
     &-header {

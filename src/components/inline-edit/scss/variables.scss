@@ -91,7 +91,7 @@
     // regardless of stylesheet order; only the shared check takes their stroke, drawn on a 24 unit grid.
     &-icon {
         --color: var(--color-primary-300);
-        --inset-end: calc(var(--size-300) / 2);
+        --end: calc(var(--size-300) / 2);
         --inset-top: calc(var(--size-100) / 2);
         --size: 24px;
 

@@ -53,8 +53,8 @@
         // The bubble sits on the bell's corner, inset by a share of the bell's size; a dot keeps its own.
         .notification {
             // Whole pixels, so the bubble and the digits it centers aren't split across a pixel boundary.
-            --inset-horizontal: round(calc(var(--size) * 0.12), 1px);
-            --inset-vertical: round(calc(var(--size) * 0.12), 1px);
+            --right: round(calc(var(--size) * 0.12), 1px);
+            --top: round(calc(var(--size) * 0.12), 1px);
 
             &:not(.notification--dot) {
                 --size: var(--size-500);

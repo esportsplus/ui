@@ -103,7 +103,7 @@
         display: grid;
         height: var(--size);
         inset-block-start: var(--inset-top);
-        inset-inline-end: var(--inset-end);
+        inset-inline-end: var(--end);
         place-items: center;
         pointer-events: none;
         position: absolute;

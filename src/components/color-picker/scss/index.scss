@@ -96,7 +96,7 @@
     // root so it wins over the reused button styles regardless of stylesheet order.
     & &-copy {
         position: absolute;
-        right: var(--inset-horizontal);
+        right: var(--right);
         top: 50%;
         translate: 0 -50%;
     }

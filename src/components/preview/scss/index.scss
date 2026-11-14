@@ -26,8 +26,8 @@
     // Floats over the top-right corner of whichever pane is showing.
     &-copy {
         position: absolute;
-        right: var(--inset-horizontal);
-        top: var(--inset-vertical);
+        right: var(--right);
+        top: var(--top);
         z-index: 1;
     }
 

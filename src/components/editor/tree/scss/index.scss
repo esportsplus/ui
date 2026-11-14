@@ -637,9 +637,9 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     }
 
     &-toggle {
-        bottom: var(--inset-vertical);
+        bottom: var(--bottom);
         height: var(--height);
-        inset-inline-end: var(--inset-horizontal);
+        inset-inline-end: var(--end);
         outline: 0 solid var(--focus-color);
         outline-offset: calc(var(--size-100) / 4);
         position: absolute;

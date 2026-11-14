@@ -98,9 +98,9 @@
     // Qualified by the root so it wins over the reused button styles regardless of stylesheet order. Inset inside the
     // 36px field it sits in.
     & &-copy {
-        --border-radius: calc(var(--border-radius-400) - var(--inset-horizontal));
-        --inset-horizontal: calc(var(--size-100) / 2);
+        --border-radius: calc(var(--border-radius-400) - var(--right));
         --inset-vertical: calc(var(--size-100) / 2);
+        --right: calc(var(--size-100) / 2);
         --size: calc(36px - var(--inset-vertical) * 2);
     }
 
