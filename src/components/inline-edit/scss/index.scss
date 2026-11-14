@@ -21,6 +21,10 @@
         }
     }
 
+    &#{&}--seamless {
+        margin-block: calc(var(--box-padding-vertical) * -1);
+    }
+
 
     &-display,
     &-editor,

@@ -4,10 +4,12 @@
 
 
 // '--box-padding-start' pulls the root out by the boxes' own inset, so the text lines up with the content around it
-// while the tint still has room; the save status lines up with it too. The row gap alone sets the save status off
-// from the box.
+// while the tint still has room; the save status lines up with it too. A seamless edit is pulled out by
+// '--box-padding-vertical' above and below as well, so its text sits where plain text would. The row gap alone sets the
+// save status off from the box.
 .inline-edit {
     --box-padding-start: var(--size-100);
+    --box-padding-vertical: calc(var(--size-100) / 2);
     --color: var(--color-text-500);
     --gap-horizontal: 0px;
     --gap-vertical: calc(var(--size-100) / 2);
@@ -35,7 +37,7 @@
         --border-radius: var(--border-radius-400);
         --padding-end: 36px;
         --padding-start: var(--box-padding-start);
-        --padding-vertical: calc(var(--size-100) / 2);
+        --padding-vertical: var(--box-padding-vertical);
         --placeholder-color: var(--color-text-300);
     }
 
