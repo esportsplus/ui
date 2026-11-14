@@ -53,6 +53,8 @@ type Motion = {
 
 type Options<T> = {
     combine?: Combine<T>;
+    // Items that stay where they are: a press on one starts no drag, though others still sort past it.
+    disabled?: (item: T) => boolean;
     // Renders the copy that follows the pointer; the item's own template when omitted.
     drag?: (item: T) => Renderable<unknown>;
     // Containers sharing a group name trade items; the list the drag started in receives 'onsort'.
@@ -67,6 +69,16 @@ type Options<T> = {
     // Let go outside every list, the item is thrown out of the one it was in, its copy coasting on and fading to
     // nothing; called once the copy has gone. Without it, the item lands back in its place.
     onthrow?: (item: T, from: number, items: ReactiveArray<T>) => void;
+    outside?: Outside<T>;
+};
+
+// Drop targets that aren't lists. While the pointer is over no list, 'over' names the target under the viewport point,
+// which carries '--over'; letting go there takes the item out of the list it sits in and hands it to 'ondrop', its copy
+// landing on the target's middle. A list with targets always hit-tests, even alone in its group.
+type Outside<T> = {
+    // The item is out of 'source', where it sat at 'from', by now.
+    ondrop: (item: T, target: HTMLElement, from: number, source: ReactiveArray<T>) => void;
+    over: (item: T, x: number, y: number) => HTMLElement | null;
 };
 
 // 'index' is the item's place in its list.
@@ -111,7 +123,7 @@ const SORTABLE_STATE = Symbol('sortable.root');
 let groups = new Map<string, Set<List<unknown>>>();
 
 
-function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: PointerEvent, { group, onland, onlift, onsort, onthrow }: Options<unknown>) {
+function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: PointerEvent, { group, onland, onlift, onsort, onthrow, outside }: Options<unknown>) {
     // The item in a combining list whose middle the pointer is over.
     let aiming: HTMLElement | null = null,
         // Whether this drag counts toward 'carrying'.
@@ -126,7 +138,9 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         lastTop = NaN,
         layout: Rect[] = [],
         lists = group ? [...(groups.get(group) ?? [source])] : [source],
-        // Combined with another item, so the press no longer ends the drag.
+        // The target outside every list the pointer is over.
+        marked: HTMLElement | null = null,
+        // Combined with another item, or delivered to a target, so the press no longer ends the drag.
         merged = false,
         motion = source.motion,
         originX = e.clientX,
@@ -193,6 +207,41 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
 
         carried = value;
         page().carrying += value ? 1 : -1;
+    }
+
+    // Takes the item out of its list for the target outside every list it was let go over, landing its copy on the
+    // target's middle.
+    function deliver(target: HTMLElement, ondrop: Outside<unknown>['ondrop']) {
+        let ghost = source.ghost,
+            list = current,
+            from = list.items.indexOf(value);
+
+        merged = true;
+        mark(null);
+        reflow(() => {
+            list.items.splice(from, 1);
+            write(list.held, null);
+        });
+        ondrop(value, target, from, list.items);
+        flush();
+
+        if (ghost) {
+            let box = target.getBoundingClientRect();
+
+            motion.angle = 0;
+            motion.dropping = true;
+            motion.x = box.left + (box.width - motion.width) / 2 - motion.left;
+            motion.y = box.top + (box.height - motion.height) / 2 - motion.top;
+            flush();
+        }
+
+        carry(false);
+
+        void (ghost ? finished(ghost) : Promise.resolve()).then(() => {
+            write(source.dragging, null);
+            flush();
+            onland?.(value);
+        });
     }
 
     function drop() {
@@ -284,11 +333,15 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
 
         if (e) {
             let list = over(),
+                target = !list && outside ? outside.over(value, x, y) : null,
                 combine = list?.combine,
                 point = list && local(list),
                 rect = list && point && combine ? under(list, point.left, point.top) : null;
 
-            if (
+            if (target) {
+                deliver(target, outside!.ondrop);
+            }
+            else if (
                 list && point && rect && middle(rect, point.left, point.top) &&
                 (combine!.accepts?.(value, rect.element) ?? true)
             ) {
@@ -304,6 +357,7 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
             return;
         }
 
+        mark(null);
         write(current.held, null);
         write(source.dragging, null);
         carry(false);
@@ -335,6 +389,16 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         let bounds = list.container!.getBoundingClientRect();
 
         return { left: x - bounds.left + list.container!.scrollLeft, top: y - bounds.top + list.container!.scrollTop };
+    }
+
+    function mark(element: HTMLElement | null) {
+        if (element === marked) {
+            return;
+        }
+
+        marked?.classList.remove('--over');
+        marked = element;
+        element?.classList.add('--over');
     }
 
     // Hands the item to its list's 'oncombine' with the one under it. It leaves its own list first, so the others close
@@ -390,7 +454,7 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
     }
 
     function over() {
-        return lists.length === 1 ? source : hit();
+        return lists.length === 1 && !outside ? source : hit();
     }
 
     function reflow(mutate: VoidFunction) {
@@ -494,7 +558,16 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         let slot = hole,
             target = over();
 
-        if (!slot || !target) {
+        if (!target) {
+            aim(null);
+            mark(outside?.over(value, x, y) ?? null);
+            pending = null;
+            return;
+        }
+
+        mark(null);
+
+        if (!slot) {
             aim(null);
             pending = null;
             return;
@@ -691,7 +764,7 @@ function page() {
 export default <T>(
     items: ReactiveArray<T>,
     template: (item: T, attributes: Attributes) => Renderable<unknown>,
-    { combine, drag: copy, group, handle, onland, onlift, onsort, onthrow }: Options<T> = {}
+    { combine, disabled, drag: copy, group, handle, onland, onlift, onsort, onthrow, outside }: Options<T> = {}
 ) => {
     let list: List<T> = {
             combine,
@@ -750,7 +823,7 @@ export default <T>(
             onpointerdown: (e: PointerEvent) => {
                 let element = e.currentTarget as HTMLElement;
 
-                if (e.button !== 0 || !e.isPrimary || list.press.busy() || read(list.dragging) !== null) {
+                if (e.button !== 0 || !e.isPrimary || list.press.busy() || read(list.dragging) !== null || disabled?.(item)) {
                     return;
                 }
 
@@ -763,7 +836,8 @@ export default <T>(
                     onland: onland as Options<unknown>['onland'],
                     onlift: onlift as Options<unknown>['onlift'],
                     onsort: onsort as Options<unknown>['onsort'],
-                    onthrow: onthrow as Options<unknown>['onthrow']
+                    onthrow: onthrow as Options<unknown>['onthrow'],
+                    outside: outside as Options<unknown>['outside']
                 });
             }
         };
@@ -813,4 +887,4 @@ export default <T>(
 };
 
 
-export type { Combine as SortableCombine, Options as SortableOptions };
+export type { Combine as SortableCombine, Options as SortableOptions, Outside as SortableOutside };
