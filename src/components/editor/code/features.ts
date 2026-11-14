@@ -904,16 +904,31 @@ const features = (host: Host, apple: boolean) => {
                 current = { document: host.document(), from: swatch.from, initial: value, literal: swatch.value, state, to: swatch.to };
 
             pick = current;
-            tip.open(
-                anchor,
-                () => colorPicker({ class: 'code-editor-picker', recent: false, state, value }),
-                () => {
-                    let rect = host.rectAt(current.from) ?? swatch.rect,
-                        width = host.charWidth();
 
-                    return new DOMRect(rect.left - width, rect.top, width, rect.height);
-                }
-            );
+            // Opens once the press lets go: the press itself would reach the picker's dismissal of presses outside it.
+            let target = anchor,
+                waiting = new AbortController();
+
+            for (let type of ['pointercancel', 'pointerup']) {
+                window.addEventListener(type, (event) => {
+                    waiting.abort();
+
+                    if (event.type !== 'pointerup' || pick !== current) {
+                        return;
+                    }
+
+                    tip.open(
+                        target,
+                        () => colorPicker({ class: 'code-editor-picker', recent: false, state, value }),
+                        () => {
+                            let rect = host.rectAt(current.from) ?? swatch.rect,
+                                width = host.charWidth();
+
+                            return new DOMRect(rect.left - width, rect.top, width, rect.height);
+                        }
+                    );
+                }, { signal: waiting.signal });
+            }
 
             return true;
         },
