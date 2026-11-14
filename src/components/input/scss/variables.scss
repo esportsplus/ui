@@ -14,6 +14,16 @@
     --size: var(--size-400);
 
 
+    // Wraps and scrolls as a textarea does, resized by hand only in height, since its width is the layout's. Out of
+    // alphabetical order and first on purpose: '--autoresize' and '--measure' only ever refine it, so they have to come
+    // after it to replace its overflow, resize and white space.
+    &--textarea {
+        --padding-vertical: var(--size-300);
+        --resize: vertical;
+        --scrollbar-overflow: auto;
+        --white-space: pre-wrap;
+    }
+
     // Its height is the text's, so it can't be dragged.
     &--autoresize {
         --resize: none;
@@ -45,15 +55,6 @@
         }
     }
 
-    // Wraps and scrolls as a textarea does, resized by hand only in height, since its width is the layout's. First, so
-    // '--autoresize' and '--measure', which only ever refine it, replace its overflow, resize and white space.
-    &--textarea {
-        --padding-vertical: var(--size-300);
-        --resize: vertical;
-        --scrollbar-overflow: auto;
-        --white-space: pre-wrap;
-    }
-
     &--compact {
         --font-size: var(--font-size-300);
         --padding-horizontal: var(--size-200);
@@ -69,13 +70,6 @@
         &-nowrap {
             --white-space: pre;
         }
-    }
-
-    // The cells' gap, and what a group's first cell adds to it to sit a group's width apart; qualified by the group so
-    // they win over its own gaps regardless of stylesheet order.
-    &-otp.group {
-        --gap-horizontal: var(--size-100);
-        --input-otp-break: calc(var(--size-500) - var(--size-100));
     }
 
     // One character to a square cell, its edge taking the brand color while focused.
@@ -129,6 +123,13 @@
         --box-shadow: none;
     }
 
+
+    // The cells' gap, and what a group's first cell adds to it to sit a group's width apart; qualified by the group so
+    // they win over its own gaps regardless of stylesheet order.
+    &-otp.group {
+        --gap-horizontal: var(--size-100);
+        --input-otp-break: calc(var(--size-500) - var(--size-100));
+    }
 
     &-password {
         &-icon.icon {
