@@ -35,6 +35,11 @@
         }
     }
 
+    // Edged by a ring outside the box instead of a border, so what hangs off its padding box isn't inset by the edge.
+    &--ring {
+        --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
+    }
+
     // The fill follows its states, stepping on hover and press like any other surface. Chained through '.card': the
     // extended placeholders are written before the card's own defaults, which would otherwise win the tie.
     &#{&}--surface {
