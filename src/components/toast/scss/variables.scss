@@ -27,31 +27,6 @@ $close-button-size: var(--size-500);
     }
 
 
-    // The close button is centered on the inline-end top corner; the mask reaches past the box by '--cutout-bleed'
-    // so the overhanging button and shadow survive it.
-    &:has(> .toast-close--cutout) {
-        --cutout-bleed: 32px;
-        --cutout-radius: calc(#{$close-button-size} / 2);
-        --cutout-x: calc(100% - var(--cutout-bleed));
-        --cutout-y: var(--cutout-bleed);
-        --mask: radial-gradient(
-            circle at var(--cutout-x) var(--cutout-y),
-            #000 calc(var(--cutout-radius) - 0.5px),
-            transparent calc(var(--cutout-radius) + 0.5px) calc(var(--cutout-radius) + var(--cutout-gap) - 0.5px),
-            #000 calc(var(--cutout-radius) + var(--cutout-gap) + 0.5px)
-        );
-
-        &:dir(rtl) {
-            --cutout-x: var(--cutout-bleed);
-        }
-
-        // The gap stands in for the button's ring.
-        > .toast-close {
-            --box-shadow-default: none;
-        }
-    }
-
-
     &-close {
         @extend %color-text;
         --background-default: var(--surface-background-default);
@@ -80,6 +55,32 @@ $close-button-size: var(--size-500);
         --gap-horizontal: var(--size-300);
         --gap-vertical: var(--size-300);
     }
+
+
+    // The close button is centered on the inline-end top corner; the mask reaches past the box by '--cutout-bleed'
+    // so the overhanging button and shadow survive it.
+    &:has(> .toast-close--cutout) {
+        --cutout-bleed: 32px;
+        --cutout-radius: calc(#{$close-button-size} / 2);
+        --cutout-x: calc(100% - var(--cutout-bleed));
+        --cutout-y: var(--cutout-bleed);
+        --mask: radial-gradient(
+            circle at var(--cutout-x) var(--cutout-y),
+            #000 calc(var(--cutout-radius) - 0.5px),
+            transparent calc(var(--cutout-radius) + 0.5px) calc(var(--cutout-radius) + var(--cutout-gap) - 0.5px),
+            #000 calc(var(--cutout-radius) + var(--cutout-gap) + 0.5px)
+        );
+
+
+        &:dir(rtl) {
+            --cutout-x: var(--cutout-bleed);
+        }
+
+        // The gap stands in for the button's ring.
+        > .toast-close {
+            --box-shadow-default: none;
+        }
+    }
 }
 
 
@@ -103,9 +104,9 @@ $close-button-size: var(--size-500);
     --margin-vertical: var(--size-500);
     // How far the overflow card reaches past the last visible layer: room for its line of text.
     --overflow-peek: 24px;
-    // Between expanded toasts; inherited by each toast, which places itself with it.
     // Each collapsed layer back is this much darker than the one in front of it.
     --stack-brightness: 0.99;
+    // Between expanded toasts; inherited by each toast, which places itself with it.
     --stack-gap-vertical: var(--size-100);
     --stack-height: 0px;
     --stack-peek: var(--size-200);
@@ -113,6 +114,7 @@ $close-button-size: var(--size-500);
     --transition-duration: 0.4s;
     --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
     --width: 360px;
+
 
     // Every placement fades in place instead of travelling. Doubled so it wins over each placement's travel, the
     // unplaced one's included.
@@ -182,6 +184,7 @@ $close-button-size: var(--size-500);
         --transition-duration: 0.4s;
         --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 
+
         // Swiped away, it fades where it was let go.
         @media (prefers-reduced-motion: reduce) {
             --fling-duration: 0s;
@@ -189,8 +192,8 @@ $close-button-size: var(--size-500);
     }
 
     // Side stacks peek sideways, so the cut runs across the width, between corners spaced by the front's height.
-    &.toaster--e,
-    &.toaster--w {
+    &#{&}--e,
+    &#{&}--w {
         > .toast {
             --cutout-across: calc((var(--frontmost-height) / 2 - var(--cutout-corner)) / var(--scale));
             --cutout-band: 100% calc(var(--cutout-across) * 2);
@@ -198,15 +201,15 @@ $close-button-size: var(--size-500);
         }
     }
 
-    &.toaster--e > .toast {
+    &#{&}--e > .toast {
         --cutout-end: calc(100% - var(--cutout-center)) calc(50% + var(--cutout-across));
         --cutout-start: calc(100% - var(--cutout-center)) calc(50% - var(--cutout-across));
         --cutout-toward: to left;
     }
 
-    &.toaster--s,
-    &.toaster--se,
-    &.toaster--sw {
+    &#{&}--s,
+    &#{&}--se,
+    &#{&}--sw {
         > .toast {
             --cutout-end: calc(50% + var(--cutout-across)) calc(100% - var(--cutout-center));
             --cutout-start: calc(50% - var(--cutout-across)) calc(100% - var(--cutout-center));
@@ -214,7 +217,7 @@ $close-button-size: var(--size-500);
         }
     }
 
-    &.toaster--w > .toast {
+    &#{&}--w > .toast {
         --cutout-end: var(--cutout-center) calc(50% + var(--cutout-across));
         --cutout-start: var(--cutout-center) calc(50% - var(--cutout-across));
         --cutout-toward: to right;

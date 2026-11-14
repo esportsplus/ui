@@ -13,10 +13,7 @@ export default component(function(
     this: { attributes?: Attributes },
     {
         autoresize: resize,
-        state = reactive({
-            active: false,
-            error: ''
-        }),
+        state = reactive({ active: false, error: '' }),
         ...attributes
     }: Attributes & {
         autoresize?: Autoresize,
@@ -63,45 +60,45 @@ export default component(function(
         return current || String((typeof placeholder === 'function' ? placeholder(element) : placeholder) ?? '');
     }
 
-    let observation = observeSize((size) => {
+    let content = html`
+            <textarea
+                class='input input--textarea'
+                ${this?.attributes}
+                ${attributes}
+                ${resize && [motion.attributes, {
+                    class: ['input--autoresize', () => measured.scrollable && 'input--scrollbar'],
+                    onconnect: (element: Element<HTMLTextAreaElement>, on) => {
+                        field = element;
+
+                        // A form's reset never reaches the field's own bindings, so it is heard on the form.
+                        if (element.form) {
+                            on(element.form, 'reset', reset);
+                        }
+                    },
+                    ondisconnect: () => {
+                        if (resetFrame !== undefined) {
+                            cancelAnimationFrame(resetFrame);
+                            resetFrame = undefined;
+                        }
+
+                        field = undefined;
+                    },
+                    oninput: function(this: HTMLElement, event: InputEvent, dispose: VoidFunction) {
+                        measured.revision++;
+                        caller?.call(this, event, dispose);
+                    },
+                    style: [limits, () => measured.height && `--height: ${measured.height}px;`]
+                }]}
+                ${form.input.attributes(state)}
+            ></textarea>
+        `,
+        observation = observeSize((size) => {
             if (measured.height !== size.height) {
                 measured.scrollable = false;
                 measured.height = size.height;
                 motion.settle();
             }
-        }),
-        content = html`
-        <textarea
-            class='input input--textarea'
-            ${this?.attributes}
-            ${attributes}
-            ${resize && [motion.attributes, {
-                class: ['input--autoresize', () => measured.scrollable && 'input--scrollbar'],
-                onconnect: (element: Element<HTMLTextAreaElement>, on) => {
-                    field = element;
-
-                    // A form's reset never reaches the field's own bindings, so it is heard on the form.
-                    if (element.form) {
-                        on(element.form, 'reset', reset);
-                    }
-                },
-                ondisconnect: () => {
-                    if (resetFrame !== undefined) {
-                        cancelAnimationFrame(resetFrame);
-                        resetFrame = undefined;
-                    }
-
-                    field = undefined;
-                },
-                oninput: function(this: HTMLElement, event: InputEvent, dispose: VoidFunction) {
-                    measured.revision++;
-                    caller?.call(this, event, dispose);
-                },
-                style: [limits, () => measured.height && `--height: ${measured.height}px;`]
-            }]}
-            ${form.input.attributes(state)}
-        ></textarea>
-    `;
+        });
 
     if (!resize) {
         return content;

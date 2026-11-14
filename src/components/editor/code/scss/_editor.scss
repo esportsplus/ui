@@ -26,6 +26,7 @@
         position: absolute;
         transition: none;
 
+
         &--caret {
             background: var(--caret-color);
             width: var(--caret-width);
@@ -51,13 +52,32 @@
         transition: none;
     }
 
+    &-find,
+    &-goto {
+        background: var(--surface-background-default);
+        border-bottom: var(--border-width) solid var(--border-color);
+        display: none;
+        flex: none;
+        font-size: var(--font-size);
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        margin: 0;
+        padding: var(--padding-vertical) var(--padding-horizontal);
+
+
+        @include tokens.state(active) {
+            display: flex;
+        }
+    }
+
     &-find {
         flex-direction: column;
+
 
         &-button {
             flex: none;
             height: var(--height);
             min-width: var(--height);
+
 
             &:disabled {
                 cursor: default;
@@ -75,8 +95,10 @@
             flex-wrap: wrap;
             gap: var(--gap-vertical) var(--gap-horizontal);
 
+
             &--replace {
                 display: none;
+
 
                 @include tokens.state(active) {
                     display: flex;
@@ -93,26 +115,11 @@
         }
     }
 
-    &-find,
-    &-goto {
-        background: var(--surface-background-default);
-        border-bottom: var(--border-width) solid var(--border-color);
-        display: none;
-        flex: none;
-        font-size: var(--font-size);
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        margin: 0;
-        padding: var(--padding-vertical) var(--padding-horizontal);
-
-        @include tokens.state(active) {
-            display: flex;
-        }
-    }
-
     &-find-input.input,
     &-goto-input.input {
         flex: 1 1 var(--width);
         min-width: 0;
+
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
@@ -129,13 +136,10 @@
         pointer-events: auto;
         width: var(--fold-width);
 
+
         &--none {
             pointer-events: none;
             visibility: hidden;
-        }
-
-        &-icon.icon {
-            transition: rotate var(--transition-duration) var(--transition-timing-function);
         }
     }
 
@@ -194,6 +198,7 @@
         width: calc(100% - var(--gutter-width));
         z-index: 1;
 
+
         &::placeholder {
             color: var(--placeholder-color);
         }
@@ -212,6 +217,7 @@
         position: absolute;
         white-space: var(--white-space);
         width: var(--line-width);
+
 
         &--unused {
             display: none;
@@ -258,6 +264,7 @@
         left: 0;
         position: absolute;
         width: 100%;
+
 
         &--unused {
             display: none;
@@ -328,6 +335,7 @@
 
     &-tab {
         position: relative;
+
 
         &::before {
             color: var(--whitespace-color);

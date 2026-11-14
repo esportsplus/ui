@@ -13,15 +13,16 @@
         top: 0;
         width: var(--width);
 
-        &--added {
-            background: var(--gutter-added-color);
-        }
 
         &--added,
         &--deleted,
         &--modified {
             cursor: pointer;
             pointer-events: auto;
+        }
+
+        &--added {
+            background: var(--gutter-added-color);
         }
 
         // A wedge on the boundary where lines went.
@@ -49,6 +50,7 @@
         position: absolute;
         white-space: nowrap;
 
+
         &--readonly &-action--accept {
             display: none;
         }
@@ -57,6 +59,7 @@
             @extend %reset-button;
             appearance: none;
             color: var(--color);
+
 
             &:focus-visible {
                 outline: var(--focus-width) solid var(--focus-color);
@@ -112,9 +115,6 @@
         position: absolute;
         right: calc(var(--minimap-offset) + var(--track-width, 0px));
 
-        @include tokens.state(active) {
-            display: flex;
-        }
 
         &-bar {
             align-items: center;
@@ -136,6 +136,7 @@
             height: var(--size);
             justify-content: center;
             width: var(--size);
+
 
             &:disabled {
                 cursor: default;
@@ -162,6 +163,11 @@
             color: var(--muted-color);
             flex: 1;
             min-width: 0;
+        }
+
+
+        @include tokens.state(active) {
+            display: flex;
         }
     }
 
@@ -196,9 +202,6 @@
         user-select: none;
         z-index: 4;
 
-        @include tokens.state(active) {
-            display: flex;
-        }
 
         &-code {
             display: block;
@@ -229,11 +232,17 @@
             min-width: 0;
             overflow: hidden;
         }
+
+
+        @include tokens.state(active) {
+            display: flex;
+        }
     }
 
     // Drawn in the gap before the literal, so the text keeps its place.
     &-swatch {
         position: relative;
+
 
         &::before {
             background: var(--swatch);
@@ -253,6 +262,7 @@
     // A box around the character, wide enough to see even when the character has no width.
     &-unicode {
         position: relative;
+
 
         &::after {
             border: var(--border-width) var(--border-style) var(--border-color);

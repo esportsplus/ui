@@ -12,12 +12,6 @@
     @extend %background-state, %border-state, %box-shadow-state, %color-state, %surface-raise;
 
 
-    &--kbd,
-    &--tactile {
-        --box-shadow-active: none;
-        --box-shadow-pressed: none;
-    }
-
     &--black {
         @extend %background-black, %color-white;
     }
@@ -38,6 +32,12 @@
         @include tokens.state(active) {
             --font-weight: var(--font-weight-500);
         }
+    }
+
+    &--kbd,
+    &--tactile {
+        --box-shadow-active: none;
+        --box-shadow-pressed: none;
     }
 
     // A hairline ring plus an inset bottom edge gives the keycap its depth; pressing drops the cap by that edge.
@@ -121,6 +121,7 @@
     &--sidebar {
         --open: 1;
 
+
         // Hidden panels thin the pill to a line; hover and focus preview the opposite state unless a toggle just
         // happened under them.
         &:not(&-held) {
@@ -150,6 +151,11 @@
         path {
             --transition-duration: 130ms;
             --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
+
+
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
+            }
         }
     }
 
@@ -195,6 +201,11 @@
         &--draw {
             --transition-duration: 0.26s;
             --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
+
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
+            }
         }
     }
 
@@ -235,6 +246,11 @@
         --font-size: var(--font-size-300);
         --line-height: 1;
         --transition-duration: 0.24s;
+
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
     }
 
     // Chained through '.button' so it wins over the button's own padding regardless of stylesheet order.

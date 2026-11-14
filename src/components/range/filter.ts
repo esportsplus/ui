@@ -1,12 +1,12 @@
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
-import { clamp } from '~/shared/clamp';
-import { keystep } from '~/shared/keystep';
+import undo from '@esportsplus/ui/svg/undo.svg';
 import group from '~/components/group';
 import icon from '~/components/icon';
 import inlineEdit from '~/components/inline-edit';
 import input from '~/components/input';
-import undo from '@esportsplus/ui/svg/undo.svg';
+import { clamp } from '~/shared/clamp';
+import { keystep } from '~/shared/keystep';
 
 
 type A = Attributes & {
@@ -160,6 +160,10 @@ function filter({
         }, single ? 'Value' : index === 0 ? 'Min' : 'Max');
     }
 
+    function fraction(value: number) {
+        return (value - min) / span;
+    }
+
     function keydown(index: number, event: KeyboardEvent) {
         if (disabled) {
             return;
@@ -173,10 +177,6 @@ function filter({
 
         event.preventDefault();
         commit(index, clamp(s[KEYS[index]] + delta, min, max));
-    }
-
-    function fraction(value: number) {
-        return (value - min) / span;
     }
 
     function name(index: number) {

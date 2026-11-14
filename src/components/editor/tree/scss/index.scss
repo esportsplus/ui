@@ -50,6 +50,9 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
 
 
         &-part {
+            color: var(--badge-color, inherit);
+
+
             @each $tone in additions, added, conflict, deleted, deletions, error, ignored, modified, open, submodule, unsaved, warning {
                 &--#{$tone} {
                     color: var(--#{$tone}-color);
@@ -84,7 +87,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         }
     }
 
-    // The drag moves it to the pointer by its 'translate'.
+    // The drag moves it to the pointer by its 'translate'. Physical sides, since the pointer's place is.
     &-drag {
         @extend %reset-popover;
         background: var(--surface-background-default);
@@ -99,6 +102,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         padding-block: var(--padding-vertical);
         padding-inline: var(--padding-horizontal);
         top: 0;
+        translate: var(--drag-x) var(--drag-y);
         white-space: nowrap;
 
 
@@ -279,11 +283,11 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         border: var(--border-width) solid var(--error-color);
         border-radius: var(--input-radius);
         font-size: var(--message-font-size);
+        inset-block-start: 100%;
         inset-inline: var(--inset-start) 0;
         padding-block: var(--padding-vertical);
         padding-inline: var(--padding-horizontal);
         position: absolute;
-        top: 100%;
         white-space: normal;
         z-index: 1;
     }
@@ -293,12 +297,16 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     // them fade out above it. The real rows move, not their contents, so the highlight follows the selected one. Each
     // moving element runs the tree's progress itself, started on the same frame, so a frame restyles only them; their
     // own keyframes would put each on a compositor layer, dropping its text's subpixel antialiasing mid-motion.
-    // The layer is laid over the viewport's visible box, starting at the folder's bottom edge.
+    // The layer is laid over the viewport's visible box, starting at the folder's bottom edge; measured, so physical.
     &-motion {
         display: none;
+        height: var(--motion-height);
+        left: var(--motion-left);
         overflow: hidden;
         pointer-events: none;
         position: absolute;
+        top: var(--motion-top);
+        width: var(--motion-width);
 
 
         @media (prefers-reduced-motion: no-preference) {
@@ -311,6 +319,7 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         &-layer {
             inset-inline: 0;
             position: absolute;
+            top: var(--motion-edge);
 
 
             @media (prefers-reduced-motion: no-preference) {
@@ -326,6 +335,15 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
                     animation: file-tree-expand var(--expand-duration) var(--expand-timing-function) forwards;
                     translate: 0 $edge;
                 }
+            }
+
+            // A copy standing in for a row, laid out by the row's measured box, so its depth margin would count twice.
+            > .file-tree-row {
+                left: var(--ghost-left);
+                margin: 0;
+                position: absolute;
+                top: var(--ghost-top);
+                width: var(--ghost-width);
             }
 
             @keyframes file-tree-motion-layer--close {
@@ -620,8 +638,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     // Takes no room in the list, so the rows scroll on beneath it; it only covers them.
     &-sticky {
         height: 0;
+        inset-block-start: 0;
         position: sticky;
-        top: 0;
         z-index: 1;
 
 
@@ -637,8 +655,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
     }
 
     &-toggle {
-        bottom: var(--bottom);
         height: var(--height);
+        inset-block-end: var(--bottom);
         inset-inline-end: var(--end);
         outline: 0 solid var(--focus-color);
         outline-offset: calc(var(--size-100) / 4);

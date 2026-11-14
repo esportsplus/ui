@@ -32,10 +32,10 @@ export default (mode: GlassMode = 'uniform') => ({
         let container = element.querySelector(':scope > .--glass-blur');
 
         if (!container) {
-            element.appendChild( overlay(mode) );
+            element.appendChild(overlay(mode));
         }
         else if (container.classList.contains('--glass-blur-progressive') !== (mode === 'progressive')) {
-            container.replaceWith( overlay(mode) );
+            container.replaceWith(overlay(mode));
         }
     }
 });

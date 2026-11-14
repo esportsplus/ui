@@ -12,9 +12,9 @@ import chevron from '@esportsplus/ui/svg/chevron.svg';
 
 
 type A = Attributes & {
-    [MENU_TRIGGER]?: Attributes & { onclick?: never };
     [MENU_ITEM]?: Attributes;
     [MENU_PANEL]?: Attributes;
+    [MENU_TRIGGER]?: Attributes & { onclick?: never };
     // Lines the menu up with the trigger's start or end edge; a context menu opens from the point.
     align?: 'end' | 'start';
     animate?: boolean;
@@ -25,10 +25,10 @@ type A = Attributes & {
     // the highlight.
     highlight?: boolean | HighlightAttributes;
     items: Item[];
-    openOn?: 'click' | 'hover';
     ondocumentclick?: never;
     onkeydown?: never;
     onselect?: (item: Item) => void;
+    openOn?: 'click' | 'hover';
     state?: { active: boolean };
 };
 
@@ -43,8 +43,8 @@ type Controller = {
 type Item = {
     danger?: boolean;
     disabled?: boolean;
-    hint?: string;
     hidden?: Attributes['hidden'];
+    hint?: string;
     href?: string;
     // Factory because the icon renders twice for branches: in the row and in the panel header.
     icon?: () => Renderable<unknown>;
@@ -68,12 +68,11 @@ type MenuNode = {
 type Point = { x: number, y: number };
 
 
-const MENU_TRIGGER = Symbol.for('@esportsplus/ui/tooltip.menu.trigger');
-
 const MENU_ITEM = Symbol.for('@esportsplus/ui/tooltip.menu.item');
 
 const MENU_PANEL = Symbol.for('@esportsplus/ui/tooltip.menu.panel');
 
+const MENU_TRIGGER = Symbol.for('@esportsplus/ui/tooltip.menu.trigger');
 
 
 // Names each menu's anchor, which its layer is placed over.
@@ -90,44 +89,10 @@ function covered(node: MenuNode) {
     return false;
 }
 
-function enabled(node: MenuNode) {
-    let nodes: MenuNode[] = [];
-
-    for (let i = 0, n = node.children.length; i < n; i++) {
-        let child = node.children[i];
-
-        if (child.button && !child.button.hidden && !child.item?.disabled) {
-            nodes.push(child);
-        }
-    }
-
-    return nodes;
-}
-
-function tree(items: Item[], parent?: MenuNode) {
-    let nodes: MenuNode[] = [];
-
-    for (let i = 0, n = items.length; i < n; i++) {
-        let node: MenuNode = {
-            children: [],
-            item: items[i],
-            parent,
-            state: reactive({ height: undefined as number | undefined, lift: 0, open: false, render: false, settled: false, top: 0 })
-        };
-
-        node.children = tree(items[i].items ?? [], node);
-        nodes.push(node);
-    }
-
-    return nodes;
-}
-
 function createMenu(context = false) {
     return component(
         ({ align = 'start', animate = true, controller, expand: expansion = false, highlight: highlighted = false, items, onselect, openOn = 'click', state = reactive({ active: false }), ...attributes }: A, content) => {
-            let root: MenuNode = { children: [], state: reactive({ height: undefined as number | undefined, lift: 0, open: true, render: true, settled: true, top: 0 }) },
-                stack: MenuNode[] = [root],
-                hiding = 0,
+            let hiding = 0,
                 host: HTMLElement | undefined,
                 // Where the root panel last opened, kept while it still fits there.
                 last: { corner?: Corner, side?: Side } = {},
@@ -145,6 +110,8 @@ function createMenu(context = false) {
                     x: undefined as number | undefined,
                     y: undefined as number | undefined
                 }),
+                root: MenuNode = { children: [], state: reactive({ height: undefined as number | undefined, lift: 0, open: true, render: true, settled: true, top: 0 }) },
+                stack: MenuNode[] = [root],
                 trigger: HTMLElement | undefined;
 
             root.children = tree(items, root);
@@ -175,11 +142,6 @@ function createMenu(context = false) {
                 }
             });
 
-            function stay() {
-                clearTimeout(leaving);
-                leaving = undefined;
-            }
-
             // Below a focused element inside the host; over the host's own corner.
             function anchor(element: Element): Point {
                 let bounds = element.getBoundingClientRect();
@@ -189,7 +151,8 @@ function createMenu(context = false) {
 
             // Places the root panel beside its trigger, or a context menu's point, on the side it last opened on while it
             // still fits there, else where there's room, capped to scroll past the room it has; an expanding panel
-            // covers its trigger and grows out of it toward the corner it last grew toward, or one with room. Measured at its natural size first; nothing paints in between.
+            // covers its trigger and grows out of it toward the corner it last grew toward, or one with room. Measured at its
+            // natural size first; nothing paints in between.
             function arrange() {
                 let element = root.panel;
 
@@ -283,6 +246,27 @@ function createMenu(context = false) {
                 }
             }
 
+            function connect(element: HTMLElement) {
+                host = element;
+                trigger = element;
+            }
+
+            function contextmenu(event: MouseEvent) {
+                if (!host || !root.panel || root.panel.contains(event.target as Node)) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                // Synthetic events carry no point.
+                if (event.clientX === 0 && event.clientY === 0) {
+                    at(anchor(event.target instanceof Element ? event.target : host));
+                }
+                else {
+                    at({ x: event.clientX, y: event.clientY });
+                }
+            }
+
             function drill(node: MenuNode) {
                 if (!node.children.length || node.item?.disabled) {
                     return;
@@ -310,9 +294,9 @@ function createMenu(context = false) {
                         ${branch && icon({ 'aria-hidden': 'true', class: 'tooltip-menu-chevron icon--rotate' }, chevron)}
                     `,
                     bindings = {
+                        'aria-disabled': disabled === true && 'true',
                         'aria-expanded': branch && (() => String(node.state.open)),
                         'aria-haspopup': branch && 'menu',
-                        'aria-disabled': disabled === true && 'true',
                         onclick: (event: MouseEvent) => {
                             if (disabled) {
                                 event.preventDefault();
@@ -365,11 +349,80 @@ function createMenu(context = false) {
                 enabled(node)[0]?.button?.focus();
             }
 
+            function inside(node: Node | null) {
+                return !!node && (!!host?.contains(node) || !!layer?.contains(node));
+            }
+
             // Reduced motion keeps the fades, so '--open-duration' stays set while the reveal clips snap.
             function instant() {
                 return !root.panel
                     || parseFloat(getComputedStyle(root.panel).getPropertyValue('--open-duration')) === 0
                     || matchMedia('(prefers-reduced-motion: reduce)').matches;
+            }
+
+            function keydown(e: KeyboardEvent) {
+                if (context && (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey))) {
+                    e.preventDefault();
+
+                    if (!root.panel?.contains(e.target as Node)) {
+                        at(anchor(e.target as Element));
+                    }
+
+                    return;
+                }
+
+                if (!state.active) {
+                    if (e.key === 'ArrowDown' && e.target === trigger) {
+                        e.preventDefault();
+                        open();
+                    }
+
+                    return;
+                }
+
+                let nodes = enabled(stack[stack.length - 1]),
+                    index = nodes.findIndex((node) => node.button === document.activeElement),
+                    n = nodes.length;
+
+                switch (e.key) {
+                    case 'ArrowDown':
+                        nodes[(index + 1) % n]?.button?.focus();
+                        break;
+                    case 'ArrowUp':
+                        nodes[index < 1 ? n - 1 : index - 1]?.button?.focus();
+                        break;
+                    case 'ArrowLeft':
+                    case 'Backspace':
+                        pop();
+                        break;
+                    case 'ArrowRight':
+                        if (index !== -1) {
+                            drill(nodes[index]);
+                        }
+                        break;
+                    case 'End':
+                        nodes[n - 1]?.button?.focus();
+                        break;
+                    case 'Escape':
+                        if (stack.length > 1) {
+                            pop();
+                        }
+                        else {
+                            close(true);
+                        }
+                        break;
+                    case 'Home':
+                        nodes[0]?.button?.focus();
+                        break;
+                    case 'Tab':
+                        close(true);
+                        break;
+                    // Enter and Space fall through to the native button click
+                    default:
+                        return;
+                }
+
+                e.preventDefault();
             }
 
             // Out of the top layer once the close has played out, unless it reopened meanwhile.
@@ -443,22 +496,6 @@ function createMenu(context = false) {
                 }
                 else {
                     reveal();
-                }
-            }
-
-            function contextmenu(event: MouseEvent) {
-                if (!host || !root.panel || root.panel.contains(event.target as Node)) {
-                    return;
-                }
-
-                event.preventDefault();
-
-                // Synthetic events carry no point.
-                if (event.clientX === 0 && event.clientY === 0) {
-                    at(anchor(event.target instanceof Element ? event.target : host));
-                }
-                else {
-                    at({ x: event.clientX, y: event.clientY });
                 }
             }
 
@@ -611,78 +648,9 @@ function createMenu(context = false) {
                 onselect?.(item);
             }
 
-            function connect(element: HTMLElement) {
-                host = element;
-                trigger = element;
-            }
-
-            function inside(node: Node | null) {
-                return !!node && (!!host?.contains(node) || !!layer?.contains(node));
-            }
-
-            function keydown(e: KeyboardEvent) {
-                if (context && (e.key === 'ContextMenu' || (e.key === 'F10' && e.shiftKey))) {
-                    e.preventDefault();
-
-                    if (!root.panel?.contains(e.target as Node)) {
-                        at(anchor(e.target as Element));
-                    }
-
-                    return;
-                }
-
-                if (!state.active) {
-                    if (e.key === 'ArrowDown' && e.target === trigger) {
-                        e.preventDefault();
-                        open();
-                    }
-
-                    return;
-                }
-
-                let nodes = enabled(stack[stack.length - 1]),
-                    index = nodes.findIndex((node) => node.button === document.activeElement),
-                    n = nodes.length;
-
-                switch (e.key) {
-                    case 'ArrowDown':
-                        nodes[(index + 1) % n]?.button?.focus();
-                        break;
-                    case 'ArrowUp':
-                        nodes[index < 1 ? n - 1 : index - 1]?.button?.focus();
-                        break;
-                    case 'ArrowLeft':
-                    case 'Backspace':
-                        pop();
-                        break;
-                    case 'ArrowRight':
-                        if (index !== -1) {
-                            drill(nodes[index]);
-                        }
-                        break;
-                    case 'End':
-                        nodes[n - 1]?.button?.focus();
-                        break;
-                    case 'Escape':
-                        if (stack.length > 1) {
-                            pop();
-                        }
-                        else {
-                            close(true);
-                        }
-                        break;
-                    case 'Home':
-                        nodes[0]?.button?.focus();
-                        break;
-                    case 'Tab':
-                        close(true);
-                        break;
-                    // Enter and Space fall through to the native button click
-                    default:
-                        return;
-                }
-
-                e.preventDefault();
+            function stay() {
+                clearTimeout(leaving);
+                leaving = undefined;
             }
 
             let hover = !context && openOn === 'hover',
@@ -766,9 +734,42 @@ function createMenu(context = false) {
     );
 }
 
-const menu = createMenu();
+function enabled(node: MenuNode) {
+    let nodes: MenuNode[] = [];
+
+    for (let i = 0, n = node.children.length; i < n; i++) {
+        let child = node.children[i];
+
+        if (child.button && !child.button.hidden && !child.item?.disabled) {
+            nodes.push(child);
+        }
+    }
+
+    return nodes;
+}
+
+function tree(items: Item[], parent?: MenuNode) {
+    let nodes: MenuNode[] = [];
+
+    for (let i = 0, n = items.length; i < n; i++) {
+        let node: MenuNode = {
+            children: [],
+            item: items[i],
+            parent,
+            state: reactive({ height: undefined as number | undefined, lift: 0, open: false, render: false, settled: false, top: 0 })
+        };
+
+        node.children = tree(items[i].items ?? [], node);
+        nodes.push(node);
+    }
+
+    return nodes;
+}
+
 
 const context = createMenu(true);
+
+const menu = createMenu();
 
 export default menu;
 export { context };

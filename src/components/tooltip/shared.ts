@@ -2,8 +2,8 @@ import { effect, flush, reactive, ReactiveArray, root, untrack } from '@esportsp
 import { html, setProperties, type Attributes, type Element as Bindable, type Renderable } from '@esportsplus/template';
 import overlay from '~/components/overlay';
 import { finished } from '~/shared/animation';
-import { observe } from '~/shared/resize';
 import { margin, place, type Axis, type Side } from '~/shared/placement';
+import { observe } from '~/shared/resize';
 import { cool, wait, warm, type Delay } from './utilities';
 import '~/components/frame/scss/index.scss';
 
@@ -49,10 +49,10 @@ type Layer = {
 };
 
 type Options = {
-    delay?: Delay,
     // Keeps it on that axis: beside its triggers ('x') or above and below them ('y'); left out, either. Within it, the
     // tooltip reopens on the side it last opened on while that still fits, else on the side with more room.
     axis?: Axis,
+    delay?: Delay,
     // Clicking anything inside that matches this selector closes it; 'a[href]', so following a link leaves nothing
     // open behind it.
     dismiss?: string,
@@ -124,8 +124,8 @@ const shared = ({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, d
         element: HTMLElement | undefined,
         id = `tooltip-shared-${++uid}`,
         last: Target | null = null,
-        leaving: Layer | null = null,
         layers = new ReactiveArray<Layer>(),
+        leaving: Layer | null = null,
         next: Target | null = null,
         pointer = 'mouse',
         presentation = reactive({ active: false }),
@@ -133,7 +133,7 @@ const shared = ({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, d
         shown = false,
         timer: ReturnType<typeof setTimeout> | undefined,
         unobserve: VoidFunction | undefined,
-        // Where the surface sits and how it moves, bound on it and its box; undefined leaves each to the stylesheet.
+        // Where the surface sits and how it moves, bound on it; undefined leaves each to the stylesheet.
         view = reactive({
             gliding: false,
             height: undefined as string | undefined,
@@ -158,7 +158,6 @@ const shared = ({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, d
                             () => layer.state.leaving && 'frame--swap-leaving'
                         ],
                         style: () => layer.state.travel && `--translate-x: ${layer.state.travel.x}; --translate-y: ${layer.state.travel.y};`
-
                     }
                     : {
                         class: () => layer.state.active && '--active'
@@ -408,10 +407,6 @@ const shared = ({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, d
         }
     }
 
-    function indexOf(trigger: HTMLElement) {
-        return bound.get(trigger)?.index ?? -1;
-    }
-
     // Once the close has played out: drops the content and leaves the top layer.
     function hide() {
         drop(active);
@@ -420,6 +415,10 @@ const shared = ({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, d
         leaving = null;
         unwatch();
         shown = false;
+    }
+
+    function indexOf(trigger: HTMLElement) {
+        return bound.get(trigger)?.index ?? -1;
     }
 
     function inside(node: Node | null) {
@@ -491,21 +490,6 @@ const shared = ({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, d
         }
 
         timer = setTimeout(close, closing);
-    }
-
-    function reposition() {
-        if (!current || !element) {
-            return;
-        }
-
-        if (!current.trigger.isConnected) {
-            close();
-            return;
-        }
-
-        // Follows the trigger exactly; a glide would trail behind the scroll.
-        measure();
-        view.gliding = false;
     }
 
     // Spans, so it can be rendered inside running text.
@@ -609,6 +593,7 @@ const shared = ({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, d
                     },
                     style: () => ({
                         '--shared-height': view.height,
+                        '--shared-origin': view.origin,
                         '--shared-width': view.width,
                         '--shared-x': view.x,
                         '--shared-y': view.y
@@ -632,12 +617,26 @@ const shared = ({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, d
                     ${{
                         onconnect: (el: HTMLElement) => {
                             box = el;
-                        },
-                        style: () => ({ 'transform-origin': view.origin })
+                        }
                     }}
                 >${stack}</span>
             </span>
         `;
+    }
+
+    function reposition() {
+        if (!current || !element) {
+            return;
+        }
+
+        if (!current.trigger.isConnected) {
+            close();
+            return;
+        }
+
+        // Follows the trigger exactly; a glide would trail behind the scroll.
+        measure();
+        view.gliding = false;
     }
 
     // Opens on 'trigger' after the open delay. While showing, or still closing, it moves over at once; while a wait
@@ -701,6 +700,7 @@ const shared = ({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, d
         else {
             measure();
         }
+
         state.index = indexOf(target.trigger);
         state.active = true;
         describe(target.trigger, true);

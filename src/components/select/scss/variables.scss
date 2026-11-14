@@ -17,10 +17,6 @@
     --width: min(260px, 100%);
     --z-index: 0;
 
-    @include tokens.state(active hover) {
-        --z-index: 9;
-    }
-
 
     // Open is its active state, which thickens the edge inward, so the panel laid over it still covers it.
     &--border {
@@ -43,6 +39,7 @@
     &--compact {
         --font-size: var(--font-size-300);
         --height: calc((6px * 2) + var(--size-100));
+
 
         & > .select-menu-trigger {
             --padding-start: var(--size-200);
@@ -100,6 +97,7 @@
             --transition-duration: 130ms;
             --transition-timing-function: var(--spring);
 
+
             @include tokens.state(hover) {
                 --color: var(--color-text-500);
             }
@@ -147,6 +145,7 @@
             --padding-horizontal: var(--size-100);
             --padding-vertical: 0px;
 
+
             &-detail {
                 --color: var(--color-text-300);
                 --font-size: var(--font-size-300);
@@ -173,12 +172,13 @@
             --width: auto;
             --z-index: 50;
 
-            @include tokens.state(inactive) {
-                --transition-duration: 100ms;
-            }
-
             @media (prefers-reduced-motion: reduce) {
                 --scale: 1;
+            }
+
+
+            @include tokens.state(inactive) {
+                --transition-duration: 100ms;
             }
         }
 
@@ -189,9 +189,9 @@
             --transition-duration: 150ms;
             --transition-timing-function: ease-out;
 
+
             &-icon.icon {
                 --color: currentColor;
-                // --size: 14px;
             }
         }
 
@@ -216,6 +216,10 @@
         }
     }
 
+
+    @include tokens.state(active hover) {
+        --z-index: 9;
+    }
 
     // Disabled, it holds its resting look under the pointer and pressed.
     &:has(> #{&}-menu-trigger:disabled) {

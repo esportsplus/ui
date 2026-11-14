@@ -9,17 +9,13 @@
 
     // The text fades and travels as its accordion opens and closes: the description down and out, the message down and
     // in.
-    > .accordion > .accordion-content {
-        transition:
-            opacity var(--error-duration) var(--error-timing-function),
-            translate var(--error-duration) var(--error-timing-function);
-
-        @media (prefers-reduced-motion: reduce) {
-            transition: none;
-        }
-    }
-
     > .accordion {
+        > .accordion-content {
+            transition-duration: var(--error-duration);
+            transition-property: opacity, translate;
+            transition-timing-function: var(--error-timing-function);
+        }
+
         @include tokens.state(inactive) {
             > .accordion-content {
                 opacity: 0;
@@ -27,7 +23,7 @@
         }
     }
 
-    > .error-description {
+    > #{&}-description {
         @include tokens.state(inactive) {
             > .accordion-content {
                 translate: 0 var(--error-slide);
@@ -35,7 +31,7 @@
         }
     }
 
-    > .error-message {
+    > #{&}-message {
         @include tokens.state(inactive) {
             > .accordion-content {
                 translate: 0 calc(var(--error-slide) * -1);

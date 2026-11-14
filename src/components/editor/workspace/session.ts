@@ -711,4 +711,3 @@ const hosted = (model: EditorWorkspaceModel, mounted: Mounted, delay = DELAY) =>
 
 export default hosted;
 export { parse };
-export type { Mounted };

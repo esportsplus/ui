@@ -21,6 +21,7 @@
         padding: 0 var(--padding-horizontal);
         white-space: nowrap;
 
+
         @media (forced-colors: active) {
             @include tokens.state(active) {
                 background: Highlight;
@@ -42,16 +43,6 @@
         }
     }
 
-    &-completions {
-        max-height: calc(var(--rows) * var(--row-height) + 2 * var(--border-width));
-        max-width: min(90vw, calc(var(--width) * 2));
-        min-width: var(--width);
-        overflow: auto;
-        pointer-events: auto;
-        position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-        top: anchor(bottom);
-    }
-
     &-completions,
     &-hover {
         @extend %reset-popover;
@@ -65,8 +56,18 @@
         font-size: var(--font-size);
         left: anchor(left);
         position-anchor: var(--anchor);
+        position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
         // Hidden with the text it belongs to once that scrolls out of the editor.
         position-visibility: anchors-visible;
+    }
+
+    &-completions {
+        max-height: calc(var(--rows) * var(--row-height) + 2 * var(--border-width));
+        max-width: min(90vw, calc(var(--width) * 2));
+        min-width: var(--width);
+        overflow: auto;
+        pointer-events: auto;
+        top: anchor(bottom);
     }
 
     &-diagnostic {
@@ -75,6 +76,7 @@
         text-decoration-skip-ink: none;
         text-decoration-style: wavy;
         text-underline-offset: var(--offset);
+
 
         &--hint {
             text-decoration-color: var(--diagnostic-hint-color);
@@ -96,7 +98,6 @@
         max-width: min(90vw, var(--max-width));
         overflow: hidden;
         padding: var(--padding-vertical) var(--padding-horizontal);
-        position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
         white-space: pre-wrap;
     }
 
@@ -108,6 +109,7 @@
         flex: none;
         padding: 0 var(--padding-horizontal);
         text-align: left;
+
 
         &--hint {
             border-left-color: var(--diagnostic-hint-color);
@@ -137,6 +139,7 @@
         max-height: var(--max-height);
         overflow: auto;
         padding: var(--padding-vertical) var(--padding-horizontal);
+
 
         @include tokens.state(active) {
             display: flex;

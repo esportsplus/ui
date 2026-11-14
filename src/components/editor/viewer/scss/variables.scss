@@ -63,7 +63,7 @@
         --color-hover: var(--hover-color);
         --color-pressed: var(--color-hover);
 
-        &[aria-expanded='false'] .code-viewer-fold-icon.icon {
+        &[aria-expanded='false'] #{&}-icon.icon {
             --rotate: 0deg;
         }
     }

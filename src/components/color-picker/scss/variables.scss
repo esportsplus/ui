@@ -36,6 +36,7 @@
         --thumb-size: var(--height);
         --vertical-size: auto;
 
+
         &--alpha {
             --background-default: linear-gradient(rgb(var(--rgb)), rgb(var(--rgb) / 0)), var(--checker);
         }
@@ -78,10 +79,12 @@
         --thumb-shadow: var(--knob-shadow);
         --thumb-size: var(--size-500);
 
+
         // Held thumbs keep their size.
         @media (prefers-reduced-motion: reduce) {
             --thumb-scale-pressed: 1;
         }
+
 
         &--alpha {
             --background-default: linear-gradient(to right, rgb(var(--rgb) / 0), rgb(var(--rgb))), var(--checker);
@@ -135,6 +138,7 @@
         // Clears the copy button sitting at the field's end.
         --padding-end: calc(var(--size) - var(--size-100) / 2);
 
+
         &[aria-invalid='true'] {
             --border-color-default: var(--color-red-400);
         }
@@ -172,6 +176,7 @@
         --border-width: 1px;
         --padding-vertical: 12px;
 
+
         &-label {
             --color: var(--color-text-300);
             --font-size: var(--font-size-300);
@@ -197,6 +202,7 @@
             0 0 0 0 var(--color);
         --size: 28px;
 
+
         &--leaving {
             --leave-duration: 150ms;
             --leave-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
@@ -216,6 +222,7 @@
         --shift-timing-function: var(--enter-timing-function);
         --size: 28px;
 
+
         // Swatches fade in and out where they stand.
         @media (prefers-reduced-motion: reduce) {
             --blur: 0px;
@@ -233,6 +240,7 @@
         // Grows a touch while held so you can tell you've got hold of it.
         --scale-pressed: 1.1;
         --size: var(--size-500);
+
 
         @media (prefers-reduced-motion: reduce) {
             --scale-pressed: 1;

@@ -181,6 +181,11 @@ function trigger({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, 
                 release();
             }
         },
+        onmouseout: (e: MouseEvent) => {
+            if (!(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node | null)) {
+                release();
+            }
+        },
         onmouseover: (e: MouseEvent) => {
             let element = e.currentTarget as HTMLElement;
 
@@ -197,11 +202,6 @@ function trigger({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, 
 
             local.instant = opening > 0 && warm();
             pending = wait(opening, () => open(element));
-        },
-        onmouseout: (e: MouseEvent) => {
-            if (!(e.currentTarget as HTMLElement).contains(e.relatedTarget as Node | null)) {
-                release();
-            }
         },
         onpointermove: (e: PointerEvent) => {
             let element = e.currentTarget as HTMLElement;

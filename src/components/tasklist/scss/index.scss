@@ -53,18 +53,16 @@
     }
 
     // Drag grip, shown while the row is hovered. A third column of its own, on the label's line.
-    &-row--sortable {
-        &::after {
-            background: var(--background);
-            content: '';
-            grid-column: 3;
-            grid-row: 1;
-            height: var(--size);
-            mask: url('../../../../storage/svg/grip.svg') center / contain no-repeat;
-            opacity: var(--opacity);
-            transition: opacity var(--transition-duration) var(--transition-timing-function);
-            width: var(--size);
-        }
+    &-row--sortable::after {
+        background: var(--background);
+        content: '';
+        grid-column: 3;
+        grid-row: 1;
+        height: var(--size);
+        mask: url('../../../../storage/svg/grip.svg') center / contain no-repeat;
+        opacity: var(--opacity);
+        transition: opacity var(--transition-duration) var(--transition-timing-function);
+        width: var(--size);
     }
 
     // Inline so the strike is drawn once per wrapped line

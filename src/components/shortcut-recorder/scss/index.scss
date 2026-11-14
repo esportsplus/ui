@@ -89,10 +89,11 @@
     }
 
     // The faces swap in one cell, as 'tooltip.shared' swaps its content, while the width glides from one face's to the
-    // other's; the box follows it, so its edge morphs around whichever shows.
+    // other's, which JS measures into '--face-width'; the box follows it, so its edge morphs around whichever shows.
     &-faces {
         display: grid;
         transition: width var(--transition-duration) var(--transition-timing-function);
+        width: var(--face-width, auto);
 
         @media (prefers-reduced-motion: reduce) {
             transition: none;

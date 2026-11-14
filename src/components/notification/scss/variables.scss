@@ -14,6 +14,10 @@
     --transition-duration: 280ms;
     --transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
 
+    @media (prefers-reduced-motion: reduce) {
+        --transition-duration: 0s;
+    }
+
 
     &--dot {
         --padding-horizontal: 0px;
@@ -65,5 +69,9 @@
     &-character-track {
         --transition-duration: 400ms;
         --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
     }
 }

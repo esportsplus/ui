@@ -1,5 +1,5 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { flush, reactive, ReactiveArray } from '@esportsplus/reactivity';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { finished, measure, slides, timing } from '~/shared/animation';
 import checkbox from '~/components/checkbox';
 import sortable from '~/components/sortable';

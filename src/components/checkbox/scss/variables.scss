@@ -6,8 +6,8 @@
 
 .checkbox {
     @extend %border-surface, %box-shadow-surface;
-    --border-color-active: var(--background-active);
     --border-color: var(--border-color-default);
+    --border-color-active: var(--background-active);
     --border-radius: var(--border-radius-300);
     --border-width: var(--border-width-400);
     --border-width-offset: var(--border-width-offset-default);
@@ -28,23 +28,24 @@
     --width: var(--height);
 
 
-    :where([data-theme='dark']) & {
-        @include surface.step(8);
+    :where([data-theme='dark']) &,
+    :where([data-theme='light']) & {
         --background: var(--background-default);
         --background-active: var(--color-primary-500);
         --background-default: transparent;
         --indicator-color-default: var(--color-surface);
     }
 
+    :where([data-theme='dark']) & {
+        @include surface.step(8);
+    }
+
     :where([data-theme='light']) & {
         @include surface.step(-3);
-        --background: var(--background-default);
-        --background-active: var(--color-primary-500);
-        --background-default: transparent;
         --background-hover: var(--color-white-400);
         --background-pressed: var(--color-white-400);
-        --indicator-color-default: var(--color-surface);
     }
+
 
     &--radio,
     &--switch {
@@ -57,6 +58,8 @@
         --border-radius: 100%;
         --scale-default: 0;
         --scale-hover: 0;
+
+
 
         &::before {
             --height: var(--size-100);

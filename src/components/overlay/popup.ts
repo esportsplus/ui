@@ -22,8 +22,8 @@ type Popup = {
     // Clicks on matching content close after its own click handler has run.
     dismissOn?: string;
     escape?: boolean;
-    ondismiss?: (reason: 'escape' | 'outside') => void;
     onclosed?: VoidFunction;
+    ondismiss?: (reason: 'escape' | 'outside') => void;
     onopen?: VoidFunction;
     // The surface 'target' returns must carry its own 'popover' attribute.
     popover?: boolean;
@@ -100,7 +100,7 @@ let opened: HTMLElement[] = [];
 
 
 // Spread on a popup's host. Inline surfaces retain their positioning and morph CSS; popovers use the top layer.
-function popup({ canDismiss, contains = (root, node) => !!node && root.contains(node), dismiss = true, dismissOn, escape = true, ondismiss, onclosed, onopen, popover = false, state = reactive({ active: false }), target = (root) => root }: Popup = {}): Attributes {
+function popup({ canDismiss, contains = (root, node) => !!node && root.contains(node), dismiss = true, dismissOn, escape = true, onclosed, ondismiss, onopen, popover = false, state = reactive({ active: false }), target = (root) => root }: Popup = {}): Attributes {
     let entering = 0,
         // A popover's '--active', a microtask behind 'state.active' while opening.
         local = reactive({ active: false }),

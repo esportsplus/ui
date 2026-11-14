@@ -35,6 +35,7 @@
         left: var(--sortable-left);
         scale: var(--scale);
         top: var(--sortable-top);
+        // On 'transform' rather than 'translate' and 'rotate', which the held animations own, so both stack.
         transform: translate3d(var(--sortable-x), var(--sortable-y), 0) rotate(var(--sortable-angle));
         transform-origin: var(--sortable-origin);
         transition:
@@ -42,6 +43,7 @@
             scale var(--transition-duration) var(--transition-timing-function);
         width: var(--sortable-width);
         will-change: transform;
+
 
         @starting-style {
             box-shadow: none;
@@ -52,7 +54,9 @@
             animation: none;
         }
 
-        // Settles the lift, the swing and any animation on the way, as the item shows again under it.
+
+        // Settles the lift, the swing and any animation on the way, as the item shows again under it. Its size eases
+        // too, since the slot it lands in can be laid out at another size than the one it was lifted from.
         &--dropping {
             animation: none;
             box-shadow: none;
@@ -85,6 +89,7 @@
             translate: var(--sortable-throw-x) var(--sortable-throw-y);
         }
 
+
         // The copy takes the box the item was picked up from.
         > * {
             box-sizing: border-box;
@@ -107,6 +112,7 @@
         transition:
             background-color var(--transition-duration) var(--transition-timing-function),
             color var(--transition-duration) var(--transition-timing-function);
+
 
         > * {
             opacity: 0;
@@ -134,9 +140,11 @@
             opacity var(--transition-duration) var(--transition-timing-function);
         z-index: 1;
 
+
         .sortable-drag & {
             display: flex;
             opacity: 1;
+
 
             @starting-style {
                 opacity: 0;

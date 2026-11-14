@@ -91,7 +91,7 @@ function bind(item: Item, block: string): Attributes {
         onconnect: (element: HTMLElement) => {
             item.element = element;
         },
-        style: () => item.state.exiting && `left: ${item.state.left}px; top: ${item.state.top}px;`
+        style: () => item.state.exiting && `--leave-left: ${item.state.left}px; --leave-top: ${item.state.top}px;`
     };
 }
 

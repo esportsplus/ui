@@ -26,6 +26,7 @@
     &-expand {
         display: inline-flex;
 
+
         // The tooltip morph grows the row out of the trigger and closes it back onto it. Centred on the trigger, then
         // moved along the row so the current option sits where the trigger's content was. Raised over the trigger,
         // unlike a morph tooltip, since it covers it rather than leaving it.
@@ -42,6 +43,7 @@
                 calc(50% + ((var(--count) - 1) / 2 - var(--index)) * (var(--option-size) + var(--gap-horizontal)))
                 50%;
             z-index: var(--z-index);
+
 
             // Closing on a pick, the row slides the option onto the trigger as the clip lands around it.
             .select-expand--landing:not(.--active) > & {
@@ -61,9 +63,10 @@
             flex: 0 0 var(--option-size);
             height: var(--option-size);
             justify-content: center;
-            transition:
-                background-color var(--transition-duration) var(--transition-timing-function),
-                color var(--transition-duration) var(--transition-timing-function);
+            transition-duration: var(--transition-duration);
+            transition-property: background-color, color;
+            transition-timing-function: var(--transition-timing-function);
+
 
             &:focus-visible {
                 outline: var(--focus-width) solid var(--focus-color);
@@ -77,6 +80,7 @@
             height: var(--trigger-size);
             width: var(--trigger-size);
 
+
             // TEMP: the content swaps instantly instead of the faces' blur/fade, while the morph is tuned.
             .button-face {
                 transition: none;
@@ -88,6 +92,7 @@
         &-check {
             @extend %icon-stroke, %icon-swap;
             stroke-width: var(--stroke-width);
+
 
             @media (prefers-reduced-motion: reduce) {
                 filter: none;
@@ -120,6 +125,7 @@
             padding-inline: var(--padding-horizontal);
             user-select: none;
 
+
             &-detail {
                 color: var(--color);
                 flex: 0 0 auto;
@@ -132,6 +138,7 @@
                 flex: 1;
                 min-width: 0;
             }
+
 
             &[aria-selected='true'] .select-menu-check {
                 @extend %icon-swap-active;
@@ -157,12 +164,12 @@
             position: absolute;
             scale: var(--scale);
             top: 0;
-            transition:
-                opacity var(--transition-duration) var(--transition-timing-function),
-                scale var(--transition-duration) var(--transition-timing-function),
-                translate var(--transition-duration) var(--transition-timing-function);
+            transition-duration: var(--transition-duration);
+            transition-property: opacity, scale, translate;
+            transition-timing-function: var(--transition-timing-function);
             width: var(--width);
             z-index: var(--z-index);
+
 
             @include tokens.state(active) {
                 opacity: 1;
@@ -183,10 +190,6 @@
             position: absolute;
             transition: opacity var(--transition-duration) var(--transition-timing-function);
 
-            @include tokens.state(active) {
-                opacity: 1;
-                pointer-events: auto;
-            }
 
             &--down {
                 bottom: 0;
@@ -194,6 +197,12 @@
 
             &--up {
                 top: 0;
+            }
+
+
+            @include tokens.state(active) {
+                opacity: 1;
+                pointer-events: auto;
             }
         }
 
@@ -222,6 +231,7 @@
             touch-action: manipulation;
             user-select: none;
             width: 100%;
+
 
             &:disabled {
                 cursor: not-allowed;

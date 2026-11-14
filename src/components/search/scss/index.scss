@@ -26,11 +26,11 @@
 
     // A tactile button sinks with its group, so the items floating over it go with it; they center by 'translate',
     // which the button's own would fight. Qualified past the button's own pressed rule so it stays put.
-    &:has(> .search-button.button--tactile:is(:active, .--active, .--pressed)) {
+    &:has(> #{&}-button.button--tactile:is(:active, .--active, .--pressed)) {
         translate: var(--translate-pressed);
     }
 
-    & > .search-button.button--tactile:is(:active, .--active, .--pressed) {
+    & > #{&}-button.button--tactile:is(:active, .--active, .--pressed) {
         translate: none;
     }
 }

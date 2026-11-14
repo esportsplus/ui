@@ -1,10 +1,21 @@
 .heatmap {
+    --font-weight: var(--font-weight-500);
+    --months-height: var(--size-400);
+    --outline-color: var(--color-primary-500);
+    --outline-space: 3px;
+    --pitch: var(--size-300);
+    // Per column, so the whole year sweeps in under half a second and reads as one gesture.
+    --stagger: 8ms;
+    --transition-duration: 0.3s;
+    --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
+
+    // The legend renders on its own too, so it carries what its swatches and labels read.
     &,
     &-legend {
         --cell-size: var(--size-200);
         --color: var(--color-text-300);
         --font-size: var(--font-size-200);
-        --font-weight: var(--font-weight-500);
         // One hue, light to dark. Level 0 stays faintly visible so empty days still read as part of the grid.
         --level-0: color-mix(in oklab, var(--level-color) 7%, transparent);
         --level-1: color-mix(in oklab, var(--level-color) 25%, transparent);
@@ -12,14 +23,6 @@
         --level-3: color-mix(in oklab, var(--level-color) 70%, transparent);
         --level-4: var(--level-color);
         --level-color: var(--color-primary-500);
-        --months-height: var(--size-400);
-        --outline-color: var(--color-primary-500);
-        --outline-space: 3px;
-        --pitch: var(--size-300);
-        // Per column, so the whole year sweeps in under half a second and reads as one gesture.
-        --stagger: 8ms;
-        --transition-duration: 0.3s;
-        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
     }
 
     &--blue,
@@ -42,7 +45,7 @@
         --spacer: calc(var(--cell-size) / 2);
     }
 
-    &-grid--shown .heatmap-cell {
+    &-grid--shown &-cell {
         --opacity: 1;
         --scale: 1;
     }

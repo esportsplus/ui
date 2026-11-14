@@ -36,31 +36,21 @@
             }
         }
 
-        // Qualified as the panel it styles is. '--expand-direction' is written by 'tooltip.menu': 1 as the panel grows
-        // rightward, -1 leftward, so the items slide in from the trigger's side.
+        // Qualified as the panel it styles is; its shape's timing is the expanding content's. '--expand-direction' is
+        // written by 'tooltip.menu': 1 as the panel grows rightward, -1 leftward, so the items slide in from the
+        // trigger's side. Items leave together at once.
         &.tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
-            // Keeps the resting clip outside the menu's shadow.
-            --expand-bleed: 24px;
             --expand-content-delay: 0.06s;
             --expand-content-duration: 0.15s;
             --expand-content-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
             --expand-direction: 1;
-            --expand-duration: 0.4s;
-            // Closing waits half the shape's travel: it crossfades back into the trigger once it has nearly landed.
-            // Items leave together at once.
-            --expand-fade-delay: calc(var(--expand-duration) / 2);
-            --expand-fade-duration: 0.15s;
-            --expand-fade-timing-function: linear;
             --expand-offset: var(--size-100);
             --expand-shift: calc(var(--expand-offset) * var(--expand-direction) * -1) 0;
             --expand-stagger: 0.02s;
-            --expand-timing-function: linear(0, 0.072, 0.22, 0.382, 0.529, 0.651, 0.747, 0.82, 0.874, 0.913, 0.94, 0.96, 0.973, 0.982, 0.988, 0.992, 0.995, 0.997, 0.998, 0.999, 1);
 
-            // The shape snaps open and closed and the items arrive in place, so only the fades remain.
+            // The items arrive in place.
             @media (prefers-reduced-motion: reduce) {
                 --expand-content-delay: 0s;
-                --expand-duration: 0s;
-                --expand-fade-delay: 0s;
                 --expand-offset: 0px;
                 --expand-stagger: 0s;
             }
@@ -106,23 +96,9 @@
         --viewport-margin: var(--size-100);
         --width: auto;
 
-        // The shape carries the motion, so the content neither travels nor scales. Closing waits half the shape's
-        // travel: it crossfades back into the trigger once it has nearly landed.
+        // The shape carries the motion, so the content neither travels nor scales.
         &--expand {
-            --expand-bleed: 24px;
-            --expand-duration: 0.4s;
-            --expand-fade-delay: calc(var(--expand-duration) / 2);
-            --expand-fade-duration: 0.15s;
-            --expand-fade-timing-function: linear;
-            --expand-timing-function: linear(0, 0.072, 0.22, 0.382, 0.529, 0.651, 0.747, 0.82, 0.874, 0.913, 0.94, 0.96, 0.973, 0.982, 0.988, 0.992, 0.995, 0.997, 0.998, 0.999, 1);
             --offset: 0px;
-            --scale: 1;
-
-            // The shape snaps open and closed, so only the fades remain.
-            @media (prefers-reduced-motion: reduce) {
-                --expand-duration: 0s;
-                --expand-fade-delay: 0s;
-            }
 
             #{tokens.state(active, '.tooltip')} > &,
             #{tokens.state(active, '.tooltip')} :not(.tooltip) > & {
@@ -145,7 +121,6 @@
             --morph-shrink-timing-function: cubic-bezier(0.3, 0, 0.2, 1);
             // Motion comes from the morph, not the slide/scale.
             --offset: 0px;
-            --scale: 1;
         }
 
         &--scale,
@@ -160,121 +135,147 @@
         }
     }
 
-    // Qualified past '.icon' and '.icon--rotate', which set the same properties.
-    &-menu-chevron.icon {
-        --margin-horizontal: calc(var(--size-100) / 4);
-        --opacity: 0.6;
-        --rotate: 0deg;
-        --size: var(--size-400);
-        --transition-duration: var(--open-duration);
-        --transition-timing-function: var(--open-timing-function);
+    // Shared by expanding content and the expanding menu panel. Closing waits half the shape's travel: it crossfades
+    // back into the trigger once it has nearly landed.
+    &-content--expand,
+    &-message--expand,
+    &--menu.tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
+        // Keeps the resting clip outside the shadow.
+        --expand-bleed: 24px;
+        --expand-duration: 0.4s;
+        --expand-fade-delay: calc(var(--expand-duration) / 2);
+        --expand-fade-duration: 0.15s;
+        --expand-fade-timing-function: linear;
+        --expand-timing-function: linear(0, 0.072, 0.22, 0.382, 0.529, 0.651, 0.747, 0.82, 0.874, 0.913, 0.94, 0.96, 0.973, 0.982, 0.988, 0.992, 0.995, 0.997, 0.998, 0.999, 1);
 
+        // The shape snaps open and closed, so only the fades remain.
         @media (prefers-reduced-motion: reduce) {
-            --transition-duration: 0s;
-        }
-
-        // A branch panel's header points down into the panel it heads.
-        &.tooltip-menu-chevron--down {
-            --rotate: 90deg;
+            --expand-duration: 0s;
+            --expand-fade-delay: 0s;
         }
     }
 
-    // The open clip overhangs the box so the shadow isn't cut off.
-    &-menu-panel > .tooltip-menu-panel {
-        --bleed: 48px;
-    }
+    &-menu {
+        // Qualified past '.icon' and '.icon--rotate', which set the same properties.
+        &-chevron.icon {
+            --margin-horizontal: calc(var(--size-100) / 4);
+            --opacity: 0.6;
+            --rotate: 0deg;
+            --size: var(--size-400);
+            --transition-duration: var(--open-duration);
+            --transition-timing-function: var(--open-timing-function);
 
-    // Doubled so it outranks a class paired onto the item, such as '.link'.
-    &-menu-header,
-    &-menu-item.tooltip-menu-item {
-        --border-radius: var(--item-border-radius);
-        --gap-horizontal: var(--size-200);
-        --gap-vertical: var(--size-200);
-        --height: var(--item-height);
-        --padding-horizontal: var(--size-200);
-    }
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
+            }
 
-    // Sized with the menu it opens; zero specificity, so a trigger's own size still wins.
-    :where(&-menu-trigger) {
-        --font-size: var(--font-size-300);
-    }
-
-    &-menu-hint {
-        --color: var(--color-text-300);
-        --font-size: var(--font-size-300);
-    }
-
-    // Items take the hover and pressed steps of the panel they sit in.
-    &-menu-item {
-        @extend %background-state;
-        --background-hover: var(--item-background-hover);
-        --background-pressed: var(--item-background-pressed);
-        --color-danger: var(--color-red-400);
-        --color-disabled: var(--color-text-300);
-        --transition-duration: 130ms;
-        --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
-
-        // Visible focus only, as the highlight takes it: opening by click focuses the first item without marking it.
-        &:focus-visible {
-            --background: var(--background-hover);
+            // A branch panel's header points down into the panel it heads.
+            &.tooltip-menu-chevron--down {
+                --rotate: 90deg;
+            }
         }
 
-        &:disabled,
-        &[aria-disabled='true'] {
-            --background-hover: var(--background-default);
-            --background-pressed: var(--background-default);
-        }
-    }
-
-    // A surface of its own, so a branch panel sits a level above the panel it opened from. The item sizes and insets are
-    // read by the items and by what lines up with them: a sub-panel's closed clip over the row that opened it, and the
-    // highlight's rounding. The title opacities are read by a branch panel's header title, which crossfades to bold
-    // while that panel is open; every panel sets its own, so a parent panel's state never reaches its children's titles.
-    &-menu-panel {
-        @extend %background-state, %box-shadow-state, %surface-raise;
-        --background-default: var(--surface-background-default);
-        --box-shadow-default: var(--surface-shadow-default);
-        --inset-horizontal: calc(var(--size-100) / 2);
-        --inset-vertical: calc(var(--size-100) / 2);
-        --item-background-hover: var(--surface-primary-default);
-        --item-background-pressed: var(--surface-primary-pressed);
-        --item-border-radius: var(--border-radius-400);
-        --item-height: 36px;
-        // Written by 'tooltip.menu': how far a sub-panel rises above its row, and the height a panel scrolls past, each
-        // to stay on screen.
-        --lift: 0px;
-        --max-height: none;
-        --title-bold-opacity: 0;
-        --title-regular-opacity: 1;
-
-        @media (pointer: coarse) {
-            --item-height: 44px;
+        // Doubled so it outranks a class paired onto the item, such as '.link'.
+        &-header,
+        &-item.tooltip-menu-item {
+            --border-radius: var(--item-border-radius);
+            --gap-horizontal: var(--size-200);
+            --gap-vertical: var(--size-200);
+            --height: var(--item-height);
+            --padding-horizontal: var(--size-200);
         }
 
-        @include tokens.state(active) {
-            --title-bold-opacity: 1;
-            --title-regular-opacity: 0;
+        &-hint {
+            --color: var(--color-text-300);
+            --font-size: var(--font-size-300);
         }
-    }
 
-    // No track held open: the rows sit evenly inset until the panel is capped short enough to scroll.
-    &-menu-scroller {
-        --scrollbar-gutter: auto;
-    }
+        // Items take the hover and pressed steps of the panel they sit in.
+        &-item {
+            @extend %background-state;
+            --background-hover: var(--item-background-hover);
+            --background-pressed: var(--item-background-pressed);
+            --color-danger: var(--color-red-400);
+            --color-disabled: var(--color-text-300);
+            --transition-duration: 130ms;
+            --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
 
-    &-menu-scroller > .highlight {
-        --background-default: var(--item-background-hover);
-        --background-pressed: var(--item-background-pressed);
-    }
+            // Visible focus only, as the highlight takes it: opening by click focuses the first item without marking it.
+            &:focus-visible {
+                --background: var(--background-hover);
+            }
 
-    // With 'highlight', its layer takes the items' hover and pressed fills, so the items keep none of their own.
-    &-menu-scroller:has(> .highlight) > .tooltip-menu-entry > .tooltip-menu-item {
-        --background-hover: var(--background-default);
-        --background-pressed: var(--background-default);
-    }
+            &:disabled,
+            &[aria-disabled='true'] {
+                --background-hover: var(--background-default);
+                --background-pressed: var(--background-default);
+            }
+        }
 
-    &-menu-title-bold {
-        --font-weight: var(--font-weight-600);
+        // A surface of its own, so a branch panel sits a level above the panel it opened from. The item sizes and insets
+        // are read by the items and by what lines up with them: a sub-panel's closed clip over the row that opened it,
+        // and the highlight's rounding. The title opacities are read by a branch panel's header title, which crossfades
+        // to bold while that panel is open; every panel sets its own, so a parent panel's state never reaches its
+        // children's titles.
+        &-panel {
+            @extend %background-state, %box-shadow-state, %surface-raise;
+            --background-default: var(--surface-background-default);
+            --box-shadow-default: var(--surface-shadow-default);
+            --inset-horizontal: calc(var(--size-100) / 2);
+            --inset-vertical: calc(var(--size-100) / 2);
+            --item-background-hover: var(--surface-primary-default);
+            --item-background-pressed: var(--surface-primary-pressed);
+            --item-border-radius: var(--border-radius-400);
+            --item-height: 36px;
+            // Written by 'tooltip.menu': how far a sub-panel rises above its row, and the height a panel scrolls past,
+            // each to stay on screen.
+            --lift: 0px;
+            --max-height: none;
+            --title-bold-opacity: 0;
+            --title-regular-opacity: 1;
+
+
+            @media (pointer: coarse) {
+                --item-height: 44px;
+            }
+
+            // The open clip overhangs the box so the shadow isn't cut off.
+            > .tooltip-menu-panel {
+                --bleed: 48px;
+            }
+
+
+            @include tokens.state(active) {
+                --title-bold-opacity: 1;
+                --title-regular-opacity: 0;
+            }
+        }
+
+        // No track held open: the rows sit evenly inset until the panel is capped short enough to scroll.
+        &-scroller {
+            --scrollbar-gutter: auto;
+
+
+            > .highlight {
+                --background-default: var(--item-background-hover);
+                --background-pressed: var(--item-background-pressed);
+            }
+
+            // With 'highlight', its layer takes the items' hover and pressed fills, so the items keep none of their own.
+            &:has(> .highlight) > .tooltip-menu-entry > .tooltip-menu-item {
+                --background-hover: var(--background-default);
+                --background-pressed: var(--background-default);
+            }
+        }
+
+        &-title-bold {
+            --font-weight: var(--font-weight-600);
+        }
+
+        // Sized with the menu it opens; zero specificity, so a trigger's own size still wins.
+        :where(&-trigger) {
+            --font-size: var(--font-size-300);
+        }
     }
 
     &-message {

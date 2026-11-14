@@ -20,6 +20,7 @@
         position: relative;
         width: var(--width);
 
+
         &::before {
             @extend %absolute-left;
             animation: loading--bar var(--animation-duration) var(--animation-timing-function) infinite;

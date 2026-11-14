@@ -182,4 +182,4 @@ const sides = (text: string): MergeSides | null => {
 
 
 export { closable, compareKey, compareTab, sides, WorkspaceTab };
-export type { Closable, MergeSides };
+export type { MergeSides };

@@ -358,8 +358,8 @@ export default component<Surface>(
                         }
                     },
                     style: [
-                        () => `height: ${view.height}px; rotate: ${view.rotation}deg; translate: ${view.x}px ${view.y}px; width: ${view.width}px;`,
-                        () => view.z !== 0 && `z-index: ${view.z};`
+                        () => `--geometry-height: ${view.height}px; --geometry-rotate: ${view.rotation}deg; --geometry-width: ${view.width}px; --geometry-x: ${view.x}px; --geometry-y: ${view.y}px;`,
+                        () => `--geometry-z-index: ${view.z || 'auto'};`
                     ]
                 }}
             >

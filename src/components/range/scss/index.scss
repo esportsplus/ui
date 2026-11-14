@@ -26,9 +26,9 @@
     height: var(--thumb-size);
     outline: none;
     scale: var(--thumb-scale);
-    transition:
-        box-shadow var(--thumb-transition-duration) var(--thumb-transition-timing-function),
-        scale var(--thumb-transition-duration) var(--thumb-transition-timing-function);
+    transition-duration: var(--thumb-transition-duration);
+    transition-property: box-shadow, scale;
+    transition-timing-function: var(--thumb-transition-timing-function);
     width: var(--thumb-size);
 }
 

@@ -389,7 +389,7 @@ function chip(part: Part) {
     return html`
         <span
             class='file-tree-badge-part ${part.staged && 'file-tree-badge-part--staged'} ${part.tone && `file-tree-badge-part--${part.tone}`}'
-            ${{ style: part.color && `color: ${part.color}` }}
+            ${{ style: part.color && `--badge-color: ${part.color}` }}
             ${!!part.title && { title: part.title }}
         >
             ${part.text}
@@ -1568,10 +1568,9 @@ export default ({
         }
     }
 
-    // Drawn like the row it stands in for, its marks kept live; laid out by its measured box, so the depth margin
-    // would count twice.
+    // Drawn like the row it stands in for, its marks kept live, and laid out by its measured box.
     function ghost({ left, row, top, width }: Ghost) {
-        let style = `--depth: ${row.depth}; --guides: ${guides(row.depth)}; left: ${left}px; margin: 0; position: absolute; top: ${top}px; width: ${width}px;`;
+        let style = `--depth: ${row.depth}; --ghost-left: ${left}px; --ghost-top: ${top}px; --ghost-width: ${width}px; --guides: ${guides(row.depth)};`;
 
         if (row.notice) {
             return placeholder(row.notice, { style });
@@ -3365,12 +3364,12 @@ export default ({
                 aria-hidden='true'
                 class='file-tree-motion'
                 inert
-                style='${() => `height: ${stage.height}px; left: ${stage.left}px; top: ${stage.top}px; width: ${stage.width}px;`}'
+                style='${() => `--motion-height: ${stage.height}px; --motion-left: ${stage.left}px; --motion-top: ${stage.top}px; --motion-width: ${stage.width}px;`}'
                 ${{ class: () => ui.motion && '--active' }}
             >
                 <div
                     class='file-tree-motion-layer'
-                    style='${() => `top: ${stage.edge}px;`}'
+                    style='${() => `--motion-edge: ${stage.edge}px;`}'
                     ${{ class: () => ui.motion && `file-tree-motion-layer--${ui.motion}` }}
                 >
                     ${html.reactive(ghosts, ghost)}

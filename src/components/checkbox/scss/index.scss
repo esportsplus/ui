@@ -26,15 +26,6 @@
     }
 
 
-    &--radio {
-        &::before {
-            @extend %absolute-full;
-            border-radius: calc(var(--border-radius) - (var(--height) / 2));
-            height: var(--height);
-            margin: auto;
-        }
-    }
-
     &--radio,
     &--switch {
         &::before {
@@ -43,7 +34,6 @@
             content: '';
             pointer-events: none;
             scale: var(--scale);
-            transform-origin: center;
             transition:
                 scale var(--transition-duration) var(--transition-timing-function),
                 translate var(--transition-duration) var(--transition-timing-function);
@@ -53,6 +43,15 @@
             @media (prefers-reduced-motion: reduce) {
                 transition: none;
             }
+        }
+    }
+
+    &--radio {
+        &::before {
+            @extend %absolute-full;
+            border-radius: calc(var(--border-radius) - (var(--height) / 2));
+            height: var(--height);
+            margin: auto;
         }
     }
 
@@ -110,10 +109,6 @@
         outline-offset: var(--focus-offset);
     }
 
-    .checkbox-check {
-        left: var(--left);
-    }
-
     // The group header's dash draws with the same variables and timing as the checkmark it replaces. Qualified by the
     // root so both win over the reused icon styles regardless of stylesheet order.
     .checkbox-check,
@@ -139,6 +134,10 @@
             }
         }
     }
+
+    .checkbox-check {
+        left: var(--left);
+    }
 }
 
 // In a 'group--grid' the checkbox, radio or switch keeps its own size and shares the first row with the label alone, so
@@ -151,6 +150,7 @@
     grid-template-columns: auto 1fr;
     justify-content: stretch;
     user-select: none;
+
 
     > .checkbox {
         grid-column: 1;
@@ -173,6 +173,7 @@
 
 .group.group--grid:has(> .group-label + .checkbox) {
     grid-template-columns: 1fr auto;
+
 
     > .checkbox {
         grid-column: 2;

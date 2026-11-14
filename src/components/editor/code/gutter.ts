@@ -38,7 +38,7 @@ const gutter = (slots: Reactive<Slot[]>, toggle: (slot: Slot) => void, peek: (sl
                 onmousedown: keep
             }}
         >
-            ${icon({ class: 'code-editor-fold-icon' }, chevron)}
+            ${icon({ class: 'code-editor-fold-icon icon--rotate' }, chevron)}
         </span>
     </div>
 `);

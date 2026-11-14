@@ -315,7 +315,7 @@ export default ({ description, limit, taken, value = '', state = reactive({ erro
                 <span
                     class='shortcut-recorder-faces'
                     ${{
-                        style: () => `--i: ${keys.length ? 0 : 1};${size.width ? ` width: ${size.width}px;` : ''}`
+                        style: () => `--i: ${keys.length ? 0 : 1};${size.width ? ` --face-width: ${size.width}px;` : ''}`
                     }}
                 >
                     <span

@@ -83,6 +83,7 @@
     &--hover {
         --background: var(--background-hover);
 
+
         // The layer can't see which item it sits on, so the press is read off the container: something held inside
         // it, bar a disabled item. A press on the container's own gaps leaves no ':active' descendant.
         :where(:has(:active):not(:has(.--disabled:active))) > & {
@@ -105,6 +106,7 @@
     &--surface {
         @extend %background-surface;
 
+
         :where([data-theme='dark']) & {
             @include surface.step(0);
 
@@ -121,6 +123,7 @@
             }
         }
 
+
         &-primary {
             @extend %background-surface-primary;
         }
@@ -130,6 +133,7 @@
     @include tokens.state(active) {
         --glide: var(--glide-duration-active);
         --glide-tail: var(--glide-tail-duration-active);
+
 
         @media (prefers-reduced-motion: reduce) {
             --glide: 0s;

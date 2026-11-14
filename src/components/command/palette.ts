@@ -1,5 +1,7 @@
 import { computed, effect, reactive, read, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type On, type Renderable } from '@esportsplus/template';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
+import enter from '@esportsplus/ui/svg/enter.svg';
 import button from '~/components/button';
 import group from '~/components/group';
 import icon from '~/components/icon';
@@ -8,8 +10,6 @@ import overlay from '~/components/overlay';
 import search from '~/components/search';
 import scrollbar from '~/modifiers/scrollbar';
 import { mac } from '~/shared/platform';
-import arrow from '@esportsplus/ui/svg/arrow.svg';
-import enter from '@esportsplus/ui/svg/enter.svg';
 import '~/components/frame/scss/index.scss';
 
 
@@ -380,7 +380,6 @@ function sprite(target: Sprite, name: Attributes['class'] = '') {
 }
 
 
-
 export default component(
     function(
         this: { attributes?: A } | void,
@@ -401,12 +400,8 @@ export default component(
             ...attributes
         }: A
     ) {
-        let id = `command-${++uid}`,
-            keys = hotkey ?? (trigger ? ['Mod', 'K'] : []),
-            groupAttributes = this?.attributes?.[COMMAND_GROUP],
-            optionAttributes = this?.attributes?.[COMMAND_OPTION],
-            // The active option's id; options select on it, so moving it restyles two rows rather than every one.
-            active = signal<string | undefined>(undefined),
+        // The active option's id; options select on it, so moving it restyles two rows rather than every one.
+        let active = signal<string | undefined>(undefined),
             bindings = (shortcuts ?? []).map((shortcut): Entry => ({
                 group: shortcut.group,
                 icon: shortcut.icon,
@@ -424,7 +419,11 @@ export default component(
                 label: command.label,
                 lower: command.label.toLowerCase()
             }))),
+            groupAttributes = this?.attributes?.[COMMAND_GROUP],
+            id = `command-${++uid}`,
+            keys = hotkey ?? (trigger ? ['Mod', 'K'] : []),
             lookup = computed(() => new Map(read(entries).map((entry) => [entry.id, entry]))),
+            optionAttributes = this?.attributes?.[COMMAND_OPTION],
             // A Set keeps insertion order, most recent first, and replacing it is what re-runs the list.
             ui = reactive({ moving: false, recent: new Set<string>() }),
             views: View[] = ([
@@ -539,7 +538,6 @@ export default component(
         function results(view: View) {
             let groups = read(view.results).groups.map(({ group, items }, g): ResultGroup => ({
                 id: `${view.key}-group-${g}`,
-                label: group,
                 items: items.map(({ entry, index, ranges }) => {
                     let key = `${view.key}-${index}`;
 
@@ -547,8 +545,6 @@ export default component(
                         attributes: {
                             ...optionAttributes,
                             ...attributes[COMMAND_OPTION],
-                            id: key,
-                            role: 'option',
                             'aria-selected': () => signal.selector(active, key) ? 'true' : 'false',
                             class: [
                                 optionAttributes?.class,
@@ -556,10 +552,12 @@ export default component(
                                 !entry.command && 'command-option--inert',
                                 () => signal.selector(active, key) && '--active'
                             ].flat(),
+                            id: key,
                             onclick: (event: Event) => {
                                 event.preventDefault();
                                 run(entry);
-                            }
+                            },
+                            role: 'option'
                         },
                         command: entry.command,
                         content: html`
@@ -570,7 +568,8 @@ export default component(
                         id: entry.id,
                         label: entry.label
                     };
-                })
+                }),
+                label: group
             }));
 
             return render ? render(groups) : nav.tree({

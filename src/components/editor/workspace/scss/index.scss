@@ -33,7 +33,7 @@
 
     &-bar {
         align-items: center;
-        border-bottom: var(--divider);
+        border-block-end: var(--divider);
         display: flex;
         flex: none;
         gap: var(--gap-vertical) var(--gap-horizontal);
@@ -47,31 +47,13 @@
         min-width: 0;
     }
 
-    &-confirm {
-        &-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: var(--gap-vertical) var(--gap-horizontal);
-            justify-content: flex-end;
-            margin-block: var(--margin-vertical) 0;
-        }
-
+    &-confirm,
+    &-keybindings {
         &-button {
             &:focus-visible {
                 outline: var(--focus-width) solid var(--focus-color);
                 outline-offset: var(--border-width-400);
             }
-        }
-
-        &-files {
-            font-weight: var(--font-weight-500);
-            margin-block: var(--margin-vertical) 0;
-            overflow-wrap: anywhere;
-        }
-
-        &-text {
-            color: var(--muted-color);
-            margin-block: var(--margin-vertical) 0;
         }
 
         &-title {
@@ -84,6 +66,27 @@
         &.card {
             color: var(--color);
             font-size: var(--font-size-300);
+        }
+    }
+
+    &-confirm {
+        &-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            justify-content: flex-end;
+            margin-block: var(--margin-vertical) 0;
+        }
+
+        &-files {
+            font-weight: var(--font-weight-500);
+            margin-block: var(--margin-vertical) 0;
+            overflow-wrap: anywhere;
+        }
+
+        &-text {
+            color: var(--muted-color);
+            margin-block: var(--margin-vertical) 0;
         }
     }
 
@@ -145,7 +148,7 @@
 
         &-header {
             align-items: center;
-            border-bottom: var(--divider);
+            border-block-end: var(--divider);
             display: flex;
             flex: none;
             gap: var(--gap-vertical) var(--gap-horizontal);
@@ -206,7 +209,7 @@
 
         &-bar {
             align-items: center;
-            border-bottom: var(--divider);
+            border-block-end: var(--divider);
             display: flex;
             flex: none;
             font-size: var(--font-size-200);
@@ -270,7 +273,7 @@
     &-status {
         align-items: center;
         background: var(--surface-background-default);
-        border-top: var(--divider);
+        border-block-start: var(--divider);
         color: var(--muted-color);
         display: flex;
         font-size: var(--status-font-size);

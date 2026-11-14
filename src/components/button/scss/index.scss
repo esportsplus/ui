@@ -42,10 +42,17 @@
     }
 
 
-    &--kbd,
-    &--tactile {
-        @include tokens.state(active pressed) {
-            translate: 0 1px;
+    // Whichever is pointed at or focused draws over the edge it shares, so its border and outline show whole.
+    &--action,
+    &--trigger {
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+        }
+
+        &:focus-visible,
+        &:hover {
+            z-index: 1;
         }
     }
 
@@ -63,20 +70,6 @@
         border-start-end-radius: 0;
     }
 
-    // Whichever is pointed at or focused draws over the edge it shares, so its border and outline show whole.
-    &--action,
-    &--trigger {
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--focus-offset);
-        }
-
-        &:focus-visible,
-        &:hover {
-            z-index: 1;
-        }
-    }
-
     &--border {
         border: var(--border-width) solid var(--border-color);
     }
@@ -90,6 +83,13 @@
     &--flat {
         &::after {
             display: none;
+        }
+    }
+
+    &--kbd,
+    &--tactile {
+        @include tokens.state(active pressed) {
+            translate: 0 1px;
         }
     }
 
@@ -187,20 +187,14 @@
         // thins from 3 units to 1, whole units that keep the closed line on the pixel grid at the default icon size.
         // Caps add the width to the 5-unit line, so the stretch restores what thinning takes to hold it 8 units tall.
         path {
+            scale: 1 calc((7 - 2 * var(--open)) / 5);
             stroke-width: calc(1px + 2px * var(--open));
-            transform:
-                translateX(calc((var(--open) - 1) * 1px))
-                scaleY(calc((7 - 2 * var(--open)) / 5));
             transform-box: fill-box;
             transform-origin: center;
-            transition:
-                stroke-width var(--transition-duration) var(--transition-timing-function),
-                transform var(--transition-duration) var(--transition-timing-function);
-
-
-            @media (prefers-reduced-motion: reduce) {
-                transition: none;
-            }
+            transition-duration: var(--transition-duration);
+            transition-property: scale, stroke-width, translate;
+            transition-timing-function: var(--transition-timing-function);
+            translate: calc((var(--open) - 1) * 1px);
         }
 
         // Drawn in strokes, with fills set per path, where the icon would fill the whole SVG.
@@ -279,10 +273,6 @@
         &--draw {
             @extend %icon-stroke-draw;
             transition: stroke-dashoffset var(--transition-duration) var(--transition-timing-function);
-
-            @media (prefers-reduced-motion: reduce) {
-                transition: none;
-            }
         }
     }
 
@@ -314,9 +304,9 @@
             filter: blur(var(--blur-400));
             grid-area: 1 / 1;
             opacity: 0;
-            transition:
-                filter var(--transition-duration) var(--transition-timing-function),
-                opacity var(--transition-duration) var(--transition-timing-function);
+            transition-duration: var(--transition-duration);
+            transition-property: filter, opacity;
+            transition-timing-function: var(--transition-timing-function);
             white-space: nowrap;
 
 
@@ -338,15 +328,9 @@
         line-height: var(--line-height);
         opacity: 0;
         padding-inline-start: 0;
-        transition:
-            grid-template-columns var(--transition-duration) var(--transition-timing-function),
-            opacity var(--transition-duration) var(--transition-timing-function),
-            padding var(--transition-duration) var(--transition-timing-function);
-
-
-        @media (prefers-reduced-motion: reduce) {
-            transition: none;
-        }
+        transition-duration: var(--transition-duration);
+        transition-property: grid-template-columns, opacity, padding;
+        transition-timing-function: var(--transition-timing-function);
 
 
         &-text {

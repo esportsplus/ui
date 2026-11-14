@@ -55,6 +55,7 @@
         --scale: 0.98;
         --surface-level: -1;
 
+
         @media (prefers-reduced-motion: reduce) {
             --scale: 1;
         }
@@ -82,6 +83,7 @@
         --gap-vertical: 0px;
         --padding-horizontal: var(--size-300);
         --padding-vertical: var(--size-200);
+
 
         &-hint {
             --gap-horizontal: var(--size-100);

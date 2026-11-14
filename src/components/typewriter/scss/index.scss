@@ -18,6 +18,7 @@
         vertical-align: var(--caret-align);
         width: var(--caret-width);
 
+
         @media (prefers-reduced-motion: reduce) {
             animation: none;
         }
@@ -29,12 +30,19 @@
         display: inline-grid;
         white-space: pre;
 
+
         &-letter {
             animation: typewriter-retype-letter var(--ink-duration) var(--ink-timing-function);
         }
 
+        &-line,
+        &-sizer {
+            grid-area: 1 / 1;
+        }
+
         &-line {
             text-align: left;
+
 
             &--selecting::after {
                 visibility: hidden;
@@ -43,11 +51,6 @@
             &--typing::after {
                 animation: none;
             }
-        }
-
-        &-line,
-        &-sizer {
-            grid-area: 1 / 1;
         }
 
         &-sizer {
@@ -65,6 +68,7 @@
             isolation: isolate;
             position: relative;
 
+
             &::before {
                 background: var(--selection-color);
                 border-radius: var(--selection-radius);
@@ -75,6 +79,7 @@
                 transform-origin: right;
                 z-index: -1;
             }
+
 
             &--selecting::before {
                 scale: 1 1;
@@ -88,6 +93,7 @@
         display: inline-block;
         position: relative;
 
+
         &-box {
             display: inline-block;
             position: relative;
@@ -98,7 +104,10 @@
         &-letter {
             display: inline-block;
 
+
+            // JS hands over where it stood as '--swap-left'.
             &--exiting {
+                left: var(--swap-left);
                 pointer-events: none;
                 position: absolute;
                 top: 0;

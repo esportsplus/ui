@@ -43,11 +43,6 @@
     width: 100%;
 
 
-    &[type='number'] {
-        appearance: textfield;
-    }
-
-
     // Grows with its text: the height follows the measured mirror between its limits, scrolling once past the
     // maximum.
     &--autoresize {
@@ -99,6 +94,7 @@
         visibility: hidden;
         word-spacing: normal;
 
+
         // The trailing space keeps a final line break's empty line, which a textarea shows.
         &::after {
             content: attr(data-value) ' ';
@@ -113,10 +109,23 @@
         text-align: center;
         width: var(--size);
 
+
         // Starts a group of cells, set further from the last group than the cells within one are from each other.
         &-break {
             margin-inline-start: var(--input-otp-break);
         }
+    }
+
+    // Sinks 1px while pressed, as 'button--tactile' does. Held by ':active' rather than the pressed state, since the
+    // press focuses the field and focus is its active state. Inside a group with overlay items the group sinks
+    // instead, so the items floating over the field go with it; they center by 'translate', which the field's own
+    // would fight. A press on a field already focused ('--focused') holds it still.
+    &--tactile:active:not(.--focused, .group:has(> .group-item--overlay) > *) {
+        translate: var(--translate-pressed);
+    }
+
+    @at-root .group:has(> .group-item--overlay):has(> #{&}--tactile:active:not(.--focused)) {
+        translate: var(--translate-pressed);
     }
 
     // Multi-line text in the input's box: wrapped and scrolled as a textarea is, where the box itself is a row.
@@ -135,18 +144,6 @@
         flex-wrap: nowrap;
     }
 
-    // Sinks 1px while pressed, as 'button--tactile' does. Held by ':active' rather than the pressed state, since the
-    // press focuses the field and focus is its active state. Inside a group with overlay items the group sinks
-    // instead, so the items floating over the field go with it; they center by 'translate', which the field's own
-    // would fight. A press on a field already focused ('--focused') holds it still.
-    &--tactile:active:not(.--focused, .group:has(> .group-item--overlay) > *) {
-        translate: var(--translate-pressed);
-    }
-
-    @at-root .group:has(> .group-item--overlay):has(> #{&}--tactile:active:not(.--focused)) {
-        translate: var(--translate-pressed);
-    }
-
     &-password-toggle {
         align-items: center;
         background: var(--background);
@@ -159,10 +156,11 @@
         justify-content: center;
         outline: none;
         padding: 0;
-        transition:
-            background-color var(--transition-duration) var(--transition-timing-function),
-            color var(--transition-duration) var(--transition-timing-function);
+        transition-duration: var(--transition-duration);
+        transition-property: background-color, color;
+        transition-timing-function: var(--transition-timing-function);
         width: var(--size);
+
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
@@ -189,6 +187,7 @@
             text-align: var(--text-align);
         }
 
+
         &-label {
             align-items: center;
             color: var(--color);
@@ -203,6 +202,7 @@
             transition: color var(--transition-duration) var(--transition-timing-function);
             user-select: none;
             white-space: nowrap;
+
 
             svg {
                 height: var(--size-400);
@@ -253,7 +253,6 @@
             mask-image: linear-gradient(to right, transparent, #000 30%, #000 70%, transparent);
             pointer-events: none;
         }
-
     }
 
     &-tag {
@@ -273,10 +272,12 @@
             position: relative;
             transition: color var(--transition-duration) var(--transition-timing-function);
 
+
             // Qualified by the chip so it wins over the card's own position regardless of stylesheet order.
             & > #{&}-body {
                 @extend %absolute-full;
             }
+
 
             // Its hit area reaches past the icon, on '::before' since the button keeps '::after' for its shadow.
             &-button {
@@ -286,11 +287,13 @@
                 outline: none;
                 width: var(--size);
 
+
                 &::before {
                     content: '';
                     inset: var(--reach);
                     position: absolute;
                 }
+
 
                 &:focus-visible {
                     outline: var(--focus-width) solid var(--focus-color);
@@ -320,14 +323,21 @@
             padding-block: 0;
             padding-inline: var(--text-inset-horizontal) var(--padding-end);
 
+
             &::placeholder {
                 color: var(--placeholder-color);
             }
         }
 
+        // Stands where the removed chip stood, in the box the script measured. After '&-chip', whose height and
+        // position it replaces.
         &-ghost {
+            height: var(--ghost-height);
+            left: var(--ghost-left);
             pointer-events: none;
             position: absolute;
+            top: var(--ghost-top);
+            width: var(--ghost-width);
         }
 
         // Fills the box, which lays out as an input's flex row.
@@ -348,5 +358,9 @@
 
     &:disabled {
         @extend %disabled;
+    }
+
+    &[type='number'] {
+        appearance: textfield;
     }
 }

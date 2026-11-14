@@ -102,30 +102,30 @@ export default component(
 
         return html`
             <div class='counter' ${attributes} ${startOnView ? onceVisible(start) : { onconnect: start }}>
-                ${html.reactive(render, function (character) {
-                        if (!character.digit) {
-                            return html`
-                                <span aria-hidden='true' class='counter-character counter-character--symbol'>
-                                    ${() => character.value}
-                                </span>
-                            `;
-                        }
-
-                        // Alternating the roll parity swaps between identical keyframes, restarting the per-roll
-                        // animation.
+                ${html.reactive(render, function(character) {
+                    if (!character.digit) {
                         return html`
-                            <div aria-hidden='true' class='counter-character'>
-                                <div
-                                    class='counter-character-track ${() => character.roll && `counter-character-track--roll-${character.roll}`}'
-                                    style='${() => `--index: ${character.index}; --value: ${character.value}`}'
-                                >
-                                    <span class='counter-digit'>9</span>
-                                    ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span class='counter-digit'>${value}</span>`)}
-                                    <span class='counter-digit'>0</span>
-                                </div>
-                            </div>
+                            <span aria-hidden='true' class='counter-character counter-character--symbol'>
+                                ${() => character.value}
+                            </span>
                         `;
-                    })}
+                    }
+
+                    // Alternating the roll parity swaps between identical keyframes, restarting the per-roll
+                    // animation.
+                    return html`
+                        <div aria-hidden='true' class='counter-character'>
+                            <div
+                                class='counter-character-track ${() => character.roll && `counter-character-track--roll-${character.roll}`}'
+                                style='${() => `--index: ${character.index}; --value: ${character.value}`}'
+                            >
+                                <span class='counter-digit'>9</span>
+                                ${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => html`<span class='counter-digit'>${value}</span>`)}
+                                <span class='counter-digit'>0</span>
+                            </div>
+                        </div>
+                    `;
+                })}
                 <span class='counter-sr'>${prefix}${() => format.format(api.value)}${suffix && ` ${suffix}`}</span>
             </div>
         `;

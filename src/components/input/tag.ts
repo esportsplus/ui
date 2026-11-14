@@ -110,7 +110,7 @@ export default component(
                     aria-hidden='true'
                     class='input-tag-chip input-tag-ghost'
                     inert
-                    style='height: ${ghost.height}px; left: ${ghost.left}px; top: ${ghost.top}px; width: ${ghost.width}px;'
+                    style='--ghost-height: ${ghost.height}px; --ghost-left: ${ghost.left}px; --ghost-top: ${ghost.top}px; --ghost-width: ${ghost.width}px;'
                     ${{
                         // Not before: until it is in the document its node belongs to the template's own, whose clock
                         // never runs.
@@ -152,6 +152,53 @@ export default component(
                 })
                 : null,
             slot = view ? null : html.reactive(state.tags, (tag) => chip(tag));
+
+        function add(raw: string[], typed: boolean) {
+            let added: string[] = [],
+                // Each key's spelling among the current tags; undefined for one added earlier in this batch.
+                seen = new Map<string, string | undefined>();
+
+            for (let i = 0, n = state.tags.length; i < n; i++) {
+                let k = key(state.tags[i]);
+
+                if (!seen.has(k)) {
+                    seen.set(k, state.tags[i]);
+                }
+            }
+
+            for (let i = 0, n = raw.length; i < n; i++) {
+                let tag = raw[i].trim();
+
+                if (!tag) {
+                    continue;
+                }
+
+                let k = key(tag);
+
+                if (seen.has(k)) {
+                    nudge(k);
+                    local.announcement = `${seen.get(k) ?? tag} is already added`;
+                    continue;
+                }
+
+                seen.set(k, undefined);
+                added.push(tag);
+            }
+
+            local.armed = '';
+            local.text = '';
+
+            if (!added.length) {
+                return;
+            }
+
+            // Only a single typed tag forms in place around its letters; pasted lists pop in, since most land away from the caret.
+            let formed = typed && added.length === 1 ? key(added[0]) : '';
+
+            // A formed tag is the only one added, so whatever enters is its chip.
+            mutate(() => state.tags.push(...added), formed ? form : pop);
+            local.announcement = `Added ${added.join(', ')}`;
+        }
 
         // 'sorting' is the sortable's, spread on a chip it can drag.
         function chip(tag: string, sorting?: Attributes) {
@@ -207,53 +254,6 @@ export default component(
                 <span class='input-tag-chip-text'>${tag}</span>
                 <span class='button ${tint && `button--${tint}`} input-tag-chip-button'>${icon({ 'aria-hidden': 'true', class: 'input-tag-chip-icon' }, close)}</span>
             `;
-        }
-
-        function add(raw: string[], typed: boolean) {
-            let added: string[] = [],
-                // Each key's spelling among the current tags; undefined for one added earlier in this batch.
-                seen = new Map<string, string | undefined>();
-
-            for (let i = 0, n = state.tags.length; i < n; i++) {
-                let k = key(state.tags[i]);
-
-                if (!seen.has(k)) {
-                    seen.set(k, state.tags[i]);
-                }
-            }
-
-            for (let i = 0, n = raw.length; i < n; i++) {
-                let tag = raw[i].trim();
-
-                if (!tag) {
-                    continue;
-                }
-
-                let k = key(tag);
-
-                if (seen.has(k)) {
-                    nudge(k);
-                    local.announcement = `${seen.get(k) ?? tag} is already added`;
-                    continue;
-                }
-
-                seen.set(k, undefined);
-                added.push(tag);
-            }
-
-            local.armed = '';
-            local.text = '';
-
-            if (!added.length) {
-                return;
-            }
-
-            // Only a single typed tag forms in place around its letters; pasted lists pop in, since most land away from the caret.
-            let formed = typed && added.length === 1 ? key(added[0]) : '';
-
-            // A formed tag is the only one added, so whatever enters is its chip.
-            mutate(() => state.tags.push(...added), formed ? form : pop);
-            local.announcement = `Added ${added.join(', ')}`;
         }
 
         // Its letters are already on screen where the field was, so only the chip's body and remove button form around them.

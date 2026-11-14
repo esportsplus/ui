@@ -8,30 +8,15 @@
     @extend %text;
     filter: blur(var(--blur));
     opacity: 0;
-    transition:
-        filter var(--transition-duration) var(--transition-timing-function),
-        opacity var(--transition-duration) var(--transition-timing-function);
+    transition-duration: var(--transition-duration);
+    transition-property: filter, opacity;
+    transition-timing-function: var(--transition-timing-function);
     user-select: none;
-
-
-    @include tokens.state(active) {
-        filter: none;
-        opacity: 1;
-    }
-
-    @include tokens.state(inactive) {
-        height: 0px;
-    }
 
     @media (prefers-reduced-motion: reduce) {
         transition-property: opacity;
     }
 
-
-    &-live,
-    &-text {
-        @extend %flex-vertical;
-    }
 
     // A legend, not a control, so it takes no hover or press.
     &-key {
@@ -47,14 +32,29 @@
             left: var(--left);
             position: absolute;
             top: var(--top);
-            transition:
-                background-color var(--transition-duration) var(--transition-timing-function),
-                box-shadow var(--transition-duration) var(--transition-timing-function);
+            transition-duration: var(--transition-duration);
+            transition-property: background-color, box-shadow;
+            transition-timing-function: var(--transition-timing-function);
             width: var(--size);
         }
     }
 
+    &-live,
+    &-text {
+        @extend %flex-vertical;
+    }
+
     &-live {
         @extend %hidden-visually;
+    }
+
+
+    @include tokens.state(active) {
+        filter: none;
+        opacity: 1;
+    }
+
+    @include tokens.state(inactive) {
+        height: 0;
     }
 }

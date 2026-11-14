@@ -16,20 +16,6 @@
     }
 
 
-    &-control,
-    &-page {
-        @extend %color-text;
-        --background-hover: var(--surface-background-hover);
-        --background-pressed: var(--surface-background-pressed);
-        --border-color-default: var(--surface-border-default);
-        --border-radius: var(--border-radius-400);
-        --border-width: var(--border-width-400);
-        --font-size: var(--font-size-300);
-        --font-weight: var(--font-weight-500);
-        --padding-vertical: 0px;
-        --size: 32px;
-    }
-
     &-arrow {
         @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
         --border-radius: var(--border-radius-400);
@@ -80,19 +66,19 @@
         --padding-vertical: var(--size-400);
 
 
-        &--ring,
-        &--tactile {
-            &:focus-visible {
-                --box-shadow: var(--box-shadow-hover);
-            }
-        }
-
         &--next {
             --direction: 1;
         }
 
         &--previous {
             --direction: -1;
+        }
+
+        &--ring,
+        &--tactile {
+            &:focus-visible {
+                --box-shadow: var(--box-shadow-hover);
+            }
         }
 
         // A halo in place of the card's elevation, growing in on hover. Chained through the card so it wins over the
@@ -160,6 +146,20 @@
         &:hover &-arrow {
             --offset: calc(var(--shift) * var(--direction));
         }
+    }
+
+    &-control,
+    &-page {
+        @extend %color-text;
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
+        --border-color-default: var(--surface-border-default);
+        --border-radius: var(--border-radius-400);
+        --border-width: var(--border-width-400);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-500);
+        --padding-vertical: 0px;
+        --size: 32px;
     }
 
     // Buttons, so surfaces: their own level's background and shadow.

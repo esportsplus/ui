@@ -140,7 +140,6 @@ function angle(value: string) {
     return match ? parseFloat(match[1]) * UNITS[match[2]] : 0;
 }
 
-// Resolves any CSS colour (oklch, named, hex…) to rgb by painting it once.
 function inside(shape: Shape, x: number, y: number) {
     let angle = shape.rotation * Math.PI / 180,
         cos = Math.cos(angle),
@@ -163,6 +162,7 @@ function inside(shape: Shape, x: number, y: number) {
     return lx <= hx && ly <= hy && qx * qx + qy * qy <= r * r;
 }
 
+// Resolves any CSS colour (oklch, named, hex…) to rgb by painting it once.
 function rgb(color: string): Rgb {
     let cached = colors.get(color);
 

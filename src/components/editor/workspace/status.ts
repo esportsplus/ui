@@ -286,4 +286,4 @@ class AutoSave {
 
 
 export { AUTO_SAVE_MODES, AutoSave, INDENT_SIZES, indentation, indentLabel, LANGUAGES, lineEndings };
-export type { AutoSaveMode, Indentation, LineEnding };
+export type { Indentation };

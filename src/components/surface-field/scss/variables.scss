@@ -18,7 +18,6 @@
     &-surface {
         @extend %surface-raise;
         --border-color: var(--surface-border-default);
-        // Its own name: the global per-element reset would swallow '--border-radius' on the corners its parts round.
         --border-radius: 14px;
         --border-width: 1px;
         --box-shadow: 0 1px 2px #{surface.shadow-color(0.6)}, 0 8px 24px -8px #{surface.shadow-color(1.55)};
@@ -32,10 +31,8 @@
         }
 
 
-        &--selected {
-            .surface-field-surface-frame {
-                --display: block;
-            }
+        &--selected &-frame {
+            --display: block;
         }
 
 
@@ -53,6 +50,14 @@
             --padding-top: var(--size-400);
         }
 
+        &-corner,
+        &-port,
+        &-rotate {
+            --background: var(--surface-background-default);
+            --border-color: var(--color-primary-300);
+            --border-width: 1px;
+        }
+
         &-corner {
             --border-radius: 2px;
             --size: 8px;
@@ -66,16 +71,9 @@
             }
         }
 
-        &-corner,
-        &-port,
-        &-rotate {
-            --background: var(--surface-background-default);
-            --border-color: var(--color-primary-300);
-            --border-width: 1px;
-        }
-
         // Strips along each side, between the corners, that resize it one way.
         &-edge {
+            --corner: 8px;
             --hit: 8px;
 
             @each $side, $cursor, $height, $inset, $width in
@@ -85,7 +83,6 @@
                 (w, ew-resize, auto, var(--corner) auto var(--corner) calc(var(--hit) / -2), var(--hit))
             {
                 &[data-side='#{$side}'] {
-                    --corner: 8px;
                     --cursor: #{$cursor};
                     --height: #{$height};
                     --inset: #{$inset};

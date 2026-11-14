@@ -4,7 +4,6 @@
 @use 'css-utilities/text';
 @use 'variables';
 
-
 .tooltip {
     cursor: pointer;
     position: relative;
@@ -32,6 +31,9 @@
                 opacity var(--expand-fade-duration) var(--expand-fade-timing-function) var(--expand-fade-delay);
             z-index: 9;
 
+
+            // The shape's fill and shadow; its box resizes with the clip, rather than being clipped itself, so the
+            // shadow follows the shape instead of being cut off by it.
             &::before {
                 background: var(--background);
                 border-radius: var(--morph-radius);
@@ -39,9 +41,9 @@
                 content: '';
                 inset: var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left);
                 position: absolute;
-                transition:
-                    border-radius var(--expand-duration) var(--expand-timing-function),
-                    inset var(--expand-duration) var(--expand-timing-function);
+                transition-duration: var(--expand-duration);
+                transition-property: border-radius, inset;
+                transition-timing-function: var(--expand-timing-function);
                 z-index: -1;
             }
 
@@ -53,6 +55,7 @@
                 animation: tooltip-menu-expand-out var(--expand-content-duration) var(--expand-content-timing-function);
                 opacity: 0;
             }
+
 
             @include tokens.state(active) {
                 clip-path: inset(calc(var(--expand-bleed) * -1) round calc(var(--border-radius) + var(--expand-bleed)));
@@ -90,6 +93,7 @@
                 visibility 0s linear var(--close-duration);
             visibility: hidden;
             z-index: 9;
+
 
             // Fades in as quickly as it fades out.
             @include tokens.state(active) {
@@ -140,33 +144,6 @@
             transition: none;
         }
 
-
-        // Placed by 'tooltip.onclick' and 'tooltip.onhover' as it opens: beside the trigger on the side with room, or
-        // over it with '--expand', sized as measured and capped to the room it has. It travels out from the trigger
-        // and scales from it. Content they don't open places itself.
-        &.--placed {
-            left: var(--place-x);
-            max-height: var(--place-max-height);
-            max-width: min(var(--max-width), var(--place-max-width));
-            top: var(--place-y);
-            transform-origin: var(--place-origin);
-            translate:
-                calc(var(--offset) * var(--place-travel-x) * -1)
-                calc(var(--offset) * var(--place-travel-y) * -1);
-            // Its own width while it is measured.
-            width: var(--place-width, var(--width));
-
-            #{$active} {
-                translate: 0 0;
-            }
-        }
-
-        // Scrolls past the room it was capped to. A morph keeps its overflow visible for the shape to reach back to the
-        // trigger.
-        &.--placed:not(.tooltip-content--morph, .tooltip-message--morph) {
-            overflow-y: auto;
-            overscroll-behavior: contain;
-        }
 
         // Covers the trigger and grows out of it toward the corner with room: 'morph()' seeds the trigger's box as the
         // clip, which springs out to the content's own box as it fades in, and closes back onto the trigger.
@@ -239,6 +216,33 @@
         }
 
 
+        // Placed by 'tooltip.onclick' and 'tooltip.onhover' as it opens: beside the trigger on the side with room, or
+        // over it with '--expand', sized as measured and capped to the room it has. It travels out from the trigger
+        // and scales from it. Content they don't open places itself.
+        &.--placed {
+            left: var(--place-x);
+            max-height: var(--place-max-height);
+            max-width: min(var(--max-width), var(--place-max-width));
+            top: var(--place-y);
+            transform-origin: var(--place-origin);
+            translate:
+                calc(var(--offset) * var(--place-travel-x) * -1)
+                calc(var(--offset) * var(--place-travel-y) * -1);
+            // Its own width while it is measured.
+            width: var(--place-width, var(--width));
+
+            #{$active} {
+                translate: 0 0;
+            }
+        }
+
+        // Scrolls past the room it was capped to. A morph keeps its overflow visible for the shape to reach back to the
+        // trigger.
+        &.--placed:not(.tooltip-content--morph, .tooltip-message--morph) {
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
         #{$active} {
             opacity: 1;
             scale: 1;
@@ -264,13 +268,6 @@
             display: none;
         }
 
-        // Clear of the panel's edges as the rows are, the scroller's padding insetting those.
-        &-header {
-            cursor: pointer;
-            flex-shrink: 0;
-            margin: var(--inset-vertical) var(--inset-horizontal) 0;
-        }
-
         &-header,
         &-item {
             align-items: center;
@@ -279,6 +276,13 @@
             gap: var(--gap-vertical) var(--gap-horizontal);
             min-height: var(--height);
             padding-inline: var(--padding-horizontal);
+        }
+
+        // Clear of the panel's edges as the rows are, the scroller's padding insetting those.
+        &-header {
+            cursor: pointer;
+            flex-shrink: 0;
+            margin: var(--inset-vertical) var(--inset-horizontal) 0;
         }
 
         &-hint {
@@ -441,17 +445,17 @@
             display: grid;
 
 
-            &-bold {
-                font-weight: var(--font-weight);
-                opacity: var(--title-bold-opacity);
-            }
-
             &-bold,
             &-regular {
                 grid-area: 1 / 1;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 transition: opacity var(--open-duration) var(--open-timing-function);
+            }
+
+            &-bold {
+                font-weight: var(--font-weight);
+                opacity: var(--title-bold-opacity);
             }
 
             &-regular {
@@ -478,7 +482,7 @@
 
     // A popover, so it sits in the top layer; the UA popover styles are undone here. The padding on the anchor side is
     // the gap to the trigger, which also carries the pointer across to interactive content. 'tooltip.shared' sets the
-    // '--shared-*' size and position.
+    // '--shared-*' size and position, and the point its box scales from.
     &-shared {
         @extend %reset-popover;
         box-sizing: content-box;
@@ -498,12 +502,12 @@
             }
         }
 
-        // Only while moving between triggers; a fresh open appears in place.
+        // Only while moving between triggers; a fresh open appears in place. Its size eases as well as its place: the
+        // box resizes to the next trigger's content, which a scale would distort.
         &--gliding {
-            transition:
-                height var(--glide-duration) var(--glide-timing-function),
-                translate var(--glide-duration) var(--glide-timing-function),
-                width var(--glide-duration) var(--glide-timing-function);
+            transition-duration: var(--glide-duration);
+            transition-property: height, translate, width;
+            transition-timing-function: var(--glide-timing-function);
         }
 
         &--interactive {
@@ -524,6 +528,7 @@
             overflow: hidden;
             position: relative;
             scale: var(--scale);
+            transform-origin: var(--shared-origin);
             transition:
                 filter var(--close-duration) var(--close-timing-function),
                 opacity var(--close-duration) var(--close-timing-function),
@@ -641,28 +646,24 @@
 // every side, holds there, then settles into the trigger's exact box. The hold matters: without it, edges still
 // arriving (the travel differs per direction) overlap with the final shrink, so it never reads as having landed.
 @keyframes tooltip-morph-close {
+    $landed: inset(
+        calc(var(--morph-top) - var(--morph-land))
+        calc(var(--morph-right) - var(--morph-land))
+        calc(var(--morph-bottom) - var(--morph-land))
+        calc(var(--morph-left) - var(--morph-land))
+        round calc(var(--morph-radius) + var(--morph-land))
+    );
+
     0% {
         animation-timing-function: var(--morph-shrink-timing-function);
         clip-path: inset(0 round var(--border-radius));
     }
     55% {
-        clip-path: inset(
-            calc(var(--morph-top) - var(--morph-land))
-            calc(var(--morph-right) - var(--morph-land))
-            calc(var(--morph-bottom) - var(--morph-land))
-            calc(var(--morph-left) - var(--morph-land))
-            round calc(var(--morph-radius) + var(--morph-land))
-        );
+        clip-path: $landed;
     }
     80% {
         animation-timing-function: var(--morph-settle-timing-function);
-        clip-path: inset(
-            calc(var(--morph-top) - var(--morph-land))
-            calc(var(--morph-right) - var(--morph-land))
-            calc(var(--morph-bottom) - var(--morph-land))
-            calc(var(--morph-left) - var(--morph-land))
-            round calc(var(--morph-radius) + var(--morph-land))
-        );
+        clip-path: $landed;
     }
     100% {
         clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));

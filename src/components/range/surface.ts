@@ -1,9 +1,9 @@
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
-import { clamp } from '~/shared/clamp';
 import form from '~/components/form';
 import group from '~/components/group';
 import inlineEdit from '~/components/inline-edit';
+import { clamp } from '~/shared/clamp';
 
 
 type A = Attributes & {

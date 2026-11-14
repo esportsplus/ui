@@ -80,6 +80,7 @@
     --white-space: pre;
     --whitespace-color: oklch(from var(--color-primary-300) l c h / 0.6);
 
+
     @media (forced-colors: active) {
         --caret-color: CanvasText;
         --input-color: CanvasText;
@@ -133,6 +134,7 @@
         --gap-vertical: var(--size-300);
         --height: var(--row-height);
         --padding-horizontal: var(--size-200);
+
 
         &-detail {
             --color: var(--muted-color);
@@ -200,6 +202,7 @@
         --size: var(--size-700);
         --width: 160px;
 
+
         // The field's invalid state is semantic; nothing else marks it.
         &[aria-invalid='true'] {
             --border-color-default: var(--invalid-color);
@@ -219,16 +222,13 @@
         }
     }
 
-    // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+    // Chained through '.icon' so it wins over the icon's own size and '.icon--rotate' timing regardless of stylesheet
+    // order.
     &-fold-icon.icon {
         --rotate: 90deg;
         --size: var(--size-100);
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;
-
-        @media (prefers-reduced-motion: reduce) {
-            --transition-duration: 0s;
-        }
     }
 
     &-hover {
@@ -252,6 +252,7 @@
         --font-size: 0.85em;
         --gap-horizontal: var(--size-300);
         --gap-vertical: var(--size-300);
+
 
         &-action {
             @extend %color-state, %color-text;
@@ -280,6 +281,7 @@
         --border-color: var(--gutter-modified-color);
         --max-height: 160px;
 
+
         &--added {
             --border-color: var(--gutter-added-color);
         }
@@ -302,6 +304,7 @@
             --background-hover: var(--active-line-background);
             --background-pressed: var(--background-hover);
             --size: var(--size-700);
+
 
             &:disabled {
                 --background-hover: var(--background-default);
@@ -339,6 +342,7 @@
     &-sticky {
         --box-shadow: 0 2px 4px -2px #{surface.shadow-color(2.8)};
 
+
         &-row {
             @extend %background-state;
             --background-hover: var(--active-line-background);
@@ -355,6 +359,7 @@
     &-unicode {
         --border-color: var(--color-yellow-500);
         --border-style: solid;
+
 
         &--confusable {
             --border-style: dashed;

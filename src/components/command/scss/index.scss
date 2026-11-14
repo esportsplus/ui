@@ -4,6 +4,7 @@
 .command {
     display: contents;
 
+
     // Search, tabs and results sit in an inset card; the footer's legends rest on the dialog around it.
     &-body {
         background: var(--background);
@@ -64,10 +65,12 @@
         padding-inline: var(--padding-horizontal);
         user-select: none;
 
+
         &-hint {
             align-items: center;
             display: flex;
             gap: var(--gap-vertical) var(--gap-horizontal);
+
 
             // Close stays on the left; the remaining hints pack to the end.
             &:first-child {
@@ -93,6 +96,7 @@
     &-list {
         padding-block: var(--padding-vertical);
         padding-inline: var(--padding-horizontal);
+
 
         &--empty {
             display: none;
@@ -141,6 +145,7 @@
         scroll-behavior: smooth;
         scroll-padding-block: var(--scroll-padding-vertical);
 
+
         @media (prefers-reduced-motion: reduce) {
             scroll-behavior: auto;
         }
@@ -149,6 +154,7 @@
     &-views {
         background: var(--background);
         overflow: hidden;
+
 
         // Every view keeps the same height, so swapping between them never resizes the dialog.
         &:has(> .frame--swap) {

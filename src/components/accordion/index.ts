@@ -29,8 +29,8 @@ export default component(
             viewport: HTMLElement | undefined;
 
         let motion = trackTransition(property, (running, element) => {
-                ui.scrollable = !!state.active && !!element && !running;
-            });
+            ui.scrollable = !!state.active && !!element && !running;
+        });
 
         effect(() => {
             let active = !!state.active;
@@ -115,4 +115,6 @@ export default component(
     },
     { content: ACCORDION_CONTENT, group }
 );
+
+
 export type { Group };

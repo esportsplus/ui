@@ -31,7 +31,12 @@
         --transition-duration: 0.2s;
         --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 
-        // Reduced motion keeps the heights still.
+
+        // Reduced motion keeps the heights still, and the dimming lands at once.
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
+
         @media (prefers-reduced-motion: no-preference) {
             &:has(+ #{&} + #{&}.--active),
             &.--active + #{&} + #{&} {
@@ -98,6 +103,12 @@
             --enter-duration: 0.2s;
             --enter-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
             --offset: calc(var(--size-100) / 2);
+
+
+            @media (prefers-reduced-motion: reduce) {
+                --enter-duration: 0s;
+            }
+
 
             &--degraded {
                 --dot: var(--color-degraded);

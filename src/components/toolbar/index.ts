@@ -139,14 +139,14 @@ const LETTERS = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'];
 
 const MEMBER = Symbol();
 
-// How far the pointer may stray past a group's panel, carrying a button out of it, before the panel closes, px.
-const SLACK = 8;
-
 // Keys that rove the bar's controls, by orientation; Home and End jump to its ends.
 const ROVE: Record<'horizontal' | 'vertical', Record<string, -1 | 1>> = {
     horizontal: { ArrowLeft: -1, ArrowRight: 1 },
     vertical: { ArrowDown: 1, ArrowUp: -1 }
 };
+
+// How far the pointer may stray past a group's panel, carrying a button out of it, before the panel closes, px.
+const SLACK = 8;
 
 const TOOLBAR_DRAWER = Symbol.for('@esportsplus/ui/toolbar.drawer');
 
@@ -393,12 +393,12 @@ const toolbar = ({
         launch = reactive({ index: -1, query: '' }),
         // Kept per button rather than per render, since moving between lists renders it afresh.
         launching = new WeakMap<Button, { launching: boolean }>(),
-        // Each group's name as its panel edits it, which every place the name shows follows.
-        names = new WeakMap<Group, { editing: boolean, saved: boolean, value: string }>(),
         marker = entries.indexOf(TOOLBAR_DRAWER),
         // Shows the buttons off the page for as long as 'measure()' reads them.
         measuring = reactive({ active: false }),
         more = mode === 'dock' ? 'All apps' : 'More',
+        // Each group's name as its panel edits it, which every place the name shows follows.
+        names = new WeakMap<Group, { editing: boolean, saved: boolean, value: string }>(),
         // The bar's group button its panel opened from, which takes focus back as it closes.
         opener: HTMLElement | undefined,
         panel: HTMLElement | undefined,
@@ -413,9 +413,9 @@ const toolbar = ({
         scroll = reactive({ count: 0, first: 0, order: 0 }),
         // The frame of a glide to a letter.
         scrolling = 0,
-        shelf: HTMLElement | undefined,
         // A group's panel.
         sheet: HTMLElement | undefined,
+        shelf: HTMLElement | undefined,
         // The drawer's buttons.
         stash = drawn ? (apps instanceof ReactiveArray ? apps : new ReactiveArray(apps ?? [])) : undefined,
         // Each drawer button's element, for the keys to find the one above or below it.
@@ -500,6 +500,7 @@ const toolbar = ({
             return;
         }
 
+        // Written synchronously, so 'grow()' measures the updated layout.
         panel.style.setProperty('--toolbar-drawer-inset', `${glass.getBoundingClientRect().left - cells.getBoundingClientRect().left}px`);
     }
 
@@ -699,6 +700,9 @@ const toolbar = ({
     function drawer(apps: ReactiveArray<Button>) {
         // The button the keys rest on, so a step only reaches the two buttons it moves between.
         let current = signal<Button | undefined>(undefined),
+            // Without a search, the drawer itself takes focus and the keys. Kept out of the literal below, which
+            // compiles each handler to a listener even when unset.
+            keys: Attributes = search ? {} : { onkeydown: navigate, tabindex: '-1' },
             library = sortable(apps, (item, attributes) => html`
                 <div
                     class='toolbar-app'
@@ -713,7 +717,7 @@ const toolbar = ({
                             // Unset for the moment a button dragged out of the drawer still shows there.
                             let at = alphabet && read(alphabet).get(item);
 
-                            return at && `order: ${place(at.letter, at.rank)}`;
+                            return at && `--toolbar-order: ${place(at.letter, at.rank)};`;
                         }
                     }}
                 >
@@ -729,10 +733,7 @@ const toolbar = ({
                 },
                 onlift: () => lift(true),
                 onsort: sorted
-            }),
-            // Without a search, the drawer itself takes focus and the keys. Kept out of the literal below, which
-            // compiles each handler to a listener even when unset.
-            keys: Attributes = search ? {} : { onkeydown: navigate, tabindex: '-1' };
+            });
 
         effect(() => {
             write(current, shown()[selected()]);
@@ -822,7 +823,7 @@ const toolbar = ({
                                             onconnect: (element: HTMLElement) => {
                                                 headings[index] = element;
                                             },
-                                            style: () => `order: ${place(index)}`
+                                            style: () => `--toolbar-order: ${place(index)};`
                                         }}
                                     >
                                         ${letter}
@@ -998,7 +999,8 @@ const toolbar = ({
         }
     }
 
-    // Lifted out of a group's panel: the panel closes once the pointer carries it away.
+    // Lifted out of a group's panel: the panel closes once the pointer carries it away. Listened for only while it is
+    // carried, rather than bound for the bar's whole life, since it runs on every move.
     function lifted() {
         addEventListener('pointermove', stray);
     }
@@ -1129,9 +1131,9 @@ const toolbar = ({
     }
 
     // A group's panel, beside the bar over the group's slot. Opened into a group inside, the groups on the way there
-    // list above it as a menu panel under its sub-panel, the nearest last, each row going back to its group when pressed. It stays in the page
-    // while closed, since a button carried out of it is still its to land, and closes on a press anywhere off the bar,
-    // or Escape.
+    // list above it as a menu panel under its sub-panel, the nearest last, each row going back to its group when
+    // pressed. It stays in the page while closed, since a button carried out of it is still its to land, and closes on
+    // a press anywhere off the bar, or Escape.
     function pane() {
         return html`
             <div
@@ -1539,8 +1541,8 @@ const toolbar = ({
             }
         }
 
-        let path = read(trail),
-            kept = 0;
+        let kept = 0,
+            path = read(trail);
 
         while (kept < path.length && (kept === 0 ? entries : path[kept - 1].items).includes(path[kept])) {
             kept++;

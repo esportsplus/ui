@@ -1,7 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/color';
 
-
 .relative-time {
     @extend %color-state;
     --color-active: var(--color-hover);
@@ -10,10 +9,6 @@
     --font-weight: var(--font-weight-400);
     --transition-duration: 0.15s;
     --transition-timing-function: ease-out;
-
-    @include tokens.state(active hover) {
-        --font-weight: var(--font-weight-500);
-    }
 
 
     // Long enough to read as motion, short enough that a seconds counter never has two rolls overlapping; the exit
@@ -59,5 +54,9 @@
     // Brightens on focus as on hover, so the text reads as something with more to say.
     &:focus-visible {
         --color: var(--color-hover);
+    }
+
+    @include tokens.state(active hover) {
+        --font-weight: var(--font-weight-500);
     }
 }

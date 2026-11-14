@@ -85,6 +85,7 @@ $animations: (
         --throw-fade-timing-function: ease-out;
         --throw-scale: 0;
 
+
         // Thrown, it fades where it was let go.
         @media (prefers-reduced-motion: reduce) {
             --fling-duration: 0s;

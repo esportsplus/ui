@@ -59,11 +59,6 @@ const WARM_FOR = 500;
 let closedAt = 0;
 
 
-// Called when a delayed tooltip closes while open; starts the window 'warm()' reads.
-function cool() {
-    closedAt = Date.now();
-}
-
 function content(element: HTMLElement) {
     let candidates = element.querySelectorAll<HTMLElement>('.tooltip-content, .tooltip-message');
 
@@ -72,6 +67,11 @@ function content(element: HTMLElement) {
             return candidates[i];
         }
     }
+}
+
+// Called when a delayed tooltip closes while open; starts the window 'warm()' reads.
+function cool() {
+    closedAt = Date.now();
 }
 
 // Blur then threshold the alpha so nearby shapes melt into one blob (the neck between trigger
@@ -190,9 +190,9 @@ function placed(tooltip: HTMLElement) {
 
     return store[PLACED_STATE] ??= root(() => {
         let state: Placed = reactive({
+                corner: undefined as Corner | undefined,
                 maxHeight: undefined as number | undefined,
                 maxWidth: undefined as number | undefined,
-                corner: undefined as Corner | undefined,
                 origin: undefined as string | undefined,
                 placed: false,
                 placing: false,

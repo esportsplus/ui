@@ -693,7 +693,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
                 items.push({
                     kind,
-                    style: `height: ${rect.height}px; left: ${rect.left - originX}px; top: ${rect.top - originY}px;${start === end ? '' : ` width: ${Math.max(1, rect.width)}px;`}`
+                    style: `--mark-height: ${rect.height}px; --mark-left: ${rect.left - originX}px; --mark-top: ${rect.top - originY}px;${start === end ? '' : ` --mark-width: ${Math.max(1, rect.width)}px;`}`
                 });
             }
         };
@@ -2444,7 +2444,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
                     >
                         ${html.reactive(items, (item) => 'block' in item
                             ? draw.template(item)
-                            : html`<div aria-hidden='true' class='markdown-editor-spacer' contenteditable='false' ${{ style: () => `height: ${item.height}px;` }}></div>`
+                            : html`<div aria-hidden='true' class='markdown-editor-spacer' contenteditable='false' ${{ style: () => `--spacer-height: ${item.height}px;` }}></div>`
                         )}
                     </div>
                 </div>

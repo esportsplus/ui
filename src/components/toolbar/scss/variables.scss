@@ -62,6 +62,11 @@
         --background-default: var(--surface-background-default);
     }
 
+    &--labels &-item {
+        --gap-horizontal: 0px;
+        --gap-vertical: 2px;
+    }
+
     // Against a screen's top edge.
     &--s &-button {
         --hop-y: 1;
@@ -114,6 +119,15 @@
         --size: 45%;
     }
 
+    // Held over, ringed in the primary colour as it swells.
+    &-app.sortable-item--target > &-button,
+    &-item.sortable-item--target > &-button {
+        --outline-color: var(--color-primary-400);
+        --outline-offset: 2px;
+        --outline-width: var(--border-width-500);
+        --target-scale: 1.12;
+    }
+
     &-arrow {
         --color: var(--color-text-400);
         --height: var(--button-size);
@@ -155,21 +169,20 @@
         --squash-timing-function: ease-in-out;
 
 
-        // Covers the button, over the surface it shows until the image loads; the image is its own edge, and keeps
-        // showing through hover and press.
-        &--thumbnail {
-            --background-default: var(--thumbnail) center / cover no-repeat, var(--surface-background-default);
-            --background-hover: var(--background-default);
-            --background-pressed: var(--background-default);
-        }
-
-
         // A tinted square around its preview, so a group reads as one among the flat buttons.
         &--group {
             --background-default: color-mix(in oklab, var(--color-text-500) 6%, transparent);
             --background-hover: color-mix(in oklab, var(--color-text-500) 10%, transparent);
             --padding-horizontal: calc(var(--size-100) / 2);
             --padding-vertical: calc(var(--size-100) / 2);
+        }
+
+        // Covers the button, over the surface it shows until the image loads; the image is its own edge, and keeps
+        // showing through hover and press.
+        &--thumbnail {
+            --background-default: var(--thumbnail) center / cover no-repeat, var(--surface-background-default);
+            --background-hover: var(--background-default);
+            --background-pressed: var(--background-default);
         }
 
 
@@ -188,15 +201,6 @@
         }
     }
 
-    // Held over, ringed in the primary colour as it swells.
-    &-app.sortable-item--target > &-button,
-    &-item.sortable-item--target > &-button {
-        --outline-color: var(--color-primary-400);
-        --outline-offset: 2px;
-        --outline-width: var(--border-width-500);
-        --target-scale: 1.12;
-    }
-
     &-divider {
         --background: var(--surface-border-default);
         --height: var(--size-500);
@@ -207,6 +211,25 @@
 
     // A floating frame over the page, a level below what it opens from, as the command palette's dialog is.
     &-drawer {
+        // '--toolbar-drawer-inset' is where the search's magnifier starts, from the apps' edge: written inline once
+        // measured, this until then, or without a search. '--toolbar-rail-max-height' is shared with the apps beside it.
+        &--alphabetical {
+            --toolbar-drawer-inset: var(--size-300);
+            --toolbar-rail-max-height: min(calc(27 * var(--toolbar-rail-letter-height)), 60vh);
+            --toolbar-rail-letter-height: 16px;
+        }
+
+        // How far a tile sits in from its column's edge, which the headings line up with.
+        &--alphabetical &-apps {
+            --tile-offset: calc((var(--column-width) - var(--tile-size)) / 2);
+        }
+
+        // Tall enough for the rail's letters at their own height, which it shares.
+        &--alphabetical &-view {
+            --max-height: var(--toolbar-rail-max-height);
+        }
+
+
         &-apps {
             --column-width: 80px;
             --gap-horizontal: var(--size-200);
@@ -243,14 +266,6 @@
             --font-weight: var(--font-weight-400);
         }
 
-        &-heading {
-            --color: var(--color-text-400);
-            --font-size: var(--font-size-300);
-            --font-weight: var(--font-weight-500);
-            --padding-horizontal: var(--size-100);
-            --padding-vertical: var(--size-200);
-        }
-
         &-footer {
             --color: var(--color-text-300);
             --font-size: var(--font-size-200);
@@ -263,6 +278,14 @@
                 --gap-horizontal: var(--size-100);
                 --gap-vertical: 0px;
             }
+        }
+
+        &-heading {
+            --color: var(--color-text-400);
+            --font-size: var(--font-size-300);
+            --font-weight: var(--font-weight-500);
+            --padding-horizontal: var(--size-100);
+            --padding-vertical: var(--size-200);
         }
 
         // On the card's own surface, 44px tall, as the command palette's search is. 'inherit' passes the drawer's
@@ -292,11 +315,6 @@
 
         &-view {
             --max-height: min(320px, 50vh);
-        }
-
-        // Tall enough for the rail's letters at their own height, which it shares.
-        &--alphabetical &-view {
-            --max-height: var(--toolbar-rail-max-height);
         }
 
 
@@ -358,8 +376,24 @@
             }
         }
 
+        &-face {
+            --background: var(--surface-background-default);
+            --border-radius: calc(var(--border-radius-400) / 2);
+            --color: var(--color-text-400);
+            --padding: 1px;
+
+            // A group inside a group is tinted as the group button is.
+            &--group {
+                --background: color-mix(in oklab, var(--color-text-500) 8%, transparent);
+            }
+        }
+
         &-header {
             --height: 28px;
+        }
+
+        &-preview {
+            --gap: 2px;
         }
 
         // The groups on the way to the one shown, as rows of a menu panel under its open sub-panel: on the bar's
@@ -392,98 +426,6 @@
         }
     }
 
-    &-group-face {
-        --background: var(--surface-background-default);
-        --border-radius: calc(var(--border-radius-400) / 2);
-        --color: var(--color-text-400);
-        --padding: 1px;
-
-        // A group inside a group is tinted as the group button is.
-        &--group {
-            --background: color-mix(in oklab, var(--color-text-500) 8%, transparent);
-        }
-    }
-
-    &-group-preview {
-        --gap: 2px;
-    }
-
-    // '--toolbar-drawer-inset' is where the search's magnifier starts, from the apps' edge: written inline once
-    // measured, this until then, or without a search. '--toolbar-rail-max-height' is shared with the apps beside it.
-    &-drawer--alphabetical {
-        --toolbar-drawer-inset: var(--size-300);
-        --toolbar-rail-max-height: min(calc(27 * var(--toolbar-rail-letter-height)), 60vh);
-        --toolbar-rail-letter-height: 16px;
-    }
-
-    &-rail {
-        --max-height: var(--toolbar-rail-max-height);
-        --padding-horizontal: var(--size-100);
-        --padding-vertical: var(--size-200);
-    }
-
-    // At rest every letter is the same; the pointed one peaks and its two neighbours either side step back down, as
-    // the chat minimap's lines do. A letter with nothing under it fades, and still swells as it is passed.
-    &-rail-letter {
-        --color: var(--color-text-300);
-        --font-size: var(--font-size-100);
-        --font-weight: var(--font-weight-500);
-        --height: var(--toolbar-rail-letter-height);
-        --opacity: 1;
-        --scale: 1;
-        --scale-far: 1.2;
-        --scale-near: 1.45;
-        --scale-peak: 1.9;
-        --transition-duration: 0.16s;
-        --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        --width: 20px;
-
-        @media (prefers-reduced-motion: reduce) {
-            --transition-duration: 0s;
-        }
-
-
-        &--empty {
-            --opacity: 0.35;
-        }
-
-        &:has(+ .toolbar-rail-letter + .toolbar-rail-letter.--active),
-        &.--active + .toolbar-rail-letter + & {
-            --color: var(--color-text-400);
-            --scale: var(--scale-far);
-        }
-
-        &:has(+ .toolbar-rail-letter.--active),
-        &.--active + & {
-            --color: var(--color-text-400);
-            --scale: var(--scale-near);
-        }
-
-        &.--active {
-            --color: var(--color-text-500);
-            --opacity: 1;
-            --scale: var(--scale-peak);
-        }
-
-        // The swell is motion, so it stays still; the colors still follow the pointer.
-        @media (prefers-reduced-motion: reduce) {
-            &:has(+ .toolbar-rail-letter + .toolbar-rail-letter.--active),
-            &.--active + .toolbar-rail-letter + &,
-            &:has(+ .toolbar-rail-letter.--active),
-            &.--active + &,
-            &.--active {
-                --scale: 1;
-            }
-        }
-    }
-
-    // The dashed outline a held slot shows in its place. Its fill leaves, so only the outline does.
-    &-item.sortable-item--held > &-button {
-        --background-default: transparent;
-        --outline-color: var(--surface-border-pressed);
-        --outline-width: var(--border-width-500);
-    }
-
     // Spaced as the editor's formatting buttons are; the shared label keeps open across the gaps.
     &-item-label {
         --color: var(--color-text-400);
@@ -492,9 +434,11 @@
         --max-width: calc(var(--button-size) + var(--size-300));
     }
 
-    &--labels &-item {
-        --gap-horizontal: 0px;
-        --gap-vertical: 2px;
+    // The dashed outline a held slot shows in its place. Its fill leaves, so only the outline does.
+    &-item.sortable-item--held > &-button {
+        --background-default: transparent;
+        --outline-color: var(--surface-border-pressed);
+        --outline-width: var(--border-width-500);
     }
 
     &-items {
@@ -536,6 +480,69 @@
         @include tokens.state(active) {
             --scale: 1;
             --transition-duration: 0.2s;
+        }
+    }
+
+
+    &-rail {
+        --max-height: var(--toolbar-rail-max-height);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: var(--size-200);
+
+
+        // At rest every letter is the same; the pointed one peaks and its two neighbours either side step back down, as
+        // the chat minimap's lines do. A letter with nothing under it fades, and still swells as it is passed.
+        &-letter {
+            --color: var(--color-text-300);
+            --font-size: var(--font-size-100);
+            --font-weight: var(--font-weight-500);
+            --height: var(--toolbar-rail-letter-height);
+            --opacity: 1;
+            --scale: 1;
+            --scale-far: 1.2;
+            --scale-near: 1.45;
+            --scale-peak: 1.9;
+            --transition-duration: 0.16s;
+            --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            --width: 20px;
+
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
+            }
+
+
+            &--empty {
+                --opacity: 0.35;
+            }
+
+            &:has(+ .toolbar-rail-letter + .toolbar-rail-letter.--active),
+            &.--active + .toolbar-rail-letter + & {
+                --color: var(--color-text-400);
+                --scale: var(--scale-far);
+            }
+
+            &:has(+ .toolbar-rail-letter.--active),
+            &.--active + & {
+                --color: var(--color-text-400);
+                --scale: var(--scale-near);
+            }
+
+            &.--active {
+                --color: var(--color-text-500);
+                --opacity: 1;
+                --scale: var(--scale-peak);
+            }
+
+            // The swell is motion, so it stays still; the colors still follow the pointer.
+            @media (prefers-reduced-motion: reduce) {
+                &:has(+ .toolbar-rail-letter + .toolbar-rail-letter.--active),
+                &.--active + .toolbar-rail-letter + &,
+                &:has(+ .toolbar-rail-letter.--active),
+                &.--active + &,
+                &.--active {
+                    --scale: 1;
+                }
+            }
         }
     }
 

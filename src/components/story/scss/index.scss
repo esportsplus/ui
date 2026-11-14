@@ -56,15 +56,10 @@
         padding: 0;
         pointer-events: auto;
         position: relative;
+        // Dots widen the playing one into a pill, which the row has to make room for.
         transition: width var(--transition-duration) var(--transition-timing-function);
         width: var(--width);
 
-        // The hit area, reaching past the thin line above and below it without taking up room in the row.
-        &::before {
-            content: '';
-            inset: calc(var(--hit-vertical) * -1) 0;
-            position: absolute;
-        }
 
         &::after {
             @extend %absolute-full;
@@ -73,6 +68,13 @@
             border-radius: inherit;
             clip-path: inset(0 var(--fill-inset) 0 0);
             content: '';
+        }
+
+        // The hit area, reaching past the thin line above and below it without taking up room in the row.
+        &::before {
+            content: '';
+            inset: calc(var(--hit-vertical) * -1) 0;
+            position: absolute;
         }
     }
 
@@ -91,6 +93,7 @@
     &-slide {
         min-height: 0;
         overflow: hidden;
+
 
         // Following a drag, or leaping more than one place. Chained through '.frame' so the slide transition can't
         // override it, whichever stylesheet loads last.
@@ -119,6 +122,7 @@
         flex: 1;
         outline: none;
         padding: 0;
+
 
         &:last-child {
             flex: 2;

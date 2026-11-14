@@ -17,10 +17,6 @@
     }
 
 
-    &:not(#{&}--rail) &-title:not(&-link) {
-        --padding-horizontal: var(--size-300);
-    }
-
     &-link {
         @extend %color-state, %color-text;
         --background: transparent;
@@ -53,6 +49,11 @@
         &:not(.nav-tree-link) {
             --padding-horizontal: 0px;
         }
+    }
+
+
+    &:not(#{&}--rail) &-title:not(&-link) {
+        --padding-horizontal: var(--size-300);
     }
 
     // Sections and their link lists stack flush; the tree's own gap spaces the sections.

@@ -1,12 +1,12 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import check from '@esportsplus/ui/svg/check.svg';
+import pencil from '@esportsplus/ui/svg/pencil.svg';
 import icon from '~/components/icon';
 import input from '~/components/input';
 import textarea from '~/components/textarea';
 import rich from './rich';
 import status, { INLINE_EDIT_STATUS, type Status } from './status';
-import check from '@esportsplus/ui/svg/check.svg';
-import pencil from '@esportsplus/ui/svg/pencil.svg';
 import './scss/index.scss';
 
 

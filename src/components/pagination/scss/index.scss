@@ -27,6 +27,14 @@
     }
 
 
+    &-arrow,
+    &-card {
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+        }
+    }
+
     &-arrow {
         align-items: center;
         background: var(--background);
@@ -40,21 +48,14 @@
         justify-content: center;
         outline: none;
         padding: 0;
-        transition:
-            background-color var(--transition-duration) var(--transition-timing-function),
-            color var(--transition-duration) var(--transition-timing-function);
+        transition-duration: var(--transition-duration);
+        transition-property: background-color, color;
+        transition-timing-function: var(--transition-timing-function);
         width: var(--size);
+
 
         @include tokens.state(disabled) {
             @extend %disabled;
-        }
-    }
-
-    &-arrow,
-    &-card {
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--focus-offset);
         }
     }
 
@@ -106,12 +107,11 @@
                 translate var(--transition-duration) var(--transition-timing-function);
             translate: var(--offset) -50%;
 
-            &:first-child {
-                left: var(--inset-horizontal);
-            }
 
-            &:last-child {
-                right: var(--inset-horizontal);
+            @each $child, $side in (first-child: left, last-child: right) {
+                &:#{$child} {
+                    #{$side}: var(--inset-horizontal);
+                }
             }
         }
 
@@ -129,21 +129,10 @@
         }
 
         // Clears the text from whichever edge holds the arrow, on top of the card's own padding.
-        &:has(> #{&}-arrow:first-child) {
-            padding-left: calc(var(--inset-horizontal) + var(--arrow-size) + var(--gap-horizontal));
-        }
-
-        &:has(> #{&}-arrow:last-child) {
-            padding-right: calc(var(--inset-horizontal) + var(--arrow-size) + var(--gap-horizontal));
-        }
-    }
-
-    &-control {
-        gap: var(--gap-vertical) var(--gap-horizontal);
-
-        @include tokens.state(disabled) {
-            @extend %disabled;
-            pointer-events: none;
+        @each $child, $side in (first-child: left, last-child: right) {
+            &:has(> #{&}-arrow:#{$child}) {
+                padding-#{$side}: calc(var(--inset-horizontal) + var(--arrow-size) + var(--gap-horizontal));
+            }
         }
     }
 
@@ -153,12 +142,22 @@
         height: var(--size);
     }
 
+    &-control {
+        gap: var(--gap-vertical) var(--gap-horizontal);
+
+
+        @include tokens.state(disabled) {
+            @extend %disabled;
+            pointer-events: none;
+        }
+    }
+
     &-page {
-        font-variant: tabular-nums;
+        font-variant-numeric: tabular-nums;
         min-width: var(--size);
 
+
         &--dots {
-            cursor: default;
             pointer-events: none;
         }
     }

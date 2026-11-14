@@ -29,21 +29,19 @@
     }
 }
 
-@keyframes theme-reveal {
-    from {
-        clip-path: var(--theme-reveal-from);
-    }
-
-    to {
-        clip-path: var(--theme-reveal-to);
-    }
-}
-
 
 .theme {
+    &-cards,
+    &-swatches {
+        &-option {
+            @extend %reset-button;
+        }
+    }
+
     &-cards {
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
+
 
         &-label {
             color: var(--color);
@@ -71,6 +69,7 @@
             padding-inline: var(--padding-horizontal);
             width: var(--width);
 
+
             &-bar,
             &-line {
                 background: var(--background);
@@ -82,13 +81,6 @@
         }
     }
 
-    &-cards,
-    &-swatches {
-        &-option {
-            @extend %reset-button;
-        }
-    }
-
     &-icon {
         fill: none;
         stroke: currentColor;
@@ -97,6 +89,7 @@
     &-swatches {
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
+
 
         &-circle {
             background: var(--background);
@@ -119,5 +112,16 @@
             gap: var(--gap-vertical) var(--gap-horizontal);
             justify-items: center;
         }
+    }
+}
+
+
+@keyframes theme-reveal {
+    from {
+        clip-path: var(--theme-reveal-from);
+    }
+
+    to {
+        clip-path: var(--theme-reveal-to);
     }
 }

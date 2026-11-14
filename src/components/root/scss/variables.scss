@@ -44,16 +44,16 @@ strong {
     --font-weight: var(--font-weight-500);
 }
 
-h1 {
-    --font-size: var(--font-size-800);
-}
-
 h1,
 h2,
 h3,
 h4 {
     --color: var(--color-text-400);
     --font-weight: var(--font-weight-500);
+}
+
+h1 {
+    --font-size: var(--font-size-800);
 }
 
 h2 {

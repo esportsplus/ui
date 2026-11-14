@@ -43,7 +43,7 @@ export default component(
                         'aria-valuetext': () => `${number.abbreviate(read(used))} of ${number.abbreviate(usage.context)} tokens, ${Math.round(read(ratio) * 100)}%`
                     }}
                 >
-                    <span class='usage-meter-fill' style='${() => `translate: ${(read(ratio) - 1) * 100}% 0`}'></span>
+                    <span class='usage-meter-fill' style='${() => `--fill-ratio: ${read(ratio)}`}'></span>
                 </div>
 
                 <div class='usage-meter-footer'>

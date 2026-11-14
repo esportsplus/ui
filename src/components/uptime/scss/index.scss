@@ -22,14 +22,10 @@
         scale: 1 var(--scale);
         // Grows upward, away from the axis below.
         transform-origin: bottom;
-        transition:
-            opacity var(--transition-duration) var(--transition-timing-function),
-            scale var(--transition-duration) var(--transition-timing-function);
+        transition-duration: var(--transition-duration);
+        transition-property: opacity, scale;
+        transition-timing-function: var(--transition-timing-function);
         width: calc((100% - (var(--days) - 1) * var(--day-gap)) / var(--days));
-
-        @media (prefers-reduced-motion: reduce) {
-            transition: none;
-        }
     }
 
     &-bars {
@@ -74,14 +70,14 @@
             min-width: 0;
         }
 
-        &-day {
-            color: var(--color-muted);
-            flex-shrink: 0;
-        }
-
         &-day,
         &-percentage {
             font-variant-numeric: tabular-nums;
+        }
+
+        &-day {
+            color: var(--color-muted);
+            flex-shrink: 0;
         }
 
         &-header {
@@ -101,9 +97,6 @@
             text-overflow: ellipsis;
             white-space: nowrap;
 
-            @media (prefers-reduced-motion: reduce) {
-                animation: none;
-            }
 
             &--active {
                 color: var(--color);

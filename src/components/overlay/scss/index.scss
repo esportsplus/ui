@@ -1,7 +1,7 @@
-@use 'sass:list';
-@use 'sass:map';
 @use '/tokens';
 @use 'css-utilities/anchor';
+@use 'sass:list';
+@use 'sass:map';
 @use 'variables';
 
 
@@ -75,19 +75,10 @@ $placed: ();
         translate var(--transition-duration) var(--transition-timing-function);
     width: $expanded;
 
-    @include tokens.state(inactive) {
-        opacity: var(--opacity);
-        pointer-events: none;
-        scale: var(--scale);
-        translate: var(--translate);
 
-        &::backdrop {
-            opacity: 0;
-        }
-
-        input[type='password'] {
-            display: none;
-        }
+    &::backdrop {
+        background: var(--backdrop);
+        transition: opacity var(--transition-duration) var(--transition-timing-function);
     }
 
     // Every placement fades in place instead of travelling.
@@ -97,9 +88,24 @@ $placed: ();
             opacity var(--transition-duration) var(--transition-timing-function);
     }
 
-    &::backdrop {
-        background: var(--backdrop);
-        transition: opacity var(--transition-duration) var(--transition-timing-function);
+
+    // Ahead of the modifiers, whose drag fade, covered stacking and stacked backdrop set the same properties at the
+    // same specificity and have to win.
+    @include tokens.state(inactive) {
+        opacity: var(--opacity);
+        pointer-events: none;
+        scale: var(--scale);
+        translate: var(--translate);
+
+
+        &::backdrop {
+            opacity: 0;
+        }
+
+
+        input[type='password'] {
+            display: none;
+        }
     }
 
     // Fades with the drag, so the page shows through as the overlay leaves.
@@ -111,6 +117,76 @@ $placed: ();
     &--alert::backdrop,
     &--blur::backdrop {
         backdrop-filter: blur(var(--blur));
+    }
+
+    // '--depth' is how many layers are open above this one, fractional while the top one is dragged away.
+    &#{&}--covered {
+        filter: brightness(calc(1 - min(var(--depth), 1) * var(--stack-dim)));
+        scale: pow(var(--stack-scale), var(--depth));
+        translate: var(--stack-translate);
+
+
+        @media (prefers-reduced-motion: reduce) {
+            scale: none;
+            translate: none;
+        }
+    }
+
+    &#{&}--draggable {
+        cursor: grab;
+        outline: none;
+        touch-action: none;
+        user-select: none;
+
+
+        // Touch scrolls the content, so only the handle drags.
+        &.overlay--scrollable {
+            touch-action: auto;
+        }
+
+        // Let non-scrolling surfaces keep their shadows outside the box.
+        &:not(.overlay--scrollable):is(#{$placed}) {
+            overflow: visible;
+        }
+    }
+
+    // Following the finger: the layers beneath the dragged one track it too, so neither may ease. Tripled so it
+    // outranks a paired component's own transitions (e.g. '.command-dialog.overlay') whatever the load order.
+    &#{&}#{&}--dragging,
+    &#{&}#{&}--tracking {
+        &,
+        &::backdrop {
+            transition: none;
+        }
+    }
+
+    // Fades with the drag, in step with its backdrop.
+    &#{&}--dragging {
+        cursor: grabbing;
+        opacity: calc(1 - var(--progress, 0));
+    }
+
+    // Border paint reaches outside a scrolling surface without adding overflow or using its pseudo-elements. The
+    // fill reaches 1px past its outset into the box, under the content: two paints meeting on one fractional edge
+    // each antialias it, and the page shows through the seam.
+    &#{&}--edge-fill {
+        border-image-outset: var(--edge-fill);
+        border-image-repeat: stretch;
+        border-image-slice: 1;
+        border-image-source: linear-gradient(var(--edge-background), var(--edge-background));
+        border-image-width: var(--edge-fill-width);
+
+        @each $placement, $sides in $edge-fill {
+            &.overlay--#{$placement} {
+                --edge-fill: #{$sides};
+                --edge-fill-width: #{edge-fill-width($sides)};
+            }
+        }
+    }
+
+    &--e,
+    &--w {
+        height: calc(100% - (var(--margin-vertical) * 2));
     }
 
     // Pinned to the edges its placement names, squaring the corners that meet them unless floating; a corner
@@ -132,74 +208,6 @@ $placed: ();
                         border-#{$corner}-radius: 0;
                     }
                 }
-            }
-        }
-    }
-
-    &--e,
-    &--w {
-        height: calc(100% - (var(--margin-vertical) * 2));
-    }
-
-    // '--depth' is how many layers are open above this one, fractional while the top one is dragged away.
-    &#{&}--covered {
-        filter: brightness(calc(1 - min(var(--depth), 1) * var(--stack-dim)));
-        scale: pow(var(--stack-scale), var(--depth));
-        translate: var(--stack-translate);
-
-        @media (prefers-reduced-motion: reduce) {
-            scale: none;
-            translate: none;
-        }
-    }
-
-    &#{&}--draggable {
-        cursor: grab;
-        outline: none;
-        touch-action: none;
-        user-select: none;
-
-        // Touch scrolls the content, so only the handle drags.
-        &.overlay--scrollable {
-            touch-action: auto;
-        }
-
-        // Let non-scrolling surfaces keep their shadows outside the box.
-        &:not(.overlay--scrollable):is(#{$placed}) {
-            overflow: visible;
-        }
-    }
-
-    // Fades with the drag, in step with its backdrop.
-    &#{&}--dragging {
-        cursor: grabbing;
-        opacity: calc(1 - var(--progress, 0));
-    }
-
-    // Following the finger: the layers beneath the dragged one track it too, so neither may ease. Tripled so it
-    // outranks a paired component's own transitions (e.g. '.command-dialog.overlay') whatever the load order.
-    &#{&}#{&}--dragging,
-    &#{&}#{&}--tracking {
-        &,
-        &::backdrop {
-            transition: none;
-        }
-    }
-
-    // Border paint reaches outside a scrolling surface without adding overflow or using its pseudo-elements. The
-    // fill reaches 1px past its outset into the box, under the content: two paints meeting on one fractional edge
-    // each antialias it, and the page shows through the seam.
-    &#{&}--edge-fill {
-        border-image-outset: var(--edge-fill);
-        border-image-repeat: stretch;
-        border-image-slice: 1;
-        border-image-source: linear-gradient(var(--edge-background), var(--edge-background));
-        border-image-width: var(--edge-fill-width);
-
-        @each $placement, $sides in $edge-fill {
-            &.overlay--#{$placement} {
-                --edge-fill: #{$sides};
-                --edge-fill-width: #{edge-fill-width($sides)};
             }
         }
     }
@@ -250,9 +258,6 @@ $placed: ();
         touch-action: none;
         width: var(--length);
 
-        .overlay--e > & {
-            left: var(--offset);
-        }
 
         .overlay--e > &,
         .overlay--w > & {
@@ -260,6 +265,10 @@ $placed: ();
             top: 50%;
             translate: 0 -50%;
             width: var(--thickness);
+        }
+
+        .overlay--e > & {
+            left: var(--offset);
         }
 
         .overlay--n > &,

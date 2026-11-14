@@ -23,7 +23,7 @@
     width: 100%;
 
 
-    &--empty .markdown-editor-content::before {
+    &--empty &-content::before {
         display: block;
     }
 
@@ -38,15 +38,16 @@
         position: relative;
         white-space: var(--white-space);
 
-        @for $level from 1 through 6 {
-            &--h#{$level} {
-                font-size: calc(var(--font-size) * var(--h#{$level}-scale));
-            }
-        }
 
         &--h1,
         &--h2 {
             line-height: var(--heading-line-height);
+        }
+
+        @for $level from 1 through 6 {
+            &--h#{$level} {
+                font-size: calc(var(--font-size) * var(--h#{$level}-scale));
+            }
         }
 
         &--h6 {
@@ -97,6 +98,7 @@
         padding-block: var(--padding-vertical);
         padding-inline: var(--padding-horizontal);
 
+
         &--head {
             font-weight: var(--heading-weight);
         }
@@ -124,6 +126,7 @@
         padding-block: var(--padding-vertical);
         padding-inline: var(--padding-horizontal);
 
+
         &--block {
             background: none;
             font-size: inherit;
@@ -139,6 +142,7 @@
         overflow-wrap: var(--overflow-wrap);
         position: relative;
         white-space: var(--white-space);
+
 
         &::before {
             color: var(--placeholder-color);
@@ -175,14 +179,16 @@
         position: absolute;
         width: var(--fold-width);
 
+
         &--none {
             pointer-events: none;
             visibility: hidden;
         }
+    }
 
-        &-icon.icon {
-            transition: rotate var(--transition-duration) var(--transition-timing-function);
-        }
+    &-fold-icon.icon,
+    &-summary-icon.icon {
+        transition: rotate var(--transition-duration) var(--transition-timing-function);
     }
 
     &-frontmatter {
@@ -192,6 +198,7 @@
     &-heading {
         font-weight: var(--heading-weight);
         margin: 0;
+
 
         @for $level from 1 through 6 {
             &--h#{$level} {
@@ -231,9 +238,10 @@
         background-repeat: no-repeat;
         background-size: 0% var(--strike-width);
         box-decoration-break: clone;
-        transition:
-            background-size var(--strike-duration) var(--strike-timing-function),
-            color var(--strike-duration) var(--strike-timing-function);
+        transition-duration: var(--strike-duration);
+        transition-property: background-size, color;
+        transition-timing-function: var(--strike-timing-function);
+
 
         &--done {
             background-size: 100% var(--strike-width);
@@ -254,9 +262,15 @@
     }
 
     &-mark {
+        height: var(--mark-height);
+        left: var(--mark-left);
         pointer-events: none;
         position: absolute;
+        top: var(--mark-top);
+        width: var(--mark-width);
 
+
+        // Its own width: a caret spans no text, so the script writes no '--mark-width' for it.
         &--caret {
             background: var(--caret-color);
             width: var(--caret-width);
@@ -323,6 +337,7 @@
     }
 
     &-spacer {
+        height: var(--spacer-height);
         pointer-events: none;
     }
 
@@ -341,12 +356,9 @@
         gap: var(--gap-vertical) var(--gap-horizontal);
         list-style: none;
 
+
         &::-webkit-details-marker {
             display: none;
-        }
-
-        &-icon.icon {
-            transition: rotate var(--transition-duration) var(--transition-timing-function);
         }
     }
 
@@ -371,6 +383,7 @@
         margin: 0 var(--margin-horizontal) 0 0;
         vertical-align: middle;
 
+
         &:has(input:disabled) {
             cursor: default;
             opacity: var(--disabled-opacity);
@@ -389,12 +402,14 @@
         transform-origin: var(--toolbar-origin);
         translate: var(--toolbar-x) var(--toolbar-y);
 
+
         @media (prefers-reduced-motion: reduce) {
             transition-property: opacity;
         }
     }
 
-    // Shown afresh, it jumps to the selection rather than gliding from where it last was.
+    // Shown afresh, it jumps to the selection rather than gliding from where it last was. Stays after the rule above,
+    // whose reduced-motion 'transition-property' it has to override.
     &-toolbar--instant.tooltip-content {
         transition: none;
     }
@@ -423,6 +438,7 @@
         left: 0;
         top: 0;
         width: 0;
+
 
         @include tokens.state(active) {
             > .markdown-editor-toolbar {

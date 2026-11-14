@@ -492,7 +492,7 @@ export default <T extends Row<T>>({ drag, export: give, import: take }: Handlers
                     onconnect: (element: HTMLElement) => {
                         ghost = element;
                     },
-                    style: () => `translate: ${ui.x}px ${ui.y}px`
+                    style: () => `--drag-x: ${ui.x}px; --drag-y: ${ui.y}px;`
                 }}
             >
                 <span class='file-tree-drag-name'>${() => ui.label}</span>

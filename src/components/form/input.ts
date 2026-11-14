@@ -1,6 +1,5 @@
 import { reactive } from '@esportsplus/reactivity';
-import { Element } from '@esportsplus/template';
-import type { On } from '@esportsplus/template';
+import { type Element, type On } from '@esportsplus/template';
 
 
 // TODO: Needs to be expanded and we need better type for template

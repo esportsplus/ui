@@ -135,6 +135,11 @@
     }
 
     &-fold {
+        &-icon.icon {
+            --rotate: 90deg;
+        }
+
+
         @include tokens.state(active) {
             .markdown-editor-fold-icon.icon {
                 --rotate: 0deg;
@@ -142,14 +147,13 @@
         }
     }
 
-    // Chained through '.icon' so they win over the icon's own size regardless of stylesheet order. The summary's turns
-    // like a fold marker: right while closed, down once open.
+    // Chained through '.icon' so they win over the icon's own size regardless of stylesheet order.
     &-fold-icon.icon,
     &-summary-icon.icon {
-        --rotate: 90deg;
         --size: var(--size-100);
         --transition-duration: 0.15s;
         --transition-timing-function: ease-out;
+
 
         @media (prefers-reduced-motion: reduce) {
             --transition-duration: 0s;
@@ -174,10 +178,12 @@
         --strike-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
         --strike-width: 2px;
 
+
         @media (prefers-reduced-motion: reduce) {
             --strike-delay: 0s;
             --strike-duration: 0s;
         }
+
 
         &--done {
             --color: var(--color-text-300);
@@ -207,8 +213,11 @@
         --gap-horizontal: var(--size-100);
         --gap-vertical: 0px;
 
+
+        // Turns like a fold marker: right while closed, down once open.
         &-icon.icon {
             --rotate: 0deg;
+
 
             details[open] > .markdown-editor-summary > & {
                 --rotate: 90deg;
@@ -240,6 +249,7 @@
         --padding-vertical: 0px;
         --scale: 0.96;
         --width: max-content;
+
 
         @media (prefers-reduced-motion: reduce) {
             --scale: 1;
@@ -289,6 +299,7 @@
         --padding-horizontal: var(--size-100);
         --padding-vertical: 0px;
         --width: 220px;
+
 
         &[aria-invalid='true'] {
             --color-default: var(--color-red-400);

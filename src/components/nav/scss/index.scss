@@ -32,11 +32,9 @@
         }
     }
 
-    &--truncate {
-        .nav-tree-link {
-            @extend %text-truncate;
-            display: block;
-        }
+    &--truncate &-link {
+        @extend %text-truncate;
+        display: block;
     }
 
 

@@ -48,11 +48,6 @@
             --pour-duration: 0s;
         }
 
-        &--done &-label,
-        &--done &-percent {
-            --filter: var(--blur-400);
-        }
-
         &--blue {
             --color: var(--color-blue-400);
         }
@@ -74,6 +69,11 @@
             --transition-delay: 100ms;
             --transition-duration: 300ms;
             --translate: 0 0;
+        }
+
+        &--done &-label,
+        &--done &-percent {
+            --filter: var(--blur-400);
         }
 
         &--done &-label {
