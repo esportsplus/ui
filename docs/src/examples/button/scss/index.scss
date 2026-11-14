@@ -1,64 +1,13 @@
 @use 'css-utilities/background';
 @use 'css-utilities/box-shadow';
-@use 'css-utilities/surface';
 
 
-// A segmented control: the active button rests on a pill in the surface's primary fill, which the highlight glides
-// between buttons. Buttons stay clear at rest and while active, so only the pill marks the active one.
-.button-demo-group {
-    // Without a highlight the pill sits on the active button itself and swaps instantly.
-    &--static &-button {
-        --background-active: var(--surface-primary-active);
-        --box-shadow-active: var(--box-shadow-hover);
-    }
-
-    // Set in a recessed track with a raised pill, the docs' Preview / Code toggle: the same pinned levels as
-    // '.preview-view'.
-    &--track {
-        @extend %surface-lower;
-        --surface-level: -3;
-        background: var(--surface-background-default);
-        border-radius: var(--border-radius-600);
-        padding: calc(var(--size-100) / 2);
-    }
-
-    // Clear in every state, so nothing paints over the pill as it glides beneath them.
-    &--track &-button {
-        --background-hover: transparent;
-        --background-pressed: transparent;
-        --box-shadow-hover: none;
-        --box-shadow-pressed: none;
-    }
-
-    &--track &-highlight {
-        @extend %background-surface, %surface-raise;
-        --surface-level: 1;
-    }
-
-    &-button {
-        @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
-        --background-active: transparent;
-        --background-default: transparent;
-        --border-radius: var(--border-radius-400);
-        --box-shadow-active: none;
-        --box-shadow-default: none;
-        --font-size: var(--font-size-300);
-
-        &:focus-visible {
-            outline: 2px solid var(--color-blue-400);
-            outline-offset: calc(var(--size-100) / 4);
-        }
-    }
-
-    &-highlight {
-        @extend %background-state, %background-surface-primary, %box-shadow-surface, %surface-raise;
-        --scale-default: 1;
-        border-radius: var(--border-radius-400);
-    }
-
-    &-icon {
-        --size: var(--size-400);
-    }
+// Without a highlight the active button carries the pill itself, so it swaps instantly.
+.button-demo-group--static > .button {
+    @extend %background-surface-primary, %box-shadow-surface;
+    --background-default: transparent;
+    --box-shadow-active: var(--box-shadow-hover);
+    --box-shadow-default: none;
 }
 
 // Leaves the error state its own red, and holds the blue through hover and press.

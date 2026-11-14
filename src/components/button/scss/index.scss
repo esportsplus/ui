@@ -49,6 +49,34 @@
         }
     }
 
+    // Joined to the action before it: the shared edge squares off and the two overlap by a border's width, so their
+    // borders read as one divider.
+    &--action + &--action,
+    &--action + &--trigger {
+        border-end-start-radius: 0;
+        border-start-start-radius: 0;
+        margin-inline-start: calc(var(--border-width) * -1);
+    }
+
+    &--action:has(+ #{&}--action, + #{&}--trigger) {
+        border-end-end-radius: 0;
+        border-start-end-radius: 0;
+    }
+
+    // Whichever is pointed at or focused draws over the edge it shares, so its border and outline show whole.
+    &--action,
+    &--trigger {
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+        }
+
+        &:focus-visible,
+        &:hover {
+            z-index: 1;
+        }
+    }
+
     &--border {
         border: var(--border-width) solid var(--border-color);
     }
@@ -328,51 +356,15 @@
         }
     }
 
-    &-split {
-        align-items: stretch;
-        display: inline-flex;
-        isolation: isolate;
-
-
-        & > &-action {
-            border-end-end-radius: 0;
-            border-start-end-radius: 0;
-        }
-
-        & > &-action,
-        & > &-trigger {
-            &:focus-visible {
-                outline: var(--focus-width) solid var(--focus-color);
-                outline-offset: var(--focus-offset);
-                z-index: 1;
-            }
-        }
-
-        // Overlaps the shared edge so the two borders read as one divider.
-        & > &-trigger {
-            border-end-start-radius: 0;
-            border-start-start-radius: 0;
-            margin-inline-start: calc(var(--border-width) * -1);
-
-
-            // The action's end edge is the divider, drawn in the action's own border colour, so the trigger leaves out
-            // its start edge rather than overlapping it.
-            &.button--border {
-                border-inline-start: 0;
-                margin-inline-start: 0;
-            }
-        }
-
-
-        // A bordered trigger is divided off by the action's end edge, bordered or not.
-        &:has(> #{&}-trigger.button--border) > #{&}-action {
-            border-inline-end: var(--border-width-400) solid var(--border-color);
-        }
-    }
-
     &-status {
         @extend %hidden-visually;
     }
+}
+
+
+// Keeps the raised hovered or focused button's stacking inside the group.
+.group:has(> .button--action, > .button--trigger) {
+    isolation: isolate;
 }
 
 

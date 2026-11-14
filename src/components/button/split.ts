@@ -1,5 +1,6 @@
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import chevron from '@esportsplus/ui/svg/chevron.svg';
+import group from '~/components/group';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import type { A as MenuAttributes } from '~/components/tooltip/menu';
@@ -25,9 +26,10 @@ type A = Attributes & Pick<MenuAttributes, 'animate' | 'controller' | 'expand' |
 
 export default component(
     ({ animate, controller, expand, highlight, items, onselect, openOn, state, trigger, ...attributes }: A, content) => {
-        return html`
-            <div class='button-split' role='group' ${attributes}>
-                <button class='button button-split-action' type='button' ${attributes[SPLIT_ACTION]}>
+        return group(
+            { role: 'group', ...attributes, class: ['group--row', attributes.class ?? []].flat() },
+            html`
+                <button class='button button--action' type='button' ${attributes[SPLIT_ACTION]}>
                     ${content}
                 </button>
 
@@ -48,13 +50,13 @@ export default component(
                         [tooltip.menu.trigger]: {
                             'aria-label': 'More options',
                             ...attributes[SPLIT_TRIGGER],
-                            class: ['button button-split-trigger', attributes[SPLIT_TRIGGER]?.class ?? []].flat()
+                            class: ['button button--trigger', attributes[SPLIT_TRIGGER]?.class ?? []].flat()
                         }
                     },
                     trigger ?? icon({ 'aria-hidden': 'true', class: 'button-icon icon--down icon--rotate' }, chevron)
                 )}
-            </div>
-        `;
+            `
+        );
     },
     { action: SPLIT_ACTION, item: SPLIT_ITEM, panel: SPLIT_PANEL, trigger: SPLIT_TRIGGER }
 );

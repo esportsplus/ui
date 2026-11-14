@@ -34,19 +34,19 @@ function segmented(glide: boolean, track = false, reveal = false) {
 
     return group(
         {
-            [group.highlight]: glide ? { class: 'button-demo-group-highlight' } : undefined,
+            [group.highlight]: glide ? { class: track ? 'highlight--surface' : 'highlight--surface-primary' } : undefined,
             'aria-label': 'View',
-            class: ['button-demo-group', !glide && 'button-demo-group--static', track && 'button-demo-group--track'],
+            class: [track && 'group--surface', !glide && 'button-demo-group--static'],
             role: 'group'
         },
         views.map(({ glyph, label }, index) => html`
             <button
-                class='button button--group button-demo-group-button ${reveal && 'button--reveal'} ${() => state.active === index && '--active'}'
+                class='button button--group ${reveal && 'button--reveal'} ${() => state.active === index && '--active'}'
                 onclick='${() => state.active = index}'
                 type='button'
                 ${{ 'aria-pressed': () => String(state.active === index) }}
             >
-                ${icon({ 'aria-hidden': 'true', class: 'button-demo-group-icon' }, glyph)}
+                ${icon({ 'aria-hidden': 'true' }, glyph)}
                 ${reveal ? html`<span class='button-reveal'><span class='button-reveal-text'>${label}</span></span>` : label}
             </button>
         `)

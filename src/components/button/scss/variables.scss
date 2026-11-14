@@ -237,14 +237,12 @@
         --transition-duration: 0.24s;
     }
 
-    &-split {
-        // Chained through the group so it wins over the trigger's own '.button' padding.
-        & > &-trigger {
-            --padding-horizontal: var(--size-200);
+    // Chained through '.button' so it wins over the button's own padding regardless of stylesheet order.
+    &#{&}--trigger {
+        --padding-horizontal: var(--size-200);
 
-            &[aria-expanded='true'] .icon--rotate {
-                --rotate: 270deg;
-            }
+        &[aria-expanded='true'] .icon--rotate {
+            --rotate: 270deg;
         }
     }
 }
@@ -254,4 +252,9 @@
 .group:has(> .button--group) {
     --gap-horizontal: calc(var(--size-100) / 4);
     --gap-vertical: calc(var(--size-100) / 4);
+}
+
+// Actions and their trigger sit flush, sharing an edge.
+.group:has(> .button--action, > .button--trigger) {
+    --gap-horizontal: 0px;
 }
