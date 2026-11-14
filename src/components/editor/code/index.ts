@@ -1,4 +1,5 @@
 import editor from './editor';
+import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
 

@@ -1,6 +1,7 @@
 import { flush, peek, reactive, read, write, type Signal } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import icon from '~/components/icon';
+import input from '~/components/input';
 import fuzzy from '~/shared/fuzzy';
 import down from '@esportsplus/ui/svg/arrow-down.svg';
 import up from '@esportsplus/ui/svg/arrow-up.svg';
@@ -333,62 +334,59 @@ class Finder {
             ${() => state.open && !state.external && html`
                 <div class='file-tree-find' role='search'>
                     <div class='file-tree-find-bar'>
-                        <input
-                            aria-controls='${tree}'
-                            aria-label='Find'
-                            autocomplete='off'
-                            class='file-tree-find-input'
-                            placeholder='Find'
-                            spellcheck='false'
-                            type='text'
-                            ${{
-                                'aria-invalid': () => read(this.query) !== '' && !state.count ? 'true' : 'false',
-                                onconnect: (element: HTMLInputElement) => {
-                                    this.input = element;
-                                    element.focus({ preventScroll: true });
+                        ${input({
+                            'aria-controls': tree,
+                            'aria-invalid': () => read(this.query) !== '' && !state.count ? 'true' : 'false',
+                            'aria-label': 'Find',
+                            autocomplete: 'off',
+                            class: 'file-tree-find-input',
+                            onconnect: (element: HTMLInputElement) => {
+                                this.input = element;
+                                element.focus({ preventScroll: true });
 
-                                    if (this.selecting) {
-                                        element.select();
-                                    }
-                                },
-                                ondisconnect: () => {
-                                    this.input = undefined;
-                                },
-                                oninput: (event: Event) => {
-                                    state.text = (event.currentTarget as HTMLInputElement).value;
-                                    clearTimeout(this.timer);
-                                    this.timer = setTimeout(() => this.run(true), SETTLE);
-                                },
-                                onkeydown: (event: KeyboardEvent) => {
-                                    if (event.isComposing) {
-                                        return;
-                                    }
+                                if (this.selecting) {
+                                    element.select();
+                                }
+                            },
+                            ondisconnect: () => {
+                                this.input = undefined;
+                            },
+                            oninput: (event: Event) => {
+                                state.text = (event.currentTarget as HTMLInputElement).value;
+                                clearTimeout(this.timer);
+                                this.timer = setTimeout(() => this.run(true), SETTLE);
+                            },
+                            onkeydown: (event: KeyboardEvent) => {
+                                if (event.isComposing) {
+                                    return;
+                                }
 
-                                    switch (event.key) {
-                                        case 'ArrowDown':
-                                            this.step(1);
-                                            break;
-                                        case 'ArrowUp':
-                                            this.step(-1);
-                                            break;
-                                        case 'Enter':
-                                        case 'F3':
-                                            this.step(event.shiftKey ? -1 : 1);
-                                            break;
-                                        case 'Escape':
-                                            this.close(true);
-                                            break;
-                                        default:
-                                            if (!this.key(event)) {
-                                                return;
-                                            }
-                                    }
+                                switch (event.key) {
+                                    case 'ArrowDown':
+                                        this.step(1);
+                                        break;
+                                    case 'ArrowUp':
+                                        this.step(-1);
+                                        break;
+                                    case 'Enter':
+                                    case 'F3':
+                                        this.step(event.shiftKey ? -1 : 1);
+                                        break;
+                                    case 'Escape':
+                                        this.close(true);
+                                        break;
+                                    default:
+                                        if (!this.key(event)) {
+                                            return;
+                                        }
+                                }
 
-                                    event.preventDefault();
-                                },
-                                value: () => state.text
-                            }}
-                        />
+                                event.preventDefault();
+                            },
+                            placeholder: 'Find',
+                            spellcheck: false,
+                            value: () => state.text
+                        })}
                         <span aria-live='polite' class='file-tree-find-count'>
                             ${() => {
                                 let count = state.count;
@@ -406,7 +404,7 @@ class Finder {
                         </span>
                         <button
                             aria-label='Previous match'
-                            class='file-tree-find-button'
+                            class='button file-tree-find-button'
                             onclick='${() => this.step(-1)}'
                             title='Previous match (Shift+Enter)'
                             type='button'
@@ -416,7 +414,7 @@ class Finder {
                         </button>
                         <button
                             aria-label='Next match'
-                            class='file-tree-find-button'
+                            class='button file-tree-find-button'
                             onclick='${() => this.step(1)}'
                             title='Next match (Enter)'
                             type='button'
@@ -426,7 +424,7 @@ class Finder {
                         </button>
                         <button
                             aria-label='Filter'
-                            class='file-tree-find-button'
+                            class='button file-tree-find-button'
                             onclick='${() => this.toggle()}'
                             title='Show only matches'
                             type='button'
@@ -436,7 +434,7 @@ class Finder {
                         </button>
                         <button
                             aria-label='Close'
-                            class='file-tree-find-button'
+                            class='button file-tree-find-button'
                             onclick='${() => this.close(true)}'
                             title='Close (Escape)'
                             type='button'

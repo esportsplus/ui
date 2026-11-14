@@ -1051,10 +1051,10 @@ const features = (host: Host, apple: boolean) => {
 
                         return html`
                             <div class='code-editor-lens' ${{ class: () => lens.readonly && 'code-editor-lens--readonly', style: () => lens.style }}>
-                                <button class='code-editor-lens-action code-editor-lens-action--accept' type='button' ${{ onclick: run('current'), onmousedown: keep }}>Accept current</button>
-                                <button class='code-editor-lens-action code-editor-lens-action--accept' type='button' ${{ onclick: run('incoming'), onmousedown: keep }}>Accept incoming</button>
-                                <button class='code-editor-lens-action code-editor-lens-action--accept' type='button' ${{ onclick: run('both'), onmousedown: keep }}>Accept both</button>
-                                <button class='code-editor-lens-action' type='button' ${{ onclick: run(null), onmousedown: keep }}>Compare</button>
+                                <button class='button code-editor-lens-action code-editor-lens-action--accept' type='button' ${{ onclick: run('current'), onmousedown: keep }}>Accept current</button>
+                                <button class='button code-editor-lens-action code-editor-lens-action--accept' type='button' ${{ onclick: run('incoming'), onmousedown: keep }}>Accept incoming</button>
+                                <button class='button code-editor-lens-action code-editor-lens-action--accept' type='button' ${{ onclick: run('both'), onmousedown: keep }}>Accept both</button>
+                                <button class='button code-editor-lens-action' type='button' ${{ onclick: run(null), onmousedown: keep }}>Compare</button>
                             </div>
                         `;
                     })}
@@ -1070,15 +1070,15 @@ const features = (host: Host, apple: boolean) => {
                 >
                     <div class='code-editor-peek-bar'>
                         <span class='code-editor-peek-title'>${() => peek.label}</span>
-                        <button aria-label='Previous change' class='code-editor-peek-button' type='button' ${{ onclick: () => navigate('change', true), onmousedown: keep }}>
+                        <button aria-label='Previous change' class='button code-editor-peek-button' type='button' ${{ onclick: () => navigate('change', true), onmousedown: keep }}>
                             ${icon({ 'aria-hidden': 'true', class: 'code-editor-peek-icon' }, arrowUp)}
                         </button>
-                        <button aria-label='Next change' class='code-editor-peek-button' type='button' ${{ onclick: () => navigate('change', false), onmousedown: keep }}>
+                        <button aria-label='Next change' class='button code-editor-peek-button' type='button' ${{ onclick: () => navigate('change', false), onmousedown: keep }}>
                             ${icon({ 'aria-hidden': 'true', class: 'code-editor-peek-icon' }, arrowDown)}
                         </button>
                         <button
                             aria-label='Revert change'
-                            class='code-editor-peek-button'
+                            class='button code-editor-peek-button'
                             type='button'
                             ${{
                                 disabled: () => host.readonly(),
@@ -1107,7 +1107,7 @@ const features = (host: Host, apple: boolean) => {
                         </button>
                         <button
                             aria-label='Close'
-                            class='code-editor-peek-button'
+                            class='button code-editor-peek-button'
                             type='button'
                             ${{
                                 onclick: () => {

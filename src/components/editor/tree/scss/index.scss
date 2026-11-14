@@ -160,14 +160,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
         }
 
         &-button {
-            @extend %reset-button;
-            align-items: center;
-            background: var(--background);
-            border-radius: var(--input-radius);
-            display: flex;
             flex-shrink: 0;
             height: var(--find-button-size);
-            justify-content: center;
             outline: 0 solid var(--focus-color);
             width: var(--find-button-size);
 
@@ -199,27 +193,12 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             }
         }
 
-        &-input {
-            background: var(--surface-background-default);
-            border: var(--border-width) solid transparent;
-            border-radius: var(--input-radius);
-            color: inherit;
-            font: inherit;
+        // Chained through '.input' so its width wins over the field's own regardless of stylesheet order.
+        &-input.input {
+            flex: none;
             height: var(--find-button-size);
-            min-width: 0;
-            outline: none;
-            padding-inline: var(--padding-horizontal);
             user-select: text;
             width: var(--width);
-
-
-            &:focus {
-                border-color: var(--input-border-color);
-            }
-
-            &[aria-invalid='true'] {
-                border-color: var(--error-color);
-            }
         }
 
         &-note {

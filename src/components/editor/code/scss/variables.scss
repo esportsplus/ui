@@ -249,8 +249,14 @@
         --gap-horizontal: var(--size-300);
         --gap-vertical: var(--size-300);
 
-        &-action {
-            @extend %color-state, %color-text;
+        // Chained through '.button' so it wins over the button's own defaults regardless of stylesheet order. Reads as a
+        // link: no fill, and '1em' since '--font-size' arrives unresolved from the lens.
+        &-action.button {
+            @extend %color-text;
+            --font-size: 1em;
+            --line-height: inherit;
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
         }
     }
 
@@ -293,10 +299,14 @@
             --padding-vertical: var(--size-100);
         }
 
-        &-button {
-            @extend %background-state;
+        // Chained through '.button' so it wins over the button's own defaults regardless of stylesheet order.
+        &-button.button {
             --background-hover: var(--active-line-background);
             --background-pressed: var(--background-hover);
+            --border-radius: var(--border-radius-200);
+            --color-default: currentColor;
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
             --size: var(--size-700);
 
             &:disabled {

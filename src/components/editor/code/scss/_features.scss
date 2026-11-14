@@ -1,5 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/reset';
 
 // Sticky scroll, color swatches, links, unicode warnings, rulers, the git gutter and its peek, and conflict blocks with
 // their lenses. Marks style spans in the rendered rows, so none of them adds width to the text the field lays out.
@@ -54,10 +53,6 @@
         }
 
         &-action {
-            @extend %reset-button;
-            appearance: none;
-            color: var(--color);
-
             &:focus-visible {
                 outline: var(--focus-width) solid var(--focus-color);
             }
@@ -127,14 +122,8 @@
         }
 
         &-button {
-            @extend %reset-button;
-            align-items: center;
-            appearance: none;
-            background: var(--background);
-            border-radius: var(--border-radius-200);
-            display: flex;
+            flex: none;
             height: var(--size);
-            justify-content: center;
             width: var(--size);
 
             &:disabled {

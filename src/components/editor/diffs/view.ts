@@ -131,10 +131,10 @@ export default component(
             return html`
                 <span class='diffs-actions'>
                     ${onrevert && html`
-                        <button aria-label='Revert change ${change + 1}' class='diffs-action' type='button' ${{ onclick: () => onrevert(diff.changes[change]) }}>Revert</button>
+                        <button aria-label='Revert change ${change + 1}' class='button button--border diffs-action' type='button' ${{ onclick: () => onrevert(diff.changes[change]) }}>Revert</button>
                     `}
                     ${onaccept && html`
-                        <button aria-label='Accept change ${change + 1}' class='diffs-action' type='button' ${{ onclick: () => onaccept(diff.changes[change]) }}>Accept</button>
+                        <button aria-label='Accept change ${change + 1}' class='button button--border diffs-action' type='button' ${{ onclick: () => onaccept(diff.changes[change]) }}>Accept</button>
                     `}
                 </span>
             `;
@@ -422,7 +422,7 @@ export default component(
                         <div aria-label='View' class='diffs-modes' role='group'>
                             ${(['split', 'unified'] as const).map((value) => html`
                                 <button
-                                    class='diffs-button diffs-button--text'
+                                    class='button diffs-button diffs-button--text'
                                     type='button'
                                     ${{
                                         'aria-pressed': () => ui.mode === value ? 'true' : 'false',
@@ -436,7 +436,7 @@ export default component(
                         </div>
                         <button
                             aria-label='Previous change (Shift+Alt+F5)'
-                            class='diffs-button'
+                            class='button diffs-button'
                             title='Previous change (Shift+Alt+F5)'
                             type='button'
                             ${{ disabled: () => !ui.changes, onclick: () => move(-1) }}
@@ -445,7 +445,7 @@ export default component(
                         </button>
                         <button
                             aria-label='Next change (Alt+F5)'
-                            class='diffs-button'
+                            class='button diffs-button'
                             title='Next change (Alt+F5)'
                             type='button'
                             ${{ disabled: () => !ui.changes, onclick: () => move(1) }}

@@ -1,5 +1,6 @@
 import merge from './merge';
 import view from './view';
+import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
 

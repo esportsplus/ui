@@ -65,11 +65,16 @@
 }
 
 .diffs {
-    &-action {
-        @extend %background-state;
+    // Chained through '.button' so it wins over the button's own defaults regardless of stylesheet order.
+    &-action.button {
         --background-default: var(--surface-background-default);
         --background-hover: var(--hover-background);
         --background-pressed: var(--background-hover);
+        --border-color-default: var(--surface-border-default);
+        --border-radius: var(--border-radius-300);
+        --border-width: var(--border-width-400);
+        --color-default: var(--color-text-500);
+        --font-size: var(--label-font-size);
         --line-height: 1.4;
         --padding-horizontal: var(--size-200);
         --padding-vertical: 0px;
@@ -82,17 +87,22 @@
         --inset-vertical: 1px;
     }
 
-    &-button {
-        @extend %background-state, %color-state, %color-text;
+    // Chained through '.button' so it wins over the button's own defaults regardless of stylesheet order.
+    &-button.button {
+        @extend %color-text;
         --background-active: var(--hover-background);
         --background-hover: var(--hover-background);
         --background-pressed: var(--hover-background);
+        --border-radius: var(--border-radius-300);
+        --font-size: var(--label-font-size);
         --gap-horizontal: var(--size-100);
         --gap-vertical: 0px;
+        --line-height: 1;
         --padding-horizontal: 0px;
+        --padding-vertical: 0px;
         --size: var(--size-600);
 
-        &--primary {
+        &.diffs-button--primary {
             --background-default: var(--accent);
             --background-hover: var(--accent);
             --background-pressed: var(--accent);
@@ -106,13 +116,8 @@
             }
         }
 
-        &--text {
+        &.diffs-button--text {
             --padding-horizontal: var(--size-200);
-        }
-
-        // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
-        &-icon.icon {
-            --size: var(--size-300);
         }
 
         &:disabled {
@@ -122,6 +127,11 @@
             --color-pressed: var(--color-default);
             --filter: none;
         }
+    }
+
+    // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+    &-button-icon.icon {
+        --size: var(--size-300);
     }
 
     &-controls,

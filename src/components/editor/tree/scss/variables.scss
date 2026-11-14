@@ -250,12 +250,16 @@ $icons: (
             --border-width: 1px;
         }
 
-        &-button {
-            @extend %background-state;
+        // Chained through '.button' so it wins over the button's own defaults regardless of stylesheet order.
+        &-button.button {
             --background-active: inherit;
             --background-hover: inherit;
             --background-pressed: var(--background-hover);
+            --border-radius: var(--input-radius);
             --border-width: 1px;
+            --color-default: currentColor;
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
 
 
             &:disabled {
@@ -276,10 +280,26 @@ $icons: (
             --size: var(--size-300);
         }
 
-        &-input {
+        // Chained through '.input' so it wins over the field's own defaults regardless of stylesheet order. Focus
+        // marks the field '--active'.
+        &-input.input {
+            --background-default: var(--surface-background-default);
+            --border-color-active: var(--input-border-color);
+            --border-color-default: transparent;
+            --border-radius: var(--input-radius);
             --border-width: 1px;
-            --padding-horizontal: calc(var(--size-300) / 4);
+            --color-default: currentColor;
+            --font-size: inherit;
+            --padding-horizontal: calc(var(--size-300) / 4 + var(--border-width));
+            --padding-vertical: 0px;
+            --size: var(--find-button-size);
             --width: calc(var(--size-900) * 2);
+
+
+            &[aria-invalid='true'] {
+                --border-color-active: var(--error-color);
+                --border-color-default: var(--error-color);
+            }
         }
 
         &-note {

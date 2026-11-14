@@ -130,7 +130,7 @@ export default component(
                         : html`
                             <button
                                 aria-label='${side === 'current' ? 'Accept current' : 'Accept incoming'} for conflict ${item.conflict + 1}'
-                                class='diffs-action'
+                                class='button button--border diffs-action'
                                 type='button'
                                 ${{ onclick: () => accept(item.conflict, side) }}
                             >
@@ -138,7 +138,7 @@ export default component(
                             </button>
                             <button
                                 aria-label='Accept both for conflict ${item.conflict + 1}'
-                                class='diffs-action'
+                                class='button button--border diffs-action'
                                 type='button'
                                 ${{ onclick: () => accept(item.conflict, 'both') }}
                             >
@@ -312,7 +312,7 @@ export default component(
                     <div class='diffs-controls'>
                         ${(['current', 'incoming', 'both'] as const).map((choice) => html`
                             <button
-                                class='diffs-button diffs-button--text'
+                                class='button diffs-button diffs-button--text'
                                 type='button'
                                 ${{
                                     disabled: () => ui.current < 0 || ui.current >= ui.conflicts,
@@ -330,7 +330,7 @@ export default component(
                         `)}
                         <button
                             aria-label='Previous conflict (Shift+Alt+F8)'
-                            class='diffs-button'
+                            class='button diffs-button'
                             title='Previous conflict (Shift+Alt+F8)'
                             type='button'
                             ${{ disabled: () => !ui.conflicts, onclick: () => go(-1) }}
@@ -339,7 +339,7 @@ export default component(
                         </button>
                         <button
                             aria-label='Next conflict (Alt+F8)'
-                            class='diffs-button'
+                            class='button diffs-button'
                             title='Next conflict (Alt+F8)'
                             type='button'
                             ${{ disabled: () => !ui.conflicts, onclick: () => go(1) }}
@@ -347,7 +347,7 @@ export default component(
                             ${icon({ 'aria-hidden': 'true', class: 'diffs-button-icon' }, down)}
                         </button>
                         <button
-                            class='diffs-button diffs-button--primary diffs-button--text'
+                            class='button diffs-button diffs-button--primary diffs-button--text'
                             type='button'
                             ${{ disabled: () => ui.conflicts > 0, onclick: () => onresolve(document.value) }}
                         >

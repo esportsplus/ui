@@ -13,17 +13,6 @@
 
 
     &-action {
-        background: var(--background);
-        border: var(--border-width) solid var(--border-color);
-        border-radius: var(--border-radius);
-        color: var(--color);
-        cursor: pointer;
-        font: inherit;
-        font-size: var(--label-font-size);
-        line-height: var(--line-height);
-        padding-block: var(--padding-vertical);
-        padding-inline: var(--padding-horizontal);
-
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
         }
@@ -41,21 +30,9 @@
     }
 
     &-button {
-        align-items: center;
-        background: var(--background);
-        border: 0;
-        border-radius: var(--border-radius);
-        color: var(--color);
-        cursor: pointer;
-        display: inline-flex;
         flex: none;
-        font: inherit;
-        gap: var(--gap-vertical) var(--gap-horizontal);
         height: var(--size);
-        justify-content: center;
         min-width: var(--size);
-        padding-block: 0;
-        padding-inline: var(--padding-horizontal);
 
         &--primary {
             filter: var(--filter);
