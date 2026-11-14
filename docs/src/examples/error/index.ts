@@ -189,7 +189,7 @@ export default {
                             })}
                             ${error({ description: 'Calendars and date pickers start here.', state })}
                         </div>
-                        </div>
+                    </div>
                 `;
             },
             title: 'select, description · pick a weekend day'

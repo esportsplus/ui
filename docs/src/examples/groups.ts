@@ -1,7 +1,7 @@
 import type { Variant } from 'docs/types';
 
 
-type Group = { title: string; members: (string | [string, string])[] };
+type Group = { members: (string | [string, string])[]; title: string };
 
 // Explicit families keep distinct examples separate. A tuple renames an option, not its example.
 const groups: Record<string, Group[]> = {
@@ -104,7 +104,7 @@ const groups: Record<string, Group[]> = {
     ],
     'relative-time': [{ title: 'relative time', members: ['default', ['every unit, live seconds', 'Every unit'], ['unknown until set (placeholder)', 'Placeholder']] }],
     scrollbar: [
-        { title: 'vertical bar', members: [['default bar', 'Default'], 'visible on hover or keyboard focus', 'hidden bar', 'color states', 'rail color', 'centered growth', 'square thumb', 'width variable'] },
+        { title: 'vertical bar', members: [['default bar', 'Default'], 'visible on hover or keyboard focus', 'hidden bar', 'color states', 'rail color', 'square thumb', 'width variable'] },
         { title: 'horizontal bar', members: [['horizontal bar', 'Default'], ['auto (horizontal)', 'Platform width'], ['drag (horizontal)', 'Drag horizontally'], ['drag (both)', 'Drag both axes']] },
         { title: 'edge effects', members: [['fade', 'Fade'], ['fade (content fits)', 'Fade, content fits'], ['blur', 'Blur'], ['fade (horizontal)', 'Fade, horizontal'], ['blur (horizontal)', 'Blur, horizontal']] }
     ],
@@ -157,8 +157,8 @@ const groups: Record<string, Group[]> = {
 
 
 function groupVariants(name: string, variants: Variant[]): Variant[] {
-    let families = groups[name] ?? [],
-        consumed = new Set<string>();
+    let consumed = new Set<string>(),
+        families = groups[name] ?? [];
 
     return variants.flatMap((variant, index) => {
         if (consumed.has(variant.title)) {

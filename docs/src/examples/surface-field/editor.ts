@@ -94,7 +94,7 @@ function port(geometry: Geometry, side: 1 | -1): End {
 // The connector as a polyline in world px, so the field lights its channel right under the drawn edge.
 function sample(from: End, to: End) {
     let [x1, y1, c1x, c1y, c2x, c2y, x2, y2] = connector(from, to),
-        points: { x: number, y: number }[] = [];
+        points: Point[] = [];
 
     for (let i = 0; i <= 24; i++) {
         let t = i / 24,

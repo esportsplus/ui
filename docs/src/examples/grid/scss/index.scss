@@ -1,8 +1,10 @@
 @use 'css-utilities/surface';
 
 
-
 .grid-demo-item {
     @extend %surface-lower;
     background: var(--surface-background-default);
+    border-radius: var(--border-radius-300);
+    padding: var(--size-500);
+    text-align: center;
 }

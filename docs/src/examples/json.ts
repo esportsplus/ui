@@ -9,7 +9,6 @@ export default {
             render: () => html`
                 <button
                     class='button'
-                    style='--width: auto;'
                     onclick='${() => json.download({ component: 'json', exported: true, values: [1, 2, 3] }, 'demo')}'
                     type='button'
                 >

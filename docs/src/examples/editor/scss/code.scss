@@ -9,7 +9,6 @@
     display: grid;
     gap: var(--size-300);
     grid-template-columns: minmax(0, 1fr);
-    max-width: 100%;
     min-width: 0;
     width: min(850px, 100%);
 

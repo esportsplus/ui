@@ -98,7 +98,7 @@ export default {
                         ${announcement({ 'aria-label': 'Announcement', role: 'region', state }, bar(
                             '',
                             html`
-                                ${icon({ 'aria-hidden': 'true', class: 'announcement-demo-icon' }, bolt)}
+                                ${icon({ 'aria-hidden': 'true' }, bolt)}
                                 <p class='announcement-demo-text'>Deploys now build twice as fast.</p>
                                 <a class='announcement-demo-link' href='#changelog'>See what changed</a>
                             `,

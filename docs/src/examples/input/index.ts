@@ -2,7 +2,7 @@ import { form, group, icon, input, select } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { moreFieldVariations } from 'docs/examples/form-options';
-import angleSvg from '@esportsplus/ui/svg/angle.svg';
+import angle from '@esportsplus/ui/svg/angle.svg';
 import alert from '@esportsplus/ui/svg/circle-alert.svg';
 import check from '@esportsplus/ui/svg/circle-check.svg';
 import help from '@esportsplus/ui/svg/help.svg';
@@ -17,11 +17,8 @@ const NON_DIGITS = /\D/g;
 // Every example past the modifier showcases is edged by default, with the plain field a pick away.
 const STYLES: Style[] = [{ class: 'input--border', label: 'Border' }, { class: '', label: 'Default' }];
 
-const TAG_HINT = 'Press Enter or comma to add. Backspace twice removes the last tag.';
 
-
-let angle = icon({ 'aria-hidden': 'true' }, angleSvg),
-    countries = { de: '+49', fr: '+33', jp: '+81', us: '+1' },
+let countries = { de: '+49', fr: '+33', jp: '+81', us: '+1' },
     instance = 0,
     modifiers = [
         ['', 'Default'],
@@ -84,7 +81,7 @@ function fields() {
                             <span aria-hidden='true' class='group-label-required'>*</span>
                         </label>
                         ${control(modifier, id)}
-                        <small class='group-description' id='${`${id}-description`}'>This is a hint about this input.</small>
+                        <small class='group-description' id='${id}-description'>This is a hint about this input.</small>
                     </div>
                 `;
             })}
@@ -250,7 +247,7 @@ export default {
                                     : icon({ style: '--color: var(--color-green-400);' }, check)}
                             </span>
                         `)}
-                        <small aria-live='polite' class='group-description' id='${`${id}-description`}'>
+                        <small aria-live='polite' class='group-description' id='${id}-description'>
                             ${() => state.error || 'We only use this for sign-in links.'}
                         </small>
                     </div>
@@ -283,7 +280,7 @@ export default {
                     }
                 }, html`
                     <div class='group group--column' style='align-items: flex-start; width: min(100%, 440px);'>
-                        ${input.tag({ hint: TAG_HINT, label: 'Topics', name: 'topics', tags: ['motion', 'design', 'react'], variant: variant(style) })}
+                        ${input.tag({ hint: 'Press Enter or comma to add. Backspace twice removes the last tag.', label: 'Topics', name: 'topics', tags: ['motion', 'design', 'react'], variant: variant(style) })}
                         <button class='button button--primary' type='submit'>Submit</button>
                         <small class='group-description'>${() => result.submitted && `Submitted: ${result.submitted}`}</small>
                     </div>
@@ -335,7 +332,7 @@ export default {
                     <div class='grid' style='--min-width: 140px;'>
                         ${input.scrub({ label: 'X position', value: 120, variant: variant(style) }, 'X')}
                         ${input.scrub({ label: 'Y position', value: 48, variant: variant(style) }, 'Y')}
-                        ${input.scrub({ label: 'Rotation', max: 180, min: -180, suffix: '°', variant: variant(style) }, angle)}
+                        ${input.scrub({ label: 'Rotation', max: 180, min: -180, suffix: '°', variant: variant(style) }, icon({ 'aria-hidden': 'true' }, angle))}
                     </div>
                     <small class='group-description'>Drag the letter or the track under each field.</small>
                 </div>

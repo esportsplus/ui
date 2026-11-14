@@ -1,6 +1,5 @@
 @use 'css-utilities/background';
 @use 'css-utilities/color';
-@use 'css-utilities/surface';
 
 
 // Headroom for icons that swell above the shelf and the labels over them.
@@ -10,10 +9,6 @@
     flex-direction: column;
     gap: var(--size-500);
     padding-top: 80px;
-
-    &--e {
-        justify-content: flex-start;
-    }
 
     // Room beside the bar for the drawer to open into.
     &--e,

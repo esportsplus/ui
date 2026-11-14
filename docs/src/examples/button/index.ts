@@ -9,9 +9,6 @@ import page from '@esportsplus/ui/svg/document.svg';
 import 'docs/examples/button/scss/index.scss';
 
 
-let row = 'display: flex; flex-wrap: wrap; gap: var(--size-400); align-items: center;';
-
-
 let modifiers = [
         ['black', 'Black'],
         ['primary', 'Primary'],
@@ -19,9 +16,7 @@ let modifiers = [
         ['surface-primary', 'Surface primary'],
         ['white', 'White']
     ],
-    round = `--border-radius: 999px; --padding-horizontal: 0; --padding-vertical: 0; height: var(--size-600); width: var(--size-600);`,
-    surface = 'button--surface',
-    trigger = `button ${surface}`,
+    row = 'display: flex; flex-wrap: wrap; gap: var(--size-400); align-items: center;',
     views = [
         { glyph: eye, label: 'Preview' },
         { glyph: code, label: 'Code' },
@@ -250,11 +245,11 @@ export default {
                     <div style='${row}'>
                         ${(['left', 'right'] as const).map((side) => button.sidebar({
                             'aria-label': () => `${state[side] ? 'Hide' : 'Show'} ${side} panel`,
-                            class: trigger,
+                            class: 'button button--surface',
                             onclick: () => state[side] = !state[side],
                             open: () => state[side],
                             side,
-                            style: round
+                            style: '--border-radius: 999px; --padding-horizontal: 0; --padding-vertical: 0; height: var(--size-600); width: var(--size-600);'
                         }))}
                     </div>
                 `;

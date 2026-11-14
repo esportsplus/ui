@@ -10,6 +10,7 @@ let countries = { de: '+49', fr: '+33', jp: '+81', us: '+1' },
         { label: 'System UI', value: 'system' }
     ],
     instance = 0,
+    teams = ['Design', 'Engineering', 'Marketing', 'Operations', 'Sales', 'Support'],
     weekStarts = [
         { label: 'Saturday', value: 'saturday' },
         { label: 'Sunday', value: 'sunday' },
@@ -23,7 +24,7 @@ export default {
         {
             render: () => html`
                 <div class='group' style='width: min(100%, 320px);'>
-                    ${['Design', 'Engineering', 'Marketing', 'Operations', 'Sales', 'Support'].map((team) => html`
+                    ${teams.map((team) => html`
                         <span class='button button--surface'>${team}</span>
                     `)}
                 </div>
@@ -118,7 +119,7 @@ export default {
         {
             render: () => html`
                 <div class='group group--row' style='width: min(100%, 320px);'>
-                    ${['Design', 'Engineering', 'Marketing', 'Operations', 'Sales', 'Support'].map((team) => html`
+                    ${teams.map((team) => html`
                         <span class='button button--surface'>${team}</span>
                     `)}
                 </div>

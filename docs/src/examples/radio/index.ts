@@ -11,11 +11,7 @@ let instance = 0,
         { description: 'Arrives tomorrow if ordered before 2pm.', title: 'Express', value: 'express' }
     ],
     sizes = ['Small', 'Medium', 'Large'],
-    style = `
-        --background-active: var(--color-accent-400);
-        --border-color-active: var(--color-accent-400);
-        --border-width: var(--border-width-400);
-    `;
+    style = '--background-active: var(--color-accent-400);';
 
 
 // A radio bound to shared state, so the group's chosen value is readable outside the inputs.

@@ -52,4 +52,4 @@ type PreviewOption = {
 };
 
 
-export type { Entry, Modifier, Page, PreviewOption, Style, TocItem, Variant };
+export type { Entry, Modifier, Page, Style, TocItem, Variant };

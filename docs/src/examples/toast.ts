@@ -7,8 +7,7 @@ const PLACEMENTS = ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'];
 
 
 let burst = 0,
-    timer: { active: boolean, duration: number } | undefined,
-    trigger = 'button';
+    timer: { active: boolean, duration: number } | undefined;
 
 
 // The action is part of the content, so it closes its own toast through the state it is given.
@@ -43,15 +42,14 @@ export default {
         {
             render: () => html`
                 <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
-                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toast(() => 'A plain message.')}'>message</button>
-                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${detail}'>title + description</button>
-                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${action}'>with action</button>
-                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toast({ duration: 0 }, () => 'Stays until dismissed.')}'>persistent</button>
-                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toast({ dismissible: false }, () => 'No close button.')}'>not dismissible</button>
-                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toast({ class: 'toast--glass' }, () => 'Frosted over the page.')}'>glass</button>
+                    <button class='button' type='button' onclick='${() => toast(() => 'A plain message.')}'>message</button>
+                    <button class='button' type='button' onclick='${detail}'>title + description</button>
+                    <button class='button' type='button' onclick='${action}'>with action</button>
+                    <button class='button' type='button' onclick='${() => toast({ duration: 0 }, () => 'Stays until dismissed.')}'>persistent</button>
+                    <button class='button' type='button' onclick='${() => toast({ dismissible: false }, () => 'No close button.')}'>not dismissible</button>
+                    <button class='button' type='button' onclick='${() => toast({ class: 'toast--glass' }, () => 'Frosted over the page.')}'>glass</button>
                     <button
-                        class='${trigger}'
-                        style='--width: auto;'
+                        class='button'
                         type='button'
                         onclick='${() => {
                             for (let i = 0; i < 6; i++) {
@@ -61,7 +59,7 @@ export default {
                     >
                         burst of 6
                     </button>
-                    <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => toaster.toast.dismiss()}'>dismiss all</button>
+                    <button class='button' type='button' onclick='${() => toaster.toast.dismiss()}'>dismiss all</button>
                 </div>
             `,
             title: 'content'
@@ -71,8 +69,7 @@ export default {
                 <div style='display: flex; flex-direction: column; gap: var(--size-400);'>
                     <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
                         <button
-                            class='${trigger}'
-                            style='--width: auto;'
+                            class='button'
                             type='button'
                             onclick='${() => {
                                 timer = reactive({ active: true, duration: 8000 });
@@ -88,8 +85,7 @@ export default {
                             show
                         </button>
                         <button
-                            class='${trigger}'
-                            style='--width: auto;'
+                            class='button'
                             type='button'
                             onclick='${() => {
                                 if (timer?.active) {
@@ -114,8 +110,7 @@ export default {
                 <div style='display: flex; flex-wrap: wrap; gap: var(--size-400);'>
                     ${PLACEMENTS.map((value) => html`
                         <button
-                            class='${trigger} ${() => placement.value === value && '--active'}'
-                            style='--width: auto;'
+                            class='button ${() => placement.value === value && '--active'}'
                             type='button'
                             onclick='${() => {
                                 placement.value = value;

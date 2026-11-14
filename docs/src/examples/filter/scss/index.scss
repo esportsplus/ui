@@ -89,7 +89,6 @@
 
     &-trigger {
         align-items: center;
-        background: transparent;
         border: var(--border-width-400) solid var(--surface-border-hover);
         border-radius: var(--border-radius-300);
         color: var(--color-text-400);
@@ -112,7 +111,6 @@
 
         &:focus-visible {
             border-color: var(--color-blue-400);
-            outline: none;
         }
     }
 

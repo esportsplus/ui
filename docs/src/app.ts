@@ -1,7 +1,6 @@
 import type { Next, Request as Req, Router as R } from '@esportsplus/routing/client';
 import { router } from '@esportsplus/routing/client';
 import type { Renderable } from '@esportsplus/template';
-import checklist from 'docs/actions/checklist';
 import components from 'docs/actions/components';
 import modifiers from 'docs/actions/modifiers';
 import fallback from 'docs/actions/fallback';
@@ -21,9 +20,9 @@ type Responder = Next<Response>;
 type Router = R<Response>;
 
 
-export const { back, forward, middleware, redirect, uri } = router(checklist, components, fonts, installation, modifiers, surfaces, themes, tokens);
-export { computed, effect, reactive, root, signal } from '@esportsplus/reactivity';
-export { html, render, on } from '@esportsplus/template';
+export const { middleware, redirect, uri } = router(components, fonts, installation, modifiers, surfaces, themes, tokens);
+export { effect, reactive } from '@esportsplus/reactivity';
+export { html, render } from '@esportsplus/template';
 export { fallback };
-export type { Renderable, Request, Responder, Response, Router };
+export type { Renderable, Request, Responder, Router };
 export type RouteName = Parameters<typeof uri>[0];

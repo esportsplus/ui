@@ -565,7 +565,7 @@ function summary(state: CodeEditorState) {
     let { errors, warnings } = state.problems;
 
     return [
-        `${state.selections === 1 ? '1 selection' : `${state.selections} selections`}`,
+        state.selections === 1 ? '1 selection' : `${state.selections} selections`,
         state.indent.tabs ? `Tab size: ${state.indent.size}` : `Spaces: ${state.indent.size}`,
         state.lineEnding.toUpperCase(),
         `${errors} errors, ${warnings} warnings`,

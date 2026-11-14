@@ -1,8 +1,9 @@
 @use 'css-utilities/surface';
 
 
-
 .container-demo-item {
     @extend %surface-lower;
     background: var(--surface-background-default);
+    border-radius: var(--border-radius-300);
+    padding: var(--size-400) var(--size-500);
 }

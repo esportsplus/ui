@@ -22,11 +22,14 @@
             width: 100%;
         }
 
-        // Dressed as one of the field's own surfaces, from the variables the field sets for them.
+        // Dressed as one of the field's own surfaces: the same radius, ring and resting shadow.
         &-card {
             background: var(--surface-background-default);
-            border-radius: var(--surface-border-radius);
-            box-shadow: 0 0 0 1px var(--surface-border-color), var(--surface-box-shadow);
+            border-radius: 14px;
+            box-shadow:
+                0 0 0 1px var(--surface-border-default),
+                0 1px 2px #{surface.shadow-color(0.6)},
+                0 8px 24px -8px #{surface.shadow-color(1.55)};
             display: flex;
             flex-direction: column;
             gap: var(--size-100);

@@ -30,7 +30,7 @@ function toggle() {
 
         <button
             class='button'
-            style='--width: auto; margin-top: var(--size-400);'
+            style='margin-top: var(--size-400);'
             onclick='${() => state.paused = !state.paused}'
             type='button'
         >

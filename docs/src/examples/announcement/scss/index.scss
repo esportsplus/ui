@@ -23,7 +23,6 @@
     &-again {
         @extend %surface-raise;
         background: var(--surface-background-default);
-        border: 0;
         border-radius: 999px;
         bottom: 12px;
         box-shadow: var(--surface-shadow-default);
@@ -69,6 +68,8 @@
     &-bar {
         --bar-background: var(--color-primary-500);
         --bar-color: var(--color-surface);
+        // An icon resolves '--color' itself rather than inheriting the bar's text colour.
+        --color: var(--bar-color);
 
         align-items: center;
         background: var(--bar-background);
@@ -100,7 +101,6 @@
         --color-pressed: var(--color-hover);
         align-items: center;
         background: var(--background);
-        border: 0;
         border-radius: 999px;
         color: var(--color);
         cursor: pointer;
@@ -109,7 +109,6 @@
         height: 32px;
         justify-content: center;
         margin-inline-start: auto;
-        outline: none;
         position: relative;
         touch-action: manipulation;
         transition:
@@ -145,17 +144,9 @@
     }
 
     &-heading {
-        --font-size: var(--font-size-400);
-
         color: var(--color-text-500);
         font-weight: var(--font-weight-600);
         margin-bottom: calc(var(--size-100) / 2);
-    }
-
-    &-icon {
-        flex-shrink: 0;
-        height: var(--size-400);
-        width: var(--size-400);
     }
 
     &-link {
@@ -198,7 +189,6 @@
         @extend %surface-lower;
         background: var(--surface-background-default);
         border-radius: var(--border-radius-600);
-        font-size: var(--font-size-300);
         padding: var(--size-200) 12px;
     }
 
@@ -210,13 +200,11 @@
     }
 
     &-text {
-        flex: 0 1 auto;
         margin: 0;
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        width: auto;
     }
 
     &-value {
