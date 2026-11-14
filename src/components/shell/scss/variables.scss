@@ -51,11 +51,6 @@
     }
 
 
-    &-action {
-        --background-active: var(--surface-background-active);
-        --size: 28px;
-    }
-
     &-action,
     &-add {
         @extend %color-text;
@@ -67,12 +62,25 @@
         --padding-vertical: 0px;
     }
 
+    &-action {
+        --background-active: var(--surface-background-active);
+        --size: 28px;
+    }
+
     &-add {
         --size: 24px;
     }
 
+    // A scrollbar scope, so whatever a panel's content scrolls takes the modifier's bar. Only scrollers that opt in
+    // with 'scrollbar()' scroll smoothly; the rest keep scrolling as they did.
     &-body {
         --min-width: 200px;
+        --scrollbar-behavior: auto;
+
+
+        .--scrollbar {
+            --scrollbar-behavior: smooth;
+        }
     }
 
     &-dock {
@@ -81,18 +89,18 @@
         --z-index: 3;
     }
 
-    // Over the sidebars and their toggles.
-    &-dock-target {
-        --size: 48px;
-        --z-index: 45;
-    }
-
     &-dock-target,
     &-edge,
     &-group--picked {
         --background: var(--drop-background);
         --ring-color: var(--drop-ring);
         --ring-width: var(--border-width-500);
+    }
+
+    // Over the sidebars and their toggles.
+    &-dock-target {
+        --size: 48px;
+        --z-index: 45;
     }
 
     &-edge,

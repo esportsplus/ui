@@ -10,12 +10,13 @@ type Edge = 'left' | 'right';
 
 // Each sidebar's elements as they connect, whether it is being dragged, and where a drag holds it and the space beside
 // the main area; undefined leaves each to the stylesheet. Peeking shows a closed sidebar for as long as the pointer
-// stays over it.
+// stays over it or the separator that resizes it.
 type Frame = {
     dragging: boolean;
     edge?: HTMLElement;
     offset: number;
     peeking: boolean;
+    resize?: HTMLElement;
     sidebar?: HTMLElement;
     space: string | undefined;
     translate: string | undefined;
@@ -26,7 +27,7 @@ type Options = {
     // toggle keeps it open.
     hover?: boolean;
     label?: string;
-    // An open sidebar's inner border drags to resize it, between the layout's '--sidebar-min-width' and
+    // An open or peeking sidebar's inner border drags to resize it, between the layout's '--sidebar-min-width' and
     // '--sidebar-max-width', and never past leaving the main area '--main-min-width'.
     resizable?: boolean;
 };
@@ -66,13 +67,13 @@ function label(sidebars: Sidebars, edge: Edge) {
     return sidebars.options[edge]?.label ?? (edge === 'left' ? 'Left sidebar' : 'Right sidebar');
 }
 
-// A peeking sidebar closes once the pointer leaves it, unless it went on to the sidebar's own toggle or edge. The
-// toggle is found by id: the sidebar button keeps its connect to itself.
+// A peeking sidebar closes once the pointer leaves it, unless it went on to the sidebar's own toggle, edge or
+// separator. The toggle is found by id: the sidebar button keeps its connect to itself.
 function leave(sidebars: Sidebars, edge: Edge, e: PointerEvent) {
     let frame = sidebars.frames[edge],
         to = e.relatedTarget as Node | null;
 
-    if (!frame.peeking || (to && [frame.sidebar, frame.edge, trigger(sidebars, edge)].some((element) => element?.contains(to)))) {
+    if (!frame.peeking || (to && [frame.sidebar, frame.edge, frame.resize, trigger(sidebars, edge)].some((element) => element?.contains(to)))) {
         return;
     }
 
@@ -185,7 +186,8 @@ const grip = (sidebars: Sidebars, edge: Edge) => {
     `;
 };
 
-// An open sidebar's inner border, a separator resizing it from the width it shows; the stylesheet clamps the width.
+// An open or peeking sidebar's inner border, a separator resizing it from the width it shows; the stylesheet clamps
+// the width. A drag holds the pointer, so a peek only ends once the pointer has let go and left.
 const resizer = (sidebars: Sidebars, edge: Edge) => separator(
     'x',
     () => {
@@ -193,7 +195,13 @@ const resizer = (sidebars: Sidebars, edge: Edge) => separator(
 
         return width ? (delta) => sidebars.state.resizeDock(edge, width + delta * direction(edge)) : null;
     },
-    { class: `shell-sidebar-resize shell-sidebar-resize--${edge}` }
+    {
+        class: `shell-sidebar-resize shell-sidebar-resize--${edge}`,
+        onconnect: (element: HTMLElement) => {
+            sidebars.frames[edge].resize = element;
+        },
+        onpointerleave: (e: PointerEvent) => leave(sidebars, edge, e)
+    }
 );
 
 // The sidebar around its dock's groups. A static one drags toward its edge to close: past a quarter of its width or
@@ -284,7 +292,7 @@ const sidebar = (sidebars: Sidebars, edge: Edge, content: Renderable<unknown>) =
                         hide();
                     }
                 },
-                style: () => ({ translate: current.translate })
+                style: () => ({ '--slide-translate': current.translate })
             }}
         >
             ${content}

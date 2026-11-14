@@ -447,7 +447,7 @@ const group = (context: Context, live: Live) => {
                     ${icon({ 'aria-hidden': 'true' }, close)}
                 </button>
             </div>`}
-            <div class='shell-body'>
+            <div class='shell-body --scrollbar-scope'>
                 ${subtree(
                     () => live().group.active ?? '',
                     () => {

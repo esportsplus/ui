@@ -695,7 +695,7 @@ const shell = component(
                                 class='shell-dock'
                                 ${{
                                     class: () => state.layout.bottom.maximized && 'shell-dock--maximized',
-                                    style: () => `flex: 0 0 ${bounded(state.layout.bottom.size) * 100}%;`
+                                    style: () => `--flex: 0 0 ${bounded(state.layout.bottom.size) * 100}%;`
                                 }}
                             >
                                 ${region('bottom')}
@@ -706,6 +706,7 @@ const shell = component(
                 ${targets()}
             `;
         }
+
         // The layout's own items, then each kind's: a kind with a menu of its own shows only that on its tabs.
         let kind = () => findSurface(state.layout.root, subject.surface)?.kind ?? '',
             own = () => !!catalog[kind()]?.menu,
