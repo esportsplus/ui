@@ -8,11 +8,6 @@
     @extend %group;
     min-width: 0;
 
-    // Its own display would otherwise outrank the attribute's.
-    &[hidden] {
-        display: none;
-    }
-
 
     &--column {
         flex-flow: column;
@@ -165,5 +160,11 @@
         & > :not(.group-item--overlay):has(~ .group-item--overlay) {
             padding-inline-end: calc(var(--padding-vertical, 0px) + var(--end-inset) + var(--end-width) - var(--border-width, 0px));
         }
+    }
+
+    // Its own display would otherwise outrank the attribute's. Doubled and last, so it also beats the modifiers that
+    // set a display of their own ('--grid' with a description).
+    &#{&}[hidden] {
+        display: none;
     }
 }
