@@ -17,6 +17,21 @@ const MARGIN = 8;
 const ROWS = 8;
 
 
+// The panel's width with every option at its natural size, up to its max width. The last placement's inline width is
+// set aside for the read, since CSS can't size a box to both its content and the trigger's width: raw DOM, measuring
+// only.
+function natural(panel: HTMLElement) {
+    let previous = panel.style.width;
+
+    panel.style.width = 'max-content';
+
+    let width = panel.offsetWidth;
+
+    panel.style.width = previous;
+
+    return width;
+}
+
 // Puts the selected option exactly over the trigger, the way macOS does, then trades list position for scroll
 // position if that runs off screen.
 function place({ label, option, panel, scroller, trigger, value }: Parts, count: number, selected: number) {
@@ -52,7 +67,8 @@ function place({ label, option, panel, scroller, trigger, value }: Parts, count:
         scroll -= Math.min(d, scroll);
     }
 
-    let width = trigger.offsetWidth + shift,
+    // At least the trigger's width, and wider when an option needs it, rather than cutting the option short.
+    let width = Math.max(trigger.offsetWidth + shift, natural(panel)),
         left = Math.max(
             trigger.offsetLeft + (MARGIN - box.left) / scale,
             Math.min(trigger.offsetLeft - shift, trigger.offsetLeft + (view.width - MARGIN - box.left) / scale - width)
