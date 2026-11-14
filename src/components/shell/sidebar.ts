@@ -3,19 +3,19 @@ import { html, type Renderable } from '@esportsplus/template';
 import button from '~/components/button';
 import { drag } from '~/shared/drag';
 import type state from './model';
+import { separator } from './resize';
 
 
 type Edge = 'left' | 'right';
 
-// Each sidebar's elements as they connect, whether it is being dragged or resized, and where a drag holds it and the
-// space beside the main area; undefined leaves each to the stylesheet. Peeking shows a closed sidebar for as long as
-// the pointer stays over it.
+// Each sidebar's elements as they connect, whether it is being dragged, and where a drag holds it and the space beside
+// the main area; undefined leaves each to the stylesheet. Peeking shows a closed sidebar for as long as the pointer
+// stays over it.
 type Frame = {
     dragging: boolean;
     edge?: HTMLElement;
     offset: number;
     peeking: boolean;
-    resizing: boolean;
     sidebar?: HTMLElement;
     space: string | undefined;
     translate: string | undefined;
@@ -34,6 +34,8 @@ type Options = {
 type Sidebars = {
     frames: Record<Edge, Frame>;
     id: string;
+    // Whether an open sidebar pushes the main area aside rather than narrowing it, so only one opens at a time.
+    narrow: () => boolean;
     options: Partial<Record<Edge, Options>>;
     // Whether the edge's dock holds a single static surface: only then does the sidebar itself swipe closed.
     stationary: (edge: Edge) => boolean;
@@ -43,9 +45,6 @@ type Sidebars = {
 
 // Presses in these keep their own text editing rather than dragging the sidebar.
 const FIELDS = 'input, select, textarea, [contenteditable]';
-
-// Below this width an open sidebar pushes the main area aside rather than narrowing it, so only one opens at a time.
-const NARROW = '(max-width: 1024px)';
 
 
 function close(sidebars: Sidebars, edge: Edge) {
@@ -81,7 +80,7 @@ function leave(sidebars: Sidebars, edge: Edge, e: PointerEvent) {
 }
 
 function open(sidebars: Sidebars, edge: Edge) {
-    if (matchMedia(NARROW).matches) {
+    if (sidebars.narrow()) {
         close(sidebars, edge === 'left' ? 'right' : 'left');
     }
 
@@ -89,13 +88,14 @@ function open(sidebars: Sidebars, edge: Edge) {
     sidebars.state.toggle(edge, true);
 }
 
-// Shows 'shown' pixels of a sidebar 'width' wide. On small screens the main area slides with it, so the space beside it
+// Shows 'shown' pixels of a sidebar 'width' wide. In a narrow layout the main area slides with it, so the space beside it
 // follows the pointer; elsewhere the sidebar passes over the main area, which keeps its layout until the sidebar
 // settles.
-function reveal(frame: Frame, edge: Edge, width: number, shown: number) {
-    let clamped = Math.max(0, Math.min(width, shown));
+function reveal(sidebars: Sidebars, edge: Edge, width: number, shown: number) {
+    let clamped = Math.max(0, Math.min(width, shown)),
+        frame = sidebars.frames[edge];
 
-    frame.space = matchMedia(NARROW).matches ? `${clamped}px` : undefined;
+    frame.space = sidebars.narrow() ? `${clamped}px` : undefined;
     frame.translate = `${(clamped - width) * direction(edge)}px 0`;
 }
 
@@ -122,7 +122,6 @@ const frame = (): Frame => reactive({
     dragging: false,
     offset: 0,
     peeking: false,
-    resizing: false,
     space: undefined as string | undefined,
     translate: undefined as string | undefined
 });
@@ -139,7 +138,7 @@ const grip = (sidebars: Sidebars, edge: Edge) => {
             measure: (element) => current.sidebar ?? element,
             move: (_, { x }) => {
                 if (current.sidebar) {
-                    reveal(current, edge, current.sidebar.offsetWidth, x * sign);
+                    reveal(sidebars, edge, current.sidebar.offsetWidth, x * sign);
                 }
             },
             release: (_, __, dismiss) => {
@@ -154,7 +153,7 @@ const grip = (sidebars: Sidebars, edge: Edge) => {
     return html`
         <div
             aria-hidden='true'
-            class='panels-edge-grip panels-edge-grip--${edge}'
+            class='shell-edge-grip shell-edge-grip--${edge}'
             ${gesture}
             ${{
                 // A drag swallows the click it ends with, so this is a tap or a click: either opens the sidebar.
@@ -181,60 +180,21 @@ const grip = (sidebars: Sidebars, edge: Edge) => {
                 style: () => `--offset: ${current.offset}px;`
             }}
         >
-            <span class='panels-edge-handle'></span>
+            <span class='shell-edge-handle'></span>
         </div>
     `;
 };
 
-// An open sidebar's inner border: pressing it resizes the sidebar to wherever the pointer goes, and the handle marking
-// the border follows the pointer up and down as the edge strip's does. The stylesheet clamps the width.
-const resizer = (sidebars: Sidebars, edge: Edge) => {
-    let current = sidebars.frames[edge],
-        pointer = reactive({ offset: 0 });
+// An open sidebar's inner border, a separator resizing it from the width it shows; the stylesheet clamps the width.
+const resizer = (sidebars: Sidebars, edge: Edge) => separator(
+    'x',
+    () => {
+        let width = sidebars.frames[edge].sidebar?.offsetWidth;
 
-    function end() {
-        current.resizing = false;
-    }
-
-    return html`
-        <div
-            aria-hidden='true'
-            class='panels-sidebar-resize panels-sidebar-resize--${edge}'
-            ${{
-                class: () => current.resizing && '--active',
-                onlostpointercapture: end,
-                onpointerdown: function(this: HTMLElement, e: PointerEvent) {
-                    if (e.button !== 0) {
-                        return;
-                    }
-
-                    // Captured, so the moves and the release land here wherever the pointer goes; held from text selection.
-                    e.preventDefault();
-                    this.setPointerCapture(e.pointerId);
-                    current.resizing = true;
-                },
-                onpointermove: function(this: HTMLElement, e: PointerEvent) {
-                    let bounds = this.getBoundingClientRect();
-
-                    pointer.offset = e.clientY - bounds.top - bounds.height / 2;
-
-                    if (!current.resizing || !this.parentElement) {
-                        return;
-                    }
-
-                    // Measured against the frame rather than the window, so a layout inside a page resizes within it.
-                    let frame = this.parentElement.getBoundingClientRect();
-
-                    sidebars.state.resizeDock(edge, edge === 'left' ? e.clientX - frame.left : frame.right - e.clientX);
-                },
-                onpointerup: end,
-                style: () => `--offset: ${pointer.offset}px;`
-            }}
-        >
-            <span class='panels-sidebar-resize-handle'></span>
-        </div>
-    `;
-};
+        return width ? (delta) => sidebars.state.resizeDock(edge, width + delta * direction(edge)) : null;
+    },
+    { class: `shell-sidebar-resize shell-sidebar-resize--${edge}` }
+);
 
 // The sidebar around its dock's groups. A static one drags toward its edge to close: past a quarter of its width or
 // flicked it closes, otherwise it slides back; a tabbed one leaves its presses to the tabs. Closing it with focus
@@ -260,7 +220,7 @@ const sidebar = (sidebars: Sidebars, edge: Edge, content: Renderable<unknown>) =
             },
             capture: () => hold(current),
             move: (element, { x }) => {
-                reveal(current, edge, element.offsetWidth, element.offsetWidth + x * direction(edge));
+                reveal(sidebars, edge, element.offsetWidth, element.offsetWidth + x * direction(edge));
             },
             release: (_, __, dismiss) => {
                 settle(current);
@@ -283,12 +243,12 @@ const sidebar = (sidebars: Sidebars, edge: Edge, content: Renderable<unknown>) =
     return html`
         <aside
             aria-label='${label(sidebars, edge)}'
-            class='panels-sidebar panels-sidebar--${edge}'
+            class='shell-sidebar shell-sidebar--${edge}'
             id='${sidebars.id}-${edge}'
             ${{
                 class: [
                     () => sidebars.state.layout[edge].open ? '--active' : current.peeking && '--peek',
-                    () => current.dragging && 'panels-sidebar--dragging'
+                    () => current.dragging && 'shell-sidebar--dragging'
                 ],
                 // Delegated handlers stop at the nearest bound element, and the sidebar's content binds pointer events
                 // of its own, so the drag listens on the sidebar directly.
@@ -341,7 +301,7 @@ const toggle = (sidebars: Sidebars, edge: Edge) => {
     return button.sidebar({
         'aria-controls': `${sidebars.id}-${edge}`,
         'aria-label': text,
-        class: `panels-toggle panels-toggle--${edge}`,
+        class: `shell-toggle shell-toggle--${edge}`,
         id: `${sidebars.id}-${edge}-toggle`,
         onclick: () => sidebars.state.layout[edge].open ? close(sidebars, edge) : open(sidebars, edge),
         // The button keeps 'pointerleave' for itself; moves into its own glyph are ignored like any within the sidebar.
@@ -353,5 +313,5 @@ const toggle = (sidebars: Sidebars, edge: Edge) => {
 };
 
 
-export { frame, grip, NARROW, resizer, sidebar, toggle };
+export { frame, grip, resizer, sidebar, toggle };
 export type { Edge, Frame, Options, Sidebars };

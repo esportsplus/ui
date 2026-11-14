@@ -1,7 +1,7 @@
 import { nav, search } from '@esportsplus/ui/components';
 import { effect, html, reactive, redirect, uri } from 'docs/app';
 import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
-import type panels from '@esportsplus/ui/components/panels';
+import type shell from '@esportsplus/ui/components/shell';
 import { repository, version } from '@esportsplus/ui/package.json';
 import { sections } from 'docs/data/nav';
 import type { Request } from 'docs/app';
@@ -23,7 +23,7 @@ function fold(text: string) {
 
 // The documentation navigation, as the layout's static left sidebar. Its search filters the tree in place: a link shows
 // when its label matches, every link of a section whose name matches shows, and a section left with none hides.
-export default (request: Request, layout: ReturnType<typeof panels.state>) => {
+export default (request: Request, layout: ReturnType<typeof shell.state>) => {
     let field: HTMLInputElement | undefined,
         filter = reactive({ query: '' }),
         navigation = sections(),

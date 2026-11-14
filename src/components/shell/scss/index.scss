@@ -4,7 +4,7 @@
 @use 'variables';
 
 // Sized by what holds it: the groups' minimum widths would otherwise widen a grid or flex parent past its own width.
-.panels {
+.shell {
     contain: inline-size;
     display: flex;
     flex-direction: column;
@@ -20,29 +20,48 @@
         pointer-events: auto;
     }
 
-    // A dragged or resized sidebar sets the space beside the main area itself, which follows it without easing.
     // Children only, here and below, so a layout nested in a surface keeps its own state.
-    &--resizing > &-tree > &-frame,
-    &--sliding > &-tree > &-frame,
-    &--sliding > &-tree > &-frame > &-center {
-        transition: none;
-    }
-
     @each $side in 'left' 'right' {
         &--#{$side}-open > &-tree > &-frame > &-edge-grip--#{$side} {
             transition-delay: 0s;
             visibility: hidden;
         }
 
-        &--#{$side}-open > &-tree > &-frame > &-edge-grip--#{$side} &-edge-handle {
-            opacity: 0;
+        &--#{$side}-open:not(.shell--narrow) > &-tree > &-frame > &-sidebar-resize--#{$side} {
+            display: block;
         }
+    }
 
-        @media not (max-width: 1024px) {
-            &--#{$side}-open > &-tree > &-frame > &-sidebar-resize--#{$side} {
-                display: block;
+    // Narrow, the left sidebar pushes the main area aside and the right one slides it over, keeping it readable; the
+    // main area shows the one group its header switches between, rather than splits too thin to use.
+    &--narrow > &-tree > &-frame {
+        grid-template-columns: var(--left) 100% 0px;
+
+        > .shell-center {
+            translate: calc(var(--right) * -1) 0;
+
+            > .shell-main {
+                .shell-handle,
+                .shell-pane {
+                    display: none;
+                }
+
+                .shell-pane--current {
+                    display: flex;
+                    flex: 1 1 100%;
+                }
             }
         }
+    }
+
+    &:not(.shell--narrow) &-switch {
+        display: none;
+    }
+
+    // A dragged sidebar sets the space beside the main area itself, which follows it without easing.
+    &--sliding > &-tree > &-frame,
+    &--sliding > &-tree > &-frame > &-center {
+        transition: none;
     }
 
 
@@ -63,7 +82,7 @@
         position: relative;
     }
 
-    // The main area over the bottom dock. Keeps its width on small screens and slides over for the right sidebar.
+    // The main area over the bottom dock.
     &-center {
         display: flex;
         flex-direction: column;
@@ -72,10 +91,6 @@
         min-width: 0;
         position: relative;
         transition: translate var(--slide-duration) var(--slide-timing-function);
-
-        @media (max-width: 1024px) {
-            translate: calc(var(--right) * -1) 0;
-        }
     }
 
     &-dock {
@@ -88,29 +103,29 @@
             background: var(--background);
             inset: 0;
             position: absolute;
-            z-index: 3;
+            z-index: var(--z-index);
+        }
+    }
+
+    // Strips along the layout's edges while a tab is dragged, so dropping it there docks it on that side: the bottom's
+    // spans the main area, a sidebar's the layout's height.
+    &-dock-target {
+        pointer-events: none;
+        position: absolute;
+        z-index: var(--z-index);
+
+        &--bottom {
+            bottom: 0;
+            height: var(--size);
+            left: var(--left);
+            right: var(--right);
         }
 
-        // Strips along the layout's edges while a tab is dragged, so dropping it there docks it on that side: the
-        // bottom's spans the main area, a sidebar's the layout's height.
-        &-target {
-            pointer-events: none;
-            position: absolute;
-            z-index: var(--z-index);
-
-            &--bottom {
-                bottom: 0;
-                height: var(--size);
-                left: var(--left);
-                right: var(--right);
-            }
-
-            @each $side in 'left' 'right' {
-                &--#{$side} {
-                    #{$side}: 0;
-                    inset-block: 0;
-                    width: var(--size);
-                }
+        @each $side in 'left' 'right' {
+            &--#{$side} {
+                #{$side}: 0;
+                inset-block: 0;
+                width: var(--size);
             }
         }
     }
@@ -118,8 +133,8 @@
     &-dock-target,
     &-edge {
         &.--over {
-            background: var(--drop-background);
-            box-shadow: inset 0 0 0 var(--ring-width) var(--drop-ring);
+            background: var(--background);
+            box-shadow: inset 0 0 0 var(--ring-width) var(--ring-color);
         }
     }
 
@@ -127,7 +142,7 @@
     &-edge {
         pointer-events: none;
         position: absolute;
-        z-index: 2;
+        z-index: var(--z-index);
 
         @each $side, $length, $axis in (bottom height inline, left width block, right width block, top height inline) {
             &--#{$side} {
@@ -139,7 +154,8 @@
     }
 
     // A strip along a closed sidebar's edge. A single arrow the way the sidebar opens; platforms draw the resize
-    // fallbacks double-headed.
+    // fallbacks double-headed. Its handle waits off the layout until the pointer is on the strip, then comes to rest
+    // just inside the main area's edge.
     &-edge-grip {
         inset-block: 0;
         position: absolute;
@@ -159,19 +175,15 @@
             right: 0;
         }
 
+        @each $side in 'left' 'right' {
+            &--#{$side} .shell-edge-handle {
+                #{$side}: var(--inset);
+            }
+        }
+
+
         &:active {
             cursor: grabbing;
-        }
-    }
-
-    // Off the layout until the pointer is on the edge, then over the main area, just inside its edge.
-    @each $side in 'left' 'right' {
-        &-edge-grip--#{$side} &-edge-handle {
-            #{$side}: calc(var(--width) * -1);
-        }
-
-        &-edge-grip--#{$side}:is(:active, :hover) &-edge-handle {
-            #{$side}: var(--inset-horizontal);
         }
     }
 
@@ -185,7 +197,6 @@
         transition:
             background var(--transition-duration) var(--transition-timing-function),
             left var(--slide-duration) var(--slide-timing-function),
-            opacity var(--slide-duration) var(--slide-timing-function),
             right var(--slide-duration) var(--slide-timing-function);
         translate: 0 calc(var(--offset, 0px) - 50%);
         width: var(--width);
@@ -196,7 +207,7 @@
         @extend %reset-button;
         inset: 0;
         position: absolute;
-        z-index: 2;
+        z-index: var(--z-index);
     }
 
     // The sidebars either side of the center, each column the room its sidebar makes. Clipped, so a closed sidebar
@@ -210,25 +221,6 @@
         overflow: clip;
         position: relative;
         transition: grid-template-columns var(--slide-duration) var(--slide-timing-function);
-
-        // Keep the page readable on small screens: the left sidebar pushes the main area aside, the right one slides
-        // it over.
-        @media (max-width: 1024px) {
-            grid-template-columns: var(--left) 100% 0px;
-        }
-    }
-
-    &-ghost {
-        background: var(--background);
-        border-radius: var(--border-radius);
-        box-shadow: var(--surface-shadow-default);
-        font-size: var(--font-size);
-        padding-block: var(--padding-vertical);
-        padding-inline: var(--padding-horizontal);
-        pointer-events: none;
-        position: fixed;
-        white-space: nowrap;
-        z-index: var(--z-index);
     }
 
     // A section: the normalize wraps sections' flex lines, which would stop the body stretching across the group.
@@ -244,29 +236,25 @@
 
         // Clears the sidebar toggle over its top corner.
         @each $side, $end in ('left': 'start', 'right': 'end') {
-            &--inset-#{$side} > .panels-header {
-                padding-inline-#{$end}: calc(var(--toggle-inset-horizontal) * 2 + var(--toggle-size));
+            &--inset-#{$side} > .shell-header {
+                padding-inline-#{$end}: var(--#{$side});
             }
         }
 
         // Picked to zoom to once the modifier is let go.
         &--picked {
-            background: var(--drop-background);
-            box-shadow: inset 0 0 0 var(--picked-ring-width) var(--drop-ring);
-        }
-
-        // The tab strip is where a dragged tab joins the group rather than splitting it.
-        &.--over {
-            box-shadow: inset 0 0 0 var(--over-ring-width) var(--drop-ring);
+            background: var(--background);
+            box-shadow: inset 0 0 0 var(--ring-width) var(--ring-color);
         }
     }
 
+    // The line is the visible border; the separator around it is wider to grab, overlapping the panes on either side.
     &-handle {
         flex-shrink: 0;
         position: relative;
         touch-action: none;
         user-select: none;
-        z-index: 1;
+        z-index: var(--z-index);
 
         &::after {
             background: var(--background);
@@ -275,6 +263,7 @@
             position: absolute;
             transition: background var(--transition-duration) var(--transition-timing-function);
         }
+
 
         &--x {
             cursor: col-resize;
@@ -304,42 +293,37 @@
             }
         }
 
-        &[hidden] {
-            display: none;
-        }
-
-        // TEMPORARY: the sidebar's resize pill, grown out of the line on hover and following the pointer along it.
+        // Grows out of the line under the pointer and follows it along the separator.
         &-pill {
-            background: var(--pill-color);
-            border-radius: var(--pill-border-radius);
+            background: var(--color);
+            border-radius: var(--border-radius);
             left: 50%;
-            opacity: var(--pill-opacity);
+            opacity: var(--opacity);
             pointer-events: none;
             position: absolute;
             top: 50%;
             transition:
                 opacity var(--transition-duration) var(--transition-timing-function),
                 scale var(--transition-duration) var(--transition-timing-function);
-            z-index: 1;
         }
 
         &--x &-pill {
-            height: var(--pill-length);
-            scale: 1 var(--pill-scale);
+            height: var(--length);
+            scale: 1 var(--scale);
             translate: -50% calc(var(--offset, 0px) - 50%);
-            width: var(--pill-thickness);
+            width: var(--thickness);
         }
 
         &--y &-pill {
-            height: var(--pill-thickness);
-            scale: var(--pill-scale) 1;
+            height: var(--thickness);
+            scale: var(--scale) 1;
             translate: calc(var(--offset, 0px) - 50%) -50%;
-            width: var(--pill-length);
+            width: var(--length);
         }
 
-        &:is(:active, :hover) &-pill {
-            --pill-opacity: 1;
-            --pill-scale: 1;
+
+        &[hidden] {
+            display: none;
         }
     }
 
@@ -382,7 +366,7 @@
             width: 100%;
 
             &-description {
-                color: var(--muted-color);
+                color: var(--color);
                 font-size: var(--font-size);
                 line-height: var(--line-height);
             }
@@ -415,7 +399,7 @@
         }
 
         &-description {
-            color: var(--muted-color);
+            color: var(--color);
             font-size: var(--font-size);
         }
 
@@ -459,25 +443,6 @@
         overflow: hidden;
     }
 
-    // Narrow, the main area shows the one group its header switches between, rather than splits too thin to use.
-    @media (max-width: 1024px) {
-        &-main &-handle,
-        &-main &-pane {
-            display: none;
-        }
-
-        &-main &-pane--current {
-            display: flex;
-            flex: 1 1 100%;
-        }
-    }
-
-    @media not (max-width: 1024px) {
-        &-switch {
-            display: none;
-        }
-    }
-
     &-parking {
         display: none;
     }
@@ -519,39 +484,18 @@
             visibility: visible;
         }
 
-        // Straddles an open sidebar's inner border, only where the sidebar narrows the main area rather than pushing it.
+        // A separator straddling an open sidebar's inner border, only where the sidebar narrows the main area rather
+        // than pushing it.
         &-resize {
-            cursor: col-resize;
             display: none;
             inset-block: 0;
             position: absolute;
-            touch-action: none;
-            width: var(--width);
-            z-index: var(--z-index);
 
             @each $side in 'left' 'right' {
                 &--#{$side} {
-                    #{$side}: calc(var(--#{$side}-width) - var(--width) / 2);
+                    #{$side}: var(--#{$side}-width);
                 }
             }
-        }
-
-        // Grows out of the border as it shows and follows the pointer up and down. Centered by 'left' rather than a
-        // translate, so it snaps to whole pixels instead of blurring across two.
-        &-resize-handle {
-            background: var(--color);
-            border-radius: var(--border-radius);
-            height: var(--height);
-            left: calc(50% - var(--width) / 2);
-            opacity: var(--opacity);
-            position: absolute;
-            scale: 1 var(--scale);
-            top: 50%;
-            transition:
-                opacity var(--transition-duration) var(--transition-timing-function),
-                scale var(--transition-duration) var(--transition-timing-function);
-            translate: 0 calc(var(--offset, 0px) - 50%);
-            width: var(--width);
         }
     }
 
@@ -575,10 +519,6 @@
         padding-inline-end: calc(var(--padding-horizontal) / 2);
         user-select: none;
 
-        &--dragging {
-            opacity: var(--opacity);
-        }
-
         &--icon {
             justify-content: center;
             padding-inline: 0;
@@ -595,30 +535,12 @@
             flex: none;
         }
 
+        // Trimmed to its capitals, so the tab's centring lines the letters up with its icon and close button.
         &-label {
-            @extend %text-truncate;
+            @extend %text-crop, %text-truncate;
             flex: 1;
             min-width: 0;
-        }
-    }
-
-    &-toggle {
-        display: flex;
-        height: var(--toggle-size);
-        position: absolute;
-        top: var(--toggle-inset-vertical);
-        width: var(--toggle-size);
-        z-index: var(--z-index);
-
-        @each $side in 'left' 'right' {
-            &--#{$side} {
-                #{$side}: var(--toggle-inset-horizontal);
-            }
-        }
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--focus-offset);
+            padding-block: var(--padding-vertical);
         }
     }
 
@@ -632,10 +554,32 @@
         overflow: auto hidden;
         position: relative;
     }
+
+    &-toggle {
+        display: flex;
+        height: var(--size);
+        position: absolute;
+        top: var(--top);
+        width: var(--size);
+        z-index: var(--z-index);
+
+        @each $side in 'left' 'right' {
+            &--#{$side} {
+                #{$side}: var(--#{$side});
+            }
+        }
+
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+        }
+    }
 }
 
-// The page takes the separator's cursor for the length of a resize, and selects nothing it sweeps over.
-:root.panels-resizing {
+// The page takes the separator's cursor for the length of a resize, selects nothing it sweeps over, and the frame
+// follows a sidebar's border without easing.
+:root.shell-resizing {
     &,
     * {
         user-select: none;
@@ -649,5 +593,17 @@
     &--y,
     &--y * {
         cursor: row-resize;
+    }
+
+    .shell-frame {
+        transition: none;
+    }
+}
+
+// A modifier-held sweep across groups selects nothing it passes over.
+:root.shell-sweeping {
+    &,
+    * {
+        user-select: none;
     }
 }

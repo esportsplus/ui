@@ -26,9 +26,10 @@
     // The window's height, which the layout's groups share; the toggles sit where the navigation's brand row
     // expects them.
     &-layout {
-        --toggle-inset-horizontal: var(--size-300);
-        --toggle-inset-vertical: var(--size-300);
+        --toggle-left: var(--size-300);
+        --toggle-right: var(--size-300);
         --toggle-size: 32px;
+        --toggle-top: var(--size-300);
         height: 100dvh;
     }
 

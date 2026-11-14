@@ -14,7 +14,7 @@ its color palettes, contrast calculation, clipboard feedback, and swatch styles.
 | `page` | Docs page and section layout, and empty states |
 | `page/header` | Library page title and subtitle, optional breadcrumb and note, and previous/next navigation |
 | `root` | Docs-wide theme aliases |
-| `sidebar` | Documentation navigation and its search, rendered as the library `panels` layout's static left sidebar |
+| `sidebar` | Documentation navigation and its search, rendered as the library `shell`'s static left sidebar |
 | `spec` | Shared data tables, token/value typography, and table-header surface and corner styling |
 | `toaster` | The shared docs toast queue, placement, and toast surface styles |
 | `viewer` | Routed content grid in the layout's main area, with the TOC column |
@@ -30,7 +30,7 @@ that; the not-found middleware does the same. The TOC is the library `nav.toc`,
 driven by a `nav.spy` scroll spy over the page's headings.
 
 Shell classes use component names such as `.page` and `.sidebar`.
-The library `panels` layout owns the sidebar's frame, surface, toggle, Escape handling and swipe; the docs give it the
+The library `shell` owns the sidebar's frame, surface, toggle, Escape handling and swipe; the docs give it the
 navigation and the routed page as single unsortable surfaces, so the sidebar is static and the page has no tabs. The navigation
 sidebar starts open on desktop and closed on small screens. An effect watches
 the request path and closes the sidebar after route changes on small screens;

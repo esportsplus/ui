@@ -3,10 +3,11 @@
 @use 'css-utilities/color';
 @use 'css-utilities/surface';
 
-// The drop colors light every target a dragged tab can land on: an edge, a dock and a group's tab strip.
-.panels {
+.shell {
+    // Light every target a dragged tab can land on outside a tab strip, and the groups picked to zoom to.
     --drop-background: oklch(from var(--color-primary-400) l c h / 0.12);
     --drop-ring: oklch(from var(--color-primary-400) l c h / 0.5);
+    --header-height: 36px;
     // The room each sidebar makes beside the main area: none while it is closed.
     --left: 0px;
     // Each sidebar's width: '--space' until a resize sets '--{side}-size', held between the bounds and short of leaving
@@ -14,7 +15,6 @@
     // remains, so neither depends on the other in a cycle.
     --left-width: clamp(var(--sidebar-min-width), var(--left-size, var(--space)), min(var(--sidebar-max-width), 100% - var(--main-min-width) - var(--right-claim)));
     --main-min-width: 320px;
-    --muted-color: var(--color-text-300);
     --right: 0px;
     // The right sidebar's width before the left's, which the left makes room for: none while it is closed.
     --right-claim: 0px;
@@ -24,15 +24,12 @@
     --slide-duration: 300ms;
     --slide-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
     --space: 280px;
-    // Where the sidebar toggles sit in the top corners, and their size; corner groups' headers clear them.
-    --toggle-inset-horizontal: var(--size-100);
-    --toggle-inset-vertical: var(--size-100);
+    // Where the sidebar toggles sit in the top corners, and their size, which the corner groups' headers clear. Centred
+    // on the header by default, so they line up with its tabs.
+    --toggle-left: var(--size-100);
+    --toggle-right: var(--size-100);
     --toggle-size: 28px;
-
-    // An open sidebar pushes the main area aside here rather than narrowing it.
-    @media (max-width: 1024px) {
-        --main-min-width: 0px;
-    }
+    --toggle-top: calc((var(--header-height) - var(--toggle-size)) / 2);
 
     @media (prefers-reduced-motion: reduce) {
         --slide-duration: 0s;
@@ -41,6 +38,11 @@
 
     &--left-open {
         --left: var(--left-width);
+    }
+
+    // An open sidebar pushes the main area aside here rather than narrowing it.
+    &--narrow {
+        --main-min-width: 0px;
     }
 
     &--right-open {
@@ -55,8 +57,7 @@
     }
 
     &-action,
-    &-add,
-    &-tab-close {
+    &-add {
         @extend %color-text;
         --background-default: transparent;
         --background-hover: var(--surface-background-hover);
@@ -75,18 +76,28 @@
     }
 
     &-dock {
+        --background: var(--surface-background-default);
         --min-height: 80px;
+        --z-index: 3;
+    }
 
-        // Over the sidebars and their toggles, lit while a tab is dragged.
-        &-target {
-            --size: 48px;
-            --z-index: 45;
-        }
+    // Over the sidebars and their toggles.
+    &-dock-target {
+        --size: 48px;
+        --z-index: 45;
     }
 
     &-dock-target,
-    &-edge {
+    &-edge,
+    &-group--picked {
+        --background: var(--drop-background);
+        --ring-color: var(--drop-ring);
         --ring-width: var(--border-width-500);
+    }
+
+    &-edge,
+    &-expand {
+        --z-index: 2;
     }
 
     &-edge-grip {
@@ -94,62 +105,52 @@
         --z-index: 30;
     }
 
-    &-edge-grip:hover &-edge-handle {
+    &-edge-grip:is(:active, :hover) &-edge-handle {
         --color: var(--color-primary-400);
+        // Just inside the main area's edge.
+        --inset: 3px;
     }
 
     &-edge-handle {
         --border-radius: var(--border-radius-200);
         --color: var(--surface-border-hover);
         --height: 10svh;
-        // How far inside the main area's edge the handle comes to rest.
-        --inset-horizontal: 3px;
-        --transition-duration: 0.16s;
-        --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        // Off the layout's edge until the pointer is on the strip.
+        --inset: calc(var(--width) * -1);
         --width: 3px;
     }
 
-    &-ghost {
-        @extend %surface-raise;
-        --background: var(--surface-background-default);
-        --border-radius: var(--border-radius-300);
-        --font-size: var(--font-size-300);
-        --padding-horizontal: var(--size-200);
-        --padding-vertical: calc(var(--size-100) / 2);
-        // Over every layer, since it follows the pointer anywhere on the page.
-        --z-index: 1000;
-    }
-
-    // Ringed thickly while picked to zoom to, and thinly while a dragged tab would join it through its tab strip.
-    &-group {
-        --over-ring-width: var(--border-width-400);
-        --picked-ring-width: var(--border-width-500);
-    }
-
-    // The line is a pixel; the separator around it is wider to grab, overlapping the panes on either side.
     &-handle {
         @extend %background-state, %surface-lower;
         --background-default: var(--surface-border-default);
         --background-hover: var(--surface-border-hover);
         --background-pressed: var(--surface-border-pressed);
         --line-width: 1px;
-        // TEMPORARY: the sidebar resize pill's look.
-        --pill-border-radius: var(--border-radius-200);
-        --pill-color: var(--surface-border-pressed);
-        --pill-length: 10svh;
-        --pill-opacity: 0;
-        --pill-scale: 0.8;
-        --pill-thickness: 3px;
         --size: 8px;
-        --transition-duration: 0.16s;
-        --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        --z-index: 1;
+    }
+
+    &-handle:is(:active, :hover) &-handle-pill {
+        --opacity: 1;
+        --scale: 1;
+    }
+
+    &-handle-pill {
+        --border-radius: var(--border-radius-200);
+        --color: var(--surface-border-pressed);
+        --length: 10svh;
+        --opacity: 0;
+        --scale: 0.8;
+        --thickness: 3px;
     }
 
     &-header {
         --gap-horizontal: calc(var(--size-300) / 4);
         --gap-vertical: calc(var(--size-300) / 4);
-        --height: 36px;
+        --height: var(--header-height);
+        --left: calc(var(--toggle-left) * 1.5 + var(--toggle-size));
         --padding-horizontal: calc(var(--size-300) / 2);
+        --right: calc(var(--toggle-right) * 1.5 + var(--toggle-size));
     }
 
     &-launcher {
@@ -170,6 +171,7 @@
             --padding-vertical: var(--size-400);
 
             &-description {
+                --color: var(--color-text-300);
                 --font-size: var(--font-size-300);
                 --line-height: 1.5;
             }
@@ -203,6 +205,7 @@
         }
 
         &-description {
+            --color: var(--color-text-300);
             --font-size: var(--font-size-300);
         }
 
@@ -221,25 +224,11 @@
         --background: var(--surface-background-default);
         --z-index: 31;
 
+        // A separator without a line, wider to grab, over the sidebar it resizes.
         &-resize {
-            --color: var(--surface-border-pressed);
-            --opacity: 0;
-            --scale: 0.8;
-            --transition-duration: 0.16s;
-            --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-            --width: 12px;
+            --line-width: 0px;
+            --size: 12px;
             --z-index: 32;
-
-            @include tokens.state(active hover) {
-                --opacity: 1;
-                --scale: 1;
-            }
-        }
-
-        &-resize-handle {
-            --border-radius: var(--border-radius-200);
-            --height: 10svh;
-            --width: 3px;
         }
     }
 
@@ -259,12 +248,11 @@
         --padding-horizontal: calc(var(--size-300) / 2);
         --padding-vertical: 0px;
 
-        // Dimmed in the strip while its copy follows the pointer.
-        &--dragging {
-            --opacity: 0.45;
-        }
-
         &-close {
+            @extend %color-text;
+            --border-radius: var(--border-radius-300);
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
             --size: 16px;
 
             .icon {
@@ -272,23 +260,22 @@
             }
         }
 
+        // Clear at rest, without the fill or its shadow, so only hovering or pressing it shows its surface primary.
+        // Chained through '.button' so it wins over the modifier regardless of stylesheet order.
+        &-close.button {
+            --background-default: transparent;
+            --box-shadow-default: none;
+        }
+
         // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
         &-icon.icon {
             --size: 12px;
         }
-    }
 
-    &-toggle {
-        --background-default: transparent;
-        --border-radius: var(--border-radius-400);
-        --color-default: var(--color-text-400);
-        --color-hover: var(--color-text-400);
-        --color-pressed: var(--color-text-500);
-        --padding-horizontal: 0px;
-        --padding-vertical: 0px;
-        --size: var(--toggle-size);
-        --width: var(--toggle-size);
-        --z-index: 40;
+        // Room above and below the letters it trims to, so the truncation's clip leaves descenders whole.
+        &-label {
+            --padding-vertical: 0.25em;
+        }
     }
 
     &-tabs {
@@ -300,5 +287,20 @@
         --background-active: var(--surface-background-active);
         --background-hover: var(--surface-background-hover);
         --background-pressed: var(--surface-background-pressed);
+    }
+
+    &-toggle {
+        --background-default: transparent;
+        --border-radius: var(--border-radius-400);
+        --color-default: var(--color-text-400);
+        --color-hover: var(--color-text-400);
+        --color-pressed: var(--color-text-500);
+        --left: var(--toggle-left);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --right: var(--toggle-right);
+        --size: var(--toggle-size);
+        --top: var(--toggle-top);
+        --z-index: 40;
     }
 }

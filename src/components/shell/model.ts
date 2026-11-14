@@ -27,12 +27,14 @@ type Layout = {
     right: Dock;
     root: Node | null;
     // Each zoom narrows the view to a set of groups, the last one showing; leaving a zoom returns to the one before.
-    zoom: string[][];
+    zoom: Zoom[];
 };
 
 type Node = Group | Split;
 
 type Options = {
+    // Asked before a close takes surfaces away, with those surfaces: false, or a promise of false, keeps them.
+    closing?: (surfaces: Surface[]) => boolean | Promise<boolean>;
     // Which docks start open; each does unless set false.
     open?: Partial<Record<Placement, boolean>>;
     root?: Node | null;
@@ -60,19 +62,22 @@ type Split = {
 // group; alone there, the group is static and shows it without a tab strip.
 type Surface = { id: string; kind: string; sortable?: boolean };
 
-// The slice of @esportsplus/web-storage's Local<T> the layout uses, so any Local<{ panels: Saved }> is a store.
+// The slice of @esportsplus/web-storage's Local<T> the layout uses, so any Local<{ shell: Saved }> is a store.
 type Store = {
     get(key: typeof KEY): Promise<unknown>;
     set(key: typeof KEY, value: Saved): Promise<boolean>;
 };
 
+// A zoom's groups, and the main group the view it left had maximized, restored on stepping back out of it.
+type Zoom = { groups: string[]; maximized: string | null };
 
-// A pane never shrinks below this share of its split.
-const MIN_FRACTION = 0.1;
 
 const BOTTOM_SIZE = 0.25;
 
-const KEY = 'panels';
+const KEY = 'shell';
+
+// A pane never shrinks below this share of its split.
+const MIN_FRACTION = 0.1;
 
 
 function allGroups(node: Node | null): Group[] {
@@ -99,17 +104,17 @@ function docked(group: Group, placement: Placement) {
     return group.placement === placement;
 }
 
+// A group emptied in place, as a sidebar's last group is.
+function emptyGroup(root: Node | null, id: string) {
+    return updateGroup(root, id, (group) => ({ ...group, active: null, surfaces: [] }));
+}
+
 function equalSizes(count: number) {
     return Array.from({ length: count }, () => 1 / count);
 }
 
 function findGroup(node: Node | null, id: string) {
     return allGroups(node).find((group) => group.id === id) ?? null;
-}
-
-// A group showing one surface that cannot move: it renders without a tab strip and nothing joins it.
-function fixed(group: Group) {
-    return group.surfaces.length === 1 && group.surfaces[0].sortable === false;
 }
 
 function findSplit(node: Node | null, id: string): Split | null {
@@ -134,6 +139,11 @@ function findSplit(node: Node | null, id: string): Split | null {
 
 function findSurfaceGroup(node: Node | null, id: string) {
     return allGroups(node).find((group) => group.surfaces.some((surface) => surface.id === id)) ?? null;
+}
+
+// A group showing one surface that cannot move: it renders without a tab strip and nothing joins it.
+function fixed(group: Group) {
+    return group.surfaces.length === 1 && group.surfaces[0].sortable === false;
 }
 
 // Joins the root's split along the same axis, or wraps the root with it, taking a quarter of the space; either way
@@ -187,6 +197,13 @@ function insertSplit(node: Node, target: string, direction: Direction, inserted:
     }
 
     return { ...node, children: node.children.map((child) => insertSplit(child, target, direction, inserted, side, id)) };
+}
+
+// The only group docked to its sidebar.
+function lastInSidebar(root: Node | null, group: Group) {
+    let placement = group.placement;
+
+    return (placement === 'left' || placement === 'right') && allGroups(root).filter((entry) => docked(entry, placement)).length === 1;
 }
 
 // Drops empty branches, collapses single-child splits, flattens a split into a parent along the same axis and keeps
@@ -246,6 +263,13 @@ function normalizeLayout(layout: Layout): Layout {
     };
 }
 
+// The surfaces 'previous' holds that 'next' no longer does.
+function removed(previous: Node | null, next: Node | null) {
+    let kept = new Set(allGroups(next).flatMap((group) => group.surfaces.map((surface) => surface.id)));
+
+    return allGroups(previous).flatMap((group) => group.surfaces.filter((surface) => !kept.has(surface.id)));
+}
+
 // Every size at least the minimum share, all of them summing to 1.
 function normalizeSizes(sizes: readonly number[], count: number) {
     if (count === 0) {
@@ -263,6 +287,11 @@ function normalizeSizes(sizes: readonly number[], count: number) {
     let remainder = 1 - minimum * count;
 
     return values.map((value) => minimum + remainder * (total === 0 ? 1 / count : value / total));
+}
+
+// A sidebar's last group is emptied rather than removed, so the sidebar shows its empty state instead of going.
+function release(root: Node | null, group: Group) {
+    return lastInSidebar(root, group) ? emptyGroup(root, group.id) : removeLeaf(root, group.id);
 }
 
 function removeLeaf(node: Node | null, id: string): Node | null {
@@ -292,13 +321,13 @@ function stationary(root: Node | null, placement: Placement) {
 }
 
 // Takes the surface out of its group, handing the group's active tab to a neighbour, and drops the group with it when
-// it was the last.
+// it was the last, unless the group is its sidebar's last.
 function take(root: Node | null, source: Group, id: string) {
     let index = source.surfaces.findIndex((surface) => surface.id === id),
         surfaces = source.surfaces.filter((surface) => surface.id !== id);
 
     if (surfaces.length === 0) {
-        return removeLeaf(root, source.id);
+        return release(root, source);
     }
 
     return updateGroup(root, source.id, (group) => ({
@@ -306,19 +335,6 @@ function take(root: Node | null, source: Group, id: string) {
         active: group.active === id ? surfaces[Math.min(index, surfaces.length - 1)].id : group.active,
         surfaces
     }));
-}
-
-// Keeps every zoom to groups that still exist, and adds groups created while zoomed to each, so a split made in a zoom
-// shows there and in the views it returns to; a zoom left without groups is dropped.
-function zoomed(previous: Layout, next: Layout) {
-    let before = new Set(allGroups(previous.root).map((group) => group.id)),
-        after = allGroups(next.root).map((group) => group.id),
-        created = after.filter((id) => !before.has(id)),
-        existing = new Set(after);
-
-    return next.zoom
-        .map((level) => [...level.filter((id) => existing.has(id)), ...created])
-        .filter((level) => level.length > 0);
 }
 
 function updateGroup(node: Node | null, id: string, update: (group: Group) => Group): Node | null {
@@ -345,10 +361,26 @@ function updateSplit(node: Node | null, id: string, sizes: number[]): Node | nul
     return { ...node, children: node.children.map((child) => updateSplit(child, id, sizes) ?? child) };
 }
 
+// Keeps every zoom to groups that still exist, and adds groups created while zoomed to each, so a split made in a zoom
+// shows there and in the views it returns to; a zoom left without groups is dropped.
+function zoomed(previous: Layout, next: Layout) {
+    let before = new Set(allGroups(previous.root).map((group) => group.id)),
+        after = allGroups(next.root).map((group) => group.id),
+        created = after.filter((id) => !before.has(id)),
+        existing = new Set(after);
+
+    return next.zoom
+        .map((level) => ({
+            groups: [...level.groups.filter((id) => existing.has(id)), ...created],
+            maximized: level.maximized !== null && existing.has(level.maximized) ? level.maximized : null
+        }))
+        .filter((level) => level.groups.length > 0);
+}
+
 
 // The layout's one source of truth: an immutable tree in a signal, replaced whole by each operation. Structural
 // operations restore a maximized group first, as moving panes around under it would leave it covering the wrong one.
-const state = ({ open = {}, root = null, store }: Options = {}) => {
+const state = ({ closing, open = {}, root = null, store }: Options = {}) => {
     let counter = 1,
         touched = false,
         layout = signal<Layout>(normalizeLayout({
@@ -385,6 +417,31 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
         }
     }
 
+    // A close applies once 'closing' allows it, against the layout as it stands then.
+    function guarded(change: (current: Layout) => Layout) {
+        let surfaces = removed(read(layout).root, change(read(layout)).root),
+            allowed = surfaces.length && closing ? closing(surfaces) : true;
+
+        if (typeof allowed === 'boolean') {
+            if (allowed) {
+                structural(change);
+            }
+
+            return Promise.resolve(allowed);
+        }
+
+        return allowed.then(
+            (value) => {
+                if (value) {
+                    structural(change);
+                }
+
+                return value;
+            },
+            () => false
+        );
+    }
+
     function id(prefix: string) {
         return `${prefix}-${counter++}`;
     }
@@ -393,6 +450,22 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
     function structural(change: (current: Layout) => Layout) {
         touched = true;
         update((current) => change({ ...current, bottom: { ...current.bottom, maximized: false }, maximized: null }));
+    }
+
+    function unzoom() {
+        update((current) => {
+            let level = current.zoom.at(-1);
+
+            if (!level) {
+                return current;
+            }
+
+            return {
+                ...current,
+                maximized: level.maximized !== null && findGroup(current.root, level.maximized) ? level.maximized : null,
+                zoom: current.zoom.slice(0, -1)
+            };
+        });
     }
 
     function update(change: (current: Layout) => Layout) {
@@ -430,8 +503,26 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
             });
         },
 
+        // Steps back one view: out of a maximized group or bottom dock, then out of each zoom in turn, the last zoom
+        // first. False once the layout is back at its own view, with nothing left to step out of.
+        back() {
+            let current = read(layout);
+
+            if (current.maximized !== null || current.bottom.maximized) {
+                update((now) => ({ ...now, bottom: { ...now.bottom, maximized: false }, maximized: null }));
+                return true;
+            }
+
+            if (current.zoom.length) {
+                unzoom();
+                return true;
+            }
+
+            return false;
+        },
+
         close(surface: string) {
-            structural((current) => {
+            return guarded((current) => {
                 let group = findSurfaceGroup(current.root, surface);
 
                 return group ? { ...current, root: take(current.root, group, surface) } : current;
@@ -439,15 +530,19 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
         },
 
         closeAll() {
-            structural((current) => ({ ...current, root: null }));
+            return guarded((current) => ({ ...current, root: null }));
         },
 
         closeGroup(group: string) {
-            structural((current) => ({ ...current, root: removeLeaf(current.root, group) }));
+            return guarded((current) => {
+                let found = findGroup(current.root, group);
+
+                return found ? { ...current, root: release(current.root, found) } : current;
+            });
         },
 
         closeOthers(group: string, surface: string) {
-            structural((current) => ({
+            return guarded((current) => ({
                 ...current,
                 active: group,
                 root: updateGroup(current.root, group, (entry) => ({
@@ -459,7 +554,7 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
         },
 
         closeRight(group: string, surface: string) {
-            structural((current) => ({
+            return guarded((current) => ({
                 ...current,
                 root: updateGroup(current.root, group, (entry) => {
                     let surfaces = entry.surfaces.slice(0, entry.surfaces.findIndex((item) => item.id === surface) + 1);
@@ -473,12 +568,23 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
             }));
         },
 
-        // Moves the surface into a group of its own in the dock: beside the dock's last group, across the dock, or along
-        // the layout's edge while the dock is empty. A static sidebar takes nothing.
+        // Moves the surface into a group of its own in the dock: into the dock's empty group, beside its last group,
+        // across the dock, or along the layout's edge while the dock has none. A static sidebar takes nothing; a static
+        // group moves whole, into a dock without groups.
         dock(surface: string, placement: Placement = 'bottom') {
             structural((current) => {
                 let source = findSurfaceGroup(current.root, surface),
                     item = source?.surfaces.find((entry) => entry.id === surface);
+
+                if (source && fixed(source)) {
+                    return source.placement === placement || allGroups(current.root).some((entry) => docked(entry, placement))
+                        ? current
+                        : {
+                            ...current,
+                            [placement]: { ...current[placement], open: true },
+                            root: updateGroup(current.root, source.id, (entry) => ({ ...entry, placement }))
+                        };
+                }
 
                 if (
                     !source ||
@@ -490,14 +596,26 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
                     return current;
                 }
 
-                let group: Group = { active: item.id, id: id('group'), kind: 'group', placement, surfaces: [item] },
-                    root = take(current.root, source, surface);
+                let root = take(current.root, source, surface);
 
                 if (root === null) {
                     return current;
                 }
 
-                let last = allGroups(root).filter((entry) => docked(entry, placement)).at(-1),
+                let groups = allGroups(root).filter((entry) => docked(entry, placement)),
+                    vacant = groups.find((entry) => entry.surfaces.length === 0);
+
+                if (vacant) {
+                    return {
+                        ...current,
+                        active: vacant.id,
+                        [placement]: { ...current[placement], open: true },
+                        root: updateGroup(root, vacant.id, (entry) => ({ ...entry, active: item.id, surfaces: [item] }))
+                    };
+                }
+
+                let group: Group = { active: item.id, id: id('group'), kind: 'group', placement, surfaces: [item] },
+                    last = groups.at(-1),
                     sidebar = placement !== 'bottom';
 
                 return {
@@ -511,26 +629,19 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
             });
         },
 
-        // Focusing another group while one is maximized maximizes it instead.
         focus(group: string) {
-            update((current) => {
-                let found = findGroup(current.root, group);
-
-                if (!found) {
-                    return current;
-                }
-
-                return {
-                    ...current,
-                    active: group,
-                    maximized: found.placement === undefined && current.maximized !== null ? group : current.maximized
-                };
-            });
+            update((current) => findGroup(current.root, group) ? { ...current, active: group } : current);
         },
 
         // Tracked: reading it inside an effect re-runs the effect on every change.
         get layout() {
             return read(layout);
+        },
+
+        // Takes a whole tree in place of the current one, as a restored session does.
+        load(root: Node | null) {
+            advance(root);
+            structural((current) => ({ ...current, root }));
         },
 
         // The bottom dock fills the main area; a main group fills its splits while its siblings collapse to a strip.
@@ -624,6 +735,30 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
             });
         },
 
+        // Puts the surface where 'previous' is, in its place among the tabs and active if it was, without asking
+        // 'closing': the caller is the one taking 'previous' away.
+        replace(previous: string, surface: Surface) {
+            structural((current) => {
+                let target = findSurfaceGroup(current.root, previous);
+
+                if (!target) {
+                    return current;
+                }
+
+                let existing = findSurfaceGroup(current.root, surface.id),
+                    root = existing ? take(current.root, existing, surface.id) : current.root;
+
+                return {
+                    ...current,
+                    root: updateGroup(root, target.id, (entry) => ({
+                        ...entry,
+                        active: entry.active === previous ? surface.id : entry.active,
+                        surfaces: entry.surfaces.map((item) => item.id === previous ? surface : item)
+                    }))
+                };
+            });
+        },
+
         // 'shown' names the nodes a zoomed view shows of the split, one per size: their new shares are fitted into the
         // space those children held, leaving the hidden ones theirs.
         resize(split: string, sizes: number[], shown?: string[]) {
@@ -692,51 +827,54 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
                     return current;
                 }
 
+                // An empty group takes the surface itself rather than splitting beside its empty state.
+                if (target.surfaces.length === 0) {
+                    return { ...current, active: group, root: updateGroup(root, group, (entry) => ({ ...entry, active: item.id, surfaces: [item] })) };
+                }
+
                 return { ...current, active: created.id, root: insertSplit(root, group, direction, created, side, id) };
             });
         },
 
-        // Shows or hides the dock, flipping it unless 'open' says which. The bottom dock opening without a group gets an
-        // empty one, so the launcher has somewhere to render; a sidebar without groups stays shut.
+        // Shows or hides the dock, flipping it unless 'open' says which; a dock without groups counts as hidden. One
+        // opening without a group gets an empty one, so its empty state has somewhere to render.
         toggle(placement: Placement, open?: boolean) {
             update((current) => {
-                let next = open ?? !current[placement].open;
-
-                if (next === current[placement].open) {
-                    return current;
-                }
+                let has = allGroups(current.root).some((group) => docked(group, placement)),
+                    next = open ?? !(current[placement].open && has);
 
                 if (!next) {
+                    if (!current[placement].open) {
+                        return current;
+                    }
+
                     return placement === 'bottom'
                         ? { ...current, bottom: { ...current.bottom, maximized: false, open: false } }
                         : { ...current, [placement]: { ...current[placement], open: false } };
                 }
 
-                if (allGroups(current.root).some((group) => docked(group, placement))) {
-                    return { ...current, [placement]: { ...current[placement], open: true } };
+                if (has) {
+                    return current[placement].open ? current : { ...current, [placement]: { ...current[placement], open: true } };
                 }
 
-                if (placement !== 'bottom') {
-                    return current;
-                }
-
-                let group: Group = { active: null, id: id('group'), kind: 'group', placement: 'bottom', surfaces: [] };
+                let group: Group = { active: null, id: id('group'), kind: 'group', placement, surfaces: [] };
 
                 return {
                     ...current,
                     active: group.id,
-                    bottom: { ...current.bottom, open: true },
-                    root: current.root === null ? group : insertRoot(current.root, 'column', group, 'after', id)
+                    [placement]: { ...current[placement], open: true },
+                    root: current.root === null
+                        ? group
+                        : insertRoot(current.root, placement === 'bottom' ? 'column' : 'row', group, placement === 'left' ? 'before' : 'after', id)
                 };
             });
         },
 
-        // Returns to the view before the current zoom.
-        unzoom() {
-            update((current) => current.zoom.length ? { ...current, maximized: null, zoom: current.zoom.slice(0, -1) } : current);
-        },
+        // Returns to the view before the current zoom, with the group it had maximized.
+        unzoom,
 
-        // Narrows the view to these groups, filling the layout with them in their arrangement.
+        // Narrows the view to these groups, filling the layout with them in their arrangement. Stepping back out
+        // restores the group maximized before it.
         zoom(groups: string[]) {
             update((current) => {
                 let existing = new Set(allGroups(current.root).map((group) => group.id)),
@@ -751,7 +889,7 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
                     active: level.includes(current.active ?? '') ? current.active : level[0],
                     bottom: { ...current.bottom, maximized: false },
                     maximized: null,
-                    zoom: [...current.zoom, level]
+                    zoom: [...current.zoom, { groups: level, maximized: current.maximized }]
                 };
             });
         }
@@ -760,5 +898,5 @@ const state = ({ open = {}, root = null, store }: Options = {}) => {
 
 
 export default state;
-export { allGroups, bounded, contains, docked, findGroup, fixed, MIN_FRACTION, stationary };
-export type { Direction, Dock, Group, Layout, Node, Placement, Saved, Side, Split, Store, Surface };
+export { allGroups, bounded, contains, docked, findGroup, findSplit, findSurfaceGroup, fixed, MIN_FRACTION, stationary };
+export type { Direction, Dock, Group, Layout, Node, Placement, Saved, Side, Split, Store, Surface, Zoom };

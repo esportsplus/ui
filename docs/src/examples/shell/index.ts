@@ -1,13 +1,13 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { panels } from '@esportsplus/ui/components';
-import type { Catalog, Node, Placement, Surface } from '@esportsplus/ui/components/panels';
+import { shell } from '@esportsplus/ui/components';
+import type { Catalog, Node, Placement, Surface } from '@esportsplus/ui/components/shell';
 import type { Entry } from 'docs/types';
 import file from '@esportsplus/ui/svg/file-text.svg';
 import gear from '@esportsplus/ui/svg/gear.svg';
 import inbox from '@esportsplus/ui/svg/inbox.svg';
 import pencil from '@esportsplus/ui/svg/pencil.svg';
-import 'docs/examples/panels/scss/index.scss';
+import 'docs/examples/shell/scss/index.scss';
 
 
 // Each surface keeps its own state, so a count or a draft survives dragging its tab anywhere in the layout.
@@ -20,8 +20,8 @@ const catalog: Catalog = {
             let state = reactive({ count: 0 });
 
             return html`
-                <div class='panels-demo-surface'>
-                    <span class='panels-demo-count'>${() => state.count}</span>
+                <div class='shell-demo-surface'>
+                    <span class='shell-demo-count'>${() => state.count}</span>
                     <button class='button button--tactile' type='button' onclick='${() => state.count++}'>Increment ${surface.id}</button>
                 </div>
             `;
@@ -33,7 +33,7 @@ const catalog: Catalog = {
         description: 'A list to scroll through.',
         icon: inbox,
         render: () => html`
-            <ul class='panels-demo-list'>
+            <ul class='shell-demo-list'>
                 ${Array.from({ length: 24 }, (_, i) => html`<li>Message ${i + 1}</li>`)}
             </ul>
         `,
@@ -43,7 +43,7 @@ const catalog: Catalog = {
     notes: {
         description: 'A draft that keeps what you typed.',
         icon: pencil,
-        render: () => html`<textarea aria-label='Notes' class='panels-demo-notes' placeholder='Type here, then drag this tab…'></textarea>`,
+        render: () => html`<textarea aria-label='Notes' class='shell-demo-notes' placeholder='Type here, then drag this tab…'></textarea>`,
         shortcut: 'N',
         title: 'Notes'
     },
@@ -51,10 +51,10 @@ const catalog: Catalog = {
         description: 'Static text.',
         icon: file,
         render: () => html`
-            <div class='panels-demo-surface panels-demo-surface--text'>
+            <div class='shell-demo-surface shell-demo-surface--text'>
                 <p>Drag a tab along the strip to reorder it, into another group to move it, onto a group's half to split
                 it, or onto the strip along the left, right or bottom edge to dock it there. Drag a separator to resize,
-                double-click a header to maximize. Hold Ctrl (⌘ on a Mac) and click panels, then let go, to focus on
+                double-click a header to maximize. Hold Ctrl (⌘ on a Mac) and click groups, then let go, to focus on
                 them. Sidebars open from their corner toggle, or by clicking or dragging their edge, and these two resize
                 from their inner border.</p>
             </div>
@@ -63,6 +63,9 @@ const catalog: Catalog = {
         title: 'Readme'
     }
 };
+
+// The demos' frames are narrower than an app's, so they turn narrow only at a phone's width and show their splits.
+const NARROW = 480;
 
 
 // Rows of counters, each in a group of its own, to pick and zoom to.
@@ -90,8 +93,8 @@ function grid(rows: number, columns: number): Node {
 
 function demo(root: Node | null = null, icons = false) {
     return html`
-        <div class='panels-demo'>
-            ${panels({ catalog, icons, state: panels.state({ root }) })}
+        <div class='shell-demo'>
+            ${shell({ catalog, icons, narrow: NARROW, state: shell.state({ root }) })}
         </div>
     `;
 }
@@ -108,21 +111,22 @@ function sidebars() {
         });
 
     return html`
-        <div class='panels-demo'>
-            ${panels({
+        <div class='shell-demo'>
+            ${shell({
                 catalog: {
                     ...catalog,
                     navigation: {
                         render: () => html`
-                            <nav class='panels-demo-navigation'>
-                                ${['Inbox', 'Projects', 'Calendar', 'Settings'].map((item) => html`<a class='panels-demo-navigation-link' href='#'>${item}</a>`)}
+                            <nav class='shell-demo-navigation'>
+                                ${['Inbox', 'Projects', 'Calendar', 'Settings'].map((item) => html`<a class='shell-demo-navigation-link' href='#'>${item}</a>`)}
                             </nav>
                         `,
                         title: 'Navigation'
                     }
                 },
+                narrow: NARROW,
                 sidebars: { left: { label: 'Navigation', resizable: true }, right: { hover: true, label: 'Details', resizable: true } },
-                state: panels.state({
+                state: shell.state({
                     open: { right: false },
                     root: {
                         children: [
@@ -148,7 +152,7 @@ function sidebars() {
 
 
 export default {
-    name: 'panels',
+    name: 'shell',
     variants: [
         {
             render: () => demo({

@@ -4,7 +4,7 @@ import './ui';
 import { fallback, html, middleware, render } from 'docs/app';
 import { toaster } from 'docs/components/toaster';
 import { themeSwitcher } from 'docs/components/theme-switcher';
-import panels from '@esportsplus/ui/components/panels';
+import shell from '@esportsplus/ui/components/shell';
 import scrollbar from '@esportsplus/ui/modifiers/scrollbar';
 import sidebar from 'docs/components/sidebar';
 import missing from 'docs/middleware/missing/index';
@@ -14,7 +14,7 @@ import 'docs/data/theme';
 
 // The navigation as a static left sidebar beside the routed page, each a single surface that stays where it is. The
 // navigation starts open on desktop and closed on small screens.
-let layout = panels.state({
+let layout = shell.state({
     open: { left: !matchMedia('(max-width: 1024px)').matches },
     root: {
         children: [
@@ -47,7 +47,7 @@ render(
             ${themeSwitcher()}
             ${toaster.content}
 
-            ${panels({
+            ${shell({
                 catalog: {
                     navigation: {
                         render: () => sidebar(request, layout),
