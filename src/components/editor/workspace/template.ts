@@ -1,7 +1,6 @@
-import { effect, flush, onCleanup, reactive, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
+import { computed, effect, flush, onCleanup, reactive, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type On, type Renderable } from '@esportsplus/template';
 import breadcrumb, { type Crumb } from '~/components/breadcrumb';
-import sidebar from '~/components/button/sidebar';
 import command, { type Command, type ResultGroup, type Sprite, type Tab } from '~/components/command';
 import fileTree, {
     FileTreeDecorations,
@@ -11,17 +10,16 @@ import fileTree, {
     type FileTreeController,
     type FileTreeElement
 } from '../tree';
-import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import input from '~/components/input';
 import nav from '~/components/nav';
 import overlay from '~/components/overlay';
+import shell, { type Catalog, type Surface } from '~/components/shell';
+import { findSurfaceGroup } from '~/components/shell/model';
 import tooltip from '~/components/tooltip';
 import type { Controller as MenuController, Item } from '~/components/tooltip/menu';
-import scrollbar from '~/modifiers/scrollbar';
 import fuzzy from '~/shared/fuzzy';
 import { mac } from '~/shared/platform';
-import { observe } from '~/shared/resize';
 import codeEditor, { type CodeEditorAttributes } from '../code/editor';
 import type { Controller as EditorController, Options as EditorOptions } from '../code/view';
 import { label as chordLabel, declare, merge, sequence } from './keybindings';
@@ -41,7 +39,6 @@ import statusbar from './statusbar';
 import tabStrip from './strip';
 import arrow from '@esportsplus/ui/svg/arrow.svg';
 import collapse from '@esportsplus/ui/svg/chevrons-up-down.svg';
-import close from '@esportsplus/ui/svg/close.svg';
 import cmd from '@esportsplus/ui/svg/command.svg';
 import wrap from '@esportsplus/ui/svg/corner-down-right.svg';
 import whitespace from '@esportsplus/ui/svg/eye.svg';
@@ -57,8 +54,8 @@ type CodeEditorWorkspaceAttributes = Attributes & {
     cwd?: string;
     // The host's own marks, like git status and problems, which the explorer shows and next/previous step between.
     decorations?: FileTreeDecorations | FileTreeDecorations[];
-    // The editor for a tab, such as 'editor.markdown', or undefined for the code editor. A mounted editor stays
-    // for the next tab that uses the same one, when its controller can 'setDocument'.
+    // The editor for a tab, such as 'editor.markdown', or undefined for the code editor. Each tab's pane mounts its
+    // own while the tab shows in its group.
     editor?: (tab: WorkspaceTab) => WorkspaceEditor | undefined;
     editorOptions?: EditorOptions | ((tab: WorkspaceTab) => EditorOptions);
     host?: WorkspaceHost;
@@ -105,8 +102,7 @@ type Control = {
     sprite: string | (() => string);
 };
 
-// The editor shown for the active tab: it moves on to the next tab that uses the same editor, and is released when a
-// different one takes its place or the workspace goes.
+// The editor a tab's pane shows while the tab is its group's active one, released once it isn't or the tab closes.
 type Mount = {
     addon?: void | VoidFunction;
     controller?: WorkspaceEditorController;
@@ -137,14 +133,12 @@ type WorkspaceEditorContext = {
     workspace: EditorWorkspaceModel;
 };
 
-// Shared by the code and markdown controllers; narrow with 'isWorkspaceCodeEditor' for code-only addons. Without
-// 'setDocument', every tab switch mounts the editor again.
-type WorkspaceEditorController = Pick<EditorController, 'dispose' | 'document' | 'focus' | 'host' | 'scroller' | 'select'> &
-    Partial<Pick<EditorController, 'setDocument'>>;
+// Shared by the code and markdown controllers; narrow with 'isWorkspaceCodeEditor' for code-only addons.
+type WorkspaceEditorController = Pick<EditorController, 'dispose' | 'document' | 'focus' | 'host' | 'scroller' | 'select'>;
 
 
-// At or below this width the explorer stacks under the editor instead of beside it.
-const COMPACT_WIDTH = 520;
+// At or below this width the explorer pushes the editors aside as it opens, rather than narrowing them.
+const NARROW = 520;
 
 
 let uid = 0;
@@ -253,8 +247,6 @@ const workspace = ({
     }
 
     let actions: MenuController | undefined,
-        // The tabs select by id, so switching tabs re-renders just the two whose state flips.
-        activeId = signal(0),
         // The code editor keymap has no chord sequences, so the workspace runs Mod+K Mod+S itself.
         chords = sequence({
             // Focus inside only: the page's own Mod+K, like site search, still answers under a resting pointer.
@@ -279,29 +271,30 @@ const workspace = ({
         decorated = new Map<string, boolean>(),
         decorations = new FileTreeDecorations(),
         dialog = reactive({ active: false }),
-        elements = new WeakMap<WorkspaceTab, HTMLElement>(),
         files = signal<readonly string[]>([]),
-        focusing = false,
+        // The tab whose editor takes focus once it mounts.
+        focusing: WorkspaceTab | undefined,
         id = `code-workspace-${++uid}`,
         keyboard = reactive({ active: false }),
         model = supplied ?? new EditorWorkspaceModel(host!, cwd),
-        mount: Mount | undefined,
+        mounts = new Map<WorkspaceTab, Mount>(),
         palette = reactive({ active: false, index: 0, query: '', tab: 'all' as Tab }),
         release: VoidFunction | undefined,
         request = signal<WorkspaceConfirmation | undefined>(undefined),
         returnFocus: HTMLElement | undefined,
         revealed = 0,
         searchField: HTMLInputElement | undefined,
+        // Each pane's way to mount its editor again.
+        remounts = new Map<WorkspaceTab, VoidFunction>(),
         // Runs once the open modal has closed and returned focus, to move it where the user went next.
         settle: VoidFunction | undefined,
-        shown = signal<Mount | undefined>(undefined),
         statusBar = statusbar(model, () => navigation.go('problem')),
         strip = tabStrip({
             isFile: (path) => treeStore.get(path)?.type === 'file',
             model,
-            remount,
+            remount: (tab) => remounts.get(tab)?.(),
             reveal: (path) => {
-                peek(true, true);
+                explore();
                 treeState.selected = '';
                 flush();
                 treeState.selected = path;
@@ -312,11 +305,16 @@ const workspace = ({
         treeEditor = new FileTreeEditor(),
         treeState = reactive({ selected: '', selection: new Set<string>() }),
         treeStore = new FileTreeElements([]),
-        ui = reactive({ compact: false, peek: false, position: '', ready: false, search: '' });
+        ui = reactive({ position: '', search: '' });
 
-    let hosting = hosted(model, () => (mount?.controller ? { controller: mount.controller, tab: mount.tab } : undefined)),
+    let active = computed(() => model.state.active),
+        hosting = hosted(model, (tab) => mounts.get(tab)?.controller),
         navigation = navigate({
-            bindings: () => (mount ? settings(mount.tab, mount.tab.path).keybindings : model.state.preferences.keybindings),
+            bindings: () => {
+                let tab = read(active);
+
+                return tab && mounts.has(tab) ? settings(tab, tab.path).keybindings : model.state.preferences.keybindings;
+            },
             hosting,
             model,
             tree: () => tree
@@ -328,9 +326,6 @@ const workspace = ({
             },
             get canUndo() {
                 return model.state.canUndoFiles;
-            },
-            get collapsed() {
-                return model.state.tabs.length > 0 && !model.state.preferences.explorerOpen;
             },
             get cwd() {
                 return model.state.cwd;
@@ -348,7 +343,7 @@ const workspace = ({
                 return model.state.loaded;
             },
             get path() {
-                let tab = model.state.active;
+                let tab = read(active);
 
                 return tab && !tab.compare ? tab.path : '';
             },
@@ -365,15 +360,12 @@ const workspace = ({
                             ? 'Working…'
                             : state.loading
                                 ? 'Refreshing…'
-                                : state.active?.missing
+                                : read(active)?.missing
                                     ? 'File removed from disk; draft retained'
                                     : '');
             },
             get statusError() {
                 return !!model.state.status && model.state.statusKind === 'error';
-            },
-            get tabs() {
-                return model.state.tabs.length > 0;
             },
             get whitespace() {
                 return model.state.preferences.showWhitespace;
@@ -419,7 +411,6 @@ const workspace = ({
         let controller = current.controller;
 
         detach(current);
-        statusBar.attach(controller);
         write(current.path, current.tab.path);
 
         if (!addons || !controller) {
@@ -456,11 +447,6 @@ const workspace = ({
         release?.();
         container = element;
         release = root((dispose) => {
-            // Measured, since a container query can't restyle the container's own grid into the stacked layout.
-            let unobserve = observe(element, ([entry]) => {
-                    ui.compact = entry.contentRect.width <= COMPACT_WIDTH;
-                });
-
             // Capture, so the second chord reaches neither the editor nor the workspace's own Mod+S.
             onCleanup(on(element.ownerDocument, 'keydown', chords.keydown, { capture: true }));
             // A closing modal hands focus back to whatever had it before, so ours moves only once it has closed;
@@ -478,13 +464,12 @@ const workspace = ({
             onCleanup(statusBar.connect());
             onCleanup(() => {
                 chords.cancel();
-                unobserve();
                 confirmation?.resolve('cancel');
                 model.setConfirmation(undefined);
                 model.stop();
 
-                if (mount) {
-                    unmount(mount);
+                for (let current of [...mounts.values()]) {
+                    unmount(current);
                 }
 
                 container = undefined;
@@ -511,10 +496,9 @@ const workspace = ({
             });
 
             effect(() => {
-                let tab = model.state.active;
+                let tab = read(active);
 
-                write(activeId, tab?.id ?? 0);
-                untrack(() => show(tab));
+                untrack(() => statusBar.attach(tab && mounts.get(tab)?.controller));
             });
 
             effect(() => {
@@ -522,19 +506,18 @@ const workspace = ({
 
                 untrack(() => {
                     treeState.selected = path;
-
-                    // A rename keeps the tab and its editor; addons restart for the new path.
-                    if (mount && mount.tab === model.state.active && read(mount.path) !== path) {
-                        attach(mount);
-                    }
                 });
             });
 
+            // The layout's sidebar toggle shows and hides the explorer, which the preferences remember.
             effect(() => {
-                if (!view.collapsed) {
-                    ui.peek = false;
-                    ui.ready = false;
-                }
+                let open = model.layout.layout[untrack(() => model.state.preferences.explorerSide)].open;
+
+                untrack(() => {
+                    if (open !== model.state.preferences.explorerOpen) {
+                        model.setPreferences({ explorerOpen: open });
+                    }
+                });
             });
 
             effect(() => {
@@ -544,14 +527,14 @@ const workspace = ({
             });
 
             effect(() => {
-                model.state.active;
+                read(active);
                 model.state.reveal;
                 untrack(reveal);
             });
 
             // Line and column follow the active document alone, so typing in one tab never touches the others.
             effect(() => {
-                let tab = model.state.active;
+                let tab = read(active);
 
                 if (!tab || tab.compare) {
                     ui.position = '';
@@ -578,7 +561,7 @@ const workspace = ({
 
                 if (path && treeStore.get(path)?.type === 'file') {
                     untrack(() => {
-                        if (path !== model.state.active?.path) {
+                        if (path !== read(active)?.path) {
                             void model.open(path, undefined, undefined, true);
                         }
                     });
@@ -608,12 +591,12 @@ const workspace = ({
         });
     }
 
-    function crumbs() {
-        let path = view.path;
-
-        if (!path) {
+    function crumbs(tab: WorkspaceTab) {
+        if (tab.compare) {
             return '';
         }
+
+        let path = tab.path;
 
         let parts = path.split('/'),
             project = view.project,
@@ -631,7 +614,7 @@ const workspace = ({
             class: 'code-workspace-breadcrumb',
             items,
             label: 'File path',
-            onnavigate: (item) => locate(item.href.slice(1)),
+            onnavigate: (item) => locate(item.href.slice(1), path),
             separator: 'chevron'
         });
     }
@@ -672,23 +655,194 @@ const workspace = ({
         }
     }
 
+    // Opens the explorer, if it is closed, to show something in it.
+    function explore() {
+        if (!model.state.preferences.explorerOpen) {
+            model.setPreferences({ explorerOpen: true });
+        }
+    }
+
+    // The explorer's whole body: its controls, the search and the tree, in the layout's static sidebar.
+    function explorer() {
+        return html`
+            <div class='code-workspace-explorer'>
+                <div class='code-workspace-explorer-header'>
+                    ${control({
+                        direction: () => (view.left ? '' : 'icon--left'),
+                        label: () => (view.left ? 'Move file explorer to right' : 'Move file explorer to left'),
+                        onclick: () => api.toggleExplorerSide(),
+                        sprite: arrow
+                    })}
+                    ${control({ label: 'Collapse all folders', onclick: () => api.collapseAll(), sprite: collapse })}
+                    ${control({
+                        disabled: () => !view.canUndo || view.busy,
+                        label: 'Undo file operation',
+                        onclick: () => {
+                            void model.undoFiles();
+                        },
+                        sprite: undo
+                    })}
+                    ${control({ label: label('Go to file', ['Mod', 'P']), onclick: () => quickOpen(), sprite: magnifier })}
+                    ${input({
+                        'aria-label': 'Search files',
+                        autocomplete: 'off',
+                        class: 'code-workspace-search',
+                        onconnect: (element: HTMLInputElement) => {
+                            searchField = element;
+                        },
+                        oninput: (event: Event) => search((event.target as HTMLInputElement).value),
+                        placeholder: 'Search files',
+                        spellcheck: false,
+                        type: 'search',
+                        value: () => ui.search
+                    })}
+                </div>
+                <div class='code-workspace-tree'>
+                    ${() => hosting.ready() && untrack(() => fileTree({
+                        class: 'code-workspace-files',
+                        compact: true,
+                        controller: (value) => {
+                            tree = value;
+                            value.search(ui.search);
+                        },
+                        decorations: [hosting.marks, ...[provided ?? []].flat(), decorations],
+                        editor: treeEditor,
+                        elements: treeStore,
+                        empty: () => html`<div class='code-workspace-notice'>No files in this workspace</div>`,
+                        export: hosting.export,
+                        find: 'filter',
+                        menu: (elements, position) => {
+                            if (!elements.length || !actions) {
+                                return;
+                            }
+
+                            write(target, { element: elements[0], paths: elements.map((element) => element.id) });
+                            // Items hide by the target; the menu focuses its first visible one as it opens.
+                            flush();
+                            // The tree claims the right click; the context menu opens at the point it reports.
+                            actions.open(position);
+                        },
+                        open: (element, open) => {
+                            void model.open(element.id, undefined, undefined, open.mode === 'preview');
+                        },
+                        operations: {
+                            delete: (elements) => {
+                                void model.delete(elements.map((element) => element.id));
+                            },
+                            import: hosting.import
+                        },
+                        preview: 'immediate',
+                        rename: async (element, value) => {
+                            let parent = element.id.includes('/') ? element.id.slice(0, element.id.lastIndexOf('/') + 1) : '';
+
+                            if (!(await model.rename(element.id, parent + value))) {
+                                throw new Error(`Workspace: ${model.state.status}`);
+                            }
+                        },
+                        searched: (query) => {
+                            ui.search = query;
+                        },
+                        snapshot: hosting.explorer,
+                        state: treeState,
+                        typing: 'typeahead'
+                    }))}
+                    ${() => {
+                        if (view.error) {
+                            return html`
+                                <div class='code-workspace-notice code-workspace-notice--cover' role='alert'>
+                                    ${view.error}
+                                    <button
+                                        class='button code-workspace-retry'
+                                        type='button'
+                                        onclick='${() => {
+                                            void model.refresh();
+                                        }}'
+                                    >
+                                        Retry
+                                    </button>
+                                </div>
+                            `;
+                        }
+
+                        return !view.loaded && html`<div class='code-workspace-notice code-workspace-notice--cover' role='status'>Loading…</div>`;
+                    }}
+                </div>
+            </div>
+        `;
+    }
+
+    // A file's pane: its path and controls over its editor, which mounts while the tab shows in its group.
+    function file(surface: Surface) {
+        let tab = model.find(surface.id);
+
+        if (!tab) {
+            return '';
+        }
+
+        let again = signal(0),
+            owner = tab,
+            visible = computed(() => findSurfaceGroup(model.layout.layout.root, surface.id)?.active === surface.id);
+
+        remounts.set(owner, () => write(again, untrack(() => read(again)) + 1));
+        onCleanup(() => remounts.delete(owner));
+
+        return html`
+            <div class='code-workspace-pane'>
+                <div class='code-workspace-bar'>
+                    ${() => crumbs(owner)}
+                    <div class='code-workspace-actions'>
+                        ${statusBar.save(() => control({
+                            disabled: () => !!owner.compare || view.busy,
+                            label: label('Save file', ['Mod', 'S']),
+                            onclick: () => {
+                                void model.save(owner);
+                            },
+                            sprite: save
+                        }))}
+                        ${control({
+                            active: () => view.wrap,
+                            label: () => (view.wrap ? 'Disable wrap' : 'Wrap long lines'),
+                            onclick: () => api.toggleWrap(),
+                            sprite: wrap
+                        })}
+                        ${control({
+                            active: () => view.whitespace,
+                            label: () => (view.whitespace ? 'Hide whitespace' : 'Show whitespace'),
+                            onclick: () => api.toggleWhitespace(),
+                            sprite: whitespace
+                        })}
+                    </div>
+                </div>
+                <div class='code-workspace-editor'>
+                    ${() => {
+                        read(again);
+
+                        return read(visible) && pane(owner);
+                    }}
+                </div>
+            </div>
+        `;
+    }
+
     // The active tab's editor may still be mounting; it takes focus as soon as its controller arrives.
     function focusEditor() {
-        let tab = model.state.active;
+        let tab = untrack(() => read(active));
 
-        focusing = false;
+        focusing = undefined;
 
         if (!tab) {
             searchField?.focus();
             return;
         }
 
-        if (mount?.controller && mount.tab === tab) {
-            mount.controller.focus();
+        let controller = mounts.get(tab)?.controller;
+
+        if (controller) {
+            controller.focus();
             return;
         }
 
-        focusing = true;
+        focusing = tab;
     }
 
     function keydown(event: KeyboardEvent) {
@@ -723,23 +877,18 @@ const workspace = ({
             event.preventDefault();
             void model.undoFiles();
         }
-        else if (key === 'escape' && ui.peek) {
-            event.preventDefault();
-            peek(false);
-            focusEditor();
-        }
     }
 
     // A breadcrumb leads back into the explorer: the project collapses the tree, a folder is revealed in it.
-    function locate(path: string) {
-        peek(true, true);
+    function locate(path: string, from: string) {
+        explore();
 
         if (!path) {
             tree?.collapseAll();
             return;
         }
 
-        if (path !== view.path) {
+        if (path !== from) {
             treeState.selected = path;
         }
     }
@@ -749,26 +898,8 @@ const workspace = ({
         keyboard.active = true;
     }
 
-    function pane() {
-        let next = read(shown);
-
-        if (!next) {
-            return html`
-                <div class='code-workspace-empty'>
-                    Open a file from the explorer or press
-                    <span class='code-workspace-keys'>
-                        ${keys(['Mod', 'P']).map((key) => html`
-                            <kbd class='button button--kbd'>
-                                ${key === '⌘' ? icon({ 'aria-hidden': 'true', class: 'button-kbd-icon' }, cmd) : key}
-                            </kbd>
-                        `)}
-                    </span>
-                </div>
-            `;
-        }
-
-        // A render that runs again has released the mount it made; the tab gets a fresh one.
-        let current: Mount = next.released ? { editor: next.editor, path: signal(next.tab.path), released: false, tab: next.tab } : next,
+    function pane(tab: WorkspaceTab) {
+        let current: Mount = { editor: strip.editor(tab) ?? editorFor?.(tab) ?? codeEditor, path: signal(tab.path), released: false, tab },
             bound: WorkspaceEditorAttributes = {
                 class: 'code-workspace-document',
                 controller: (controller) => {
@@ -779,10 +910,14 @@ const workspace = ({
                     current.controller = controller;
                     restore(current);
                     attach(current);
-                    reveal();
 
-                    if (focusing) {
-                        focusing = false;
+                    if (untrack(() => read(active)) === tab) {
+                        statusBar.attach(controller);
+                        reveal();
+                    }
+
+                    if (focusing === tab) {
+                        focusing = undefined;
                         // The controller can arrive mid-render; focusing may flush, which would render the pane again.
                         queueMicrotask(() => {
                             if (!current.released) {
@@ -791,36 +926,28 @@ const workspace = ({
                         });
                     }
                 },
-                document: current.tab.document,
+                document: tab.document,
                 onSave: () => {
-                    void model.save(current.tab);
+                    void model.save(tab);
                 },
-                options: () => settings(current.tab, read(current.path))
+                options: () => settings(tab, read(current.path))
             };
 
-        mount = current;
+        mounts.set(tab, current);
         onCleanup(() => unmount(current));
 
+        // A rename keeps the tab and its editor; addons restart for the new path.
+        effect(() => {
+            let path = tab.path;
+
+            untrack(() => {
+                if (current.controller && read(current.path) !== path) {
+                    attach(current);
+                }
+            });
+        });
+
         return untrack(() => current.editor(bound));
-    }
-
-    function peek(open: boolean, keyboard = false) {
-        if (!view.collapsed) {
-            return;
-        }
-
-        if (!open) {
-            ui.peek = false;
-            ui.ready = false;
-            return;
-        }
-
-        ui.peek = true;
-
-        // No transition will report the drawer settled when motion is off.
-        if (keyboard || container?.ownerDocument.defaultView?.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            ui.ready = true;
-        }
     }
 
     function quickOpen(query = '') {
@@ -834,13 +961,6 @@ const workspace = ({
         // Opening clears the query; the requested one goes in after.
         flush();
         palette.query = query;
-    }
-
-    // The edge leaves once the drawer is open, so keyboard focus moves on into the explorer instead of being dropped.
-    function reach() {
-        peek(true, true);
-        flush();
-        searchField?.focus();
     }
 
     function results(groups: ResultGroup[]) {
@@ -873,15 +993,6 @@ const workspace = ({
         hosting.remember(current.tab, current.controller!);
     }
 
-    // A merge starting or ending on the shown tab swaps what the pane shows for it.
-    function remount() {
-        if (mount) {
-            unmount(mount);
-        }
-
-        show(model.state.active);
-    }
-
     function restore(current: Mount) {
         hosting.shown(current.tab, current.controller!);
 
@@ -903,23 +1014,12 @@ const workspace = ({
         }
     }
 
-    // Moves the mounted editor on to another tab's document, which costs far less than mounting it again.
-    function retarget(current: Mount, tab: WorkspaceTab) {
-        remember(current);
-        detach(current);
-        current.tab = tab;
-        current.controller!.setDocument!(tab.document, settings(tab, tab.path));
-        restore(current);
-        attach(current);
-        reveal();
-    }
-
     function reveal() {
-        let controller = mount?.controller,
-            state = model.state,
-            next = state.reveal;
+        let tab = read(active),
+            controller = tab && mounts.get(tab)?.controller,
+            next = model.state.reveal;
 
-        if (!controller || !next || !state.active || next.request === revealed || controller.document !== state.active.document || state.active.id !== next.tabId) {
+        if (!tab || !controller || !next || next.request === revealed || controller.document !== tab.document || tab.id !== next.tabId) {
             return;
         }
 
@@ -964,116 +1064,8 @@ const workspace = ({
         };
     }
 
-    // Puts the tab in the editor pane: the mounted editor moves on to it when it can, or one is mounted for it.
-    function show(tab: WorkspaceTab | undefined) {
-        if (mount?.tab === tab) {
-            return;
-        }
-
-        let editor = tab && (strip.editor(tab) ?? editorFor?.(tab) ?? codeEditor);
-
-        if (tab && mount?.controller?.setDocument && mount.editor === editor) {
-            retarget(mount, tab);
-            return;
-        }
-
-        if (mount) {
-            unmount(mount);
-        }
-
-        mount = tab && editor && { editor, path: signal(tab.path), released: false, tab };
-        write(shown, mount);
-    }
-
-    // A rename, pin or draft updates its own tab in place; only opening, closing or reordering tabs renders the strip.
-    function tab(entry: WorkspaceTab) {
-        let chosen = () => signal.selector(activeId, entry.id),
-            file = () => strip.label(entry);
-
-        return html`
-            <div
-                aria-controls='${id}-panel'
-                class='button code-workspace-tab'
-                id='${id}-tab-${entry.id}'
-                role='tab'
-                ${{
-                    'aria-selected': () => (chosen() ? 'true' : 'false'),
-                    class: () => chosen() && '--active',
-                    onauxclick: (event: MouseEvent) => {
-                        if (event.button === 1) {
-                            event.preventDefault();
-                            void model.close(entry.path);
-                        }
-                    },
-                    onclick: () => {
-                        model.activate(entry);
-                        focusEditor();
-                    },
-                    onconnect: (element: HTMLElement) => {
-                        elements.set(entry, element);
-                    },
-                    onkeydown: (event: KeyboardEvent) => {
-                        let list = untrack(() => model.state.tabs),
-                            at = list.indexOf(entry),
-                            next: WorkspaceTab | undefined;
-
-                        if (event.key === 'ArrowRight') {
-                            next = list[(at + 1) % list.length];
-                        }
-                        else if (event.key === 'ArrowLeft') {
-                            next = list[(at - 1 + list.length) % list.length];
-                        }
-                        else if (event.key === 'Home') {
-                            next = list[0];
-                        }
-                        else if (event.key === 'End') {
-                            next = list.at(-1);
-                        }
-                        else if (event.key === 'Enter' || event.key === ' ') {
-                            event.preventDefault();
-                            model.activate(entry);
-                            focusEditor();
-                            return;
-                        }
-
-                        if (next) {
-                            event.preventDefault();
-                            model.activate(next);
-                            elements.get(next)?.focus();
-                        }
-                    },
-                    tabindex: () => (chosen() ? 0 : -1),
-                    title: () => strip.title(entry)
-                }}
-                ${strip.attributes(entry)}
-            >
-                ${() => fileTreeIcon({ name: file(), type: 'file' }, false)}
-                <span class='code-workspace-tab-name'>${file}</span>
-                ${() => strip.pin(entry)}
-                ${() => entry.dirty && html`<span aria-label='Unsaved changes' class='code-workspace-tab-dirty' role='img'></span>`}
-                <button
-                    class='button code-workspace-tab-close'
-                    tabindex='-1'
-                    title='${label('Close', ['Mod', 'W'])}'
-                    type='button'
-                    ${{
-                        'aria-label': () => `Close ${file()}`,
-                        onclick: (event: Event) => {
-                            event.stopPropagation();
-                            void model.close(entry.path);
-                        }
-                    }}
-                >
-                    ${icon({ 'aria-hidden': 'true', class: 'code-workspace-tab-close-icon' }, close)}
-                </button>
-            </div>
-        `;
-    }
-
     function toggle(key: 'explorerOpen' | 'showWhitespace' | 'wrapText') {
         model.setPreferences({ [key]: !model.state.preferences[key] });
-        ui.peek = false;
-        ui.ready = false;
     }
 
     function unmount(current: Mount) {
@@ -1085,9 +1077,12 @@ const workspace = ({
 
         current.released = true;
 
-        if (mount === current) {
-            mount = undefined;
-            statusBar.attach(undefined);
+        if (mounts.get(current.tab) === current) {
+            mounts.delete(current.tab);
+
+            if (untrack(() => read(active)) === current.tab) {
+                statusBar.attach(undefined);
+            }
         }
 
         if (controller?.host.isConnected) {
@@ -1107,7 +1102,9 @@ const workspace = ({
                 model.dispose();
             },
             get editor() {
-                return mount?.controller;
+                let tab = untrack(() => read(active));
+
+                return tab && mounts.get(tab)?.controller;
             },
             focus: focusEditor,
             keybindings: openKeybindings,
@@ -1122,8 +1119,6 @@ const workspace = ({
             toggleExplorer: () => toggle('explorerOpen'),
             toggleExplorerSide: () => {
                 model.setPreferences({ explorerSide: view.left ? 'right' : 'left' });
-                ui.peek = false;
-                ui.ready = false;
             },
             toggleWhitespace: () => toggle('showWhitespace'),
             toggleWrap: () => toggle('wrapText'),
@@ -1172,6 +1167,30 @@ const workspace = ({
         paths = () => read(target)?.paths ?? [],
         single = () => paths().length === 1;
 
+    let catalog: Catalog = {
+        explorer: { addable: false, render: explorer, title: 'File explorer' },
+        file: {
+            addable: false,
+            menu: strip.menu,
+            render: file,
+            tab: (surface) => {
+                let tab = model.find(surface.id);
+
+                return tab ? strip.tab(tab) : {};
+            },
+            title: (surface) => {
+                let tab = model.find(surface.id);
+
+                return tab ? strip.label(tab) : '';
+            },
+            tooltip: (surface) => {
+                let tab = model.find(surface.id);
+
+                return tab ? strip.title(tab) : '';
+            }
+        }
+    };
+
     receive?.(api);
 
     return html`
@@ -1185,195 +1204,32 @@ const workspace = ({
                 // A page-wide palette on Mod+K, like the site search, leaves the chord to a focused element that
                 // declares it.
                 'aria-keyshortcuts': declare(attributes['aria-keyshortcuts'] as string | undefined, OPEN[0]),
-                class: [
-                    () => view.collapsed && 'code-workspace--collapsed',
-                    () => view.left && 'code-workspace--left',
-                    () => ui.peek && 'code-workspace--peek',
-                    // A narrow workspace stacks an open explorer under the editor; a hidden one still peeks from the edge.
-                    () => ui.compact && view.tabs && view.explorerOpen && 'code-workspace--stacked',
-                    () => view.tabs && 'code-workspace--tabs'
-                ],
                 onconnect: connect,
                 ondocumentkeydown: keydown
             }}
         >
-            <aside
-                aria-label='File explorer'
-                class='code-workspace-explorer'
-                ${{
-                    onfocusin: () => peek(true, true),
-                    // A drawer still sliding away can pass under a resting pointer; only a settled one peeks.
-                    onpointerenter: (event: PointerEvent) => {
-                        if (!(event.currentTarget as HTMLElement).getAnimations().length) {
-                            peek(true);
-                        }
-                    },
-                    ontransitionend: (event: TransitionEvent) => {
-                        if (event.target === event.currentTarget && event.propertyName === 'translate') {
-                            ui.ready = ui.peek;
-                        }
-                    }
-                }}
-            >
-                <div class='code-workspace-explorer-content' ${{ inert: () => view.collapsed && !ui.ready }}>
-                    <div class='code-workspace-explorer-header'>
-                        ${control({
-                            direction: () => (view.left ? '' : 'icon--left'),
-                            label: () => (view.left ? 'Move file explorer to right' : 'Move file explorer to left'),
-                            onclick: api.toggleExplorerSide,
-                            sprite: arrow
-                        })}
-                        ${control({ label: 'Collapse all folders', onclick: api.collapseAll, sprite: collapse })}
-                        ${control({
-                            disabled: () => !view.canUndo || view.busy,
-                            label: 'Undo file operation',
-                            onclick: () => {
-                                void model.undoFiles();
-                            },
-                            sprite: undo
-                        })}
-                        ${control({ label: label('Go to file', ['Mod', 'P']), onclick: () => quickOpen(), sprite: magnifier })}
-                        ${input({
-                            'aria-label': 'Search files',
-                            autocomplete: 'off',
-                            class: 'code-workspace-search',
-                            onconnect: (element: HTMLInputElement) => {
-                                searchField = element;
-                            },
-                            oninput: (event: Event) => search((event.target as HTMLInputElement).value),
-                            placeholder: 'Search files',
-                            spellcheck: false,
-                            type: 'search',
-                            value: () => ui.search
-                        })}
+            ${shell({
+                catalog,
+                class: 'code-workspace-layout',
+                empty: () => html`
+                    <div class='code-workspace-empty'>
+                        Open a file from the explorer or press
+                        <span class='code-workspace-keys'>
+                            ${keys(['Mod', 'P']).map((key) => html`
+                                <kbd class='button button--kbd'>
+                                    ${key === '⌘' ? icon({ 'aria-hidden': 'true', class: 'button-kbd-icon' }, cmd) : key}
+                                </kbd>
+                            `)}
+                        </span>
                     </div>
-                    <div class='code-workspace-tree'>
-                        ${() => hosting.ready() && untrack(() => fileTree({
-                            class: 'code-workspace-files',
-                            compact: true,
-                            controller: (value) => {
-                                tree = value;
-                                value.search(ui.search);
-                            },
-                            decorations: [hosting.marks, ...[provided ?? []].flat(), decorations],
-                            editor: treeEditor,
-                            elements: treeStore,
-                            empty: () => html`<div class='code-workspace-notice'>No files in this workspace</div>`,
-                            export: hosting.export,
-                            find: 'filter',
-                            menu: (elements, position) => {
-                                if (!elements.length || !actions) {
-                                    return;
-                                }
-
-                                write(target, { element: elements[0], paths: elements.map((element) => element.id) });
-                                // Items hide by the target; the menu focuses its first visible one as it opens.
-                                flush();
-                                // The tree claims the right click; the context menu opens at the point it reports.
-                                actions.open(position);
-                            },
-                            open: (element, open) => {
-                                void model.open(element.id, undefined, undefined, open.mode === 'preview');
-                            },
-                            operations: {
-                                delete: (elements) => {
-                                    void model.delete(elements.map((element) => element.id));
-                                },
-                                import: hosting.import
-                            },
-                            preview: 'immediate',
-                            rename: async (element, value) => {
-                                let parent = element.id.includes('/') ? element.id.slice(0, element.id.lastIndexOf('/') + 1) : '';
-
-                                if (!(await model.rename(element.id, parent + value))) {
-                                    throw new Error(`Workspace: ${model.state.status}`);
-                                }
-                            },
-                            searched: (query) => {
-                                ui.search = query;
-                            },
-                            snapshot: hosting.explorer,
-                            state: treeState,
-                            typing: 'typeahead'
-                        }))}
-                        ${() => {
-                            if (view.error) {
-                                return html`
-                                    <div class='code-workspace-notice code-workspace-notice--cover' role='alert'>
-                                        ${view.error}
-                                        <button
-                                            class='button code-workspace-retry'
-                                            type='button'
-                                            onclick='${() => {
-                                                void model.refresh();
-                                            }}'
-                                        >
-                                            Retry
-                                        </button>
-                                    </div>
-                                `;
-                            }
-
-                            return !view.loaded && html`<div class='code-workspace-notice code-workspace-notice--cover' role='status'>Loading…</div>`;
-                        }}
-                    </div>
-                </div>
-                ${() => view.collapsed && !ui.ready && html`
-                    <button
-                        aria-label='Peek file explorer'
-                        class='code-workspace-edge'
-                        type='button'
-                        ${{ onclick: reach, onfocus: reach }}
-                    ></button>
-                `}
-            </aside>
-            <main class='code-workspace-main' ${{ onpointerenter: () => peek(false) }}>
-                <div aria-label='Open files' class='code-workspace-tabs' role='tablist' ${scrollbar()}>
-                    ${highlight({ border: 'bottom', class: 'code-workspace-tabs-highlight' })}
-                    ${() => model.state.tabs.map(tab)}
-                </div>
-                <div class='code-workspace-bar'>
-                    ${crumbs}
-                    <div class='code-workspace-actions'>
-                        ${statusBar.save(() => control({
-                            disabled: () => !view.tabs || view.busy,
-                            label: label('Save file', ['Mod', 'S']),
-                            onclick: () => {
-                                void model.save();
-                            },
-                            sprite: save
-                        }))}
-                        ${control({
-                            active: () => view.wrap,
-                            label: () => (view.wrap ? 'Disable wrap' : 'Wrap long lines'),
-                            onclick: api.toggleWrap,
-                            sprite: wrap
-                        })}
-                        ${control({
-                            active: () => view.whitespace,
-                            label: () => (view.whitespace ? 'Hide whitespace' : 'Show whitespace'),
-                            onclick: api.toggleWhitespace,
-                            sprite: whitespace
-                        })}
-                        ${sidebar({
-                            'aria-label': () => (view.explorerOpen ? 'Hide file explorer' : 'Show file explorer'),
-                            class: 'code-workspace-control',
-                            onclick: api.toggleExplorer,
-                            open: () => view.explorerOpen,
-                            side: () => (view.left ? 'left' : 'right'),
-                            title: () => (view.explorerOpen ? 'Hide file explorer' : 'Show file explorer')
-                        })}
-                    </div>
-                </div>
-                <div
-                    class='code-workspace-editor'
-                    id='${id}-panel'
-                    role='tabpanel'
-                    ${{ 'aria-labelledby': () => (read(activeId) ? `${id}-tab-${read(activeId)}` : undefined) }}
-                >
-                    ${pane}
-                </div>
-            </main>
+                `,
+                narrow: NARROW,
+                sidebars: {
+                    left: { hover: true, label: 'File explorer', resizable: true },
+                    right: { hover: true, label: 'File explorer', resizable: true }
+                },
+                state: model.layout
+            })}
             <footer class='code-workspace-status'>
                 <span class='code-workspace-status-path'>${() => view.cwd}</span>
                 <span class='code-workspace-status-position'>${() => ui.position}</span>
@@ -1408,7 +1264,6 @@ const workspace = ({
                     ''
                 )}
                 ${statusBar.menu}
-                ${strip.menu()}
             </div>
             ${command({
                 commands: () => [PALETTE, ...read(files).map((path): Command => ({ group: 'Files', id: path, label: path }))],

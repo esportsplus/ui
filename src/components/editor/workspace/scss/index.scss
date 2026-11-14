@@ -7,13 +7,14 @@
 @use 'variables';
 
 
+// The layout over the status bar: the editors' groups and splits beside the explorer's sidebar.
 .code-workspace {
     background: var(--background);
     color: var(--color);
     display: grid;
     font-size: var(--font-size);
-    grid-template-columns: var(--columns);
-    grid-template-rows: var(--rows);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
     height: var(--height);
     isolation: isolate;
     min-height: var(--min-height);
@@ -111,14 +112,6 @@
         min-height: 0;
     }
 
-    &-edge {
-        @extend %reset-button;
-        inset-block: 0;
-        inset-inline: var(--edge-inset-horizontal);
-        position: absolute;
-        width: var(--peek-width);
-    }
-
     &-editor {
         display: flex;
         flex: 1;
@@ -141,38 +134,14 @@
         text-align: center;
     }
 
-    // A surface, lifted only while it floats as a drawer.
     &-explorer {
-        background: var(--surface-background-default);
-        border-inline-end: var(--explorer-end);
-        border-inline-start: var(--explorer-start);
-        border-top: var(--explorer-top);
-        box-shadow: var(--explorer-shadow);
         display: flex;
-        grid-column: var(--explorer-span);
-        grid-row: var(--explorer-row);
-        inset-block: 0;
-        inset-inline: var(--explorer-inset-horizontal);
+        flex: 1;
+        flex-direction: column;
         min-height: 0;
         min-width: 0;
-        overflow: hidden;
-        position: var(--explorer-position);
-        transition: translate var(--drawer-duration) var(--drawer-timing-function);
-        translate: var(--explorer-translate);
         user-select: none;
-        width: var(--explorer-size);
-        z-index: var(--explorer-layer);
 
-
-        &-content {
-            display: flex;
-            flex: 1;
-            flex-direction: column;
-            min-height: 0;
-            min-width: 0;
-            transition: visibility 0s linear var(--content-delay);
-            visibility: var(--content-visibility);
-        }
 
         &-header {
             align-items: center;
@@ -183,6 +152,14 @@
             height: var(--bar-height);
             min-width: 0;
             padding-inline: var(--padding-horizontal);
+
+
+            // Clears the layout's sidebar toggle over the explorer's top corner, as a tab strip there would.
+            @each $side, $end in ('left': 'start', 'right': 'end') {
+                .shell-group--inset-#{$side} & {
+                    padding-inline-#{$end}: var(--inset);
+                }
+            }
         }
     }
 
@@ -201,17 +178,8 @@
         @extend %reset-popover;
     }
 
-    &-main {
-        display: flex;
-        flex-direction: column;
-        grid-column: var(--main-column);
-        grid-row: 1;
-        // Keeps the editor's own layers, like its minimap, under the explorer drawer.
-        isolation: isolate;
+    &-layout.shell {
         min-height: 0;
-        min-width: 0;
-        overflow: hidden;
-        visibility: var(--main-visibility);
     }
 
     // An empty layer over the viewport, so the context menu opens where the tree reports and flips at the viewport's
@@ -279,6 +247,15 @@
         }
     }
 
+    // One file's path and controls over its editor.
+    &-pane {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+    }
+
     &-search.input {
         flex: 1;
         min-width: 0;
@@ -298,8 +275,6 @@
         display: flex;
         font-size: var(--status-font-size);
         gap: var(--gap-vertical) var(--gap-horizontal);
-        grid-column: var(--main-column);
-        grid-row: var(--status-row);
         justify-content: space-between;
         min-width: 0;
         padding-block: var(--padding-vertical);

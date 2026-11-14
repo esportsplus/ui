@@ -1,10 +1,9 @@
-import { flush, reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import icon from '~/components/icon';
-import tooltip from '~/components/tooltip';
-import type { Controller as MenuController, Item } from '~/components/tooltip/menu';
+import type { Item } from '~/components/tooltip/menu';
 import { mac } from '~/shared/platform';
 import diffs from '../diffs';
+import { fileTreeIcon } from '../tree';
 import type { WorkspaceEditor } from './index';
 import type { EditorWorkspaceModel, WorkspaceTab } from './model';
 import { sides, type MergeSides } from './tabs';
@@ -14,8 +13,8 @@ import pin from '@esportsplus/ui/svg/pin.svg';
 type Options = {
     isFile: (path: string) => boolean;
     model: EditorWorkspaceModel;
-    // Puts the active tab in the pane again, so a merge starting or ending on it takes effect.
-    remount: VoidFunction;
+    // Puts the tab in its pane again, so a merge starting or ending on it takes effect.
+    remount: (tab: WorkspaceTab) => void;
     reveal: (path: string) => void;
 };
 
@@ -28,9 +27,7 @@ function name(path: string) {
 /** Pinned and preview tabs, the tab context menu, merging a conflicted tab and comparing two files. */
 const strip = ({ isFile, model, remount, reveal }: Options) => {
     let chosen = '',
-        controller: MenuController | undefined,
-        merging = new WeakMap<WorkspaceTab, MergeSides>(),
-        subject = reactive({ compare: false, conflicted: false, path: '', pinned: false });
+        merging = new WeakMap<WorkspaceTab, MergeSides>();
 
     function compare(tab: WorkspaceTab): WorkspaceEditor {
         let { modified, original, paths } = tab.compare!;
@@ -54,7 +51,7 @@ const strip = ({ isFile, model, remount, reveal }: Options) => {
                         ${{
                             onclick: () => {
                                 merging.delete(tab);
-                                remount();
+                                remount(tab);
                             }
                         }}
                     >
@@ -70,7 +67,7 @@ const strip = ({ isFile, model, remount, reveal }: Options) => {
                     onresolve: (result) => {
                         merging.delete(tab);
                         tab.document.setValue(result);
-                        remount();
+                        remount(tab);
                         void model.save(tab);
                     }
                 })}
@@ -78,85 +75,7 @@ const strip = ({ isFile, model, remount, reveal }: Options) => {
         `;
     }
 
-    let items: Item[] = [
-            {
-                hidden: () => subject.compare || subject.pinned,
-                label: 'Pin',
-                onselect: () => model.pin(subject.path)
-            },
-            {
-                hidden: () => !subject.pinned,
-                label: 'Unpin',
-                onselect: () => model.unpin(subject.path)
-            },
-            {
-                hidden: () => !subject.conflicted,
-                label: 'Merge Conflicts',
-                onselect: () => {
-                    void api.merge(subject.path);
-                }
-            },
-            {
-                hint: mac() ? '⌘W' : 'Ctrl+W',
-                label: 'Close',
-                onselect: () => {
-                    void model.close(subject.path);
-                }
-            },
-            {
-                label: 'Close Others',
-                onselect: () => {
-                    let path = subject.path;
-
-                    void model.closeOthers(path).then((closed) => closed && model.activate(path));
-                }
-            },
-            {
-                label: 'Close to the Right',
-                onselect: () => {
-                    let path = subject.path;
-
-                    void model.closeRight(path).then((closed) => closed && model.activate(path));
-                }
-            },
-            {
-                label: 'Close Saved',
-                onselect: () => {
-                    void model.closeSaved();
-                }
-            },
-            {
-                hidden: () => subject.compare,
-                label: 'Copy Path',
-                onselect: () => {
-                    void model.copyPath(subject.path);
-                }
-            },
-            {
-                hidden: () => subject.compare,
-                label: 'Reveal in Explorer',
-                onselect: () => reveal(subject.path)
-            }
-        ];
-
     let api = {
-        // Spread on a tab: its preview and pinned looks, which follow the tab, its context menu, and a double click
-        // that keeps a preview.
-        attributes(tab: WorkspaceTab) {
-            return {
-                class: [
-                    () => tab.pinned && 'code-workspace-tab--pinned',
-                    () => tab.preview && 'code-workspace-tab--preview'
-                ],
-                oncontextmenu: (event: MouseEvent) => api.open(tab, event),
-                ondblclick: () => {
-                    if (tab.preview) {
-                        void model.open(tab.path);
-                    }
-                }
-            };
-        },
-
         // The view a tab shows in place of its editor: a compare tab's diff, or the merge started on it.
         editor(tab: WorkspaceTab): WorkspaceEditor | undefined {
             if (tab.compare) {
@@ -225,41 +144,103 @@ const strip = ({ isFile, model, remount, reveal }: Options) => {
 
             merging.set(tab, found);
             model.activate(tab);
-            remount();
+            remount(tab);
         },
 
-        menu: () => tooltip.context(
-            {
-                class: 'code-workspace-menu',
-                controller: (value: MenuController) => {
-                    controller = value;
+        // A file tab's menu, against the surface it opened on; bulk closes stay in that tab's group.
+        menu(surface: () => string): Item[] {
+            let tab = () => model.find(surface()),
+                compared = () => !!tab()?.compare,
+                path = () => tab()?.path ?? '',
+                pinned = () => !!tab()?.pinned;
+
+            return [
+                {
+                    hidden: () => compared() || pinned(),
+                    label: 'Pin',
+                    onselect: () => model.pin(path())
                 },
-                items,
-                [tooltip.context.panel]: { 'aria-label': 'Tab actions', class: 'code-workspace-menu-panel' }
-            },
-            ''
-        ),
+                {
+                    hidden: () => !pinned(),
+                    label: 'Unpin',
+                    onselect: () => model.unpin(path())
+                },
+                {
+                    hidden: () => {
+                        let found = tab();
 
-        open(tab: WorkspaceTab, event: MouseEvent) {
-            if (!controller) {
-                return;
-            }
+                        return !found || !!found.compare || !sides(found.document.value);
+                    },
+                    label: 'Merge Conflicts',
+                    onselect: () => {
+                        void api.merge(path());
+                    }
+                },
+                {
+                    hint: mac() ? '⌘W' : 'Ctrl+W',
+                    label: 'Close',
+                    onselect: () => {
+                        void model.close(path());
+                    }
+                },
+                {
+                    label: 'Close Others',
+                    onselect: () => {
+                        let target = path();
 
-            event.preventDefault();
+                        void model.closeOthers(target).then((closed) => closed && model.activate(target));
+                    }
+                },
+                {
+                    label: 'Close to the Right',
+                    onselect: () => {
+                        let target = path();
 
-            // A context menu key reports no pointer, so the menu opens under the tab instead.
-            let box = event.button === 2 ? undefined : (event.currentTarget as HTMLElement).getBoundingClientRect();
-
-            subject.compare = !!tab.compare;
-            subject.conflicted = !tab.compare && !!sides(tab.document.value);
-            subject.path = tab.path;
-            subject.pinned = tab.pinned;
-            flush();
-            controller.open(box ? { x: box.left, y: box.bottom } : { x: event.clientX, y: event.clientY });
+                        void model.closeRight(target).then((closed) => closed && model.activate(target));
+                    }
+                },
+                {
+                    label: 'Close Saved',
+                    onselect: () => {
+                        void model.closeSaved();
+                    }
+                },
+                {
+                    hidden: compared,
+                    label: 'Copy Path',
+                    onselect: () => {
+                        void model.copyPath(path());
+                    }
+                },
+                {
+                    hidden: compared,
+                    label: 'Reveal in Explorer',
+                    onselect: () => reveal(path())
+                }
+            ];
         },
 
-        pin(tab: WorkspaceTab) {
-            return tab.pinned && icon({ 'aria-label': 'Pinned', class: 'code-workspace-tab-pin', role: 'img' }, pin);
+        // A file tab's looks and its double click, which keeps a preview rather than maximizing the group.
+        tab(tab: WorkspaceTab) {
+            return {
+                attributes: {
+                    class: [
+                        () => tab.pinned && 'code-workspace-tab--pinned',
+                        () => tab.preview && 'code-workspace-tab--preview'
+                    ],
+                    ondblclick: (event: MouseEvent) => {
+                        if (tab.preview) {
+                            event.preventDefault();
+                            void model.open(tab.path);
+                        }
+                    }
+                },
+                badges: () => html`
+                    ${tab.pinned && icon({ 'aria-label': 'Pinned', class: 'code-workspace-tab-pin', role: 'img' }, pin)}
+                    ${tab.dirty && html`<span aria-label='Unsaved changes' class='code-workspace-tab-dirty' role='img'></span>`}
+                `,
+                icon: () => fileTreeIcon({ name: api.label(tab), type: 'file' }, false)
+            };
         },
 
         title(tab: WorkspaceTab) {
