@@ -13,6 +13,13 @@
     }
 
 
+    // Chained through '.icon' so it wins over the icon's own color regardless of stylesheet order.
+    &-icon.icon {
+        @include tokens.state(active) {
+            --color: var(--color-text-400);
+        }
+    }
+
     &-label {
         --font-weight: var(--font-weight-400);
         --padding-horizontal: 2px;

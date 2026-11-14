@@ -1,20 +1,34 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { breadcrumb } from '@esportsplus/ui/components';
-import type { Separator } from '@esportsplus/ui/components/breadcrumb';
+import type { Crumb, Separator } from '@esportsplus/ui/components/breadcrumb';
 import type { Entry } from 'docs/types';
+import components from '@esportsplus/ui/svg/folder-components.svg';
+import file from '@esportsplus/ui/svg/file-typescript.svg';
+import folder from '@esportsplus/ui/svg/folder.svg';
+import home from '@esportsplus/ui/svg/home.svg';
+import src from '@esportsplus/ui/svg/folder-src.svg';
 import 'docs/examples/breadcrumb/scss/index.scss';
 
 
-let path = [
-    { href: '/workspace', label: 'Workspace' },
-    { href: '/workspace/projects', label: 'Projects' },
-    { href: '/workspace/projects/ui-lab', label: 'ui-lab' },
-    { href: '/workspace/projects/ui-lab/src', label: 'src' },
-    { href: '/workspace/projects/ui-lab/src/lab', label: 'lab' },
-    { href: '/workspace/projects/ui-lab/src/lab/components', label: 'components' },
-    { href: '/workspace/projects/ui-lab/src/lab/components/button.tsx', label: 'button.tsx' }
-];
+let path: Crumb[] = [
+        { href: '/workspace', label: 'Workspace' },
+        { href: '/workspace/projects', label: 'Projects' },
+        { href: '/workspace/projects/ui-lab', label: 'ui-lab' },
+        { href: '/workspace/projects/ui-lab/src', label: 'src' },
+        { href: '/workspace/projects/ui-lab/src/lab', label: 'lab' },
+        { href: '/workspace/projects/ui-lab/src/lab/components', label: 'components' },
+        { href: '/workspace/projects/ui-lab/src/lab/components/button.tsx', label: 'button.tsx' }
+    ],
+    pathWithIcons: Crumb[] = [
+        { href: '/workspace', icon: home, label: 'Workspace' },
+        { href: '/workspace/projects', icon: folder, label: 'Projects' },
+        { href: '/workspace/projects/ui-lab', icon: folder, label: 'ui-lab' },
+        { href: '/workspace/projects/ui-lab/src', icon: src, label: 'src' },
+        { href: '/workspace/projects/ui-lab/src/lab', icon: folder, label: 'lab' },
+        { href: '/workspace/projects/ui-lab/src/lab/components', icon: components, label: 'components' },
+        { href: '/workspace/projects/ui-lab/src/lab/components/button.tsx', icon: file, label: 'button.tsx' }
+    ];
 
 
 // Narrow enough to fold everything, wide enough that the current page still reads in full.
@@ -23,7 +37,7 @@ const MIN_WIDTH = 220;
 const STEP = 16;
 
 
-function resizable({ plain = false, separator, status }: { plain?: boolean, separator?: Separator, status?: { last: string } } = {}) {
+function resizable({ items = path, plain = false, separator, status }: { items?: Crumb[], plain?: boolean, separator?: Separator, status?: { last: string } } = {}) {
     let drag: { max: number | undefined; width: number; x: number } | null = null,
         frame: HTMLElement | undefined,
         handle: HTMLElement | undefined,
@@ -46,7 +60,7 @@ function resizable({ plain = false, separator, status }: { plain?: boolean, sepa
         <div class='breadcrumb-demo' ${{ onconnect: (element: HTMLElement) => { wrap = element; } }}>
             <div class='breadcrumb-demo-frame ${plain && 'breadcrumb-demo-frame--plain'}' ${{ onconnect: (element: HTMLElement) => { frame = element; } }}>
                 ${breadcrumb({
-                    items: path,
+                    items,
                     separator,
                     onnavigate: (item, index) => {
                         if (status) {
@@ -134,6 +148,10 @@ export default {
         {
             render: () => resizable({ separator: 'chevron' }),
             title: "separator: 'chevron'"
+        },
+        {
+            render: () => resizable({ items: pathWithIcons }),
+            title: 'icons'
         },
         {
             render: () => resizable({ plain: true }),
