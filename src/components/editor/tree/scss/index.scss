@@ -212,6 +212,8 @@ $edge: calc(var(--file-tree-progress) * var(--motion-rows) * var(--row-height));
             font-size: var(--find-note-font-size);
             margin-inline: var(--find-radius);
             padding-inline: var(--padding-horizontal);
+            // Sized to its text, so the margins inset it under the bar; a paragraph is full width by default.
+            width: auto;
         }
     }
 
