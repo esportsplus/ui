@@ -1,7 +1,6 @@
 @use '/tokens';
 @use 'css-utilities/absolute';
 @use 'css-utilities/layer';
-@use 'css-utilities/surface';
 @use 'css-utilities/text';
 @use 'variables';
 
@@ -37,45 +36,36 @@
         z-index: 1;
     }
 
-    // Geometry is written every pointer move, so only the lift eases: a scale and the fade of a second shadow, both
-    // composited rather than repainted per frame. A surface of its own, so its background is a level above whatever it
-    // floats over. The body carries it; selecting it shows the frame that resizes and turns it.
+    // A '.card', which paints and pads it a level above whatever it floats over. Geometry is written every pointer move,
+    // so only the lift eases: a scale and the fade of a second shadow, both composited rather than repainted per frame.
+    // The body carries it; selecting it shows the frame that resizes and turns it.
     &-surface {
-        background: var(--surface-background-default);
-        border-radius: var(--border-radius);
-        box-shadow: 0 0 0 var(--border-width) var(--border-color), var(--box-shadow);
         cursor: var(--cursor);
-        display: flex;
-        flex-direction: column;
         height: var(--geometry-height);
         inset: 0 auto auto 0;
-        position: absolute;
         rotate: var(--geometry-rotate);
         scale: var(--scale);
         touch-action: none;
-        transition: scale var(--transition-duration) var(--transition-timing-function);
         translate: var(--geometry-x) var(--geometry-y);
-        width: var(--geometry-width);
         z-index: var(--geometry-z-index);
 
 
+        // Block margins only, so an inline edit keeps the inline pull that lines its text up.
         &-body {
             color: var(--color);
             font-size: var(--font-size);
             line-height: var(--line-height);
-            margin: 0;
+            margin-block: 0;
             overflow-wrap: break-word;
         }
 
+        // Clips what outgrows a shrunk surface; the card itself can't, or it would cut off the frame hung outside it.
         &-content {
             display: flex;
-            flex: 1;
             flex-direction: column;
             gap: var(--gap-vertical) var(--gap-horizontal);
-            min-height: 0;
+            height: 100%;
             overflow: hidden;
-            padding-block: var(--padding-top) var(--padding-bottom);
-            padding-inline: var(--padding-horizontal);
         }
 
         &-corner,
@@ -118,14 +108,6 @@
             position: absolute;
         }
 
-        &-header {
-            align-items: center;
-            display: flex;
-            flex-shrink: 0;
-            min-height: var(--height);
-            padding-inline: var(--padding-horizontal);
-        }
-
         // An element rather than a pseudo-element, so both of those stay free for the surface's own decoration.
         &-lift {
             @extend %layer;
@@ -165,13 +147,22 @@
             }
         }
 
+        // An inline edit cuts its own text short; clipping its root would cut off its focus ring.
         &-title {
-            @extend %text-truncate;
             color: var(--color);
             font-weight: var(--font-weight-600);
-            min-width: 0;
+
+            &:not(.inline-edit) {
+                @extend %text-truncate;
+            }
         }
 
+
+        // Chained through '.card' so these win over the card's own regardless of stylesheet order.
+        &.card {
+            position: absolute;
+            transition: scale var(--transition-duration) var(--transition-timing-function);
+        }
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);

@@ -2,6 +2,7 @@ import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import { clamp } from '~/shared/clamp';
 import inlineEdit from '~/components/inline-edit';
+import '~/components/card/scss/index.scss';
 
 
 type Geometry = { height: number, rotation: number, width: number, x: number, y: number };
@@ -331,7 +332,7 @@ export default component<Surface>(
                 aria-keyshortcuts='ArrowUp ArrowDown ArrowLeft ArrowRight Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight [ ] Escape'
                 aria-label='${`${called}: arrow keys move it, Alt and the arrow keys resize it, [ and ] turn it`}'
                 aria-roledescription='surface'
-                class='surface-field-surface'
+                class='card card--ring surface-field-surface'
                 data-grip='move'
                 role='group'
                 tabindex='0'
@@ -364,9 +365,9 @@ export default component<Surface>(
                 }}
             >
                 <span aria-hidden='true' class='surface-field-surface-lift'></span>
-                ${title !== undefined && html`
-                    <div class='surface-field-surface-header'>
-                        ${editable
+                <div class='surface-field-surface-content'>
+                    ${title !== undefined && (
+                        editable
                             ? inlineEdit({
                                 class: 'inline-edit--seamless surface-field-surface-title',
                                 label: `${called} title`,
@@ -374,10 +375,8 @@ export default component<Surface>(
                                 placeholder: 'Untitled',
                                 value: title
                             })
-                            : html`<span class='surface-field-surface-title'>${title}</span>`}
-                    </div>
-                `}
-                <div class='surface-field-surface-content'>
+                            : html`<span class='surface-field-surface-title'>${title}</span>`
+                    )}
                     ${body !== undefined && (
                         editable
                             ? (rich ? inlineEdit.rich : inlineEdit)({

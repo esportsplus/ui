@@ -1,10 +1,9 @@
 @use '/tokens';
-@use 'css-utilities/surface';
 
 .surface-field {
     // Read by JS, from the canvas: the colors it draws with, and 1 for a still texture, as the 'still' option does.
     &-canvas {
-        --accent: #6683e8;
+        --accent: var(--color-blue-400);
         --color: var(--color-text-500);
         --still: 0;
 
@@ -13,15 +12,13 @@
         }
     }
 
-    // A surface of its own, lifted while held: it grows a touch and shows its second shadow, and the closed hand.
-    // Under reduced motion it lifts in place.
+    // Lifted while held: it grows a touch and shows its second shadow, and the closed hand. Under reduced motion it
+    // lifts in place.
     &-surface {
-        @extend %surface-raise;
-        --border-color: var(--surface-border-default);
-        --border-radius: 14px;
-        --border-width: 1px;
-        --box-shadow: 0 1px 2px #{surface.shadow-color(0.6)}, 0 8px 24px -8px #{surface.shadow-color(1.55)};
+        --border-radius: var(--border-radius-700);
         --cursor: grab;
+        --padding-horizontal: var(--size-500);
+        --padding-vertical: var(--size-500);
         --scale: 1;
         --transition-duration: 200ms;
         --transition-timing-function: ease;
@@ -45,9 +42,6 @@
         &-content {
             --gap-horizontal: 0px;
             --gap-vertical: var(--size-100);
-            --padding-bottom: var(--size-400);
-            --padding-horizontal: var(--size-400);
-            --padding-top: var(--size-400);
         }
 
         &-corner,
@@ -55,12 +49,12 @@
         &-rotate {
             --background: var(--surface-background-default);
             --border-color: var(--color-primary-300);
-            --border-width: 1px;
+            --border-width: var(--border-width-400);
         }
 
         &-corner {
-            --border-radius: 2px;
-            --size: 8px;
+            --border-radius: var(--border-radius-100);
+            --size: var(--size-100);
 
             @each $side, $left, $top, $cursor in (ne, 100%, 0%, nesw-resize), (nw, 0%, 0%, nwse-resize), (se, 100%, 100%, nwse-resize), (sw, 0%, 100%, nesw-resize) {
                 &[data-side='#{$side}'] {
@@ -73,8 +67,8 @@
 
         // Strips along each side, between the corners, that resize it one way.
         &-edge {
-            --corner: 8px;
-            --hit: 8px;
+            --corner: var(--size-100);
+            --hit: var(--size-100);
 
             @each $side, $cursor, $height, $inset, $width in
                 (e, ew-resize, auto, var(--corner) calc(var(--hit) / -2) var(--corner) auto, var(--hit)),
@@ -93,30 +87,21 @@
 
         &-frame {
             --border-color: var(--color-primary-300);
-            --border-radius: calc(14px + var(--offset));
-            --border-width: 1px;
+            --border-radius: calc(var(--border-radius-700) + var(--offset));
+            --border-width: var(--border-width-400);
             --display: none;
-            --offset: 3px;
-        }
-
-        &-header {
-            --height: 28px;
-            --padding-horizontal: var(--size-400);
-
-            & + .surface-field-surface-content {
-                --padding-top: 0px;
-            }
+            --offset: calc(var(--size-100) / 2);
         }
 
         &-lift {
-            --box-shadow: 0 2px 4px #{surface.shadow-color(0.8)}, 0 20px 40px -12px #{surface.shadow-color(2.7)};
+            --box-shadow: var(--surface-shadow-active);
             --opacity: 0;
         }
 
         &-port {
             --border-radius: 50%;
             --cursor: default;
-            --size: 9px;
+            --size: var(--size-200);
             --z-index: 1;
 
             &--in {
@@ -132,12 +117,18 @@
         &-rotate {
             --border-radius: 50%;
             --cursor: grab;
-            --size: 10px;
-            --stem: 16px;
+            --size: var(--size-200);
+            --stem: var(--size-400);
         }
 
         &-title {
             --color: var(--color-text-500);
+        }
+
+        // Chained through '.card' so these win over the card's own regardless of stylesheet order.
+        &.card {
+            --border-radius: var(--border-radius-700);
+            --width: var(--geometry-width);
         }
 
         @include tokens.state(active) {
