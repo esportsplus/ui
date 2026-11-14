@@ -49,9 +49,9 @@
     }
 }
 
-// In a 'group--row', a line of its own under the control, as wide as it and ending with it; beside a description, in
+// In a 'group--grid', a line of its own under the control, as wide as it and ending with it; beside a description, in
 // the control's column. Chained through '.group' so it wins over the row's own placement regardless of stylesheet order.
-.group.group--row {
+.group.group--grid {
     > .error {
         margin-inline-start: auto;
     }

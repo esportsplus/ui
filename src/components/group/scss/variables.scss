@@ -9,13 +9,13 @@
         --color: var(--color-red-400);
     }
 
-    &--row {
+    &--grid {
         --gap-vertical: var(--size-100);
     }
 
     // One width for every row's control, so a column of rows lines its controls up whatever their labels say. Prefixed,
     // since the control's own '--width' would otherwise be overwritten.
-    &--row > :not(#{&}-description, #{&}-label) {
+    &--grid > :not(#{&}-description, #{&}-label) {
         --control-width: min(260px, 100%);
     }
 

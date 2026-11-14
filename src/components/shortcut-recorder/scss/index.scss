@@ -11,14 +11,14 @@
         text-align: end;
     }
 
-    // In a 'group--row' the error, with the description it swaps for, sits under the label in the first column, and
+    // In a 'group--grid' the error, with the description it swaps for, sits under the label in the first column, and
     // the recorder spans both beside them. The label's line takes whatever height the recorder leaves.
-    .group--row > & > .shortcut-recorder {
+    .group--grid > & > .shortcut-recorder {
         grid-column: 2;
         grid-row: 1 / span 2;
     }
 
-    .group--row > & > .error {
+    .group--grid > & > .error {
         align-self: start;
         grid-column: 1;
         grid-row: 2;
@@ -26,7 +26,7 @@
     }
 }
 
-.group--row:has(> .shortcut-recorder-field) {
+.group--grid:has(> .shortcut-recorder-field) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: 1fr auto;

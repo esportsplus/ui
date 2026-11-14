@@ -142,7 +142,7 @@ export default {
                         { label: 'Time zone', options: timeZones, selected: 'kolkata' },
                         { label: 'Week starts on', options: weekStarts, selected: 'monday' }
                     ].map((row) => html`
-                        <div class='group group--row select-menu-demo-row'>
+                        <div class='group group--grid select-menu-demo-row'>
                             <span aria-hidden='true' class='group-label'>${row.label}</span>
                             ${select({ ...row, class: style })}
                         </div>
@@ -157,7 +157,7 @@ export default {
 
                 return html`
                     <div class='select-menu-demo'>
-                        <div class='group group--row select-menu-demo-row'>
+                        <div class='group group--grid select-menu-demo-row'>
                             <span aria-hidden='true' class='group-label'>Font</span>
                             ${select({ class: style, label: 'Font', name: 'font', options: fonts, state })}
                         </div>

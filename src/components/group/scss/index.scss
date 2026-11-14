@@ -3,7 +3,7 @@
 @use 'variables';
 
 // Items in a row that wraps, spaced by the gap, as a grid of whatever they are. '--column' stacks a label, a control and
-// what sits under it; '--row' sets the label beside the control instead.
+// what sits under it; '--grid' sets the label beside the control instead; '--row' holds every item on one line.
 .group {
     @extend %group;
     min-width: 0;
@@ -19,16 +19,16 @@
     }
 
     // Label and control share one line, the control held to one width; the description wraps onto its own.
-    &--row {
+    &--grid {
         align-items: center;
         justify-content: space-between;
     }
 
-    &--row > #{&}-description {
+    &--grid > #{&}-description {
         flex-basis: 100%;
     }
 
-    &--row > :not(#{&}-description, #{&}-label) {
+    &--grid > :not(#{&}-description, #{&}-label) {
         flex: 0 0 var(--control-width);
         width: var(--control-width);
     }
@@ -36,26 +36,30 @@
     // A control with a description: the label and the description stack in the first column, meeting in the middle, and
     // the control spans both beside them, centered on the pair. Controls laid out differently ('checkbox', 'error')
     // override this from their own styles.
-    &--row:has(> #{&}-description) {
+    &--grid:has(> #{&}-description) {
         display: grid;
         grid-template-columns: minmax(0, 1fr) auto;
     }
 
-    &--row:has(> #{&}-description) > #{&}-label {
+    &--grid:has(> #{&}-description) > #{&}-label {
         align-self: end;
         grid-column: 1;
         grid-row: 1;
     }
 
-    &--row:has(> #{&}-description) > #{&}-description {
+    &--grid:has(> #{&}-description) > #{&}-description {
         align-self: start;
         grid-column: 1;
         grid-row: 2;
     }
 
-    &--row:has(> #{&}-description) > :not(#{&}-description, #{&}-label) {
+    &--grid:has(> #{&}-description) > :not(#{&}-description, #{&}-label) {
         grid-column: 2;
         grid-row: 1 / span 2;
+    }
+
+    &--row {
+        flex-wrap: nowrap;
     }
 
     // A track sunk below what it sits on.

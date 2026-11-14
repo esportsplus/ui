@@ -24,7 +24,7 @@ const TAKEN: Record<string, string> = {
 
 function row({ hint, label, limit, state, taken }: Row, border = false) {
     return html`
-        <div class='group group--row shortcut-recorder-demo-row ${border && 'shortcut-recorder-demo-row--border'}'>
+        <div class='group group--grid shortcut-recorder-demo-row ${border && 'shortcut-recorder-demo-row--border'}'>
             <span class='group-label'>${label}</span>
             ${shortcutRecorder({ 'aria-label': `${label} shortcut`, description: hint, limit, state, taken })}
         </div>

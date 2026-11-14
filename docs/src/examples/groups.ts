@@ -39,7 +39,7 @@ const groups: Record<string, Group[]> = {
         { title: 'diffs', members: [['split: syntax colors, accept and revert', 'Split'], 'unified', ['word diff: on and off', 'Word diff'], ['ignore whitespace: off and on', 'Ignore whitespace'], ['large file: 20,000 lines, virtualized', 'Large file']] }
     ],
     error: [
-        { title: 'input', members: [['input · leave the field or press Enter', 'Default'], ['input, description', 'Description'], ['input, group--row', 'Row'], ['input, multiple errors', 'Multiple errors'], ['input, duration · hides after 3s', 'Duration']] },
+        { title: 'input', members: [['input · leave the field or press Enter', 'Default'], ['input, description', 'Description'], ['input, group--grid', 'Row'], ['input, multiple errors', 'Multiple errors'], ['input, duration · hides after 3s', 'Duration']] },
         { title: 'select', members: [['select, description · pick a weekend day', 'Default']] }
     ],
     filter: [{ title: 'layout', members: [['Grid · 3 columns', 'Default'], ['Rows · Single column list', 'Rows'], ['Max rows · Scrolls past 2 rows', 'Max rows']] }],

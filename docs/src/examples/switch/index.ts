@@ -36,7 +36,7 @@ export default {
                 ({ header, hint, switch: toggle }) => html`
                     ${header({ counter: true })}
                     ${privacy.map((item) => html`
-                        <label class='group group--row'>
+                        <label class='group group--grid'>
                             ${toggle({ checked: item.checked, value: item.id })}
                             <span class='group-label'>${item.label}</span>
                         </label>

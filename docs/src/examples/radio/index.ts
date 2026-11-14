@@ -46,7 +46,7 @@ export default {
                         <legend class='group group--column group-header radio-demo-legend'><span class='group-label'>Choose a size</span></legend>
                         <div class='radio-demo-inline'>
                             ${sizes.map((size, index) => html`
-                                <label class='group group--row'>
+                                <label class='group group--grid'>
                                     ${radio({ style, [radio.input]: { checked: index === 1, name, value: size } })}
                                     <span class='group-label'>${size}</span>
                                 </label>
@@ -66,7 +66,7 @@ export default {
                     <fieldset class='radio-demo'>
                         <legend class='group group--column group-header radio-demo-legend'><span class='group-label'>Delivery</span></legend>
                         ${shipping.map((option) => html`
-                            <label class='group group--row'>
+                            <label class='group group--grid'>
                                 ${choice(name, state, option.value)}
                                 <span class='group-label'>${option.title}</span>
                                 <small class='group-description'>${option.description}</small>

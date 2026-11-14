@@ -165,7 +165,7 @@ export default component(
                     status: (value) => `${LABELS[Math.round(value / 100 * RULES.length)]}${guessable(state.value) ? ' · commonly guessed' : ''}`
                 })}
                 ${RULES.map(([label, test]) => html`
-                    <div class='group group--row' inert>
+                    <div class='group group--grid' inert>
                         ${checkbox({ [checkbox.input]: { checked: () => test(state.value), tabindex: -1 } })}
                         <span class='group-label group-label--small'>${label}</span>
                     </div>

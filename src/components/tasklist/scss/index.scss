@@ -1,7 +1,7 @@
 @use 'css-utilities/reset';
 @use 'variables';
 
-// Each row is a 'group--row', which lays out the checkbox, label and description; the list adds the check's strike,
+// Each row is a 'group--grid', which lays out the checkbox, label and description; the list adds the check's strike,
 // fade and reordering.
 .tasklist {
     @extend %reset-list;

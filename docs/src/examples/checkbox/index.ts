@@ -41,7 +41,7 @@ export default {
                 ({ checkbox, header, hint }) => html`
                     ${header({ counter: true })}
                     ${notifications.map((item) => html`
-                        <label class='group group--row'>
+                        <label class='group group--grid'>
                             ${checkbox({ checked: item.checked, value: item.id })}
                             <span class='group-label'>${item.label}</span>
                             <small class='group-description'>${item.description}</small>
@@ -58,7 +58,7 @@ export default {
                 ({ checkbox, header, selected }) => html`
                     ${header()}
                     ${toppings.map((item) => html`
-                        <label class='group group--row'>
+                        <label class='group group--grid'>
                             ${checkbox({ checked: item.id === 'basil', value: item.id })}
                             <span class='group-label'>${item.label}</span>
                         </label>

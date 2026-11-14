@@ -198,7 +198,7 @@ export default component(
                         }
                     }}
                 >
-                    <label class='group group--row tasklist-row ${sorts && 'tasklist-row--sortable'}' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
+                    <label class='group group--grid tasklist-row ${sorts && 'tasklist-row--sortable'}' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
                         ${checkbox.call(
                             { attributes: context?.[TASKLIST_CHECKBOX] },
                             {

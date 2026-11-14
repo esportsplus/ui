@@ -68,7 +68,7 @@ function header(ctx: Context, { counter = false, ...attributes }: Header = {}): 
     let tally = computed(() => count(ctx));
 
     return html`
-        <label class='group group-header group--row' ${attributes}>
+        <label class='group group-header group--grid' ${attributes}>
             ${ctx.control(
                 {
                     style: () => `--progress: ${ctx.group.total && read(tally) / ctx.group.total}`,

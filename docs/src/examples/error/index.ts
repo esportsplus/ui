@@ -95,7 +95,7 @@ function text({ check, description, duration, label, placeholder, row = false, t
     }
 
     return html`
-        <div class='group ${row ? 'group--row' : 'group--column'}'>
+        <div class='group ${row ? 'group--grid' : 'group--column'}'>
             <label class='group-label' for='${id}'>${label}</label>
             ${input({
                 'aria-describedby': `${id}-error`,
@@ -151,7 +151,7 @@ export default {
                     ${text({ check: email, label: 'Email', placeholder: 'you@example.com', row: true, type: 'email' })}
                 </div>
             `,
-            title: 'input, group--row'
+            title: 'input, group--grid'
         },
         {
             render: () => html`

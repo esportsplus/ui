@@ -102,18 +102,28 @@ export default {
         {
             render: () => html`
                 <div style='display: flex; flex-direction: column; gap: var(--size-400); width: min(100%, 440px);'>
-                    <div class='group group--row'>
+                    <div class='group group--grid'>
                         <span aria-hidden='true' class='group-label'>Font</span>
                         ${select({ label: 'Font', options: fonts, selected: 'geist' })}
                     </div>
-                    <div class='group group--row'>
+                    <div class='group group--grid'>
                         <span aria-hidden='true' class='group-label'>Week starts on</span>
                         ${select({ label: 'Week starts on', options: weekStarts, selected: 'monday' })}
                         <small class='group-description'>Calendars and date pickers start here.</small>
                     </div>
                 </div>
             `,
-            title: 'group--row'
+            title: 'group--grid'
+        },
+        {
+            render: () => html`
+                <div class='group group--row' style='width: min(100%, 320px);'>
+                    ${['Design', 'Engineering', 'Marketing', 'Operations', 'Sales', 'Support'].map((team) => html`
+                        <span class='button button--surface'>${team}</span>
+                    `)}
+                </div>
+            `,
+            title: 'group--row · items never wrap'
         },
         {
             render: () => {
