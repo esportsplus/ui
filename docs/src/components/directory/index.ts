@@ -1,11 +1,11 @@
 import { html, reactive, uri } from 'docs/app';
-import { icon, preview, select } from '@esportsplus/ui/components';
+import { icon, select } from '@esportsplus/ui/components';
+import preview from 'docs/components/preview';
 import type { Page, TocItem, Variant } from 'docs/types';
 import header from 'docs/components/page/header';
 import code from '@esportsplus/ui/svg/code.svg';
 import eye from '@esportsplus/ui/svg/eye.svg';
 import 'docs/components/directory/scss/index.scss';
-import 'docs/components/page/scss/index.scss';
 
 
 type Directory = {
@@ -67,9 +67,9 @@ function example(variant: Variant, index: number, id: string) {
     }
 
     return [
-        variant.source && preview.buttons({ 'aria-label': `${variant.title} view`, hover: false, state }, [
-            { content: [icon({ 'aria-hidden': 'true', class: 'preview-view-icon' }, eye), 'Preview'], view: 'preview' },
-            { content: [icon({ 'aria-hidden': 'true', class: 'preview-view-icon' }, code), 'Code'], view: 'code' }
+        variant.source && preview.buttons({ 'aria-label': `${variant.title} view`, state }, [
+            { content: [icon({ 'aria-hidden': 'true' }, eye), 'Preview'], view: 'preview' },
+            { content: [icon({ 'aria-hidden': 'true' }, code), 'Code'], view: 'code' }
         ]),
         preview({ anchors: options.map((option) => option.id), id, selection, state }, [
             preview.header({ index: index + 1, title: variant.title }, [

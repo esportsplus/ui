@@ -87,6 +87,17 @@ export default {
             title: 'card--border'
         },
         {
+            render: () => html`
+                <div class='card card--border card--surface' style='--border-radius: var(--border-radius-400); --padding-horizontal: 0px; --padding-vertical: 0px; --width: 280px;'>
+                    <div class='card-header' style='--border-radius: calc(var(--border-radius-400) - var(--border-width-400));'>
+                        <div class='preview-text'>Header</div>
+                    </div>
+                    <div class='preview-text' style='padding: var(--size-500);'>Card with a header strip</div>
+                </div>
+            `,
+            title: 'card-header'
+        },
+        {
             render: morph,
             title: 'card--morph'
         }

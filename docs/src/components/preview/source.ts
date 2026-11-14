@@ -1,14 +1,12 @@
 import { effect, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
 import code from './code';
-import type { CodeViewerAttributes } from '~/components/editor/viewer';
 import type { State } from './index';
 
 
 type A = Attributes & {
     // What the copy button announces, e.g. 'Copy colors source'.
     label?: string;
-    language?: CodeViewerAttributes['language'];
     state: State;
 };
 
@@ -22,7 +20,7 @@ const CACHE = new WeakMap<Provider, string>();
 // An example's source, loaded the first time its view switches to code. A failed load retries when the view is chosen
 // again.
 export default component(
-    function({ label, language = 'typescript', state, ...attributes }: A, provider: Provider) {
+    function({ label, state, ...attributes }: A, provider: Provider) {
         let request = 0,
             ui = reactive({ code: CACHE.get(provider) ?? '', error: '', loading: false });
 
@@ -66,7 +64,7 @@ export default component(
             >
                 ${() => ui.loading && html`<p class='preview-source-message' role='status'>Loading example source…</p>`}
                 ${() => ui.error && html`<p class='preview-source-message' role='alert'>${ui.error}</p>`}
-                ${() => ui.code && code({ label, language, value: ui.code })}
+                ${() => ui.code && code({ label, language: 'typescript', value: ui.code })}
             </section>
         `;
     }

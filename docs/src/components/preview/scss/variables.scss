@@ -1,4 +1,3 @@
-@use 'css-utilities/background';
 @use 'css-utilities/border';
 @use 'css-utilities/box-shadow';
 @use 'css-utilities/surface';
@@ -17,18 +16,10 @@
     }
 
     &-header {
-        @extend %surface-raise;
-        --background: var(--surface-background-default);
-        --border-color: var(--surface-border-active);
+        // The preview card's radius less its border.
         --border-radius: calc(var(--border-radius-500) - var(--border-width-400));
-        --border-width: var(--border-width-400);
-        --gap-horizontal: var(--size-300);
-        --gap-vertical: var(--size-200);
-        --min-height: 44px;
-        --padding-horizontal: var(--size-400);
-        --padding-vertical: var(--size-200);
 
-        // Clear at rest and while active, so only the highlight's pill marks the chosen button.
+
         &-button {
             --border-radius: var(--border-radius-300);
             --font-size: var(--font-size-300);
@@ -40,8 +31,9 @@
             --height: 28px;
             --width: auto;
 
+
             // Its height is set outright, so the trigger keeps none of an input's padding.
-            & > .select-menu-trigger {
+            > .select-menu-trigger {
                 --padding-vertical: 0px;
             }
         }
@@ -67,6 +59,7 @@
         --padding-horizontal: var(--size-500);
         --padding-vertical: var(--size-600);
 
+
         // Reserve space while an offscreen example waits to mount.
         &--pending {
             --min-height: 320px;
@@ -82,6 +75,7 @@
     &-view {
         // Pulls the buttons down onto the card below, out of the page's gap.
         --overlap: calc(var(--size-100) - var(--size-800));
+
 
         // Clears the buttons above it, so scrolling to the example still shows them. Qualified so it beats the card's
         // own scroll margin.
@@ -100,11 +94,11 @@
         --code-padding-vertical: var(--size-400);
     }
 
+
     &.card {
         --border-color-default: var(--surface-border-default);
         --border-radius: var(--border-radius-500);
         --border-width: var(--border-width-400);
-        --intrinsic-height: 420px;
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
         // The card's fill, resolved here, for anything inside that must cover what scrolls beneath it.

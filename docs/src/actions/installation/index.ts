@@ -1,11 +1,10 @@
-import { group, preview } from '@esportsplus/ui/components';
+import { group } from '@esportsplus/ui/components';
+import preview from 'docs/components/preview';
 import { html, reactive, uri } from 'docs/app';
 import type { Renderable, Router } from 'docs/app';
 import type { Page } from 'docs/types';
 import header from 'docs/components/page/header';
 import layout from 'docs/components/layout';
-
-import '@esportsplus/ui/components/section/scss/index.scss';
 import 'docs/actions/installation/scss/index.scss';
 
 
@@ -40,7 +39,7 @@ const page = (): Page => {
                 preview: preview([
                     preview.header({ title: 'Terminal' }, group(
                         {
-                            [group.highlight]: { class: 'preview-header-buttons-highlight' },
+                            [group.highlight]: {},
                             'aria-label': 'Package manager',
                             class: 'installation-packages',
                             role: 'group'

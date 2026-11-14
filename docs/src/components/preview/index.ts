@@ -1,12 +1,12 @@
 import { flush, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import { observeIntersection } from '~/shared/visible';
+import { observeIntersection } from '@esportsplus/ui/shared/visible';
 import buttons from './buttons';
 import code from './code';
 import header from './header';
 import source from './source';
 import stage from './stage';
-import './scss/index.scss';
+import 'docs/components/preview/scss/index.scss';
 
 
 type A = Attributes & {

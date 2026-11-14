@@ -3,7 +3,7 @@ import layout from 'docs/components/layout';
 import { html, uri } from 'docs/app';
 import { themeColors, themes, themeTokens, tokenSources, WEIGHTS } from 'docs/data/scss';
 import { pickers } from 'docs/actions/themes/pickers';
-import { preview } from '@esportsplus/ui/components';
+import preview from 'docs/components/preview';
 import type { Router } from 'docs/app';
 import type { Page, TocItem } from 'docs/types';
 import 'docs/actions/themes/scss/index.scss';

@@ -3,19 +3,20 @@
 Reusable presentation belongs here. Routes in `actions/` supply data and compose
 these components; they should not own shared component styles. Page-specific
 content and styles belong with their action, such as the installation guide in
-`actions/docs/index.ts` and `actions/docs/scss/index.scss`. The tokens action owns
+`actions/installation/index.ts` and `actions/installation/scss/index.scss`. The tokens action owns
 its color palettes, contrast calculation, clipboard feedback, and swatch styles.
 
 | Component | Owns |
 | --- | --- |
-| `code` | TypeScript syntax colors, line numbers, preserved source whitespace, scrolling, and a floating copy control |
-| `directory` | Components and CSS Utilities index grids of library card links, and their detail pages, each example composed from the library `preview` with its variant select and view buttons |
+| `directory` | Components and Modifiers index grids of library card links, and their detail pages, each example composed from `preview` with its variant select and view buttons |
 | `layout` | A page's main content, previous/next cards and scroll-spied TOC; every action returns its page through it |
 | `page` | Docs page and section layout, and empty states |
 | `page/header` | Library page title and subtitle, optional breadcrumb and note, and previous/next navigation |
+| `preview` | An example's card: mounts its content near the viewport and answers its hash; `preview.header` (the library `card-header` with a numbered title and controls), `preview.stage`, `preview.source`, `preview.code` and `preview.buttons` share one `preview.state()` |
 | `root` | Docs-wide theme aliases |
 | `sidebar` | Documentation navigation and its search, rendered as the library `shell`'s static left sidebar |
 | `spec` | Shared data tables, token/value typography, and table-header surface and corner styling |
+| `theme-switcher` | The fixed theme swatches, shown on every page |
 | `toaster` | The shared docs toast queue, placement, and toast surface styles |
 | `viewer` | Routed content grid in the layout's main area, with the TOC column |
 
@@ -48,10 +49,9 @@ group structure used by the tree renderer, and the docs capitalize the labels th
 Scope documentation page styles under `.main > .page` so library pages in live
 examples keep their own presentation.
 
-Detail pages pass `variant.render` to the library `preview.stage` so offscreen examples are not constructed yet.
+Detail pages pass `variant.render` to `preview.stage` so offscreen examples are not constructed yet.
 Pre-rendered theme content still mounts immediately. Focus and hash navigation mount a targeted
-example before scrolling to it; visited examples retain their state while the browser skips
-rendering their offscreen contents.
+example before scrolling to it; visited examples stay mounted and keep their state.
 
 `examples/index.ts` eagerly discovers default exports from top-level example files
 and each example directory's `index.ts`, then sorts entries by name. The registry,
@@ -70,5 +70,4 @@ and hash links return the targeted card to Preview. All page headers use `pageHe
 The header uses the library's `page-title` and `page-subtitle` classes.
 Its optional `breadcrumb` list renders the library breadcrumb inside the header;
 an omitted or empty list leaves it out. The header also owns previous/next navigation
-and its layout styles in `page/scss/head.scss`. Both navigation controls use one
-arrow icon, rotated with CSS for the previous page.
+(the library's `pagination.arrows`) and its layout styles in `page/scss/index.scss`.

@@ -1,7 +1,8 @@
 import header from 'docs/components/page/header';
 import layout from 'docs/components/layout';
 import { html, reactive, uri } from 'docs/app';
-import { preview, range } from '@esportsplus/ui/components';
+import { range } from '@esportsplus/ui/components';
+import preview from 'docs/components/preview';
 import type { Renderable, Router } from 'docs/app';
 import type { Page, TocItem } from 'docs/types';
 import 'docs/actions/surfaces/scss/index.scss';

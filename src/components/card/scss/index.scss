@@ -50,6 +50,22 @@
     }
 
 
+    // A strip across the top of a card with no padding of its own: a title, then whatever controls follow it. A surface
+    // above the card, so what sits in it takes its states from the header's own level. The card can't clip, so the
+    // header rounds the corners it fills.
+    &-header {
+        align-items: center;
+        background: var(--background);
+        border-block-end: var(--border-width) solid var(--border-color);
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        min-height: var(--min-height);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
+    }
+
     // Pinned to its natural size, so text never reflows while the shell morphs around it.
     &-morph {
         &-layer {

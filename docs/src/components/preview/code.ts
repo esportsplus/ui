@@ -1,9 +1,9 @@
 import { component, html } from '@esportsplus/template';
-import copy from '~/components/button/copy';
-import viewer, { type CodeViewerAttributes } from '~/components/editor/viewer';
+import copy from '@esportsplus/ui/components/button/copy';
+import viewer, { type CodeViewerAttributes } from '@esportsplus/ui/components/editor/viewer';
 
 
-type A = Pick<CodeViewerAttributes, 'fold' | 'language' | 'lineNumbers' | 'value' | 'whitespace' | 'wrap'> & {
+type A = Pick<CodeViewerAttributes, 'language' | 'lineNumbers' | 'value'> & {
     class?: string;
     // What the copy button announces, e.g. 'Copy theme.ts'.
     label?: string;

@@ -108,9 +108,6 @@ const meta: Record<string, Meta> = {
     pagination: {
         description: 'Numbered page navigation that folds overflow into ellipses. Previous and next links come as large cards or compact arrow buttons, each nudging its arrow the way it points.'
     },
-    preview: {
-        description: 'Example card with a numbered header for its controls, a stage that mounts its example as it nears the viewport, and preview and code views that load the source on demand with a copy button.'
-    },
     progress: {
         description: 'Progress bar with an optional label, percentage, and a status line derived from the value, plus progress shown in the label itself: ink fills the letters, digits roll, and a drawn check lands when done.'
     },
@@ -172,4 +169,3 @@ const meta: Record<string, Meta> = {
 
 
 export { meta };
-export type { Meta };

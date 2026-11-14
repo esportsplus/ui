@@ -1,10 +1,7 @@
 @use 'css-utilities/text';
 @use 'variables';
 
-
 .preview {
-    // Keep visited examples' state while the browser skips painting and layout offscreen.
-    contain-intrinsic-block-size: auto var(--intrinsic-height);
     margin: 0;
     min-width: 0;
     scroll-margin-top: var(--scroll-margin-vertical);
@@ -31,22 +28,12 @@
         z-index: 1;
     }
 
-    // A surface above the card, so what sits in it (the tabs' highlight, the select) takes its states from the
-    // header's own level. The card can't clip, so the header rounds the corners it fills.
+    // The strip itself is the card's 'card-header'; these are the controls an example puts in it.
     &-header {
-        align-items: center;
-        background: var(--background);
-        border-bottom: var(--border-width) solid var(--border-color);
-        border-radius: var(--border-radius) var(--border-radius) 0 0;
-        display: flex;
-        flex-wrap: wrap;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        min-height: var(--min-height);
-        padding: var(--padding-vertical) var(--padding-horizontal);
-
         &-select {
             max-width: 100%;
             text-transform: none;
+
 
             &.select {
                 background: transparent;
@@ -70,9 +57,11 @@
     &-source {
         min-width: 0;
 
+
         &-message {
             color: var(--color);
-            padding: var(--padding-vertical) var(--padding-horizontal);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
         }
     }
 
@@ -93,10 +82,12 @@
         grid-template-columns: minmax(0, 1fr);
         justify-items: center;
         min-height: var(--min-height);
-        padding: var(--padding-vertical) var(--padding-horizontal);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         position: relative;
 
-        .preview-header ~ & {
+
+        .card-header ~ & {
             border-start-end-radius: 0;
             border-start-start-radius: 0;
         }
@@ -124,12 +115,14 @@
         align-self: flex-start;
         width: fit-content;
 
+
         &-button {
             &:focus-visible {
                 outline: var(--focus-width) solid var(--focus-color);
                 outline-offset: var(--focus-offset);
             }
         }
+
 
         &:has(+ .preview) {
             margin-bottom: var(--overlap);
@@ -145,7 +138,6 @@
 
     // An open selector must paint beyond this card and above the following preview.
     &:has(.preview-header-select.--active) {
-        content-visibility: visible;
         z-index: 10;
     }
 }
