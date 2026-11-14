@@ -13,7 +13,7 @@ import { mapFolds, outerFolds, type FoldRange } from '../code/folding';
 import { goto } from '../code/goto';
 import { commands, keymap } from '../code/keymap';
 import { EditorLayout, type Rect } from '../code/layout';
-import { minimap, type Source } from '../code/minimap';
+import { minimap, pixels, tokenColors, type Source } from '../code/minimap';
 import { move } from '../code/navigation';
 import { pointer } from '../code/pointer';
 import { NativeText } from '../code/projection';
@@ -39,10 +39,8 @@ import { renderer } from './render';
 import { foldable, foldAt, markdownFolds } from './structure';
 import { toolbar, type Tool } from './toolbar';
 import type { Change, EditorDocument, Selection, Snapshot } from '../code/document';
-import type { Callbacks, Controller, Options } from '../code/view';
+import { reuse, type Callbacks, type Controller, type Decoration, type Options } from '../code/view';
 
-
-type Decoration = { kind: string; style: string };
 
 // Space standing in for the units left undrawn between drawn ones.
 type Gap = { height: number };
@@ -121,7 +119,7 @@ const NO_TOKENS: readonly Token[] = [];
 // A line whose text so far is '[]' or '[ ]': a space turns it into a task item.
 const TASK = /^\[ ?\]$/;
 
-const TOKEN_COLORS = ['comment', 'keyword', 'operator', 'property', 'string', 'type', 'variable'] as const;
+const TOKEN_COLORS: readonly Token['kind'][] = ['comment', 'keyword', 'operator', 'property', 'string', 'type', 'variable'];
 
 const VERTICAL = /^(ArrowDown|ArrowUp|PageDown|PageUp)$/;
 
@@ -188,10 +186,6 @@ function assign(list: Item[], next: readonly Item[]) {
         list.splice(i, 0, ...next.slice(i, end));
         i = end;
     }
-}
-
-function pixels(value: string) {
-    return parseFloat(value) || 0;
 }
 
 
@@ -722,18 +716,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             mark(dropAt, dropAt, 'markdown-editor-mark markdown-editor-mark--caret');
         }
 
-        while (decorations.length < items.length) {
-            decorations.push(reactive({ kind: '', style: '' }));
-        }
-
-        if (decorations.length > items.length) {
-            decorations.splice(items.length, decorations.length - items.length);
-        }
-
-        for (let i = 0, n = items.length; i < n; i++) {
-            decorations[i].kind = items[i].kind;
-            decorations[i].style = items[i].style;
-        }
+        reuse(decorations, items);
     }
 
     // The native point standing for a source offset: in the drawn text holding it, or after the text before it when it
@@ -1019,8 +1002,6 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
         let computed = getComputedStyle(surface),
             style = getComputedStyle(host),
-            fallback = style.getPropertyValue('--color').trim() || 'currentColor',
-            colors: Record<string, string> = {},
             padLeft = pixels(computed.paddingLeft),
             fontSize = pixels(computed.fontSize) || 13;
 
@@ -1038,11 +1019,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             width: surface.getBoundingClientRect().width - (surface.offsetWidth - surface.clientWidth) - padLeft - pixels(computed.paddingRight)
         };
 
-        for (let i = 0, n = TOKEN_COLORS.length; i < n; i++) {
-            colors[TOKEN_COLORS[i]] = style.getPropertyValue(`--${TOKEN_COLORS[i]}-color`).trim() || fallback;
-        }
-
-        palette = colors;
+        palette = tokenColors(style, TOKEN_COLORS);
 
         if (layout.configure({
             charWidth: metrics.charWidth,

@@ -1,3 +1,4 @@
+import { clamp } from '~/shared/clamp';
 import type { Edit, EditorDocument } from '../document';
 import type { CompletionItem, Position, Range } from './protocol';
 
@@ -245,7 +246,7 @@ const offsetAt = (doc: EditorDocument, position: Position) => {
 const positionAt = (doc: EditorDocument, offset: number): Position => {
     let line = doc.lineAt(offset);
 
-    return { character: Math.min(Math.max(0, offset), doc.lineEnd(line)) - doc.lineStart(line), line };
+    return { character: clamp(offset, 0, doc.lineEnd(line)) - doc.lineStart(line), line };
 };
 
 const spanOf = (doc: EditorDocument, range: Range): Span | null => {

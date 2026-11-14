@@ -1,3 +1,4 @@
+import { clamp } from '~/shared/clamp';
 import { blockAt, contentEnd, quotePrefix, type MarkdownBlock } from './model';
 import type { Edit, EditorDocument, Selection } from '../code/document';
 import type { Inline } from './inline';
@@ -378,7 +379,7 @@ const setBlockKind = (context: Context, kind: BlockKind) => {
 
             edits.push({ from: document.lineStart(open), insert: '', to: document.lineStart(open + 1) });
             first = Math.max(first, open + 1);
-            last = Math.min(Math.max(last, first), close - 1);
+            last = clamp(last, first, close - 1);
         }
 
         if (kind === 'codeblock') {

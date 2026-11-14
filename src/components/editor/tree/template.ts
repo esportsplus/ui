@@ -4,6 +4,7 @@ import system from '~/components/clipboard';
 import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
+import { clamp } from '~/shared/clamp';
 import fuzzy from '~/shared/fuzzy';
 import chevron from '@esportsplus/ui/svg/chevron-right.svg';
 import symlink from '@esportsplus/ui/svg/corner-down-right.svg';
@@ -2234,7 +2235,7 @@ export default ({
             focus(row);
         }
         else if (rows.length) {
-            focus(rows[Math.min(Math.max(at, 0), rows.length - 1)]);
+            focus(rows[clamp(at, 0, rows.length - 1)]);
         }
         else {
             cursor = null;

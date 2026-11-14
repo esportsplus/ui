@@ -660,7 +660,7 @@ const lineCommand = (doc: EditorDocument, command: LineCommand) => {
                     : rows.findIndex((row) => row.id === id);
 
         if (index < 0) {
-            index = Math.min(Math.max(0, id - first), rows.length - 1);
+            index = clamp(id - first, 0, rows.length - 1);
         }
 
         if (command === 'blank' && selected.has(id)) {

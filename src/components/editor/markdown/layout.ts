@@ -1,3 +1,4 @@
+import { clamp } from '~/shared/clamp';
 import type { FoldRange } from '../code/folding';
 import type { MarkdownBlock, Row } from './model';
 
@@ -409,7 +410,7 @@ class MarkdownLayout {
             this.index();
         }
 
-        return this.tops[Math.max(0, Math.min(index, this.units.length))];
+        return this.tops[clamp(index, 0, this.units.length)];
     }
 
     // Units to render for a viewport at content y: those within OVERSCAN of it, at most WINDOW_LIMIT.

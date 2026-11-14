@@ -1,5 +1,6 @@
 import { dispose, effect, onCleanup, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import type { On } from '@esportsplus/template';
+import { clamp } from '~/shared/clamp';
 import Decorations, { type Decoration } from '../tree/decorations';
 import type { CodeController } from '../code/view';
 import type { FileTreeElement, FileTreeImportEntry, FileTreeSnapshot } from '../tree';
@@ -44,7 +45,7 @@ function numbers(value: unknown) {
 }
 
 function offset(value: unknown, length: number) {
-    return Number.isFinite(value) ? Math.max(0, Math.min(length, Math.trunc(value as number))) : 0;
+    return Number.isFinite(value) ? clamp(Math.trunc(value as number), 0, length) : 0;
 }
 
 // Stored sessions outlive the code that wrote them and may be edited by hand, so each field is checked on the way in.

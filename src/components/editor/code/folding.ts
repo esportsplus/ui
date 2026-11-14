@@ -1,5 +1,5 @@
-import { EditorDocument, floorIndex, lineStarts, type Edit } from './document';
-import { SyntaxCache, type Frame, type Language, type LineSyntax, type Nesting } from './syntax';
+import { floorIndex, lineStarts, type Edit, type EditorDocument } from './document';
+import { SyntaxCache, type Frame, type LineSyntax, type Nesting } from './syntax';
 
 
 type BracketPair = { from: number; to: number };
@@ -442,18 +442,6 @@ const mapFolds = (
     }));
 };
 
-const matchingPair = (pairs: readonly BracketPair[], offset: number) => {
-    for (let i = 0, n = pairs.length; i < n; i++) {
-        let pair = pairs[i];
-
-        if (pair.from === offset || pair.to === offset || pair.from === offset - 1 || pair.to === offset - 1) {
-            return pair;
-        }
-    }
-
-    return null;
-};
-
 // Bracket opener still open at 'offset', the one a closer typed there would match.
 const openBracket = (cache: SyntaxCache, offset: number) => {
     let document = cache.document,
@@ -668,22 +656,16 @@ const structureOf = (cache: SyntaxCache): Structure => {
     return { folds, pairs };
 };
 
-const structures = (source: string, language: Language) => {
-    return structureOf(new SyntaxCache(new EditorDocument(source), language));
-};
-
 
 export {
     enclosingFold,
     foldAt,
     mapFolds,
-    matchingPair,
     openBracket,
     outerFolds,
     pairAround,
     pairAt,
     stickyFolds,
-    structureOf,
-    structures
+    structureOf
 };
 export type { BracketPair, FoldRange };

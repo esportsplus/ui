@@ -34,6 +34,22 @@ const PITCH = 4;
 
 const SPACING = 1.15;
 
+const TOKEN_COLORS: readonly Token['kind'][] = [
+    'color',
+    'comment',
+    'function',
+    'keyword',
+    'number',
+    'operator',
+    'property',
+    'regexp',
+    'selector',
+    'string',
+    'tag',
+    'type',
+    'variable'
+];
+
 
 function blank(text: string, i: number) {
     let code = text.charCodeAt(i);
@@ -79,7 +95,7 @@ const minimap = ({
         full = true,
         grab: number | null = null,
         lineHeight = 20,
-        pixels = '',
+        sized = '',
         state = reactive({ height: 24, top: 0 }),
         // Last fill this paint set; the fillStyle setter parses its color every time, even an unchanged one.
         style = '',
@@ -89,7 +105,7 @@ const minimap = ({
     function draw(context: CanvasRenderingContext2D, source: Source, scale: number, index: number) {
         let text = source.text(index),
             top = source.top(index),
-            pitch = Math.max(1, Math.min(3, source.lineHeight * scale));
+            pitch = clamp(source.lineHeight * scale, 1, 3);
 
         if (text.length > LONG) {
             fill(context, colors.comment);
@@ -211,12 +227,12 @@ const minimap = ({
 
             let key = `${size}:${height}:${ratio}:${content}:${source.height}`;
 
-            if (key !== pixels || colors !== palette) {
+            if (key !== sized || colors !== palette) {
                 canvas.height = Math.round(height * ratio);
                 canvas.width = Math.round(size * ratio);
                 colors = palette;
                 full = true;
-                pixels = key;
+                sized = key;
                 width = size;
             }
 
@@ -265,6 +281,24 @@ const minimap = ({
     };
 };
 
+const pixels = (value: string) => {
+    return parseFloat(value) || 0;
+};
 
-export { minimap };
+// The color each token kind paints with, read from 'style'; a kind without one paints in '--color'.
+const tokenColors = (style: CSSStyleDeclaration, kinds: readonly Token['kind'][] = TOKEN_COLORS) => {
+    let fallback = style.getPropertyValue('--color').trim() || 'currentColor',
+        palette: Record<string, string> = {};
+
+    for (let i = 0, n = kinds.length; i < n; i++) {
+        let kind = kinds[i];
+
+        palette[kind] = style.getPropertyValue(`--${kind === 'color' ? 'literal' : kind}-color`).trim() || fallback;
+    }
+
+    return palette;
+};
+
+
+export { minimap, pixels, tokenColors };
 export type { Source };

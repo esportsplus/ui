@@ -780,9 +780,7 @@ export {
     floorIndex,
     lineEnd,
     lineStarts,
-    normalizeSelections,
     preferredEol,
-    sameSelection,
     sameSelections,
     selection
 };

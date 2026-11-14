@@ -1,3 +1,4 @@
+import { clamp } from '~/shared/clamp';
 import type { Delta, EditorDocument } from './document';
 
 
@@ -1465,7 +1466,7 @@ class SyntaxCache {
 
 
     private clampLine(index: number) {
-        return Math.max(0, Math.min(this.document.lineCount - 1, Math.trunc(index) || 0));
+        return clamp(Math.trunc(index) || 0, 0, this.document.lineCount - 1);
     }
 
     private entry(line: number) {

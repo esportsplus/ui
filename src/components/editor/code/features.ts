@@ -3,6 +3,7 @@ import { html } from '@esportsplus/template';
 import colorPicker from '~/components/color-picker';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
+import { clamp } from '~/shared/clamp';
 import { changeLines, lineChanges, revertChange, type LineChange } from './changes';
 import { colorLiterals, formatColor, toHex, type ColorLiteral } from './colors';
 import { conflictsOf, resolveConflict, tints, type Block, type Conflict, type Resolution, type Tint } from './conflicts';
@@ -736,7 +737,7 @@ const features = (host: Host, apple: boolean) => {
             unicode?: boolean;
         }) => {
             let columns = (options.rulers ?? []).filter((column) => Number.isFinite(column) && column > 0).slice(0, RULERS),
-                cap = options.sticky === true ? STICKY : typeof options.sticky === 'number' ? Math.max(0, Math.min(STICKY_MAX, Math.trunc(options.sticky) || 0)) : 0;
+                cap = options.sticky === true ? STICKY : typeof options.sticky === 'number' ? clamp(Math.trunc(options.sticky) || 0, 0, STICKY_MAX) : 0;
 
             if (!!options.colors !== settings.colors) {
                 memo.colors.clear();

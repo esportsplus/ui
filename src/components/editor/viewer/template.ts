@@ -4,8 +4,8 @@ import copy from '~/components/button/copy';
 import icon from '~/components/icon';
 import scrollbar from '~/modifiers/scrollbar';
 import { observeSize } from '~/shared/resize';
-import { minimap, type Source } from '../code/minimap';
-import { languageFor, type Language, type Token } from '../code/syntax';
+import { minimap, pixels, tokenColors, type Source } from '../code/minimap';
+import { languageFor, type Language } from '../code/syntax';
 import { hidden, outline, type Line } from './model';
 import chevron from '@esportsplus/ui/svg/chevron-down.svg';
 
@@ -33,26 +33,6 @@ const NO_BREAKS: readonly number[] = [];
 // Inline, since the modifiers cascade layer outranks the component's stylesheet.
 const SCROLLBAR = '--scrollbar-offset: 0px; --scrollbar-size-hover: var(--scrollbar-size);';
 
-const TOKEN_COLORS: readonly Token['kind'][] = [
-    'color',
-    'comment',
-    'function',
-    'keyword',
-    'number',
-    'operator',
-    'property',
-    'regexp',
-    'selector',
-    'string',
-    'tag',
-    'type',
-    'variable'
-];
-
-
-function pixels(value: string) {
-    return parseFloat(value) || 0;
-}
 
 function range(index: number, end: number) {
     return end - index === 2 ? `line ${end}` : `lines ${index + 2}–${end}`;
@@ -113,7 +93,6 @@ export default component(
             }
 
             let computed = getComputedStyle(content),
-                fallback = computed.getPropertyValue('--color').trim() || 'currentColor',
                 heights: number[] = [],
                 lineHeight = pixels(getComputedStyle(elements[0]).lineHeight) || 20,
                 tops: number[] = [];
@@ -131,13 +110,7 @@ export default component(
                 }
             }
 
-            palette = {};
-
-            for (let i = 0, n = TOKEN_COLORS.length; i < n; i++) {
-                let kind = TOKEN_COLORS[i];
-
-                palette[kind] = computed.getPropertyValue(`--${kind === 'color' ? 'literal' : kind}-color`).trim() || fallback;
-            }
+            palette = tokenColors(computed);
 
             source = {
                 breaks: () => NO_BREAKS,

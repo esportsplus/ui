@@ -1,4 +1,4 @@
-import { flush, reactive } from '@esportsplus/reactivity';
+import { flush, reactive, type ReactiveArray } from '@esportsplus/reactivity';
 import { html, type Attributes } from '@esportsplus/template';
 import scrollbar from '~/modifiers/scrollbar';
 import { clamp } from '~/shared/clamp';
@@ -30,7 +30,7 @@ import { goto } from './goto';
 import { gutter } from './gutter';
 import { commands, keymap, type Command } from './keymap';
 import { EditorLayout, irregular, type Rect } from './layout';
-import { minimap, type Source } from './minimap';
+import { minimap, pixels, tokenColors, type Source } from './minimap';
 import { move } from './navigation';
 import { pointer } from './pointer';
 import { inputEdit, NativeText, type Before, type Placeholder } from './projection';
@@ -204,22 +204,6 @@ const OCCURRENCE_LIMIT = 10000;
 // Rows rendered above and below the viewport.
 const OVERSCAN = 4;
 
-const TOKEN_COLORS = [
-    'color',
-    'comment',
-    'function',
-    'keyword',
-    'number',
-    'operator',
-    'property',
-    'regexp',
-    'selector',
-    'string',
-    'tag',
-    'type',
-    'variable'
-] as const;
-
 
 let uid = 0;
 
@@ -228,13 +212,25 @@ function ending(model: EditorDocument): State['lineEnding'] {
     return model.eol === '\r\n' ? 'crlf' : 'lf';
 }
 
-function pixels(value: string) {
-    return parseFloat(value) || 0;
-}
-
 
 // The editor's view of one document: a transparent native textarea owns input, selection, IME and scrolling, while
 // pooled rows draw the visible lines from the incremental layout. Returns its template and controller.
+// Rewrites the pooled decorations in place, so a repaint updates their attributes rather than rendering new nodes.
+const reuse = (pool: ReactiveArray<Decoration>, items: readonly Decoration[]) => {
+    while (pool.length < items.length) {
+        pool.push(reactive({ kind: '', style: '' }));
+    }
+
+    if (pool.length > items.length) {
+        pool.splice(items.length, pool.length - items.length);
+    }
+
+    for (let i = 0, n = items.length; i < n; i++) {
+        pool[i].kind = items[i].kind;
+        pool[i].style = items[i].style;
+    }
+};
+
 const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller: CodeController) => void) => {
     let accepting = -1,
         apple = mac(),
@@ -757,8 +753,6 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
         let computed = getComputedStyle(textarea),
             style = getComputedStyle(host),
-            fallback = style.getPropertyValue('--color').trim() || 'currentColor',
-            colors: Record<string, string> = {},
             next: Metrics = {
                 charWidth: ruler.getBoundingClientRect().width / (ruler.textContent?.length || 1) || 7.8,
                 clientWidth: textarea.clientWidth,
@@ -772,12 +766,6 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 
         next.width = contentWidth(next);
 
-        for (let i = 0, n = TOKEN_COLORS.length; i < n; i++) {
-            let kind = TOKEN_COLORS[i];
-
-            colors[kind] = style.getPropertyValue(`--${kind === 'color' ? 'literal' : kind}-color`).trim() || fallback;
-        }
-
         let changed = !layout ||
             next.charWidth !== metrics.charWidth ||
             next.clientWidth !== metrics.clientWidth ||
@@ -787,7 +775,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             next.width !== metrics.width;
 
         metrics = next;
-        palette = colors;
+        palette = tokenColors(style);
         extras.measure();
 
         if (changed) {
@@ -976,18 +964,7 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
             });
         }
 
-        while (decorations.length < items.length) {
-            decorations.push(reactive({ kind: '', style: '' }));
-        }
-
-        if (decorations.length > items.length) {
-            decorations.splice(items.length, decorations.length - items.length);
-        }
-
-        for (let i = 0, n = items.length; i < n; i++) {
-            decorations[i].kind = items[i].kind;
-            decorations[i].style = items[i].style;
-        }
+        reuse(decorations, items);
     }
 
     function placeholderAt(clientX: number, clientY: number): Placeholder | null {
@@ -2143,5 +2120,5 @@ const view = (model: EditorDocument, callbacks: Callbacks, receive?: (controller
 };
 
 
-export { view };
-export type { Callbacks, CodeController, Controller, Options, State };
+export { reuse, view };
+export type { Callbacks, CodeController, Controller, Decoration, Options, State };

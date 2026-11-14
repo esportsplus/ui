@@ -1,4 +1,5 @@
 import { peek, read, signal, write, type Signal } from '@esportsplus/reactivity';
+import { clamp } from '~/shared/clamp';
 import type { Command } from '../code/keymap';
 import { sanitize } from './keybindings';
 import type { FileTreeExport, FileTreeImportEntry } from '../tree';
@@ -390,7 +391,7 @@ class EditorWorkspaceModel {
         }
 
         if (typeof preferences.autoSaveDelay === 'number' && Number.isFinite(preferences.autoSaveDelay)) {
-            this.preferences.autoSaveDelay = Math.min(Math.max(Math.round(preferences.autoSaveDelay), AUTO_SAVE_DELAY_MIN), AUTO_SAVE_DELAY_MAX);
+            this.preferences.autoSaveDelay = clamp(Math.round(preferences.autoSaveDelay), AUTO_SAVE_DELAY_MIN, AUTO_SAVE_DELAY_MAX);
         }
 
         for (let key of ['explorerOpen', 'showWhitespace', 'wrapText'] as const) {
