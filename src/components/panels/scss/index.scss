@@ -233,7 +233,6 @@
 
     // A section: the normalize wraps sections' flex lines, which would stop the body stretching across the group.
     &-group {
-        border: var(--border-width-400) solid transparent;
         display: flex;
         flex: 1;
         flex-direction: column;
@@ -254,15 +253,6 @@
         &--picked {
             background: var(--drop-background);
             box-shadow: inset 0 0 0 var(--picked-ring-width) var(--drop-ring);
-        }
-
-        @include tokens.state(active) {
-            border-color: var(--border-color);
-        }
-
-        // Its surface fills it edge to edge, with no tabs to mark it active.
-        &--static {
-            border-width: 0;
         }
 
         // The tab strip is where a dragged tab joins the group rather than splitting it.

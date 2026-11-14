@@ -5,7 +5,6 @@
 
 // The drop colors light every target a dragged tab can land on: an edge, a dock and a group's tab strip.
 .panels {
-    --border-color: var(--surface-border-default);
     --drop-background: oklch(from var(--color-primary-400) l c h / 0.12);
     --drop-ring: oklch(from var(--color-primary-400) l c h / 0.5);
     // The room each sidebar makes beside the main area: none while it is closed.
@@ -129,10 +128,10 @@
 
     // The line is a pixel; the separator around it is wider to grab, overlapping the panes on either side.
     &-handle {
-        @extend %background-state;
+        @extend %background-state, %surface-lower;
         --background-default: var(--surface-border-default);
-        --background-hover: var(--surface-border-pressed);
-        --background-pressed: var(--color-primary-400);
+        --background-hover: var(--surface-border-hover);
+        --background-pressed: var(--surface-border-pressed);
         --line-width: 1px;
         // TEMPORARY: the sidebar resize pill's look.
         --pill-border-radius: var(--border-radius-200);
