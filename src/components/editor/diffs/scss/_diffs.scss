@@ -60,6 +60,7 @@
 
         &--empty {
             background: var(--empty-background);
+            background-size: var(--empty-size) var(--empty-size);
         }
 
         &--insert {
@@ -136,7 +137,7 @@
     &-number {
         color: var(--muted-color);
         font-variant-numeric: tabular-nums;
-        padding-inline-end: var(--padding-end);
+        padding-inline: var(--padding-horizontal);
         text-align: end;
         user-select: none;
     }
@@ -148,8 +149,9 @@
 
     &-row {
         box-shadow: var(--box-shadow);
-        line-height: var(--line-height);
-        min-height: var(--line-height);
+        // Whole pixels, so rows start on one: a row at a fractional offset shifts its hatch and leaves a seam.
+        line-height: round(var(--line-height), 1px);
+        min-height: round(var(--line-height), 1px);
         position: relative;
 
         &--delete {
@@ -183,6 +185,15 @@
             .diffs-actions {
                 opacity: 1;
             }
+        }
+
+        // The library root sets every element's line height; the text takes the row's whole-pixel one.
+        .diffs-cell,
+        .diffs-code,
+        .diffs-code *,
+        .diffs-number,
+        .diffs-sign {
+            line-height: inherit;
         }
     }
 

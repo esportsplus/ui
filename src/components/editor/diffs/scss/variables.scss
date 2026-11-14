@@ -29,7 +29,9 @@
     --delete-word-background: oklch(from var(--color-red-400) l c h / 0.28);
     --digits: 2;
     --disabled-opacity: 0.45;
-    --empty-background: repeating-linear-gradient(-45deg, transparent 0 4px, oklch(from var(--color-primary-500) l c h / 0.05) 4px 8px);
+    // One tile holds two whole stripes, so tiles meet seamlessly.
+    --empty-background: linear-gradient(-45deg, var(--empty-color) 0 25%, transparent 25% 50%, var(--empty-color) 50% 75%, transparent 75%);
+    --empty-color: oklch(from var(--color-primary-500) l c h / 0.05);
     --font-size: var(--font-size-300);
     --function-color: light-dark(var(--color-purple-300), oklch(from var(--color-purple-300) 0.8 0.13 h));
     --height: 420px;
@@ -41,12 +43,12 @@
     --insert-word-background: oklch(from var(--color-green-500) 60% c h / 0.3);
     --keyword-color: light-dark(var(--color-purple-400), oklch(from var(--color-purple-400) 0.75 0.15 h));
     --label-font-size: var(--font-size-200);
-    --line-height: var(--size-600);
     --literal-color: var(--number-color);
     --min-height: var(--spacer-400);
     --muted-color: var(--color-text-300);
     --number-color: light-dark(var(--color-blue-400), oklch(from var(--color-blue-400) 0.78 0.12 h));
-    --number-width: calc(max(2, var(--digits)) * 1ch + var(--size-200));
+    // The digits plus '.diffs-number''s padding on both sides.
+    --number-width: calc(max(2, var(--digits)) * 1ch + var(--size-100) * 2);
     --operator-color: var(--color-text-400);
     --property-color: light-dark(var(--color-blue-500), oklch(from var(--color-blue-500) 0.8 0.1 h));
     --regexp-color: light-dark(var(--color-red-500), oklch(from var(--color-red-500) 0.75 0.14 h));
@@ -169,8 +171,14 @@
         --gap-vertical: 0px;
     }
 
+    // Half a row, rounded as the rows are, so every row restarts the hatch on a whole tile and stacked empty rows read
+    // as one.
+    &-cell--empty {
+        --empty-size: calc(round(var(--line-height), 1px) / 2);
+    }
+
     &-number {
-        --padding-end: var(--size-100);
+        --padding-horizontal: var(--size-100);
     }
 
     &-row {

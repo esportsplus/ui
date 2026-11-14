@@ -44,8 +44,9 @@
         box-shadow: var(--box-shadow);
         display: grid;
         grid-template-columns: var(--number-width) minmax(0, 1fr);
-        line-height: var(--line-height);
-        min-height: var(--line-height);
+        // Whole pixels, as the viewer's rows.
+        line-height: round(var(--line-height), 1px);
+        min-height: round(var(--line-height), 1px);
 
         &--change {
             background: var(--insert-background);
@@ -53,6 +54,13 @@
 
         &--conflict {
             background: var(--conflict-background);
+        }
+
+        // The library root sets every element's line height; the text takes the row's whole-pixel one.
+        .diffs-code,
+        .diffs-code *,
+        .diffs-number {
+            line-height: inherit;
         }
     }
 
