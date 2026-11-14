@@ -43,16 +43,21 @@ const LINKS: [string, string, string][] = [
     ['merge', 'notify', '']
 ];
 
+// World area the minimap shows: the starting layout with room to spare around it.
+const MAP = { height: 660, width: 1200, x: -215, y: -170 };
+
+// The minimap places its marks from these, in world px.
+const MAP_STYLE = `--map-height: ${MAP.height}; --map-width: ${MAP.width}; --map-x: ${MAP.x}; --map-y: ${MAP.y};`;
+
 const NODE_HEIGHT = 72;
 
 const NODE_WIDTH = 164;
 
-// World area the minimap shows: the starting layout with room to spare around it.
-const MAP = { height: 660, width: 1200, x: -215, y: -170 };
-
 const ZOOM_MAX = 2;
 
 const ZOOM_MIN = 0.35;
+
+const ZOOM_STEP = 1.25;
 
 
 function clamp(value: number, min: number, max: number) {
@@ -71,10 +76,6 @@ function edge(from: End, to: End) {
     let [x1, y1, c1x, c1y, c2x, c2y, x2, y2] = connector(from, to);
 
     return `M ${x1} ${y1} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${x2} ${y2}`;
-}
-
-function percent(value: number, total: number) {
-    return `${(value / total) * 100}%`;
 }
 
 // A card's port on the right (1) or left (-1), turned with the card.
@@ -111,7 +112,8 @@ function sample(from: End, to: End) {
 
 
 export default function editor(settings: Parameters<typeof surfaceField>[0]['state']) {
-    let camera: Camera = { x: 0, y: 0, zoom: 1 },
+    // The field follows the camera itself; the world and the minimap's lens read it too.
+    let camera = reactive<Camera>({ x: 0, y: 0, zoom: 1 }),
         glide = 0,
         nodes: Record<string, Node> = {},
         pan: { pointerX: number, pointerY: number, x: number, y: number } | null = null,
@@ -119,27 +121,29 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
         pending = reactive({ from: '', x: 0, y: 0 }),
         // A minimap drag: where the view's centre sits from the hand, in world px, and the minimap's box.
         scrub: { bounds: DOMRect, x: number, y: number } | null = null,
-        // What the world and the minimap's lens draw: the camera, and the viewport it looks through.
-        view = reactive({ height: 0, panning: false, scrubbing: false, width: 0, x: 0, y: 0, zoom: 1 }),
+        // The viewport the camera looks through, and the gestures under way.
+        view = reactive({ height: 0, panning: false, scrubbing: false, width: 0 }),
         viewport: HTMLElement | undefined;
 
     for (let [id, kind, title, x, y] of NODES) {
         nodes[id] = { id, kind, state: reactive({ height: NODE_HEIGHT, rotation: 0, title, width: NODE_WIDTH, x, y }) };
     }
 
-    let links = reactive(LINKS.map(([from, to, sequence]) => link(from, to, sequence)));
+    let cards = Object.values(nodes),
+        links = reactive(LINKS.map(([from, to, sequence]) => link(from, to, sequence)));
 
     function animate(to: Camera, instant = false) {
         cancelAnimationFrame(glide);
         measure();
 
         if (instant || matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            Object.assign(camera, to);
-            update();
+            camera.x = to.x;
+            camera.y = to.y;
+            camera.zoom = to.zoom;
             return;
         }
 
-        let from = { ...camera },
+        let from = { x: camera.x, y: camera.y, zoom: camera.zoom },
             start = performance.now();
 
         let step = (now: number) => {
@@ -149,7 +153,6 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
             camera.x = from.x + (to.x - from.x) * e;
             camera.y = from.y + (to.y - from.y) * e;
             camera.zoom = from.zoom + (to.zoom - from.zoom) * e;
-            update();
 
             if (t < 1) {
                 glide = requestAnimationFrame(step);
@@ -182,8 +185,8 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
             right = -Infinity,
             top = Infinity;
 
-        for (let id in nodes) {
-            let s = nodes[id].state;
+        for (let i = 0, n = cards.length; i < n; i++) {
+            let s = cards[i].state;
 
             bottom = Math.max(bottom, s.y + s.height);
             left = Math.min(left, s.x);
@@ -234,11 +237,8 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
         view.width = viewport.clientWidth;
     }
 
-    // The field reads the camera object itself; the world and the lens follow it through 'view'.
-    function update() {
-        view.x = camera.x;
-        view.y = camera.y;
-        view.zoom = camera.zoom;
+    function nudge(dx: number, dy: number) {
+        animate({ x: camera.x + dx, y: camera.y + dy, zoom: camera.zoom });
     }
 
     // Zooms about a point in viewport px so whatever sits under it stays put.
@@ -264,7 +264,6 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
 
         let bounds = viewport.getBoundingClientRect();
 
-        cancelAnimationFrame(glide);
         // Pinch gestures arrive as ctrl + wheel with small deltas, so they get a steeper curve.
         zoomAt(Math.exp(-event.deltaY * (event.ctrlKey ? 0.01 : 0.0015)), event.clientX - bounds.left, event.clientY - bounds.top);
     };
@@ -280,6 +279,7 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
                 onconnect: (element: HTMLElement, on) => {
                     on(element, 'wheel', wheel, { direct: true, passive: false });
                     viewport = element;
+                    measure();
                     requestAnimationFrame(() => fit(true));
                 },
                 ondisconnect: () => {
@@ -295,25 +295,25 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
                     switch (event.key) {
                         case '+':
                         case '=':
-                            zoomCentre(1.25);
+                            zoomCentre(ZOOM_STEP);
                             break;
                         case '-':
-                            zoomCentre(0.8);
+                            zoomCentre(1 / ZOOM_STEP);
                             break;
                         case '0':
                             fit();
                             break;
                         case 'ArrowDown':
-                            animate({ ...camera, y: camera.y - step });
+                            nudge(0, -step);
                             break;
                         case 'ArrowLeft':
-                            animate({ ...camera, x: camera.x + step });
+                            nudge(step, 0);
                             break;
                         case 'ArrowRight':
-                            animate({ ...camera, x: camera.x - step });
+                            nudge(-step, 0);
                             break;
                         case 'ArrowUp':
-                            animate({ ...camera, y: camera.y + step });
+                            nudge(0, step);
                             break;
                         default:
                             return;
@@ -343,27 +343,22 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
 
                     camera.x = pan.x + event.clientX - pan.pointerX;
                     camera.y = pan.y + event.clientY - pan.pointerY;
-                    update();
                 }
             }}
         >
             <div
                 class='surface-field-editor-world'
-                style='${() => `transform: translate(${view.x}px, ${view.y}px) scale(${view.zoom})`}'
+                style='${() => `--camera-x: ${camera.x}px; --camera-y: ${camera.y}px; --camera-zoom: ${camera.zoom};`}'
             >
                 ${html.reactive(links, (l) => html`
                     <svg aria-hidden='true' class='surface-field-editor-edge'>
                         <path d='${() => edge(port(nodes[l.from].state, 1), port(nodes[l.to].state, -1))}' />
                     </svg>
                 `)}
-                <svg
-                    aria-hidden='true'
-                    class='surface-field-editor-edge surface-field-editor-edge--pending'
-                    ${{ class: () => !pending.from && '--hidden' }}
-                >
+                <svg aria-hidden='true' class='surface-field-editor-edge surface-field-editor-edge--pending'>
                     <path d='${() => pending.from ? edge(port(nodes[pending.from].state, 1), { dx: 0, dy: 0, x: pending.x, y: pending.y }) : ''}' />
                 </svg>
-                ${Object.values(nodes).map((node) => surfaceField.surface(
+                ${cards.map((node) => surfaceField.surface(
                     {
                         bounded: false,
                         class: 'surface-field-editor-node',
@@ -390,8 +385,9 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
 
         <div
             aria-label='Minimap: click to move the view there, or drag the view'
-            class='surface-field-editor-minimap'
+            class='card card--ring surface-field-editor-minimap'
             role='button'
+            style='${MAP_STYLE}'
             ${{
                 class: () => view.scrubbing && '--active',
                 onlostpointercapture: () => {
@@ -439,26 +435,26 @@ export default function editor(settings: Parameters<typeof surfaceField>[0]['sta
                 }
             }}
         >
-            ${Object.values(nodes).map(({ state }) => html`
+            ${cards.map(({ state }) => html`
                 <span
                     class='surface-field-editor-minimap-node'
-                    style='${() => `height: ${percent(state.height, MAP.height)}; left: ${percent(state.x - MAP.x, MAP.width)}; top: ${percent(state.y - MAP.y, MAP.height)}; rotate: ${state.rotation}deg; width: ${percent(state.width, MAP.width)};`}'
+                    style='${() => `--mark-height: ${state.height}; --mark-rotation: ${state.rotation}deg; --mark-width: ${state.width}; --mark-x: ${state.x}; --mark-y: ${state.y};`}'
                 ></span>
             `)}
             <span
                 class='surface-field-editor-lens'
-                style='${() => !!view.width && `height: ${percent(view.height / view.zoom, MAP.height)}; left: ${percent(-view.x / view.zoom - MAP.x, MAP.width)}; top: ${percent(-view.y / view.zoom - MAP.y, MAP.height)}; width: ${percent(view.width / view.zoom, MAP.width)};`}'
+                style='${() => `--mark-height: ${view.height / camera.zoom}; --mark-width: ${view.width / camera.zoom}; --mark-x: ${-camera.x / camera.zoom}; --mark-y: ${-camera.y / camera.zoom};`}'
             ></span>
         </div>
 
-        <div class='surface-field-editor-controls'>
-            <button aria-label='Zoom in' class='surface-field-editor-control' type='button' ${{ onclick: () => zoomCentre(1.25) }}>
+        <div class='card card--ring surface-field-editor-controls'>
+            <button aria-label='Zoom in' class='button surface-field-editor-control' type='button' ${{ onclick: () => zoomCentre(ZOOM_STEP) }}>
                 ${icon({ 'aria-hidden': 'true', class: 'surface-field-editor-control-icon' }, plus)}
             </button>
-            <button aria-label='Zoom out' class='surface-field-editor-control' type='button' ${{ onclick: () => zoomCentre(0.8) }}>
+            <button aria-label='Zoom out' class='button surface-field-editor-control' type='button' ${{ onclick: () => zoomCentre(1 / ZOOM_STEP) }}>
                 ${icon({ 'aria-hidden': 'true', class: 'surface-field-editor-control-icon' }, minus)}
             </button>
-            <button aria-label='Fit view' class='surface-field-editor-control' type='button' ${{ onclick: () => fit() }}>
+            <button aria-label='Fit view' class='button surface-field-editor-control' type='button' ${{ onclick: () => fit() }}>
                 ${icon({ 'aria-hidden': 'true', class: 'surface-field-editor-control-icon' }, fitSvg)}
             </button>
         </div>

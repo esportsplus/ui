@@ -308,7 +308,7 @@ export default {
                 { class: 'surface-field-demo-backdrop', radius: 320, wander: true, worker },
                 html`
                     <div class='surface-field-demo-hero'>
-                        <div class='surface-field-demo-card' data-surface-field>
+                        <div class='card card--ring surface-field-demo-card' data-surface-field>
                             <h3 class='surface-field-demo-hero-title'>Any element can be a surface</h3>
                             <p class='surface-field-demo-hero-text'>Mark it with <code class='surface-field-demo-hero-code'>data-surface-field</code> and the field clears a space around it. This one draws in a worker.</p>
                         </div>

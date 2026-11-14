@@ -1,6 +1,23 @@
-@use 'css-utilities/background';
 @use 'css-utilities/group';
 @use 'css-utilities/surface';
+
+@property --camera-x {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
+@property --camera-y {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
+@property --camera-zoom {
+    inherits: false;
+    initial-value: 1;
+    syntax: '<number>';
+}
 
 
 .surface {
@@ -22,19 +39,16 @@
             width: 100%;
         }
 
-        // Dressed as one of the field's own surfaces: the same radius, ring and resting shadow.
-        &-card {
-            background: var(--surface-background-default);
-            border-radius: 14px;
-            box-shadow:
-                0 0 0 1px var(--surface-border-default),
-                0 1px 2px #{surface.shadow-color(0.6)},
-                0 8px 24px -8px #{surface.shadow-color(1.55)};
+        // Dressed as one of the field's own surfaces: the same radius, ring and resting shadow. Chained through '.card'
+        // so these win over the card's own regardless of stylesheet order.
+        &-card.card {
+            --border-radius: var(--border-radius-600);
+            --padding-horizontal: var(--size-600);
+            --padding-vertical: var(--size-500);
             display: flex;
             flex-direction: column;
             gap: var(--size-100);
             max-width: 360px;
-            padding: var(--size-500) 24px;
         }
 
         &-group {
@@ -107,14 +121,14 @@
             margin: 0;
         }
 
-        // A circle: its corner radius is what tells the field to clear a circle.
-        &-orb {
+        // A circle: its corner radius is what tells the field to clear a circle. Chained through '.card' so these win
+        // over the surface's own regardless of stylesheet order.
+        &-orb.card {
             --border-radius: 50%;
+            --padding-horizontal: var(--size-600);
+            --padding-vertical: var(--size-600);
 
             .surface-field-surface-content {
-                --padding-bottom: 24px;
-                --padding-horizontal: 24px;
-                --padding-top: 24px;
                 align-items: center;
                 justify-content: center;
                 text-align: center;
@@ -152,12 +166,10 @@
             padding: var(--size-200);
         }
 
-        &-pill {
+        // Chained through '.card' so these win over the surface's own regardless of stylesheet order.
+        &-pill.card {
             --border-radius: 36px;
-
-            .surface-field-surface-content {
-                --padding-horizontal: 24px;
-            }
+            --padding-horizontal: var(--size-600);
         }
 
         &-preset {
@@ -271,44 +283,41 @@
         position: absolute;
         touch-action: none;
 
+        // Transparent at rest, tinted under the hand.
         &-control {
-            @extend %background-state;
-            --background-hover: var(--surface-background-hover);
-            --background-pressed: var(--background-hover);
-            align-items: center;
-            background: var(--background);
-            border: 0;
-            border-radius: var(--border-radius-400);
-            color: var(--color-text-400);
-            cursor: pointer;
-            display: flex;
-            height: 32px;
-            justify-content: center;
-            transition: background-color 150ms ease;
-            width: 32px;
+            &.button {
+                --background-hover: var(--surface-background-hover);
+                --background-pressed: var(--background-hover);
+                --padding-horizontal: var(--size-100);
+                --padding-vertical: var(--size-100);
+            }
 
-            &-icon {
+            &-icon.icon {
                 --size: var(--size-400);
             }
 
             &:focus-visible {
-                outline: 2px solid var(--surface-border-pressed);
+                outline: var(--focus-width) solid var(--focus-color);
+                outline-offset: var(--focus-offset);
             }
         }
 
         &-controls {
-            @extend %group, %surface-raise;
+            @extend %group;
             --gap-horizontal: calc(var(--size-100) / 4);
             --gap-vertical: calc(var(--size-100) / 4);
-            background: var(--surface-background-default);
-            border-radius: var(--border-radius-600);
-            bottom: 16px;
-            box-shadow: 0 0 0 1px var(--surface-border-default), 0 6px 16px -8px #{surface.shadow-color(2.2)};
+            bottom: var(--size-400);
             left: 50%;
-            padding: calc(var(--size-100) / 2);
-            position: absolute;
             translate: -50% 0;
             z-index: 2;
+
+            // Chained through '.card' so these win over the card's own regardless of stylesheet order.
+            &.card {
+                --border-radius: var(--border-radius-600);
+                --padding-horizontal: calc(var(--size-100) / 2);
+                --padding-vertical: calc(var(--size-100) / 2);
+                position: absolute;
+            }
         }
 
         // Sized to nothing and left to overflow, so its path draws in world px under the cards.
@@ -327,36 +336,44 @@
             &--pending {
                 stroke-dasharray: 4 4;
             }
+        }
 
-            &.--hidden {
-                display: none;
-            }
+        // Marks on the minimap, placed from their world box ('--mark-*') within the world area it shows ('--map-*').
+        &-lens,
+        &-minimap-node {
+            height: calc(var(--mark-height) / var(--map-height) * 100%);
+            left: calc((var(--mark-x) - var(--map-x)) / var(--map-width) * 100%);
+            position: absolute;
+            top: calc((var(--mark-y) - var(--map-y)) / var(--map-height) * 100%);
+            width: calc(var(--mark-width) / var(--map-width) * 100%);
         }
 
         // The part of the world the viewport shows, tinted so it reads over the nodes.
         &-lens {
             background: color-mix(in oklab, var(--color-primary-300) 8%, transparent);
-            border: 1px solid var(--color-primary-300);
-            border-radius: 3px;
+            border: var(--border-width-400) solid var(--color-primary-300);
+            border-radius: var(--border-radius-100);
             pointer-events: none;
-            position: absolute;
         }
 
         &-minimap {
-            @extend %surface-raise;
-            aspect-ratio: 1200 / 660;
-            background: var(--surface-background-default);
-            border-radius: var(--border-radius-500);
-            box-shadow: 0 0 0 1px var(--surface-border-default), 0 6px 16px -8px #{surface.shadow-color(2.2)};
+            aspect-ratio: var(--map-width) / var(--map-height);
             cursor: pointer;
             overflow: hidden;
-            position: absolute;
-            right: 16px;
-            top: 16px;
+            right: var(--size-400);
+            top: var(--size-400);
             touch-action: none;
             user-select: none;
-            width: 150px;
             z-index: 2;
+
+            // Chained through '.card' so these win over the card's own regardless of stylesheet order.
+            &.card {
+                --border-radius: var(--border-radius-500);
+                --padding-horizontal: 0px;
+                --padding-vertical: 0px;
+                --width: 150px;
+                position: absolute;
+            }
 
             &.--active {
                 cursor: grabbing;
@@ -366,7 +383,7 @@
             &-node {
                 background: color-mix(in oklab, var(--color-text-300) 45%, transparent);
                 border-radius: var(--border-radius-100);
-                position: absolute;
+                rotate: var(--mark-rotation);
             }
         }
 
@@ -378,15 +395,15 @@
                 text-transform: uppercase;
             }
 
+            // Chained through '.card' so these win over the surface's own regardless of stylesheet order.
+            &.card {
+                --padding-horizontal: var(--size-300);
+                --padding-vertical: var(--size-200);
+            }
+
             .surface-field-surface {
                 &-content {
                     --gap-vertical: calc(var(--size-100) / 4);
-                    --padding-bottom: var(--size-200);
-                    --padding-horizontal: 14px;
-                }
-
-                &-header {
-                    --padding-horizontal: 14px;
                 }
 
                 &-title {
@@ -395,12 +412,16 @@
             }
         }
 
+        // Moved by the camera on every pan and zoom frame; its properties don't inherit, so the cards under it aren't
+        // restyled each frame.
         &-world {
             height: 0;
             left: 0;
             position: absolute;
+            scale: var(--camera-zoom);
             top: 0;
             transform-origin: 0 0;
+            translate: var(--camera-x) var(--camera-y);
             width: 0;
         }
 
@@ -409,7 +430,7 @@
         }
 
         &:focus-visible {
-            box-shadow: inset 0 0 0 2px var(--surface-border-pressed);
+            box-shadow: inset 0 0 0 var(--focus-width) var(--focus-color);
         }
     }
 }
