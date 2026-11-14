@@ -17,8 +17,7 @@ import { markup, tokens as lineTokens, type Mark } from './rows';
 import type { Entry } from './services';
 import type { Language, SyntaxCache, Token } from './syntax';
 import { describeSuspect, suspects, type Suspect } from './unicode';
-import arrowDown from '@esportsplus/ui/svg/arrow-down.svg';
-import arrowUp from '@esportsplus/ui/svg/arrow-up.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import close from '@esportsplus/ui/svg/close.svg';
 import undo from '@esportsplus/ui/svg/undo.svg';
 
@@ -142,7 +141,7 @@ const features = (host: Host, apple: boolean) => {
         structure: { cache: SyntaxCache | null; folds: FoldRange[]; revision: number } = { cache: null, folds: [], revision: -1 },
         timers: { baseline?: ReturnType<typeof setTimeout>; structure?: ReturnType<typeof setTimeout> } = {},
         tipState = reactive({ active: false, index: -1 }),
-        tip = tooltip.shared({ class: 'code-editor-picker-tooltip', direction: 's', interactive: true, state: tipState }),
+        tip = tooltip.shared({ axis: 'y', class: 'code-editor-picker-tooltip', interactive: true, state: tipState }),
         view = reactive({ pointer: false, rulers: '', sticky: 0 });
 
     let stop = effect(() => tipState.active, (active) => {
@@ -906,16 +905,31 @@ const features = (host: Host, apple: boolean) => {
                 current = { document: host.document(), from: swatch.from, initial: value, literal: swatch.value, state, to: swatch.to };
 
             pick = current;
-            tip.open(
-                anchor,
-                () => colorPicker({ class: 'code-editor-picker', recent: false, state, value }),
-                () => {
-                    let rect = host.rectAt(current.from) ?? swatch.rect,
-                        width = host.charWidth();
 
-                    return new DOMRect(rect.left - width, rect.top, width, rect.height);
-                }
-            );
+            // Opens once the press lets go: the press itself would reach the picker's dismissal of presses outside it.
+            let target = anchor,
+                waiting = new AbortController();
+
+            for (let type of ['pointercancel', 'pointerup']) {
+                window.addEventListener(type, (event) => {
+                    waiting.abort();
+
+                    if (event.type !== 'pointerup' || pick !== current) {
+                        return;
+                    }
+
+                    tip.open(
+                        target,
+                        () => colorPicker({ class: 'code-editor-picker', recent: false, state, value }),
+                        () => {
+                            let rect = host.rectAt(current.from) ?? swatch.rect,
+                                width = host.charWidth();
+
+                            return new DOMRect(rect.left - width, rect.top, width, rect.height);
+                        }
+                    );
+                }, { signal: waiting.signal });
+            }
 
             return true;
         },
@@ -1071,10 +1085,10 @@ const features = (host: Host, apple: boolean) => {
                     <div class='code-editor-peek-bar'>
                         <span class='code-editor-peek-title'>${() => peek.label}</span>
                         <button aria-label='Previous change' class='button code-editor-peek-button' type='button' ${{ onclick: () => navigate('change', true), onmousedown: keep }}>
-                            ${icon({ 'aria-hidden': 'true', class: 'code-editor-peek-icon' }, arrowUp)}
+                            ${icon({ 'aria-hidden': 'true', class: 'code-editor-peek-icon icon--up' }, arrow)}
                         </button>
                         <button aria-label='Next change' class='button code-editor-peek-button' type='button' ${{ onclick: () => navigate('change', false), onmousedown: keep }}>
-                            ${icon({ 'aria-hidden': 'true', class: 'code-editor-peek-icon' }, arrowDown)}
+                            ${icon({ 'aria-hidden': 'true', class: 'code-editor-peek-icon icon--down' }, arrow)}
                         </button>
                         <button
                             aria-label='Revert change'

@@ -3,8 +3,7 @@ import { html } from '@esportsplus/template';
 import icon from '~/components/icon';
 import input from '~/components/input';
 import fuzzy from '~/shared/fuzzy';
-import down from '@esportsplus/ui/svg/arrow-down.svg';
-import up from '@esportsplus/ui/svg/arrow-up.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import cross from '@esportsplus/ui/svg/close.svg';
 import sliders from '@esportsplus/ui/svg/sliders.svg';
 import Selection from './selection';
@@ -410,7 +409,7 @@ class Finder {
                             type='button'
                             ${{ disabled: () => !state.count && 'true' }}
                         >
-                            ${icon({ 'aria-hidden': 'true', class: 'file-tree-find-icon' }, up)}
+                            ${icon({ 'aria-hidden': 'true', class: 'file-tree-find-icon icon--up' }, arrow)}
                         </button>
                         <button
                             aria-label='Next match'
@@ -420,7 +419,7 @@ class Finder {
                             type='button'
                             ${{ disabled: () => !state.count && 'true' }}
                         >
-                            ${icon({ 'aria-hidden': 'true', class: 'file-tree-find-icon' }, down)}
+                            ${icon({ 'aria-hidden': 'true', class: 'file-tree-find-icon icon--down' }, arrow)}
                         </button>
                         <button
                             aria-label='Filter'

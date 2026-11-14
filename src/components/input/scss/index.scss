@@ -1,24 +1,364 @@
-@use 'field';
-@use 'scrub';
-@use 'tag';
+@use '/tokens';
+@use 'css-utilities/absolute';
+@use 'css-utilities/disabled';
+@use 'css-utilities/hidden';
+@use 'css-utilities/reset';
+@use 'css-utilities/text';
 @use 'variables';
 
+
+// Held on the root while any field scrubs, so the resize cursor stays once the pointer leaves the label.
+:root:has(#{tokens.state(active, '.input-scrub')}) {
+    cursor: ew-resize;
+}
+
+// One box with its states, padded so its border sits inside it; a textarea is the same box, as 'input--textarea'.
 .input {
     align-items: center;
+    background: var(--background);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    color: var(--color);
+    cursor: text;
     display: flex;
+    flex: 1 1 auto;
     flex-wrap: wrap;
+    font-size: var(--font-size);
     // Holds the height of password fields hidden in floating modals, which password managers need kept rendered.
     min-height: calc((var(--padding-vertical) * 2) + var(--size));
+    min-width: 0;
     overflow: hidden;
+    padding-block: max(0px, calc(var(--padding-vertical) - var(--border-width)));
+    padding-inline: max(0px, calc(var(--padding-horizontal) - var(--border-width)));
+    position: relative;
     text-overflow: ellipsis;
     transition:
         background var(--transition-duration) var(--transition-timing-function),
         border-color var(--transition-duration) var(--transition-timing-function),
         box-shadow var(--transition-duration) var(--transition-timing-function),
         opacity var(--transition-duration) var(--transition-timing-function),
+        outline-color var(--transition-duration) var(--transition-timing-function),
         transform var(--transition-duration) var(--transition-timing-function);
     white-space: nowrap;
-    @include field.base;
+    width: 100%;
+
+
+    // Grows with its text: the height follows the measured mirror between its limits, scrolling once past the
+    // maximum.
+    &--autoresize {
+        box-sizing: border-box;
+        field-sizing: fixed;
+        height: var(--height, var(--min-height));
+        max-height: var(--max-height);
+        min-height: var(--min-height);
+        scrollbar-gutter: var(--scrollbar-gutter);
+        transition:
+            background var(--transition-duration) var(--transition-timing-function),
+            border-color var(--transition-duration) var(--transition-timing-function),
+            box-shadow var(--transition-duration) var(--transition-timing-function),
+            height var(--resize-duration) var(--resize-timing-function),
+            opacity var(--transition-duration) var(--transition-timing-function),
+            outline-color var(--transition-duration) var(--transition-timing-function),
+            transform var(--transition-duration) var(--transition-timing-function);
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    &--border {
+        border: var(--border-width) var(--border-style) var(--border-color);
+        outline: var(--outline-width) solid var(--border-color);
+        outline-offset: calc((var(--border-width) + var(--outline-width)) * -1);
+    }
+
+    // The field's text laid out in a box of its own, which the field's height follows; hidden, out of flow and out of
+    // reach. Typography restates what a textarea's UA styles set and a block box would inherit instead; line height
+    // and tracking come from the same author rules as the field's.
+    &--measure {
+        box-sizing: border-box;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: normal;
+        inset: 0 auto auto 0;
+        max-height: var(--max-height);
+        min-height: var(--min-height);
+        overflow-wrap: break-word;
+        pointer-events: none;
+        position: absolute;
+        scrollbar-gutter: var(--scrollbar-gutter);
+        text-align: start;
+        text-indent: 0;
+        text-transform: none;
+        transition: none;
+        visibility: hidden;
+        word-spacing: normal;
+
+
+        // The trailing space keeps a final line break's empty line, which a textarea shows.
+        &::after {
+            content: attr(data-value) ' ';
+        }
+    }
+
+    &--otp {
+        flex: 0 0 var(--size);
+        font-family: var(--font-family);
+        font-variant-numeric: tabular-nums;
+        font-weight: var(--font-weight);
+        text-align: center;
+        width: var(--size);
+
+
+        // Starts a group of cells, set further from the last group than the cells within one are from each other.
+        &-break {
+            margin-inline-start: var(--input-otp-break);
+        }
+    }
+
+    // Sinks 1px while pressed, as 'button--tactile' does. Held by ':active' rather than the pressed state, since the
+    // press focuses the field and focus is its active state. Inside a group with overlay items the group sinks
+    // instead, so the items floating over the field go with it; they center by 'translate', which the field's own
+    // would fight. A press on a field already focused ('--focused') holds it still.
+    &--tactile:active:not(.--focused, .group:has(> .group-item--overlay) > *) {
+        translate: var(--translate-pressed);
+    }
+
+    @at-root .group:has(> .group-item--overlay):has(> #{&}--tactile:active:not(.--focused)) {
+        translate: var(--translate-pressed);
+    }
+
+    // Multi-line text in the input's box: wrapped and scrolled as a textarea is, where the box itself is a row.
+    &--textarea {
+        display: block;
+        overflow-y: var(--scrollbar-overflow);
+        resize: var(--resize);
+        white-space: var(--white-space);
+    }
+
+
+    // A code's cells on one line. Qualified by the group so it wins over the group's own wrapping regardless of
+    // stylesheet order.
+    &-otp.group {
+        align-items: center;
+        flex-wrap: nowrap;
+    }
+
+    &-password-toggle {
+        align-items: center;
+        background: var(--background);
+        border: 0;
+        border-radius: var(--border-radius);
+        color: var(--color);
+        cursor: pointer;
+        display: flex;
+        height: var(--size);
+        justify-content: center;
+        outline: none;
+        padding: 0;
+        transition-duration: var(--transition-duration);
+        transition-property: background-color, color;
+        transition-timing-function: var(--transition-timing-function);
+        width: var(--size);
+
+
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+        }
+    }
+
+    // Holds an autoresizing textarea and its mirror, stacked in one cell.
+    &-resize {
+        display: grid;
+        flex: 1 1 auto;
+        min-width: 0;
+        position: relative;
+        width: 100%;
+    }
+
+    // A group around an input: the label floats over its start and the tape runs along its foot.
+    &-scrub {
+        // Qualified by the root so it wins over the reused input styles regardless of stylesheet order.
+        // Its end mirrors the label's start: the group's measured inset plus the label's own padding, less the border
+        // its padding already insets by.
+        & > #{&}-field {
+            font-variant-numeric: tabular-nums;
+            padding-inline-end: calc(var(--start-inset) + var(--padding-end) - var(--border-width));
+            text-align: var(--text-align);
+        }
+
+
+        &-label {
+            align-items: center;
+            color: var(--color);
+            cursor: ew-resize;
+            display: flex;
+            font-size: var(--font-size);
+            height: var(--height);
+            justify-content: center;
+            min-width: var(--min-width);
+            padding-inline: var(--padding-horizontal);
+            touch-action: none;
+            transition: color var(--transition-duration) var(--transition-timing-function);
+            user-select: none;
+            white-space: nowrap;
+
+
+            svg {
+                height: var(--size-400);
+                width: var(--size-400);
+            }
+        }
+
+        // A pointer standing on the field's foot, aimed up at the value.
+        &-needle {
+            background: var(--background);
+            bottom: 0;
+            clip-path: polygon(50% 0, 100% 100%, 0 100%);
+            height: var(--height);
+            left: 50%;
+            opacity: var(--opacity);
+            pointer-events: none;
+            position: absolute;
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+            translate: -50% 0;
+            width: var(--width);
+        }
+
+        // A track along the field's foot, scrubbed like the label: one step is one pixel of tape, so the ticks under
+        // the fixed needle travel exactly as far as the pointer. The ticks and needle rise past it without taking the
+        // pointer, so only the strip itself scrubs.
+        &-tape {
+            @extend %absolute-bottom;
+            color: var(--color);
+            cursor: ew-resize;
+            height: var(--height);
+            opacity: var(--opacity);
+            touch-action: none;
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+            z-index: var(--z-index);
+        }
+
+        // Faded at both ends here rather than on the tape, whose mask would clip them to its strip.
+        &-ticks {
+            @extend %absolute-bottom;
+            background-image:
+                linear-gradient(to right, currentColor 1px, transparent 1px),
+                linear-gradient(to right, currentColor 1px, transparent 1px);
+            background-position-x: calc(50% - var(--offset, 0px));
+            background-position-y: bottom;
+            background-repeat: repeat-x;
+            background-size: var(--tick) var(--minor-height), calc(var(--tick) * 5) var(--major-height);
+            height: var(--major-height);
+            mask-image: linear-gradient(to right, transparent, #000 30%, #000 70%, transparent);
+            pointer-events: none;
+        }
+    }
+
+    &-tag {
+        color: var(--color);
+        width: var(--width);
+
+
+        &-chip {
+            align-items: center;
+            color: var(--color);
+            display: flex;
+            font-size: var(--font-size);
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            height: var(--height);
+            max-width: 100%;
+            padding-inline: var(--text-inset-horizontal) var(--padding-end);
+            position: relative;
+            transition: color var(--transition-duration) var(--transition-timing-function);
+
+
+            // Qualified by the chip so it wins over the card's own position regardless of stylesheet order.
+            & > #{&}-body {
+                @extend %absolute-full;
+            }
+
+
+            // Its hit area reaches past the icon, on '::before' since the button keeps '::after' for its shadow.
+            &-button {
+                border: 0;
+                flex-shrink: 0;
+                height: var(--size);
+                outline: none;
+                width: var(--size);
+
+
+                &::before {
+                    content: '';
+                    inset: var(--reach);
+                    position: absolute;
+                }
+
+
+                &:focus-visible {
+                    outline: var(--focus-width) solid var(--focus-color);
+                }
+            }
+
+            &-text {
+                @extend %text-truncate;
+                position: relative;
+            }
+        }
+
+        &-entry {
+            display: flex;
+            flex: 1;
+            font-size: var(--font-size);
+            min-width: var(--min-width);
+        }
+
+        // Qualified so it wins over the reused input styles regardless of stylesheet order.
+        &-entry > #{&}-field {
+            font-size: inherit;
+            height: var(--height);
+            min-height: 0;
+            min-width: 0;
+            outline: none;
+            padding-block: 0;
+            padding-inline: var(--text-inset-horizontal) var(--padding-end);
+
+
+            &::placeholder {
+                color: var(--placeholder-color);
+            }
+        }
+
+        // Stands where the removed chip stood, in the box the script measured. After '&-chip', whose height and
+        // position it replaces.
+        &-ghost {
+            height: var(--ghost-height);
+            left: var(--ghost-left);
+            pointer-events: none;
+            position: absolute;
+            top: var(--ghost-top);
+            width: var(--ghost-width);
+        }
+
+        // Fills the box, which lays out as an input's flex row.
+        &-list {
+            @extend %reset-list;
+            display: flex;
+            flex: 1;
+            flex-wrap: wrap;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            position: relative;
+        }
+
+        &-live {
+            @extend %hidden-visually;
+        }
+    }
+
+
+    &:disabled {
+        @extend %disabled;
+    }
 
     &[type='number'] {
         appearance: textfield;

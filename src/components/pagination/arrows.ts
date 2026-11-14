@@ -1,7 +1,6 @@
 import { html, type Attributes } from '@esportsplus/template';
 import icon from '~/components/icon';
-import next from '@esportsplus/ui/svg/arrow-right.svg';
-import previous from '@esportsplus/ui/svg/arrow-left.svg';
+import arrowSvg from '@esportsplus/ui/svg/arrow.svg';
 
 
 type A = Attributes & {
@@ -21,7 +20,7 @@ type Link = {
 
 
 function arrow(direction: 'next' | 'previous', link?: Link) {
-    let graphic = icon({ 'aria-hidden': 'true', class: 'pagination-arrow-icon' }, direction === 'next' ? next : previous),
+    let graphic = icon({ 'aria-hidden': 'true', class: ['pagination-arrow-icon', direction === 'previous' && 'icon--left'] }, arrowSvg),
         name = direction === 'next' ? 'Next' : 'Previous';
 
     if (!link) {

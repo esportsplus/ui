@@ -4,6 +4,7 @@
 .command {
     display: contents;
 
+
     // Search, tabs and results sit in an inset card; the footer's legends rest on the dialog around it.
     &-body {
         background: var(--background);
@@ -38,6 +39,10 @@
         will-change: opacity, scale;
     }
 
+    &-dialog#{&}-dialog--glass.overlay {
+        backdrop-filter: blur(var(--glass-blur));
+    }
+
     &-empty {
         color: var(--color);
         font-size: var(--font-size);
@@ -54,30 +59,23 @@
         display: flex;
         flex-shrink: 0;
         font-size: var(--font-size);
+        font-weight: var(--font-weight);
         gap: var(--gap-vertical) var(--gap-horizontal);
-        height: var(--height);
+        padding-block: var(--padding-vertical);
         padding-inline: var(--padding-horizontal);
         user-select: none;
+
 
         &-hint {
             align-items: center;
             display: flex;
             gap: var(--gap-vertical) var(--gap-horizontal);
 
+
             // Close stays on the left; the remaining hints pack to the end.
             &:first-child {
                 margin-inline-end: auto;
             }
-        }
-    }
-
-    &-input.input {
-        height: 100%;
-        mask-image: var(--mask);
-        outline: none;
-
-        &::placeholder {
-            color: var(--color);
         }
     }
 
@@ -99,6 +97,7 @@
         padding-block: var(--padding-vertical);
         padding-inline: var(--padding-horizontal);
 
+
         &--empty {
             display: none;
         }
@@ -114,57 +113,24 @@
         flex-direction: column;
     }
 
+    // Insets the search in the card.
     &-search {
-        align-items: center;
-        color: var(--color);
-        display: flex;
         flex-shrink: 0;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        height: var(--height);
-        padding-inline: var(--padding-horizontal);
+        margin-block: var(--margin-vertical) 0;
+        margin-inline: var(--margin-horizontal);
     }
 
     &-tab {
         user-select: none;
     }
 
-    // Tab labels line up with the option labels below; a long row scrolls sideways rather than wrapping.
+    // A long row scrolls sideways rather than wrapping.
     &-tabs {
-        border-top: var(--border-width) solid var(--border-color);
-        display: flex;
         flex-shrink: 0;
-        gap: var(--gap-vertical) var(--gap-horizontal);
+        margin-block: var(--margin-vertical) 0;
+        margin-inline: var(--margin-horizontal);
         overflow-x: auto;
-        padding-block: var(--padding-vertical);
-        padding-inline: var(--padding-horizontal);
         scrollbar-width: none;
-    }
-
-    &-trigger {
-        touch-action: manipulation;
-        user-select: none;
-
-        &-icon {
-            &--search {
-                margin-inline-start: var(--margin-horizontal);
-            }
-        }
-
-        &-label {
-            @extend %text-truncate;
-            flex: 1 1 auto;
-            text-align: start;
-        }
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--focus-offset);
-        }
-
-        // Pages with their own search buttons hide this one; `display: flex` from `.button` would otherwise override `hidden`.
-        &[hidden] {
-            display: none;
-        }
     }
 
     // The view scrolls rather than the list, so the scrollbar's edges sit beside the list instead of inside its gap,
@@ -179,6 +145,7 @@
         scroll-behavior: smooth;
         scroll-padding-block: var(--scroll-padding-vertical);
 
+
         @media (prefers-reduced-motion: reduce) {
             scroll-behavior: auto;
         }
@@ -186,8 +153,8 @@
 
     &-views {
         background: var(--background);
-        border-top: var(--border-width) solid var(--border-color);
         overflow: hidden;
+
 
         // Every view keeps the same height, so swapping between them never resizes the dialog.
         &:has(> .frame--swap) {

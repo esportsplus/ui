@@ -50,7 +50,7 @@ function bar({ label, percent = true, state, status, value = 0, ...attributes }:
                     'aria-valuetext': () => status ? status(current()) : `${rounded()}%`
                 }}
             >
-                <div class='progress-indicator' style='${() => `translate: ${current() - 100}% 0`}'></div>
+                <div class='progress-indicator' style='${() => `--bar-value: ${current()}`}'></div>
             </div>
 
             ${status && html`<div class='progress-status'>${() => status(current())}</div>`}

@@ -147,27 +147,6 @@ const compareKey = (original: string, modified: string) => `${SEPARATOR}${origin
 const compareTab = (id: number, compare: WorkspaceCompare) =>
     new WorkspaceTab(id, '', { path: compareKey(compare.paths[0], compare.paths[1]) }, compare);
 
-// Pinned tabs lead; a stable sort keeps every other tab where it was among its group.
-const order = (tabs: WorkspaceTab[]) => {
-    tabs.sort((a, b) => Number(b.pinned) - Number(a.pinned));
-};
-
-// A preview tab takes the place of the last one, which the caller then removes.
-const place = (tabs: WorkspaceTab[], tab: WorkspaceTab) => {
-    let at = tab.preview ? tabs.findIndex((item) => item.preview) : -1;
-
-    if (at === -1) {
-        tabs.push(tab);
-        return;
-    }
-
-    let replaced = tabs[at];
-
-    tabs.splice(at, 0, tab);
-
-    return replaced;
-};
-
 const sides = (text: string): MergeSides | null => {
     let markers = conflictMarkers(text);
 
@@ -202,5 +181,5 @@ const sides = (text: string): MergeSides | null => {
 };
 
 
-export { closable, compareKey, compareTab, order, place, sides, WorkspaceTab };
-export type { Closable, MergeSides };
+export { closable, compareKey, compareTab, sides, WorkspaceTab };
+export type { MergeSides };

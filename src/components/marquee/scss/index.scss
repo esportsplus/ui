@@ -9,6 +9,13 @@
     syntax: '<number>';
 }
 
+// Written by JS every frame; not inherited, so a change restyles the track alone rather than every item in it.
+@property --drift-x {
+    inherits: false;
+    initial-value: 0px;
+    syntax: '<length>';
+}
+
 .marquee {
     color: var(--color);
     font-size: var(--font-size);
@@ -66,10 +73,9 @@
             @extend %reset-button;
             color: var(--color);
             outline: none;
-            transition:
-                background-color var(--transition-duration) var(--transition-timing-function),
-                box-shadow var(--transition-duration) var(--transition-timing-function),
-                color var(--transition-duration) var(--transition-timing-function);
+            transition-duration: var(--transition-duration);
+            transition-property: background-color, box-shadow, color;
+            transition-timing-function: var(--transition-timing-function);
 
 
             &:focus-visible {
@@ -95,6 +101,7 @@
         // Only '--drift' transitions, for its end to tell JS it changed; easing the transform would lag each frame and
         // animate the loop wrap.
         transition: --drift 1ms;
+        translate: var(--drift-x);
         width: max-content;
         will-change: transform;
     }

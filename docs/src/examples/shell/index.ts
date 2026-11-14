@@ -1,16 +1,151 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import shell from '@esportsplus/ui/components/shell';
+import { shell } from '@esportsplus/ui/components';
+import type { Catalog, Node, Placement, Surface } from '@esportsplus/ui/components/shell';
 import type { Entry } from 'docs/types';
+import file from '@esportsplus/ui/svg/file-text.svg';
+import gear from '@esportsplus/ui/svg/gear.svg';
+import inbox from '@esportsplus/ui/svg/inbox.svg';
+import pencil from '@esportsplus/ui/svg/pencil.svg';
 import 'docs/examples/shell/scss/index.scss';
 
 
-// A sidebar's stand-in content: a title over a few rows.
-function content(title: string, rows: string[]) {
+// Each surface keeps its own state, so a count or a draft survives dragging its tab anywhere in the layout.
+const catalog: Catalog = {
+    counter: {
+        description: 'A count that survives every move.',
+        icon: gear,
+        multiple: true,
+        render: (surface) => {
+            let state = reactive({ count: 0 });
+
+            return html`
+                <div class='shell-demo-surface'>
+                    <span class='shell-demo-count'>${() => state.count}</span>
+                    <button class='button button--tactile' type='button' onclick='${() => state.count++}'>Increment ${surface.id}</button>
+                </div>
+            `;
+        },
+        shortcut: 'C',
+        title: (surface) => surface.id ? `Counter ${surface.id.split('-')[1] ?? ''}`.trim() : 'Counter'
+    },
+    inbox: {
+        description: 'A list to scroll through.',
+        icon: inbox,
+        render: () => html`
+            <ul class='shell-demo-list'>
+                ${Array.from({ length: 24 }, (_, i) => html`<li>Message ${i + 1}</li>`)}
+            </ul>
+        `,
+        shortcut: 'I',
+        title: 'Inbox'
+    },
+    notes: {
+        description: 'A draft that keeps what you typed.',
+        icon: pencil,
+        render: () => html`<textarea aria-label='Notes' class='shell-demo-notes' placeholder='Type here, then drag this tab…'></textarea>`,
+        shortcut: 'N',
+        title: 'Notes'
+    },
+    readme: {
+        description: 'Static text.',
+        icon: file,
+        render: () => html`
+            <div class='shell-demo-surface shell-demo-surface--text'>
+                <p>Drag a tab along the strip to reorder it, into another group to move it, onto a group's half to split
+                it, or onto the strip along the left, right or bottom edge to dock it there. Drag a separator to resize,
+                double-click a header to maximize. Hold Ctrl (⌘ on a Mac) and click groups, then let go, to focus on
+                them. Sidebars open from their corner toggle, or by clicking or dragging their edge, and these two resize
+                from their inner border.</p>
+            </div>
+        `,
+        shortcut: 'R',
+        title: 'Readme'
+    }
+};
+
+// The demos' frames are narrower than an app's, so they turn narrow only at a phone's width and show their splits.
+const NARROW = 480;
+
+
+// Rows of counters, each in a group of its own, to pick and zoom to.
+function grid(rows: number, columns: number): Node {
+    let n = 0;
+
+    return {
+        children: Array.from({ length: rows }, (_, row) => ({
+            children: Array.from({ length: columns }, () => {
+                let id = `counter-${++n}`;
+
+                return { active: id, id: `group-${n}`, kind: 'group' as const, surfaces: [{ id, kind: 'counter' }] };
+            }),
+            direction: 'row' as const,
+            id: `split-${row + 2}`,
+            kind: 'split' as const,
+            sizes: Array.from({ length: columns }, () => 1 / columns)
+        })),
+        direction: 'column',
+        id: 'split-1',
+        kind: 'split',
+        sizes: Array.from({ length: rows }, () => 1 / rows)
+    };
+}
+
+function demo(root: Node | null = null, icons = false) {
     return html`
-        <div class='shell-demo-panel'>
-            <strong class='shell-demo-panel-title'>${title}</strong>
-            ${rows.map((row) => html`<div class='shell-demo-panel-row'>${row}</div>`)}
+        <div class='shell-demo'>
+            ${shell({ catalog, icons, narrow: NARROW, state: shell.state({ root }) })}
+        </div>
+    `;
+}
+
+// A static navigation on the left, a single surface that stays put, and a tabbed sidebar on the right that peeks
+// while the pointer rests on its edge.
+function sidebars() {
+    let docked = (id: string, placement: Placement, surfaces: Surface[]) => ({
+            active: surfaces[0].id,
+            id,
+            kind: 'group' as const,
+            placement,
+            surfaces
+        });
+
+    return html`
+        <div class='shell-demo'>
+            ${shell({
+                catalog: {
+                    ...catalog,
+                    navigation: {
+                        render: () => html`
+                            <nav class='shell-demo-navigation'>
+                                ${['Inbox', 'Projects', 'Calendar', 'Settings'].map((item) => html`<a class='shell-demo-navigation-link' href='#'>${item}</a>`)}
+                            </nav>
+                        `,
+                        title: 'Navigation'
+                    }
+                },
+                narrow: NARROW,
+                sidebars: { left: { label: 'Navigation', resizable: true }, right: { hover: true, label: 'Details', resizable: true } },
+                state: shell.state({
+                    open: { right: false },
+                    root: {
+                        children: [
+                            docked('group-1', 'left', [{ id: 'navigation', kind: 'navigation', sortable: false }]),
+                            {
+                                active: 'readme',
+                                id: 'group-2',
+                                kind: 'group',
+                                surfaces: [{ id: 'readme', kind: 'readme' }, { id: 'notes', kind: 'notes' }]
+                            },
+                            docked('group-3', 'right', [{ id: 'inbox', kind: 'inbox' }, { id: 'counter-1', kind: 'counter' }])
+                        ],
+                        direction: 'row',
+                        id: 'split-1',
+                        kind: 'split',
+                        sizes: [0.2, 0.6, 0.2]
+                    }
+                })
+            })}
         </div>
     `;
 }
@@ -20,39 +155,53 @@ export default {
     name: 'shell',
     variants: [
         {
-            render: () => {
-                let left = {
-                        content: content('Navigation', ['Inbox', 'Projects', 'Calendar', 'Settings']),
-                        id: 'shell-demo-left',
-                        label: 'Navigation',
-                        state: reactive({ active: false })
+            render: () => demo({
+                children: [
+                    {
+                        active: 'readme',
+                        id: 'group-1',
+                        kind: 'group',
+                        surfaces: [{ id: 'readme', kind: 'readme' }, { id: 'notes', kind: 'notes' }]
                     },
-                    right = {
-                        content: content('Details', ['Owner', 'Status', 'Updated']),
-                        hover: true,
-                        id: 'shell-demo-right',
-                        label: 'Details',
-                        state: reactive({ active: false })
-                    };
-
-                return html`
-                    <div class='shell-demo'>
-                        ${shell({ left, right }, html`
-                            <div class='shell-demo-main'>
-                                <strong>Main content</strong>
-                                <p>
-                                    Hover near the left edge to bring out its handle, which follows the pointer: click it
-                                    to open the sidebar, or drag it to pull the sidebar out. Drag an open sidebar back
-                                    toward its edge to close it. The right sidebar opens on hover instead, peeking while
-                                    the pointer rests on its edge and closing once it leaves. Either opens from its corner
-                                    button too.
-                                </p>
-                            </div>
-                        `)}
-                    </div>
-                `;
-            },
-            title: 'drag, hover and peek'
+                    {
+                        active: 'counter-1',
+                        id: 'group-2',
+                        kind: 'group',
+                        surfaces: [{ id: 'counter-1', kind: 'counter' }, { id: 'inbox', kind: 'inbox' }]
+                    }
+                ],
+                direction: 'row',
+                id: 'split-1',
+                kind: 'split',
+                sizes: [0.5, 0.5]
+            }),
+            title: 'workspace'
+        },
+        {
+            render: sidebars,
+            title: 'sidebars'
+        },
+        {
+            render: () => demo(grid(2, 3)),
+            title: 'zoom'
+        },
+        {
+            render: () => demo({
+                active: 'readme',
+                id: 'group-1',
+                kind: 'group',
+                surfaces: [
+                    { id: 'readme', kind: 'readme' },
+                    { id: 'notes', kind: 'notes' },
+                    { id: 'counter-1', kind: 'counter' },
+                    { id: 'inbox', kind: 'inbox' }
+                ]
+            }, true),
+            title: 'icons'
+        },
+        {
+            render: () => demo(),
+            title: 'empty'
         }
     ]
 } satisfies Entry;

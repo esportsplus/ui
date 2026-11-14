@@ -1,344 +1,865 @@
-import { flush, reactive } from '@esportsplus/reactivity';
-import { html, type Renderable } from '@esportsplus/template';
-import { drag } from '~/shared/drag';
-import button from '~/components/button';
-import scrollbar from '~/modifiers/scrollbar';
-import '~/components/card/scss/index.scss';
+import { effect, flush, onCleanup, reactive, read, root, signal, untrack, write, type ReactiveArray } from '@esportsplus/reactivity';
+import { component, html, render, type Attributes, type Renderable } from '@esportsplus/template';
+import icon from '~/components/icon';
+import tooltip from '~/components/tooltip';
+import type { Controller, Item } from '~/components/tooltip/menu';
+import { mac } from '~/shared/platform';
+import { observe } from '~/shared/resize';
+import { group, launcher, title, type Catalog, type Context, type Kind } from './group';
+import state, { allGroups, bounded, contains, docked, findGroup, findSplit, findSurfaceGroup, MIN_FRACTION, stationary, type Group, type Layout, type Node, type Placement, type Saved, type Split, type Store, type Surface } from './model';
+import { resized, separator } from './resize';
+import { frame, grip, resizer, sidebar, toggle, type Edge, type Options, type Sidebars } from './sidebar';
+import subtree from './subtree';
 import './scss/index.scss';
 
 
-type Edge = 'left' | 'right';
-
-// Each edge's sidebar and strip as they connect, whether its sidebar is being dragged, and where the drag holds the
-// sidebar and the card's edge; undefined leaves each to the stylesheet.
-type Frame = Record<Edge, {
-    dragging: boolean,
-    edge?: HTMLElement,
-    gap: string | undefined,
-    offset: number,
-    reach: string | undefined,
-    sidebar?: HTMLElement,
-    space: string | undefined,
-    translate: string | undefined
-}>;
-
-// Which closed sidebars are showing for as long as the pointer stays over them.
-type Peeking = Record<Edge, boolean>;
-
-type Side = {
-    class?: string;
-    content?: Renderable<unknown>;
-    // A closed sidebar opens while the pointer rests on its edge and closes the moment the pointer leaves it; its toggle
-    // keeps it open.
-    hover?: boolean;
-    id: string;
-    label: string;
-    state: { active: boolean };
+type A = Attributes & {
+    catalog: Catalog;
+    // What an empty group or main area shows in place of the launcher.
+    empty?: (group?: string) => Renderable<unknown>;
+    // Tabs show their kind's icon alone, closing from their menu.
+    icons?: boolean;
+    // At or below this width (px) of the layout, an open sidebar pushes the main area aside, one at a time, and the
+    // main area shows one group.
+    narrow?: number;
+    onconnect?: never;
+    // Each sidebar's label, whether it peeks while the pointer rests on its edge, and whether it resizes.
+    sidebars?: Partial<Record<Edge, Options>>;
+    state: ReturnType<typeof state>;
 };
 
-type Sides = Record<Edge, Side>;
+type Host = { dispose: VoidFunction; element: HTMLElement };
+
+type Region = Placement | 'main';
+
+type Shown = Record<Region, Node | null>;
+
+type Side = 'bottom' | 'left' | 'right' | 'top';
 
 
-// Presses in these keep their own text editing rather than dragging the sidebar.
-const FIELDS = 'input, select, textarea, [contenteditable]';
+// A collapsed sibling of a maximized group keeps this much (px) to click back into.
+const COLLAPSED = 80;
 
-// Below this width an open sidebar pushes the card aside rather than narrowing it, so only one opens at a time.
-const NARROW = '(max-width: 1024px)';
+const NARROW = 1024;
+
+// Where a tab dropped on a group's edge goes: beside it along the axis, before or after it.
+const EDGES = {
+    bottom: ['column', 'after'],
+    left: ['row', 'before'],
+    right: ['row', 'after'],
+    top: ['column', 'before']
+} as const;
 
 
-// Found by id, since a page closes a side it only holds the config of.
-function close(side: Pick<Side, 'id' | 'state'>) {
-    if (document.getElementById(side.id)?.contains(document.activeElement)) {
-        document.getElementById(`${side.id}-toggle`)?.focus({ preventScroll: true });
+// The group at a tree's top corner on 'edge': the first child down each split, but a row's last toward the right.
+function corner(node: Node | null, edge: Edge): Group | null {
+    if (node === null || node.kind === 'group') {
+        return node;
     }
 
-    side.state.active = false;
+    return corner((edge === 'right' && node.direction === 'row' ? node.children.at(-1) : node.children[0]) ?? null, edge);
 }
 
-// The direction a drag toward the center takes from this edge.
-function direction(edge: Edge): -1 | 1 {
-    return edge === 'left' ? 1 : -1;
-}
-
-// A strip along the window edge while the sidebar is closed: its handle follows the pointer up and down and stays where
-// the pointer left it. Clicking it opens the sidebar, and dragging from it pulls the sidebar out, with the overlay's drag:
-// past a quarter of the sidebar or flicked it opens, otherwise it slides back. Resting on it peeks a sidebar that opens
-// on hover.
-function grip(sides: Sides, peeking: Peeking, frame: Frame, edge: Edge) {
-    let side = sides[edge],
-        sign = direction(edge),
-        gesture = drag({
-            begin: (e) => e.button === 0 && !side.state.active ? [{ axis: 'x', sign }] : null,
-            capture: () => hold(frame, edge),
-            measure: (element) => frame[edge].sidebar ?? element,
-            move: (_, { x }) => {
-                let element = frame[edge].sidebar;
-
-                if (element) {
-                    reveal(frame, edge, element.offsetWidth, x * sign);
-                }
-            },
-            release: (_, __, dismiss) => {
-                settle(frame, edge);
-
-                if (dismiss) {
-                    open(sides, peeking, edge);
-                }
-            }
-        });
-
-    return html`
-        <div
-            aria-hidden='true'
-            class='shell-edge shell-edge--${edge}'
-            id='${side.id}-edge'
-            ${gesture}
-            ${{
-                // A drag swallows the click it ends with, so this is a tap or a click: either opens the sidebar.
-                onclick: () => {
-                    if (!side.state.active) {
-                        open(sides, peeking, edge);
-                    }
-                },
-                onconnect: (element: HTMLElement) => {
-                    frame[edge].edge = element;
-                },
-                onpointerenter: () => {
-                    if (side.hover && !side.state.active) {
-                        peeking[edge] = true;
-                    }
-                },
-                onpointerleave: (e: PointerEvent) => leave(side, peeking, frame, edge, e),
-                onpointermove: function(this: HTMLElement, e: PointerEvent) {
-                    let bounds = this.getBoundingClientRect();
-
-                    frame[edge].offset = e.clientY - bounds.top - bounds.height / 2;
-                    gesture.onpointermove(e);
-                },
-                style: () => `--offset: ${frame[edge].offset}px;`
-            }}
-        >
-            <span class='shell-handle'></span>
-        </div>
-    `;
-}
-
-// Marks the sidebar as following the pointer, flushed so its transitions stand down before the first move lands.
-function hold(frame: Frame, edge: Edge) {
-    frame[edge].dragging = true;
-    flush();
-}
-
-// A peeking sidebar closes once the pointer leaves it, unless it went on to the sidebar's own toggle or edge. The
-// toggle is found by id: it is the sidebar button's own, which keeps its connect to itself.
-function leave(side: Side, peeking: Peeking, frame: Frame, edge: Edge, e: PointerEvent) {
-    let to = e.relatedTarget as Node | null;
-
-    if (!peeking[edge] || (to && [frame[edge].sidebar, frame[edge].edge, document.getElementById(`${side.id}-toggle`)].some((element) => element?.contains(to)))) {
-        return;
+// The groups of one dock or the main area, as their own tree: every split keeps its children there, resized to share what
+// the dropped ones leave.
+function filter(node: Node | null, keep: (group: Group) => boolean): Node | null {
+    if (node === null) {
+        return null;
     }
 
-    peeking[edge] = false;
-}
+    if (node.kind === 'group') {
+        return keep(node) ? node : null;
+    }
 
-function motion(): Frame[Edge] {
-    return reactive({
-        dragging: false,
-        gap: undefined as string | undefined,
-        offset: 0,
-        reach: undefined as string | undefined,
-        space: undefined as string | undefined,
-        translate: undefined as string | undefined
+    let entries = node.children.flatMap((child, i) => {
+        let kept = filter(child, keep);
+
+        return kept === null ? [] : [{ node: kept, size: node.sizes[i] ?? 0 }];
     });
-}
 
-function open(sides: Sides, peeking: Peeking, edge: Edge) {
-    if (matchMedia(NARROW).matches) {
-        close(sides[edge === 'left' ? 'right' : 'left']);
+    if (entries.length === 0) {
+        return null;
     }
 
-    peeking[edge] = false;
-    sides[edge].state.active = true;
+    if (entries.length === 1) {
+        return entries[0].node;
+    }
+
+    let total = entries.reduce((sum, entry) => sum + entry.size, 0);
+
+    return {
+        ...node,
+        children: entries.map((entry) => entry.node),
+        sizes: entries.map((entry) => total > 0 ? entry.size / total : 1 / entries.length)
+    };
 }
 
-// Dragged toward its edge with the overlay's drag, the sidebar follows the pointer; past a quarter of its width or
-// flicked it closes, otherwise it slides back.
-function panel(side: Side, peeking: Peeking, frame: Frame, edge: Edge) {
-    let gesture = drag({
-            begin: (e) => {
-                let target = e.target as HTMLElement;
+function findSurface(node: Node | null, id: string) {
+    return findSurfaceGroup(node, id)?.surfaces.find((surface) => surface.id === id) ?? null;
+}
 
-                // A press past the target's client box is on its scrollbar.
-                if (
-                    e.button !== 0 ||
-                    !(side.state.active || peeking[edge]) ||
-                    target.closest(FIELDS) ||
-                    (target.clientWidth > 0 && (e.offsetX > target.clientWidth || e.offsetY > target.clientHeight))
-                ) {
-                    return null;
-                }
+// Every surface that should own a place on screen: the active surface of each group showing. A closed sidebar's
+// groups stay mounted, so it slides out with its content in place.
+function mounted(layout: Layout) {
+    let ids = new Set<string>();
 
-                return [{ axis: 'x', sign: direction(edge) === 1 ? -1 : 1 }];
-            },
-            capture: () => hold(frame, edge),
-            move: (element, { x }) => {
-                reveal(frame, edge, element.offsetWidth, element.offsetWidth + x * direction(edge));
-            },
-            release: (_, __, dismiss) => {
-                settle(frame, edge);
-
-                if (dismiss) {
-                    hide();
-                }
-            }
-        });
-
-    function hide() {
-        if (peeking[edge]) {
-            peeking[edge] = false;
-        }
-        else {
-            close(side);
+    for (let group of Object.values(shown(layout)).flatMap(allGroups)) {
+        if (group.active !== null) {
+            ids.add(group.active);
         }
     }
 
-    return html`
-        <aside
-            aria-label='${side.label}'
-            class='shell-sidebar shell-sidebar--${edge} ${side.class ?? ''}'
-            id='${side.id}'
-            ${{
-                class: [
-                    () => side.state.active ? '--active' : peeking[edge] && '--peek',
-                    () => frame[edge].dragging && 'shell-sidebar--dragging'
-                ],
-                inert: () => !side.state.active && !peeking[edge],
-                // Delegated handlers stop at the nearest bound element, and the sidebar's content binds pointer events
-                // of its own, so the drag listens on the sidebar directly.
-                onconnect: (element: HTMLElement, on) => {
-                    frame[edge].sidebar = element;
+    return ids;
+}
 
-                    // Links would otherwise start a native drag-and-drop mid-swipe and cancel the pointer.
-                    on(element, 'dragstart', (e) => e.preventDefault(), { direct: true });
-                    on(element, 'pointercancel', gesture.onpointercancel, { direct: true });
-                    on(element, 'pointerdown', gesture.onpointerdown, { direct: true });
-                    on(element, 'pointerleave', (e) => leave(side, peeking, frame, edge, e), { direct: true });
-                    on(element, 'pointermove', gesture.onpointermove, { direct: true });
-                    on(element, 'pointerup', gesture.onpointerup, { direct: true });
-                },
-                onkeydown: (e: KeyboardEvent) => {
-                    if (e.key === 'Escape' && !e.defaultPrevented) {
-                        e.preventDefault();
-                        hide();
+// What the layout shows: under a zoom, its groups fill the main area together, docked or not; otherwise the main
+// groups, the bottom dock's below them while it is open, and each sidebar's on its edge, open or not.
+function shown(layout: Layout): Shown {
+    let zoom = layout.zoom.at(-1);
+
+    if (zoom) {
+        let ids = new Set(zoom.groups);
+
+        return { bottom: null, left: null, main: filter(layout.root, (group) => ids.has(group.id)), right: null };
+    }
+
+    return {
+        bottom: layout.bottom.open ? filter(layout.root, (group) => docked(group, 'bottom')) : null,
+        left: filter(layout.root, (group) => docked(group, 'left')),
+        main: filter(layout.root, (group) => group.placement === undefined),
+        right: filter(layout.root, (group) => docked(group, 'right'))
+    };
+}
+
+// The parts of the tree a layout change rebuilds: kinds, ids and order, group membership and placement.
+// Sizes, the active tab and group, maximizing and the dock's size bind in place instead.
+function structure(node: Node | null): unknown {
+    if (node === null) {
+        return null;
+    }
+
+    if (node.kind === 'group') {
+        return [node.id, node.placement ?? '', node.surfaces.map((surface) => surface.id)];
+    }
+
+    return [node.id, node.direction, node.children.map(structure)];
+}
+
+// Outside every tab strip, what a dragged tab drops onto: a dock's strip along the layout's edge, or the half of a
+// group toward its nearest edge, which splits the group there. A group's header outside its strip takes nothing.
+function target(workspace: HTMLElement, x: number, y: number) {
+    let elements = document.elementsFromPoint(x, y).filter((element) => element.closest('.shell') === workspace),
+        dock = elements.find((element) => element.matches('.shell-dock-target')) as HTMLElement | undefined,
+        section = elements.find((element) => element.matches('.shell-group')) as HTMLElement | undefined;
+
+    if (dock) {
+        return dock;
+    }
+
+    if (!section || y <= (section.querySelector(':scope > .shell-header')?.getBoundingClientRect().bottom ?? -Infinity)) {
+        return null;
+    }
+
+    let { height, left, top, width } = section.getBoundingClientRect(),
+        across = width <= 0 ? 0.5 : (x - left) / width,
+        down = height <= 0 ? 0.5 : (y - top) / height,
+        side = ([['left', across], ['right', 1 - across], ['top', down], ['bottom', 1 - down]] as [Side, number][])
+            .reduce((nearest, candidate) => candidate[1] < nearest[1] ? candidate : nearest)[0];
+
+    return section.querySelector<HTMLElement>(`:scope > .shell-edge--${side}`);
+}
+
+// The id of this layout's innermost group under the point, skipping groups of layouts nested inside it.
+function under(workspace: HTMLElement, x: number, y: number) {
+    let found = document.elementsFromPoint(x, y).find((element) => element.matches('.shell-group') && element.closest('.shell') === workspace);
+
+    return (found as HTMLElement | undefined)?.dataset.group;
+}
+
+
+// The app frame: tabbed groups of surfaces in resizable splits, in a main area between a sidebar on either edge, above
+// a bottom dock. Tabs drag to reorder, into another group, onto a group's edge to split beside it, or onto a strip
+// along the layout's left, right or bottom edge to dock there; groups clicked or swept across with ⌘ (Ctrl elsewhere)
+// held fill the main area together once it, or the sweep, is let go. A double click on a header steps back a view at
+// a time, out of a maximized group and then each zoom, and maximizes its group once there is nothing left to step out
+// of. An empty group offers the catalog. A surface's content is rendered once and moved, never rebuilt, so it keeps
+// its state across every layout change until its tab closes.
+//
+// A sidebar slides over the main area's edge and makes room as it opens; in a narrow layout it pushes the main area
+// aside, one at a time, and the main area shows one group, switched from its header. Its toggle sits in its top
+// corner, and a closed sidebar's edge holds a handle to drag it out by. A sidebar holding a single unsortable surface
+// is static: it shows the surface without tabs, takes no drops, and swipes closed toward its edge.
+const shell = component(
+    function({ catalog, empty, icons = false, narrow: breakpoint = NARROW, sidebars: options = {}, state, ...attributes }: A) {
+        let adding: Controller | undefined,
+            apple = mac(),
+            // A tab is being dragged, which lights the docks and group halves it can drop onto.
+            carrying = signal(false),
+            controller: Controller | undefined,
+            frames = { left: frame(), right: frame() },
+            hosts = new Map<string, Host>(),
+            // What a dragged tab does to the layout once its copy lands.
+            landing: VoidFunction | null = null,
+            // Where hosts wait while their surface isn't showing, inside the layout so they stay connected.
+            parking: HTMLElement | undefined,
+            picks = signal<string[]>([]),
+            // Each region's element, so rebuilding one parks only the hosts inside it.
+            regions: Partial<Record<Region, HTMLElement>> = {},
+            size = reactive({ height: 0, width: 0 }),
+            slots = new Map<string, HTMLElement>(),
+            // Each tab strip's group, so a tab sorted into a strip moves into its group.
+            strips = new WeakMap<ReactiveArray<Surface>, string>(),
+            subject = reactive({ group: '', surface: '' }),
+            switching: Controller | undefined,
+            unobserve: VoidFunction | undefined,
+            workspace: HTMLElement | undefined;
+
+        let narrow = () => size.width > 0 && size.width <= breakpoint;
+
+        let edges: Sidebars = {
+            frames,
+            id: `shell-${crypto.randomUUID().slice(0, 8)}`,
+            narrow,
+            options,
+            stationary: (edge) => stationary(state.layout.root, edge),
+            state
+        };
+
+        // A dragged tab changes the layout once its copy has landed, so the strips it moved through stay until then.
+        function drop(surface: Surface, element: HTMLElement) {
+            let placement = element.dataset.placement as Placement | undefined;
+
+            if (placement) {
+                state.dock(surface.id, placement);
+                return;
+            }
+
+            let group = element.closest<HTMLElement>('.shell-group')?.dataset.group,
+                [direction, side] = EDGES[element.dataset.side as Side];
+
+            if (group) {
+                state.split(surface.id, group, direction, side);
+            }
+        }
+
+        let context: Context = {
+            add(kind: string, group?: string) {
+                let entry = catalog[kind];
+
+                if (!entry) {
+                    return;
+                }
+
+                let id = kind;
+
+                if (entry.multiple) {
+                    let taken = new Set(allGroups(state.layout.root).flatMap((group) => group.surfaces.map((surface) => surface.id))),
+                        n = 1;
+
+                    while (taken.has(id = `${kind}-${n}`)) {
+                        n++;
                     }
+                }
+
+                state.open({ id, kind }, group);
+            },
+            addable: Object.entries(catalog).filter(([, entry]) => entry.addable !== false),
+            catalog,
+            choose(e: MouseEvent, group: string) {
+                if (!adding) {
+                    return;
+                }
+
+                let { bottom, left } = (e.currentTarget as HTMLElement).getBoundingClientRect();
+
+                subject.group = group;
+                flush();
+                adding.open({ x: left, y: bottom });
+            },
+            empty,
+            held: (e: MouseEvent) => apple ? e.metaKey : e.ctrlKey,
+            icons,
+            // The toggles cover the top corners: each sidebar's corner group clears its toggle, and the main area's
+            // while that sidebar is closed.
+            inset(group: string, edge: Edge) {
+                let layout = state.layout,
+                    trees = shown(layout);
+
+                return trees[edge] !== null && (group === corner(trees[edge], edge)?.id || (group === corner(trees.main, edge)?.id && !layout[edge].open));
+            },
+            menu(e: MouseEvent, group: string, surface: string) {
+                if (!controller) {
+                    return;
+                }
+
+                e.preventDefault();
+                subject.group = group;
+                subject.surface = surface;
+                flush();
+                controller.open(e.button === 2 ? { x: e.clientX, y: e.clientY } : undefined);
+            },
+            pick(group: string) {
+                let current = read(picks);
+
+                write(picks, current.includes(group) ? current.filter((id) => id !== group) : [...current, group]);
+            },
+            picked: (group: string) => read(picks).includes(group),
+            slot: (surface: string) => html`
+                <div
+                    class='shell-slot'
+                    ${{
+                        onconnect: (element: HTMLElement) => {
+                            slots.set(surface, element);
+                            attach(surface, element);
+                        },
+                        ondisconnect: () => {
+                            if (slots.get(surface)?.isConnected === false) {
+                                slots.delete(surface);
+                            }
+                        }
+                    }}
+                ></div>
+            `,
+            sorting(strip: ReactiveArray<Surface>, group: string) {
+                strips.set(strip, group);
+
+                return {
+                    disabled: (surface) => surface.sortable === false,
+                    group: edges.id,
+                    onland: () => {
+                        let land = landing;
+
+                        landing = null;
+                        write(carrying, false);
+                        land?.();
+                    },
+                    onlift: () => write(carrying, true),
+                    onsort: (surface, _, to, __, target) => {
+                        let group = strips.get(target);
+
+                        landing = group ? () => state.move(surface.id, group, to) : null;
+                    },
+                    outside: {
+                        ondrop: (surface, element) => {
+                            landing = () => drop(surface, element);
+                        },
+                        over: (_, x, y) => workspace ? target(workspace, x, y) : null
+                    }
+                };
+            },
+            state,
+            // Held down with the modifier, a press sweeps: every group the pointer crosses into is picked, and letting go
+            // after leaving the first zooms to every pick at once. A press that stays in its group is a click, which
+            // picks or unpicks it instead.
+            sweep(e: PointerEvent, group: string) {
+                let swept = [group];
+
+                function end(event: PointerEvent) {
+                    document.documentElement.classList.remove('shell-sweeping');
+                    window.removeEventListener('pointercancel', end);
+                    window.removeEventListener('pointermove', move);
+                    window.removeEventListener('pointerup', end);
+
+                    if (swept.length < 2) {
+                        return;
+                    }
+
+                    // The click the release ends with lands on whatever holds both groups; it picks nothing.
+                    let swallow = (click: MouseEvent) => {
+                        click.preventDefault();
+                        click.stopPropagation();
+                    };
+
+                    window.addEventListener('click', swallow, { capture: true, once: true });
+                    setTimeout(() => window.removeEventListener('click', swallow, { capture: true }));
+
+                    if (event.type === 'pointerup') {
+                        let chosen = read(picks);
+
+                        write(picks, []);
+                        state.zoom(chosen);
+                    }
+                }
+
+                function move(event: PointerEvent) {
+                    let id = workspace && under(workspace, event.clientX, event.clientY);
+
+                    if (!id || swept.includes(id)) {
+                        return;
+                    }
+
+                    swept.push(id);
+                    write(picks, [...new Set([...read(picks), ...swept])]);
+                }
+
+                if (e.button !== 0) {
+                    return;
+                }
+
+                document.documentElement.classList.add('shell-sweeping');
+                window.addEventListener('pointercancel', end);
+                window.addEventListener('pointermove', move);
+                window.addEventListener('pointerup', end);
+            },
+            switcher(e: MouseEvent) {
+                let { bottom, left } = (e.currentTarget as HTMLElement).getBoundingClientRect();
+
+                switching?.open({ x: left, y: bottom });
+            },
+            switches: () => allGroups(shown(state.layout).main).length > 1
+        };
+
+        function attach(surface: string, slot: HTMLElement) {
+            let host = hosts.get(surface);
+
+            if (!host) {
+                return;
+            }
+
+            // A slot connects before the rebuilt tree is in the document; the host waits so it is moved, not removed.
+            if (!slot.isConnected) {
+                queueMicrotask(() => slot.isConnected && attach(surface, slot));
+                return;
+            }
+
+            move(host.element, slot);
+        }
+
+        function ensure(surface: string) {
+            if (hosts.has(surface)) {
+                return;
+            }
+
+            let found = findSurface(state.layout.root, surface),
+                kind = found && catalog[found.kind];
+
+            if (!found || !kind) {
+                return;
+            }
+
+            let element = document.createElement('div'),
+                entry = found,
+                // Owned by no effect: the host outlives whichever layout pass created it.
+                release = untrack(() => root(() => render(element, { class: 'shell-host', 'data-surface': surface }, () => kind.render(entry))));
+
+            hosts.set(surface, { dispose: release, element });
+        }
+
+        // Moving a connected node keeps its focus, scroll and frames; appending would reload an iframe.
+        function move(element: HTMLElement, target: HTMLElement) {
+            if (element.parentElement === target) {
+                return;
+            }
+
+            if ('moveBefore' in target && element.isConnected && target.isConnected) {
+                (target as HTMLElement & { moveBefore: (node: ChildNode, child: null) => void }).moveBefore(element, null);
+                return;
+            }
+
+            let focused = document.activeElement;
+
+            target.append(element);
+
+            if (focused instanceof HTMLElement && element.contains(focused)) {
+                focused.focus({ preventScroll: true });
+            }
+        }
+
+        function node(current: Node): Renderable<unknown> {
+            if (current.kind === 'group') {
+                let id = current.id;
+
+                return group(context, () => {
+                    let layout = state.layout;
+
+                    return { group: findGroup(layout.root, id) ?? current, layout };
+                });
+            }
+
+            return split(current);
+        }
+
+        // A sidebar makes room while it is open and has groups to show, outside a zoom.
+        function open(edge: Edge) {
+            let layout = state.layout;
+
+            return layout.zoom.length === 0 && layout[edge].open && allGroups(layout.root).some((group) => docked(group, edge));
+        }
+
+        // Every host, or those inside 'within', waits in the parking while what held it is rebuilt.
+        function park(within?: HTMLElement) {
+            if (!parking) {
+                return;
+            }
+
+            for (let host of hosts.values()) {
+                if (!within || within.contains(host.element)) {
+                    move(host.element, parking);
+                }
+            }
+        }
+
+        // One region's groups, rebuilt only when its own structure changes, so opening a tab in the main area leaves
+        // the sidebars' content where it is.
+        function region(name: Region) {
+            let last = '';
+
+            return subtree(
+                () => {
+                    let key = JSON.stringify(structure(shown(state.layout)[name]));
+
+                    if (key !== last && last !== '' && regions[name]) {
+                        park(regions[name]);
+                    }
+
+                    last = key;
+
+                    return key;
                 },
-                style: () => ({ translate: frame[edge].translate })
-            }}
-        >
-            ${side.content}
-        </aside>
-    `;
-}
+                () => {
+                    let tree = shown(state.layout)[name];
 
-// Shows 'shown' pixels of a sidebar 'width' wide and moves the card's edge to meet it, narrowing its gap to none as it
-// comes. The card's surface moves while its content keeps its layout, clipped where the sidebar covers it, until the
-// sidebar settles; on small screens the card keeps its width and slides, so it moves outright. The shell's transitions
-// stand down so both follow the pointer.
-function reveal(frame: Frame, edge: Edge, width: number, shown: number) {
-    let clamped = Math.max(0, Math.min(width, shown)),
-        rest = `calc(var(--gap-horizontal) * ${width ? 1 - clamped / width : 1})`,
-        state = frame[edge];
+                    if (name !== 'main') {
+                        return tree ? node(tree) : '';
+                    }
 
-    state.translate = `${(clamped - width) * direction(edge)}px 0`;
+                    return tree ? html`${node(tree)}${switcher(tree)}` : launcher(context);
+                },
+                {
+                    onconnect: (element: HTMLElement) => {
+                        regions[name] = element;
+                    }
+                }
+            );
+        }
 
-    if (matchMedia(NARROW).matches) {
-        state.gap = rest;
-        state.reach = undefined;
-        state.space = `${clamped}px`;
-    }
-    else {
-        state.gap = undefined;
-        state.reach = `calc(${clamped}px + ${rest})`;
-        state.space = undefined;
-    }
-}
+        function split(current: Split) {
+            let axis = current.direction === 'row' ? 'x' as const : 'y' as const,
+                box = reactive({ length: 0 }),
+                unobserve: VoidFunction | undefined;
 
-// Hands the sidebar and the card back to their transitions, which carry both from where the drag left them to open or
-// closed; flushed, so the transitions are back before the drag's values go.
-function settle(frame: Frame, edge: Edge) {
-    let state = frame[edge];
+            // As shown: a zoom shows a split with only some of its children, sharing the space between them.
+            function sizes() {
+                for (let tree of Object.values(shown(state.layout))) {
+                    let found = findSplit(tree, current.id);
 
-    state.dragging = false;
-    flush();
-    state.gap = undefined;
-    state.reach = undefined;
-    state.space = undefined;
-    state.translate = undefined;
-}
+                    if (found) {
+                        return found.sizes;
+                    }
+                }
 
-// Clicked while its sidebar peeks, the toggle keeps it open.
-function toggle(sides: Sides, peeking: Peeking, frame: Frame, edge: Edge) {
-    let side = sides[edge];
+                return current.sizes;
+            }
 
-    function label() {
-        return `${side.state.active ? 'Close' : 'Open'} ${side.label.toLowerCase()}`;
-    }
+            return html`
+                <div
+                    class='shell-split shell-split--${current.direction}'
+                    ${{
+                        onconnect: (element: HTMLElement) => {
+                            unobserve = observe(element, ([entry]) => {
+                                box.length = axis === 'x' ? entry.contentRect.width : entry.contentRect.height;
+                            });
+                        },
+                        ondisconnect: () => unobserve?.()
+                    }}
+                >
+                    ${current.children.map((child, index) => html`
+                        <div
+                            class='shell-pane'
+                            ${{
+                                // Holding the main group a narrow layout shows alone.
+                                class: () => state.layout.main !== null && contains(child, state.layout.main) && 'shell-pane--current',
+                                style: () => {
+                                    let maximized = state.layout.maximized;
 
-    return button.sidebar({
-        'aria-controls': side.id,
-        'aria-label': label,
-        class: `shell-toggle shell-toggle--${edge}`,
-        id: `${side.id}-toggle`,
-        onclick: () => side.state.active ? close(side) : open(sides, peeking, edge),
-        // The button keeps 'pointerleave' for itself; moves into its own glyph are ignored like any within the sidebar.
-        onpointerout: (e: PointerEvent) => leave(side, peeking, frame, edge, e),
-        open: () => side.state.active,
-        side: edge,
-        title: label
-    });
-}
+                                    if (maximized === null || !contains(current, maximized)) {
+                                        return `--flex: 0 0 ${(sizes()[index] ?? 0) * 100}%;`;
+                                    }
 
+                                    return contains(current.children[index], maximized)
+                                        ? `--flex: 0 0 calc(100% - ${(current.children.length - 1) * COLLAPSED}px);`
+                                        : `--flex: 0 0 ${COLLAPSED}px;`;
+                                }
+                            }}
+                        >
+                            ${node(child)}
+                        </div>
+                        ${index < current.children.length - 1 && separator(axis, () => {
+                            let from = sizes(),
+                                length = box.length;
 
-// The app frame: a sidebar on either edge, each with its toggle in its own top corner, around a card the page scrolls
-// in. The card insets from the window by a gap that closes on the side of an open sidebar, and a closed sidebar's gap
-// holds a handle to drag it open by, which slides in over the card while the pointer is on that edge.
-const shell = (sides: Sides, content: Renderable<unknown>) => {
-    let frame: Frame = { left: motion(), right: motion() },
-        peeking = reactive<Peeking>({ left: false, right: false });
+                            return (delta) => state.resize(current.id, resized(from, index, delta, length, MIN_FRACTION), current.children.map((child) => child.id));
+                        })}
+                    `)}
+                </div>
+            `;
+        }
 
-    return html`
-        <div
-            class='shell ${() => sides.left.state.active && 'shell--left-open'} ${() => sides.right.state.active && 'shell--right-open'}'
-            ${{
-                class: () => (frame.left.dragging || frame.right.dragging) && 'shell--dragging',
-                style: () => ({
-                    '--left-edge': frame.left.reach,
-                    '--left-gap-horizontal': frame.left.gap,
-                    '--left-space': frame.left.space,
-                    '--right-edge': frame.right.reach,
-                    '--right-gap-horizontal': frame.right.gap,
-                    '--right-space': frame.right.space
-                })
-            }}
-        >
-            <div aria-hidden='true' class='shell-backdrop'></div>
-            <div aria-hidden='true' class='shell-surface'></div>
-            ${panel(sides.left, peeking, frame, 'left')}
-            ${panel(sides.right, peeking, frame, 'right')}
-            ${grip(sides, peeking, frame, 'left')}
-            ${grip(sides, peeking, frame, 'right')}
-            ${toggle(sides, peeking, frame, 'left')}
-            ${toggle(sides, peeking, frame, 'right')}
-            <div class='card shell-main' ${scrollbar()}>
-                ${content}
+        // The menu of main groups a narrow layout switches between.
+        function switcher(main: Node) {
+            let groups = allGroups(main);
+
+            return groups.length > 1 && tooltip.context(
+                {
+                    class: 'shell-menu',
+                    controller: (value: Controller) => {
+                        switching = value;
+                    },
+                    items: groups.map((entry) => ({
+                        label: () => {
+                            let found = findGroup(state.layout.root, entry.id),
+                                surface = found?.surfaces.find((item) => item.id === found.active);
+
+                            return surface ? title(context, surface) : 'Empty group';
+                        },
+                        onselect: () => state.focus(entry.id)
+                    })),
+                    [tooltip.context.panel]: { 'aria-label': 'Switch group' }
+                },
+                ''
+            );
+        }
+
+        // Hiding a surface or picking another tab keeps its host parked; only closing it releases its content.
+        function sync(layout: Layout, attaching: boolean) {
+            let shown = mounted(layout);
+
+            for (let [surface, host] of hosts) {
+                if (findSurface(layout.root, surface)) {
+                    if (!shown.has(surface) && parking) {
+                        move(host.element, parking);
+                    }
+
+                    continue;
+                }
+
+                host.dispose();
+                host.element.remove();
+                hosts.delete(surface);
+                slots.delete(surface);
+            }
+
+            for (let surface of shown) {
+                ensure(surface);
+
+                let slot = slots.get(surface);
+
+                if (attaching && slot) {
+                    attach(surface, slot);
+                }
+            }
+        }
+
+        // Strips along the layout's edges a dragged tab docks onto; a static sidebar has none.
+        function targets() {
+            return (['bottom', 'left', 'right'] as const)
+                .filter((placement) => placement === 'bottom' || !stationary(state.layout.root, placement))
+                .map((placement) => html`
+                    <div
+                        aria-hidden='true'
+                        class='shell-dock-target shell-dock-target--${placement}'
+                        data-placement='${placement}'
+                    ></div>
+                `);
+        }
+
+        // Rebuilt when a region appears or goes, the bottom dock opens or closes or the zoom changes; each region
+        // rebuilds its own groups. A sidebar named in 'sidebars' shows even without groups, so it can always be opened.
+        function tree(): Renderable<unknown> {
+            let trees = shown(state.layout);
+
+            return html`
+                <div class='shell-frame'>
+                    ${(['left', 'right'] as const).map((edge) => (trees[edge] || options[edge]) && html`
+                        ${sidebar(edges, edge, region(edge))}
+                        ${grip(edges, edge)}
+                        ${options[edge]?.resizable && resizer(edges, edge)}
+                        ${toggle(edges, edge)}
+                    `)}
+                    <div class='shell-center'>
+                        <div class='shell-main'>
+                            ${region('main')}
+                        </div>
+                        ${trees.bottom && html`
+                            ${separator(
+                                'y',
+                                () => {
+                                    let share = bounded(state.layout.bottom.size),
+                                        length = size.height;
+
+                                    return (delta) => state.resizeDock('bottom', resized([1 - share, share], 0, delta, length, MIN_FRACTION)[1]);
+                                },
+                                { hidden: () => state.layout.bottom.maximized }
+                            )}
+                            <div
+                                class='shell-dock'
+                                ${{
+                                    class: () => state.layout.bottom.maximized && 'shell-dock--maximized',
+                                    style: () => `--flex: 0 0 ${bounded(state.layout.bottom.size) * 100}%;`
+                                }}
+                            >
+                                ${region('bottom')}
+                            </div>
+                        `}
+                    </div>
+                </div>
+                ${targets()}
+            `;
+        }
+
+        // The layout's own items, then each kind's: a kind with a menu of its own shows only that on its tabs.
+        let kind = () => findSurface(state.layout.root, subject.surface)?.kind ?? '',
+            own = () => !!catalog[kind()]?.menu,
+            items: Item[] = [
+                { hidden: own, label: 'Close', onselect: () => void state.close(subject.surface) },
+                {
+                    hidden: () => own() || (findGroup(state.layout.root, subject.group)?.surfaces.length ?? 0) <= 1,
+                    label: 'Close Others',
+                    onselect: () => void state.closeOthers(subject.group, subject.surface)
+                },
+                {
+                    hidden: () => {
+                        let surfaces = findGroup(state.layout.root, subject.group)?.surfaces ?? [];
+
+                        return own() || surfaces.findIndex((surface) => surface.id === subject.surface) >= surfaces.length - 1;
+                    },
+                    label: 'Close to the Right',
+                    onselect: () => void state.closeRight(subject.group, subject.surface)
+                },
+                { hidden: own, label: 'Close All', onselect: () => void state.closeGroup(subject.group) },
+                ...Object.entries(catalog).flatMap(([name, entry]) => (entry.menu?.(() => subject.surface) ?? []).map((item) => ({
+                    ...item,
+                    hidden: () => kind() !== name || (typeof item.hidden === 'function' ? !!item.hidden() : !!item.hidden)
+                })))
+            ],
+            last = '';
+
+        onCleanup(() => {
+            for (let host of hosts.values()) {
+                host.dispose();
+            }
+
+            hosts.clear();
+            slots.clear();
+        });
+
+        // Narrow, opening a sidebar closes the other, so both open on turning narrow leaves the left.
+        effect(() => {
+            if (narrow() && state.layout.left.open && state.layout.right.open) {
+                untrack(() => state.toggle('right', false));
+            }
+        });
+
+        return html`
+            <div
+                class='shell'
+                ${attributes}
+                ${{
+                    class: [
+                        () => read(carrying) && 'shell--dragging',
+                        () => narrow() && 'shell--narrow',
+                        () => (frames.left.dragging || frames.right.dragging) && 'shell--sliding',
+                        () => open('left') && 'shell--left-open',
+                        () => open('right') && 'shell--right-open'
+                    ],
+                    onconnect: (element: HTMLElement) => {
+                        workspace = element;
+                        unobserve = observe(element, ([entry]) => {
+                            size.height = entry.contentRect.height;
+                            size.width = entry.contentRect.width;
+                        });
+                    },
+                    ondisconnect: () => unobserve?.(),
+                    onwindowblur: () => write(picks, []),
+                    onwindowkeydown: (e: KeyboardEvent) => {
+                        if (e.key === 'Escape' && read(picks).length) {
+                            e.preventDefault();
+                            write(picks, []);
+                        }
+                    },
+                    onwindowkeyup: (e: KeyboardEvent) => {
+                        let chosen = read(picks);
+
+                        if (e.key !== (apple ? 'Meta' : 'Control') || chosen.length === 0) {
+                            return;
+                        }
+
+                        write(picks, []);
+                        state.zoom(chosen);
+                    },
+                    style: () => {
+                        let { left, right } = state.layout;
+
+                        return {
+                            '--left': frames.left.space,
+                            '--left-size': left.size === null ? undefined : `${left.size}px`,
+                            '--right': frames.right.space,
+                            '--right-size': right.size === null ? undefined : `${right.size}px`
+                        };
+                    }
+                }}
+            >
+                <div
+                    class='shell-parking'
+                    ${{
+                        onconnect: (element: HTMLElement) => {
+                            parking = element;
+                        }
+                    }}
+                ></div>
+                ${subtree(
+                    () => {
+                        let layout = state.layout,
+                            trees = shown(layout),
+                            key = JSON.stringify([layout.bottom.open, layout.zoom.at(-1)?.groups ?? null, ...Object.values(trees).map((tree) => tree !== null)]),
+                            changed = key !== last;
+
+                        if (changed) {
+                            park();
+                        }
+
+                        sync(layout, !changed);
+                        last = key;
+
+                        return key;
+                    },
+                    tree,
+                    { class: 'shell-tree' }
+                )}
+                ${tooltip.context(
+                    {
+                        class: 'shell-menu',
+                        controller: (value: Controller) => {
+                            adding = value;
+                        },
+                        items: context.addable.map(([kind, entry]) => ({
+                            ...(entry.icon ? { icon: () => icon({ 'aria-hidden': 'true' }, entry.icon!) } : {}),
+                            label: typeof entry.title === 'function' ? entry.title({ id: '', kind }) : entry.title,
+                            onselect: () => context.add(kind, subject.group)
+                        })),
+                        [tooltip.context.panel]: { 'aria-label': 'Add panel' }
+                    },
+                    ''
+                )}
+                ${tooltip.context(
+                    {
+                        class: 'shell-menu',
+                        controller: (value: Controller) => {
+                            controller = value;
+                        },
+                        items,
+                        [tooltip.context.panel]: { 'aria-label': 'Tab actions' }
+                    },
+                    ''
+                )}
             </div>
-        </div>
-    `;
-};
+        `;
+    }
+);
 
 
-const layout: typeof shell & { close: typeof close } = Object.assign(shell, { close });
+const layout: typeof shell & { state: typeof state } = Object.assign(shell, { state });
 
 
 export default layout;
-export type { Side };
+export type { Catalog, Kind, Layout, Node, Placement, Saved, Store, Surface };

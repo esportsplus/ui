@@ -444,4 +444,4 @@ const unassign = (keybindings: Keybindings, apple: boolean, command: Command): K
 
 
 export { bind, conflict, declare, fromChord, fromRecorder, label, matches, merge, reset, rows, sanitize, sequence, unassign };
-export type { KeybindingRow, Keybindings, SequenceKey, SequenceOptions };
+export type { KeybindingRow, Keybindings };

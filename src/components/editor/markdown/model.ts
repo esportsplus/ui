@@ -77,8 +77,6 @@ const TASK = /[ xX]/;
 
 const TRAILING_EOL = /(?:\r\n|\r|\n)$/;
 
-const WORD = /[\p{L}\p{N}_]/u;
-
 
 // Line 'i' of a parse: its quote prefix and the text after it.
 function at(text: string, starts: readonly number[], i: number) {
@@ -658,41 +656,6 @@ const shiftBlock = (block: MarkdownBlock, by: number) => {
     }
 };
 
-const toggleMarkdown = (document: EditorDocument, marker: '*' | '**') => {
-    let { direction, end, start } = document.selection,
-        text = document.value,
-        edit: Edit;
-
-    if (start === end) {
-        while (start > 0 && WORD.test(text[start - 1])) {
-            start--;
-        }
-
-        while (end < text.length && WORD.test(text[end])) {
-            end++;
-        }
-    }
-
-    let selected = text.slice(start, end);
-
-    if (selected.length >= marker.length * 2 && selected.startsWith(marker) && selected.endsWith(marker)) {
-        edit = { from: start, insert: selected.slice(marker.length, -marker.length), to: end };
-        end -= marker.length * 2;
-    }
-    else if (text.slice(start - marker.length, start) === marker && text.slice(end, end + marker.length) === marker) {
-        edit = { from: start - marker.length, insert: selected, to: end + marker.length };
-        start -= marker.length;
-        end -= marker.length;
-    }
-    else {
-        edit = { from: start, insert: marker + selected + marker, to: end };
-        start += marker.length;
-        end += marker.length;
-    }
-
-    return document.transact([edit], { selection: { direction, end, start }, source: 'markdown-format' }).changed;
-};
-
 const toggleTask = (document: EditorDocument, task: Task) => {
     let value = document.value;
 
@@ -716,7 +679,6 @@ export {
     parseMarkdown,
     quotePrefix,
     reparse,
-    toggleMarkdown,
     toggleTask
 };
 export type { Kind, MarkdownBlock, Row, Task };

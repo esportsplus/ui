@@ -44,15 +44,12 @@ const meta: Record<string, Meta> = {
     counter: {
         description: 'Animated number display with currency and formatting support.'
     },
-    dock: {
-        description: 'macOS-style dock whose icons swell toward the cursor and launch with a bounce and a running light.'
-    },
     editor: {
         description: 'Code, markdown, file tree, workspace and diff editing in one family. editor.code edits source with syntax colors, undo and redo, find and replace, multiple and rectangular selections, folding, wrap, a minimap and language services; editor.markdown edits rendered markdown directly; editor.tree is a collapsible, virtualized file tree with git and problem decorations, drag and drop and desktop import and export; editor.workspace adds an explorer, tabs and quick open; editor.viewer shows source read-only; and editor.diffs compares two texts side by side or unified, with editor.diffs.merge for three-way merges.',
         label: 'Editor'
     },
     error: {
-        description: 'Wraps any control that keeps its error in state.error: the control shakes and turns red, and the message grows out of it in the morph tooltip on any side.'
+        description: 'An error set under its control: it takes no room until it opens, sliding what follows down, and swaps with the field description when there is one.'
     },
     filter: {
         description: 'Headless filter controller: bring your own triggers and layout, and matching items shift, scale, and fade into place.'
@@ -93,9 +90,6 @@ const meta: Record<string, Meta> = {
     marquee: {
         description: 'Infinitely scrolling logo strip that eases to a stop on hover or focus, and can speed up and reverse with the page scroll.'
     },
-    metric: {
-        description: 'Metric card with a line chart that draws itself in and redraws to fit its container, with a scrubbable readout for pointer, touch, and arrow keys, plus a live value that marks each change with a directional roll, tint, and arrow.'
-    },
     nav: {
         description: 'Navigation trees that mark the active link with a gliding highlight, a full-width background, a rail down their edge or both, an on-this-page table of contents, and a scroll spy that marks the section in view.'
     },
@@ -112,25 +106,25 @@ const meta: Record<string, Meta> = {
         description: 'Vertical page scaffold with title, suptitle, and subtitle slots.'
     },
     pagination: {
-        description: 'Numbered page navigation that folds overflow into ellipses, plus a scroll-linked dots indicator whose active pill stretches between dots like a worm, with an optional autoplay countdown. Previous and next links come as large cards or compact arrow buttons, each nudging its arrow the way it points.'
-    },
-    preview: {
-        description: 'Example card with a numbered header for its controls, a stage that mounts its example as it nears the viewport, and preview and code views that load the source on demand with a copy button.'
+        description: 'Numbered page navigation that folds overflow into ellipses. Previous and next links come as large cards or compact arrow buttons, each nudging its arrow the way it points.'
     },
     progress: {
         description: 'Progress bar with an optional label, percentage, and a status line derived from the value, plus progress shown in the label itself: ink fills the letters, digits roll, and a drawn check lands when done.'
     },
     radio: {
-        description: 'Single-choice selection from a grouped set of options, including option cards built from radio and card.'
+        description: 'Single-choice selection from a grouped set of options.'
     },
     range: {
-        description: 'Slider input for choosing a value along a track, plus single and dual-thumb range filters with rolling digits, a ghost preview, and optional min/max fields. Add range--slider (range-filter--slider on a filter) for a compact track and thumb style; orientation: vertical supports vertical single and dual thumbs.'
+        description: 'Slider input for choosing a value along a track, plus single and dual-thumb range filters with editable values, a ghost preview, and optional min/max fields. Add range--slider (range-filter--slider on a filter) for a compact track and thumb style; orientation: vertical supports vertical single and dual thumbs.'
     },
     'relative-time': {
         description: 'Self-updating "5 min ago" time element that rolls its digits as they change, with the full date on hover.'
     },
     scrollbar: {
         description: 'Native scrollbar styling with thin, token-driven colors, plus edge fades and blurs that track the scroll position.'
+    },
+    search: {
+        description: 'Search field with a magnifier and shortcut keycaps floating over it, and a button dressed the same way for opening a search that lives elsewhere, such as a command palette.'
     },
     select: {
         description: 'Custom dropdown for choosing from a list of options, plus a macOS-style listbox that opens with the selected option over the trigger, with typeahead and hover scrolling.'
@@ -142,7 +136,7 @@ const meta: Record<string, Meta> = {
         description: 'Drag-and-drop reordering of a reactive list\'s items, within one list or across a group.'
     },
     story: {
-        description: 'Auto-advancing stories of any content with segmented progress bars, tap or drag to navigate, and press-and-hold to pause.'
+        description: 'Auto-advancing stories of any content with segmented progress bars over the card or floating beneath it, optionally as dots whose active pill counts down, tap or drag to navigate, and press-and-hold to pause.'
     },
     'surface-field': {
         description: 'Canvas field of dots and lines lit by the pointer, rippling on press and bending around draggable, resizable, inline-editable surfaces of any shape, with links drawn through the field, a camera it follows as a parallax floor, and an optional worker to draw in (Surface Field).'
@@ -159,6 +153,9 @@ const meta: Record<string, Meta> = {
     toast: {
         description: 'Independent toasters that stack your content: a close button, swipe-to-dismiss, a capped stack that fans out on hover, and a CSS clock that runs only on the front toast.'
     },
+    toolbar: {
+        description: 'A bar of flat buttons and dividers the consumer defines, sortable by drag, that can morph into a drawer of more buttons with an optional search; as a dock, its buttons launch apps with a hop and a running dot, and a button thrown off it goes back to the drawer.'
+    },
     tooltip: {
         description: 'Contextual popover for hints, menus, and hover details, including one shared tooltip that glides between the triggers bound to it, down to a navigation bar of dropdown panels.'
     },
@@ -172,4 +169,3 @@ const meta: Record<string, Meta> = {
 
 
 export { meta };
-export type { Meta };

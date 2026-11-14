@@ -1,0 +1,67 @@
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
+
+// Both controls raise off their parent on the surface's fill and shadow, sized to one 24px keycap line, with no border
+// until a variant adds one. The input and button stylesheets load first, so their own fill, size and press variants are
+// left out of the defaults here rather than outranked by them.
+.search {
+    &-button {
+        @extend %color-text;
+        --font-size: var(--font-size-300);
+        --line-height: 24px;
+        --padding-horizontal: var(--size-300);
+        --padding-vertical: var(--size-100);
+
+        &:not(.button--black, .button--primary, .button--surface, .button--surface-primary, .button--white) {
+            --background-default: var(--surface-background-default);
+        }
+
+        // 'button--tactile' drops the shadow while active and pressed.
+        &:not(.button--tactile) {
+            @extend %box-shadow-surface;
+        }
+
+        &.button--tactile {
+            --box-shadow-default: var(--surface-shadow-default);
+            --box-shadow-hover: var(--surface-shadow-hover);
+        }
+    }
+
+    &-input {
+        @extend %color-text, %surface-raise;
+        --border-width-active: var(--border-width-500);
+
+        &:not(.input--compact) {
+            --font-size: var(--font-size-300);
+            --padding-vertical: var(--size-100);
+            --size: 24px;
+        }
+
+        &:not(.input--surface, .input--surface-primary) {
+            --background-default: var(--surface-background-default);
+        }
+    }
+
+    &-keys {
+        --gap-horizontal: calc(var(--size-100) / 2);
+        --gap-vertical: 0px;
+    }
+
+    // A compact field's keycaps take half the height, so they keep the inset the full-size field's do rather than filling
+    // it; a little more across keeps a one-glyph cap square. Chained through '.button' so they win over the keycap's own
+    // spacing regardless of order.
+    &:has(> .input--compact) > &-keys > .button {
+        --padding-horizontal: calc(var(--size-100) * 0.75);
+        --padding-vertical: calc(var(--size-100) / 2);
+    }
+
+    // Read by the group, which sinks for a tactile button so the items floating over it go with it.
+    &:has(> .button--tactile) {
+        --translate-pressed: 0 1px;
+
+        @media (prefers-reduced-motion: reduce) {
+            --translate-pressed: none;
+        }
+    }
+}

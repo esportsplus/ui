@@ -1,11 +1,11 @@
 import { html, reactive, uri } from 'docs/app';
-import { icon, preview, select } from '@esportsplus/ui/components';
+import { icon, select } from '@esportsplus/ui/components';
+import preview from 'docs/components/preview';
 import type { Page, TocItem, Variant } from 'docs/types';
 import header from 'docs/components/page/header';
 import code from '@esportsplus/ui/svg/code.svg';
 import eye from '@esportsplus/ui/svg/eye.svg';
 import 'docs/components/directory/scss/index.scss';
-import 'docs/components/page/scss/index.scss';
 
 
 type Directory = {
@@ -52,12 +52,15 @@ function detail({ items, route, slug, title }: Directory): Page {
     };
 }
 
-// An example and its variants: a select swaps the variant, the view buttons swap in its source, and a hash naming
-// either reveals it.
+// An example and its variants: a select swaps the variant, a second its style when it offers some, the view buttons
+// swap in its source, and a hash naming either reveals it.
 function example(variant: Variant, index: number, id: string) {
     let options = variant.options ?? [],
         selection = reactive({ active: false, error: '', selected: options[0]?.id ?? '' }),
-        state = preview.state();
+        state = preview.state(),
+        styles = variant.styles ?? [],
+        // Picked by position, so a style with no class still has a value to select.
+        styling = reactive({ active: false, error: '', selected: '0' });
 
     function current() {
         return options.find((option) => option.id === selection.selected);
@@ -65,17 +68,30 @@ function example(variant: Variant, index: number, id: string) {
 
     return [
         variant.source && preview.buttons({ 'aria-label': `${variant.title} view`, state }, [
-            { content: [icon({ 'aria-hidden': 'true', class: 'preview-view-icon' }, eye), 'Preview'], view: 'preview' },
-            { content: [icon({ 'aria-hidden': 'true', class: 'preview-view-icon' }, code), 'Code'], view: 'code' }
+            { content: [icon({ 'aria-hidden': 'true' }, eye), 'Preview'], view: 'preview' },
+            { content: [icon({ 'aria-hidden': 'true' }, code), 'Code'], view: 'code' }
         ]),
         preview({ anchors: options.map((option) => option.id), id, selection, state }, [
-            preview.header({ index: index + 1, title: variant.title }, options.length > 1 && select({
-                class: 'preview-header-select',
-                label: `${variant.title} variant`,
-                options: options.map((option) => ({ label: option.label, value: option.id })),
-                state: selection
-            })),
-            () => preview.stage({ state }, current()?.render ?? variant.render),
+            preview.header({ index: index + 1, title: variant.title }, [
+                options.length > 1 && select({
+                    class: 'preview-header-select',
+                    label: `${variant.title} variant`,
+                    options: options.map((option) => ({ label: option.label, value: option.id })),
+                    state: selection
+                }),
+                styles.length > 1 && select({
+                    class: 'preview-header-select',
+                    label: `${variant.title} style`,
+                    options: styles.map((style, position) => ({ label: style.label, value: String(position) })),
+                    state: styling
+                })
+            ]),
+            () => {
+                let render = current()?.render ?? variant.render,
+                    style = styles[Number(styling.selected)]?.class ?? '';
+
+                return preview.stage({ state }, () => render(style));
+            },
             () => {
                 let source = variant.source && (current()?.source ?? variant.source);
 

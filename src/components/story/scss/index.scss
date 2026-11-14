@@ -14,36 +14,86 @@
     width: min(var(--max-width), 100%);
 
 
-    &-bar {
-        background: var(--background);
+    // The bars leave the card for a row beneath it. The track and the zones share the first row, so the zones end
+    // where the card does; the track clips its own slides, so the story itself no longer has to.
+    &--float {
+        display: grid;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: minmax(0, 1fr) auto;
+        overflow: visible;
+    }
+
+    &--float &-bars {
+        grid-row: 2;
+        position: static;
+    }
+
+    &--float &-track,
+    &--float &-zones {
+        grid-area: 1 / 1;
+        position: relative;
+    }
+
+    &--float &-track {
         border-radius: var(--border-radius);
-        flex: 1;
-        height: var(--height);
         overflow: hidden;
     }
 
+
+    // The line itself; its '::after' is the fill. The fill is always the bar's own pill, revealed by a square cut from
+    // the right, so its rounded start holds at any width; a rounded cut would shrink its corners while narrow. Nothing
+    // clips the bar, so its hit area can reach past it.
+    &-bar {
+        appearance: none;
+        background: var(--background);
+        border: 0;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        flex: var(--flex);
+        height: var(--height);
+        outline: none;
+        padding: 0;
+        pointer-events: auto;
+        position: relative;
+        // Dots widen the playing one into a pill, which the row has to make room for.
+        transition: width var(--transition-duration) var(--transition-timing-function);
+        width: var(--width);
+
+
+        &::after {
+            @extend %absolute-full;
+            animation: var(--fill-animation);
+            background: var(--fill-background);
+            border-radius: inherit;
+            clip-path: inset(0 var(--fill-inset) 0 0);
+            content: '';
+        }
+
+        // The hit area, reaching past the thin line above and below it without taking up room in the row.
+        &::before {
+            content: '';
+            inset: calc(var(--hit-vertical) * -1) 0;
+            position: absolute;
+        }
+    }
+
+    // Clicks pass through the row's padding and gaps to the story; only the bars take them.
     &-bars {
         @extend %absolute-top;
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        padding: var(--padding-vertical) var(--padding-horizontal) 0;
+        justify-content: center;
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
         pointer-events: none;
         z-index: 2;
-    }
-
-    &-fill {
-        animation: var(--animation);
-        background: var(--background);
-        border-radius: var(--border-radius);
-        display: block;
-        height: 100%;
-        scale: var(--scale) 1;
-        transform-origin: left;
     }
 
     &-slide {
         min-height: 0;
         overflow: hidden;
+
 
         // Following a drag, or leaping more than one place. Chained through '.frame' so the slide transition can't
         // override it, whichever stylesheet loads last.
@@ -73,6 +123,7 @@
         outline: none;
         padding: 0;
 
+
         &:last-child {
             flex: 2;
         }
@@ -93,12 +144,12 @@
 }
 
 
-@keyframes story-fill {
+@keyframes story-bar-fill {
     from {
-        scale: 0 1;
+        clip-path: inset(0 100% 0 0);
     }
 
     to {
-        scale: 1 1;
+        clip-path: inset(0);
     }
 }

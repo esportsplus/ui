@@ -1,6 +1,8 @@
 @use 'css-utilities/reset';
 @use 'variables';
 
+// Each row is a 'group--grid', which lays out the checkbox, label and description; the list adds the check's strike,
+// fade and reordering.
 .tasklist {
     @extend %reset-list;
     display: flex;
@@ -13,7 +15,7 @@
         counter-set: tasklist var(--index);
     }
 
-    &--plan &-label::before {
+    &--plan &-text::before {
         color: var(--color);
         content: counter(tasklist, decimal-leading-zero);
         font-family: var(--font-family);
@@ -24,29 +26,14 @@
     }
 
 
-    // '--line-height' comes from the row, so the box centers on the first line of the label
-    &-checkbox {
-        margin-block-start: calc((var(--line-height) - var(--size)) / 2);
-    }
-
-    &-content {
-        min-width: 0;
+    &-description,
+    &-label {
         opacity: var(--opacity);
         transition: opacity var(--strike-duration) var(--strike-timing-function) var(--strike-delay);
     }
 
-    &-description {
-        color: var(--color);
-        display: block;
-        font-size: var(--font-size);
-        margin-block-start: calc(var(--size-100) / 4);
-    }
-
     &-item {
-        background: var(--background);
-        border-radius: var(--border-radius);
         position: relative;
-        transition: background-color var(--transition-duration) var(--transition-timing-function);
 
         &--moving {
             z-index: 1;
@@ -59,39 +46,32 @@
         transition-delay: var(--strike-duration);
     }
 
+    // Block, not the group label's flex, so the text inside stays inline. Qualified by the row so it wins over the
+    // group label regardless of stylesheet order.
+    &-row > &-label {
+        display: block;
+    }
+
+    // Drag grip, shown while the row is hovered. A third column of its own, on the label's line.
+    &-row--sortable::after {
+        background: var(--background);
+        content: '';
+        grid-column: 3;
+        grid-row: 1;
+        height: var(--size);
+        mask: url('../../../../storage/svg/grip.svg') center / contain no-repeat;
+        opacity: var(--opacity);
+        transition: opacity var(--transition-duration) var(--transition-timing-function);
+        width: var(--size);
+    }
+
     // Inline so the strike is drawn once per wrapped line
-    &-label {
+    &-text {
         background-image: linear-gradient(var(--strike-color), var(--strike-color));
         background-position: 0 55%;
         background-repeat: no-repeat;
         background-size: var(--strike-length) var(--strike-width);
         box-decoration-break: clone;
-        color: var(--color);
-        font-weight: var(--font-weight);
         transition: background-size var(--strike-duration) var(--strike-timing-function) var(--strike-delay);
-    }
-
-    &-row {
-        align-items: flex-start;
-        cursor: pointer;
-        display: flex;
-        font-size: var(--font-size);
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        line-height: var(--line-height);
-        padding: var(--padding-vertical) var(--padding-horizontal);
-        user-select: none;
-
-        // Drag grip, shown while the row is hovered
-        &--sortable::after {
-            background: var(--background);
-            content: '';
-            flex: 0 0 var(--size);
-            height: var(--size);
-            margin-block-start: calc((var(--line-height) - var(--size)) / 2);
-            margin-inline-start: auto;
-            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='9' cy='5' r='1.5'/%3E%3Ccircle cx='9' cy='12' r='1.5'/%3E%3Ccircle cx='9' cy='19' r='1.5'/%3E%3Ccircle cx='15' cy='5' r='1.5'/%3E%3Ccircle cx='15' cy='12' r='1.5'/%3E%3Ccircle cx='15' cy='19' r='1.5'/%3E%3C/svg%3E") center / contain no-repeat;
-            opacity: var(--opacity);
-            transition: opacity var(--transition-duration) var(--transition-timing-function);
-        }
     }
 }

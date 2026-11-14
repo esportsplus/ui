@@ -65,7 +65,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
         letters = new ReactiveArray<Letter>([...words[current]].map((char) => ({ char }))),
         timer: ReturnType<typeof setTimeout> | undefined;
 
-    let leaving = html.reactive(exits, (l) => html`<span class='typewriter-rotate-letter typewriter-rotate-letter--exiting' style='left: ${l.left ?? 0}px;'>${l.char}</span>`),
+    let leaving = html.reactive(exits, (l) => html`<span class='typewriter-rotate-letter typewriter-rotate-letter--exiting' style='--swap-left: ${l.left ?? 0}px;'>${l.char}</span>`),
         word = html.reactive(letters, (l) => html`<span class='typewriter-rotate-letter'>${l.char}</span>`);
 
     function schedule() {
@@ -146,8 +146,8 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
             nodes[letters.length + i]?.animate(
                 glide
                     ? [
-                        { filter: 'blur(0px)', opacity: 1, transform: 'translateY(0)' },
-                        { filter: `blur(${blur})`, opacity: 0, transform: `translateY(${computed.getPropertyValue('--exit-offset').trim()})` }
+                        { filter: 'blur(0px)', opacity: 1, translate: '0 0' },
+                        { filter: `blur(${blur})`, opacity: 0, translate: `0 ${computed.getPropertyValue('--exit-offset').trim()}` }
                     ]
                     : [{ opacity: 1 }, { opacity: 0 }],
                 { ...exit, fill: 'forwards' }
@@ -191,8 +191,8 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
                 nodes[i]?.animate(
                     glide
                         ? [
-                            { filter: `blur(${blur})`, opacity: 0, transform: `translateY(${computed.getPropertyValue('--enter-offset').trim()})` },
-                            { filter: 'blur(0px)', opacity: 1, transform: 'translateY(0)' }
+                            { filter: `blur(${blur})`, opacity: 0, translate: `0 ${computed.getPropertyValue('--enter-offset').trim()}` },
+                            { filter: 'blur(0px)', opacity: 1, translate: '0 0' }
                         ]
                         : [{ opacity: 0 }, { opacity: 1 }],
                     // A beat for the leaving letters to clear the space, then a small left-to-right cascade.
@@ -208,7 +208,7 @@ export default ({ interval = INTERVAL, state = reactive({ index: 0, paused: fals
             }
 
             nodes[i]?.animate(
-                [{ transform: `translateX(${was - now}px)` }, { transform: 'translateX(0)' }],
+                [{ translate: `${was - now}px` }, { translate: '0' }],
                 glide
             );
         }

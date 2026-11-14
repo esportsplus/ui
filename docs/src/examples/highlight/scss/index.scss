@@ -23,15 +23,12 @@
     }
 
     &-tab {
-        background: transparent;
-        border: 0;
         border-radius: var(--border-radius-400);
         color: var(--color-text-300);
         cursor: pointer;
         font-size: var(--font-size-400);
         font-weight: var(--font-weight-500);
         height: 44px;
-        outline: none;
         padding-inline: var(--size-400);
         text-align: start;
         transition: color 0.15s ease-out;

@@ -51,6 +51,13 @@ strong {
     font-weight: var(--font-weight);
 }
 
+body,
+html {
+    height: 100%;
+    overflow-x: hidden;
+    width: 100%;
+}
+
 body {
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
@@ -61,13 +68,6 @@ body {
     font-weight: var(--font-weight);
     min-width: var(--min-width);
     text-rendering: optimizeLegibility;
-}
-
-body,
-html {
-    height: 100%;
-    overflow-x: hidden;
-    width: 100%;
 }
 
 h1,
@@ -110,16 +110,16 @@ section {
     width: var(--width);
 }
 
-sub {
-    bottom: var(--offset);
-}
-
 // Offset from the baseline rather than 'vertical-align', so the raised text never stretches its line box.
 sub,
 sup {
     font-size: var(--font-size);
     position: relative;
     vertical-align: baseline;
+}
+
+sub {
+    bottom: var(--offset);
 }
 
 sup {

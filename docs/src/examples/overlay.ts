@@ -16,7 +16,7 @@ type Sheet = {
 // Padding, icon and gap add up to '--width-closed', so a collapsed rail clips each label at its first letter.
 const ICON = '--size: 20px;';
 
-const BUTTON = '--width: auto; margin-top: var(--size-500);';
+const BUTTON = 'margin-top: var(--size-500);';
 
 const ROWS = [
     { icon: home, label: 'Home' },
@@ -61,7 +61,7 @@ function contained(description: string) {
             )}
             <div
                 class='button'
-                style='--width: auto; left: 50%; position: absolute; top: 50%; translate: -50% -50%;'
+                style='left: 50%; position: absolute; top: 50%; translate: -50% -50%;'
                 onclick='${() => state.active = !state.active}'
             >
                 toggle overlay
@@ -99,7 +99,7 @@ function demo(variant: string, description: string, style = '') {
     let state = reactive({ active: false });
 
     return html`
-        <div class='button' style='--width: auto;' onclick='${() => state.active = true}'>
+        <div class='button' onclick='${() => state.active = true}'>
             open overlay
         </div>
 
@@ -141,11 +141,11 @@ function stacked(modal: boolean) {
                 <div class='preview-text'>${description}</div>
                 <div style='display: flex; gap: var(--size-300); margin-top: var(--size-500);'>
                     ${i + 1 < SHEETS.length && html`
-                        <div class='button' style='--width: auto;' onclick='${() => states[i + 1].active = true}'>
+                        <div class='button' onclick='${() => states[i + 1].active = true}'>
                             ${SHEETS[i + 1].title}
                         </div>
                     `}
-                    <div class='button' style='--width: auto;' onclick='${() => states[i].active = false}'>
+                    <div class='button' onclick='${() => states[i].active = false}'>
                         done
                     </div>
                 </div>
@@ -154,7 +154,7 @@ function stacked(modal: boolean) {
 
     if (modal) {
         return html`
-            <div class='button' style='--width: auto;' onclick='${() => states[0].active = true}'>
+            <div class='button' onclick='${() => states[0].active = true}'>
                 share
             </div>
             ${sheets}

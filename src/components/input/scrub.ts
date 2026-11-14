@@ -1,5 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import group from '~/components/group';
 import { swallow } from '~/shared/press';
 import input from './field';
 
@@ -18,6 +19,8 @@ type A = Attributes & {
     step?: number;
     suffix?: string;
     value?: number;
+    // The input's surface modifier.
+    variant?: 'border' | 'surface' | 'surface-primary';
 };
 
 type D = Attributes & Pick<A, typeof INPUT_SCRUB_FIELD | typeof INPUT_SCRUB_LABEL>;
@@ -27,6 +30,8 @@ type Field = Parameters<typeof input>[0];
 type Scrub = {
     id: number;
     lastX: number;
+    // Pointer lock was asked for; taking it releases the pointer capture, which then no longer ends the scrub.
+    locked: boolean;
     moved: boolean;
     // Unrounded running value, so slow fine drags accumulate instead of rounding every sub-step away.
     raw: number;
@@ -80,6 +85,7 @@ export default component(
             suffix = '',
             value = 0,
             state = reactive({ active: false, error: '', value }),
+            variant,
             ...attributes
         }: A,
         content: Renderable<unknown>
@@ -120,6 +126,7 @@ export default component(
 
             scrub = null;
             local.scrubbing = false;
+            state.active = false;
         }
 
         function format(n: number) {
@@ -144,191 +151,203 @@ export default component(
             field.select();
         }
 
-        return html`
-            <div
-                class='input-scrub'
-                ${this?.attributes}
-                ${attributes}
-                ${{
-                    class: () => local.scrubbing && '--active',
-                    ondisconnect: () => {
-                        if (scrub) {
-                            end();
-                        }
-                    },
-                    ondocumentkeydown: (e: KeyboardEvent) => {
-                        if (e.key !== 'Escape' || !scrub) {
-                            return;
-                        }
+        // The label and the track both start a scrub; a press that never drags focuses the field instead.
+        let drag = {
+            onclick: () => {
+                field?.focus();
+            },
+            onlostpointercapture: (e: PointerEvent) => {
+                if (scrub?.id === e.pointerId && !scrub.locked) {
+                    end();
+                }
+            },
+            onpointercancel: (e: PointerEvent) => {
+                if (scrub?.id === e.pointerId) {
+                    end();
+                }
+            },
+            onpointerdown: (e: PointerEvent) => {
+                // Ignores a second finger rather than letting it hijack the drag.
+                if (e.button !== 0 || scrub) {
+                    return;
+                }
 
-                        state.value = scrub.start;
-                        end();
+                e.preventDefault();
+
+                let element = e.currentTarget as HTMLElement,
+                    start = state.value;
+
+                if (field && document.activeElement === field) {
+                    start = commit();
+                    skip = true;
+                    field.blur();
+                }
+
+                element.setPointerCapture(e.pointerId);
+                scrub = {
+                    id: e.pointerId,
+                    lastX: e.clientX,
+                    locked: false,
+                    moved: false,
+                    raw: start,
+                    sent: start,
+                    start,
+                    startX: e.clientX
+                };
+            },
+            onpointermove: (e: PointerEvent) => {
+                let s = scrub;
+
+                if (!s || e.pointerId !== s.id) {
+                    return;
+                }
+
+                let element = e.currentTarget as HTMLElement;
+
+                if (!s.moved) {
+                    if (Math.abs(e.clientX - s.startX) < DRAG_THRESHOLD) {
+                        return;
                     }
-                }}
+
+                    // The field reads as in use while it's dragged, as it does while typed in.
+                    s.moved = true;
+                    local.scrubbing = true;
+                    state.active = true;
+
+                    if (lockPointer && e.pointerType === 'mouse') {
+                        s.locked = true;
+
+                        // A refused lock rejects (or returns nothing) and leaves the capture in place, which scrubs on.
+                        Promise.resolve(element.requestPointerLock?.()).catch(() => {
+                            s.locked = false;
+                        });
+                    }
+                }
+
+                // A locked pointer stays put, so only movementX reports travel.
+                let dx = document.pointerLockElement === element ? e.movementX : e.clientX - s.lastX;
+
+                s.lastX = e.clientX;
+                s.raw = clamp(s.raw + (dx / pixelsPerStep) * step * gear(e));
+
+                let next = round(s.raw);
+
+                if (next === s.sent) {
+                    return;
+                }
+
+                s.sent = next;
+                state.value = next;
+            },
+            onpointerup: (e: PointerEvent) => {
+                if (scrub?.id === e.pointerId) {
+                    end();
+                }
+            }
+        };
+
+        // An input with the letter or icon floating at its start and the tape along its foot, so the box, its states
+        // and its variants are the input's own.
+        return group.call({ attributes: this?.attributes }, {
+            ...attributes,
+            class: ['input-scrub', () => local.scrubbing && '--active', attributes.class ?? []].flat(),
+            ondisconnect: () => {
+                if (scrub) {
+                    end();
+                }
+            },
+            ondocumentkeydown: (e: KeyboardEvent) => {
+                if (e.key !== 'Escape' || !scrub) {
+                    return;
+                }
+
+                state.value = scrub.start;
+                end();
+            },
+            // The browser takes Escape to release a lock before the page sees it, so a released lock ends the scrub.
+            ondocumentpointerlockchange: () => {
+                if (scrub?.locked && !document.pointerLockElement) {
+                    end();
+                }
+            }
+        }, html`
+            <span
+                class='group-item group-item--overlay input-scrub-label'
+                ${this?.attributes?.[INPUT_SCRUB_LABEL]}
+                ${attributes[INPUT_SCRUB_LABEL]}
+                ${drag}
             >
-                <span aria-hidden='true' class='input-scrub-tape'>
-                    <span
-                        class='input-scrub-ticks'
-                        style=${() => {
-                            // The pattern repeats every major tick, so only the remainder matters, which also keeps huge values precise.
-                            let offset = ((((state.value / step) * pixelsPerStep) % period) + period) % period;
+                ${content}
+            </span>
+            ${input.call({ attributes: { ...this?.attributes?.[INPUT_SCRUB_FIELD], ...attributes[INPUT_SCRUB_FIELD] } }, {
+                'aria-label': label,
+                'aria-valuemax': Number.isFinite(max) && max,
+                'aria-valuemin': Number.isFinite(min) && min,
+                'aria-valuenow': () => state.value,
+                'aria-valuetext': () => format(state.value),
+                autocomplete: 'off',
+                class: ['input-scrub-field', variant && `input--${variant}`],
+                inputmode: 'decimal',
+                onblur: () => {
+                    if (!skip) {
+                        commit();
+                    }
 
-                            return `--offset: ${offset}px`;
-                        }}
-                    ></span>
-                    <span class='input-scrub-needle'></span>
-                </span>
-                <span
-                    class='input-scrub-label'
-                    ${this?.attributes?.[INPUT_SCRUB_LABEL]}
-                    ${attributes[INPUT_SCRUB_LABEL]}
-                    ${{
-                        onclick: () => {
-                            field?.focus();
-                        },
-                        onlostpointercapture: (e: PointerEvent) => {
-                            if (scrub?.id === e.pointerId) {
-                                end();
-                            }
-                        },
-                        onpointercancel: (e: PointerEvent) => {
-                            if (scrub?.id === e.pointerId) {
-                                end();
-                            }
-                        },
-                        onpointerdown: (e: PointerEvent) => {
-                            // Ignores a second finger rather than letting it hijack the drag.
-                            if (e.button !== 0 || scrub) {
-                                return;
-                            }
+                    skip = false;
+                    local.draft = null;
+                },
+                onconnect: (element: HTMLInputElement) => {
+                    field = element;
+                },
+                onfocus: (e: FocusEvent) => {
+                    show(e.currentTarget as HTMLInputElement, format(state.value));
+                },
+                oninput: (e: Event) => {
+                    local.draft = (e.currentTarget as HTMLInputElement).value;
+                },
+                onkeydown: (e: KeyboardEvent) => {
+                    let field = e.currentTarget as HTMLInputElement;
 
-                            e.preventDefault();
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        // Stays in the field with the result selected, so the next edit is one keystroke away.
+                        show(field, format(commit()));
+                    }
+                    else if (e.key === 'Escape') {
+                        skip = true;
+                        field.blur();
+                    }
+                    else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                        e.preventDefault();
 
-                            let element = e.currentTarget as HTMLElement,
-                                start = state.value;
+                        let base = local.draft === null ? state.value : (parse(local.draft) ?? state.value),
+                            next = clamp(round(base + (e.key === 'ArrowUp' ? step : -step) * gear(e)));
 
-                            if (field && document.activeElement === field) {
-                                start = commit();
-                                skip = true;
-                                field.blur();
-                            }
-
-                            element.setPointerCapture(e.pointerId);
-                            scrub = {
-                                id: e.pointerId,
-                                lastX: e.clientX,
-                                moved: false,
-                                raw: start,
-                                sent: start,
-                                start,
-                                startX: e.clientX
-                            };
-                        },
-                        onpointermove: (e: PointerEvent) => {
-                            let s = scrub;
-
-                            if (!s || e.pointerId !== s.id) {
-                                return;
-                            }
-
-                            let element = e.currentTarget as HTMLElement;
-
-                            if (!s.moved) {
-                                if (Math.abs(e.clientX - s.startX) < DRAG_THRESHOLD) {
-                                    return;
-                                }
-
-                                s.moved = true;
-                                local.scrubbing = true;
-
-                                if (lockPointer && e.pointerType === 'mouse') {
-                                    // Refused locks reject (or return nothing); the captured pointer keeps scrubbing either way.
-                                    Promise.resolve(element.requestPointerLock?.()).catch(() => {});
-                                }
-                            }
-
-                            // A locked pointer stays put, so only movementX reports travel.
-                            let dx = document.pointerLockElement === element ? e.movementX : e.clientX - s.lastX;
-
-                            s.lastX = e.clientX;
-                            s.raw = clamp(s.raw + (dx / pixelsPerStep) * step * gear(e));
-
-                            let next = round(s.raw);
-
-                            if (next === s.sent) {
-                                return;
-                            }
-
-                            s.sent = next;
+                        if (next !== state.value) {
                             state.value = next;
-                        },
-                        onpointerup: (e: PointerEvent) => {
-                            if (scrub?.id === e.pointerId) {
-                                end();
-                            }
                         }
+
+                        show(field, format(next));
+                    }
+                },
+                role: 'spinbutton',
+                spellcheck: false,
+                state,
+                value: () => local.draft ?? format(state.value)
+            })}
+            <span aria-hidden='true' class='input-scrub-tape' ${drag}>
+                <span
+                    class='input-scrub-ticks'
+                    style=${() => {
+                        // The pattern repeats every major tick, so only the remainder matters, which also keeps huge values precise.
+                        let offset = ((((state.value / step) * pixelsPerStep) % period) + period) % period;
+
+                        return `--offset: ${offset}px`;
                     }}
-                >
-                    ${content}
-                </span>
-                ${input.call({ attributes: { ...this?.attributes?.[INPUT_SCRUB_FIELD], ...attributes[INPUT_SCRUB_FIELD] } }, {
-                    'aria-label': label,
-                    'aria-valuemax': Number.isFinite(max) && max,
-                    'aria-valuemin': Number.isFinite(min) && min,
-                    'aria-valuenow': () => state.value,
-                    'aria-valuetext': () => format(state.value),
-                    autocomplete: 'off',
-                    class: 'input-scrub-field',
-                    inputmode: 'decimal',
-                    onblur: () => {
-                        if (!skip) {
-                            commit();
-                        }
-
-                        skip = false;
-                        local.draft = null;
-                    },
-                    onconnect: (element: HTMLInputElement) => {
-                        field = element;
-                    },
-                    onfocus: (e: FocusEvent) => {
-                        show(e.currentTarget as HTMLInputElement, format(state.value));
-                    },
-                    oninput: (e: Event) => {
-                        local.draft = (e.currentTarget as HTMLInputElement).value;
-                    },
-                    onkeydown: (e: KeyboardEvent) => {
-                        let field = e.currentTarget as HTMLInputElement;
-
-                        if (e.key === 'Enter') {
-                            e.preventDefault();
-                            // Stays in the field with the result selected, so the next edit is one keystroke away.
-                            show(field, format(commit()));
-                        }
-                        else if (e.key === 'Escape') {
-                            skip = true;
-                            field.blur();
-                        }
-                        else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                            e.preventDefault();
-
-                            let base = local.draft === null ? state.value : (parse(local.draft) ?? state.value),
-                                next = clamp(round(base + (e.key === 'ArrowUp' ? step : -step) * gear(e)));
-
-                            if (next !== state.value) {
-                                state.value = next;
-                            }
-
-                            show(field, format(next));
-                        }
-                    },
-                    role: 'spinbutton',
-                    spellcheck: false,
-                    state,
-                    value: () => local.draft ?? format(state.value)
-                })}
-            </div>
-        `;
+                ></span>
+                <span class='input-scrub-needle'></span>
+            </span>
+        `);
     },
     { field: INPUT_SCRUB_FIELD, label: INPUT_SCRUB_LABEL }
 );

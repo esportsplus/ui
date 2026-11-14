@@ -1,7 +1,7 @@
-import { component, html, type Attributes } from '@esportsplus/template';
 import { effect, reactive, untrack } from '@esportsplus/reactivity';
-import icon from '~/components/icon';
+import { component, html, type Attributes } from '@esportsplus/template';
 import svg from '@esportsplus/ui/svg/bell.svg';
+import icon from '~/components/icon';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
@@ -70,7 +70,7 @@ export default component(
                     ${{ class: () => api.count > 0 && '--active' }}
                     ${bell ? { 'aria-hidden': 'true' } : { ...attributes, 'aria-label': announce, role: 'status' }}
                 >
-                    ${counter && html.reactive(render, function (character) {
+                    ${counter && html.reactive(render, function(character) {
                         // SVG text sits its baseline exactly where it's told, so the glyph centers the same in every
                         // browser; an HTML line box rounds the font's ascent, descent and leading, a different way in
                         // each engine. The hidden HTML copy only gives the character its width.

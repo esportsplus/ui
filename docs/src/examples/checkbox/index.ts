@@ -41,12 +41,10 @@ export default {
                 ({ checkbox, header, hint }) => html`
                     ${header({ counter: true })}
                     ${notifications.map((item) => html`
-                        <label class='checkbox-demo-row checkbox-demo-row--description'>
+                        <label class='group group--grid'>
                             ${checkbox({ checked: item.checked, value: item.id })}
-                            <span class='checkbox-demo-text'>
-                                ${item.label}
-                                <span class='checkbox-demo-description'>${item.description}</span>
-                            </span>
+                            <span class='group-label'>${item.label}</span>
+                            <small class='group-description'>${item.description}</small>
                         </label>
                     `)}
                     ${hint()}
@@ -60,18 +58,18 @@ export default {
                 ({ checkbox, header, selected }) => html`
                     ${header()}
                     ${toppings.map((item) => html`
-                        <label class='checkbox-demo-row'>
+                        <label class='group group--grid'>
                             ${checkbox({ checked: item.id === 'basil', value: item.id })}
-                            ${item.label}
+                            <span class='group-label'>${item.label}</span>
                         </label>
                     `)}
-                    <span class='checkbox-demo-status'>
+                    <small class='group-description'>
                         ${() => {
                             let ids = selected();
 
                             return toppings.filter((item) => ids.includes(item.id)).map((item) => item.label).join(', ') || 'none';
                         }}
-                    </span>
+                    </small>
                 `
             ),
             title: 'group without descriptions'

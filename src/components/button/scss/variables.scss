@@ -12,12 +12,6 @@
     @extend %background-state, %border-state, %box-shadow-state, %color-state, %surface-raise;
 
 
-    &--kbd,
-    &--tactile {
-        --box-shadow-active: none;
-        --box-shadow-pressed: none;
-    }
-
     &--black {
         @extend %background-black, %color-white;
     }
@@ -38,6 +32,12 @@
         @include tokens.state(active) {
             --font-weight: var(--font-weight-500);
         }
+    }
+
+    &--kbd,
+    &--tactile {
+        --box-shadow-active: none;
+        --box-shadow-pressed: none;
     }
 
     // A hairline ring plus an inset bottom edge gives the keycap its depth; pressing drops the cap by that edge.
@@ -112,6 +112,11 @@
         }
     }
 
+    // The label brings the gap beside the icon, closing with it, so the button's own stays out.
+    &--reveal {
+        --gap-horizontal: 0px;
+    }
+
     // 1 while the panel shows, 0 while hidden; the pill's width and offset both derive from it.
     &--sidebar {
         --open: 1;
@@ -146,6 +151,11 @@
         path {
             --transition-duration: 130ms;
             --transition-timing-function: linear(0, 0.0491, 0.1571, 0.2846, 0.4106, 0.5248, 0.6231, 0.7049, 0.7714, 0.8243, 0.866, 0.8984, 0.9234, 0.9425, 0.957, 0.9679, 0.9762, 0.9824, 0.987, 0.9904, 0.9929, 0.9948, 0.9962, 0.9972, 1);
+
+
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
+            }
         }
     }
 
@@ -191,6 +201,11 @@
         &--draw {
             --transition-duration: 0.26s;
             --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
+
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
+            }
         }
     }
 
@@ -202,14 +217,12 @@
 
     &-morph {
         &-icon {
-            --icon-swap-duration: 300ms;
-            --icon-swap-timing-function: var(--spring);
-
+            --swap-duration: 300ms;
+            --swap-timing-function: var(--spring);
 
             &--loading svg {
                 --spin-duration: 700ms;
                 --spin-timing-function: linear;
-
 
                 @media (prefers-reduced-motion: reduce) {
                     --spin-duration: 0s;
@@ -222,22 +235,42 @@
             --transition-duration: 150ms;
             --transition-timing-function: ease-out;
 
-
             @include tokens.state(active) {
                 --transition-duration: 200ms;
             }
         }
     }
 
-    &-split {
-        // Chained through the group so it wins over the trigger's own '.button' padding.
-        & > &-trigger {
-            --padding-horizontal: var(--size-200);
-        }
+    // Its '--gap-horizontal' is the space it opens beside the icon: the default gap, as an icon and label always have.
+    &-reveal {
+        --font-size: var(--font-size-300);
+        --line-height: 1;
+        --transition-duration: 0.24s;
 
-        &-chevron {
-            --transition-duration: 0.2s;
-            --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
         }
     }
+
+    // Chained through '.button' so it wins over the button's own padding regardless of stylesheet order.
+    &#{&}--trigger {
+        --padding-horizontal: var(--size-200);
+
+        &[aria-expanded='true'] .icon--rotate {
+            --rotate: 270deg;
+        }
+    }
+}
+
+
+// Segment buttons sit joined in whatever group holds them, rather than at the group's own spacing.
+.group:has(> .button--group) {
+    --gap-horizontal: calc(var(--size-100) / 4);
+    --gap-vertical: calc(var(--size-100) / 4);
+}
+
+// Actions and their trigger sit flush, sharing an edge.
+.group:has(> .button--action, > .button--trigger) {
+    --gap-horizontal: 0px;
 }

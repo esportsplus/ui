@@ -158,8 +158,6 @@ function preview(kind: Exclude<Group['kind'], 'color'>, { value }: Token): Rende
     return html`<span style='font-size: ${value};'>Aa</span>`;
 }
 
-// The colors that change with the mode, each resolved through a probe pinned to it: a token reads back as its
-// unresolved 'light-dark()', so the probe's own color resolves it.
 // A click-to-copy swatch; a mode pins it to that side of 'light-dark()' and paints it over that mode's page, so
 // translucent shadows show as they would there.
 function swatch(token: Token, shade: string, ink: string, mode?: Mode) {

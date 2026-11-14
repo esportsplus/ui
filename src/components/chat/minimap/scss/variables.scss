@@ -2,23 +2,6 @@
 @use 'css-utilities/color';
 
 .chat-minimap {
-    &-item,
-    &-nav {
-        &:focus-visible {
-            --border-radius: var(--border-radius-200);
-        }
-    }
-
-    // The content swap as the card and labels glide between triggers. Each layer is a 'frame--swap', which declares
-    // these on itself, so they're set on the layers here, where a minimap can retime them.
-    &-label,
-    &-preview {
-        .tooltip-shared-layer {
-            --transition-duration: 0s;
-            --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-        }
-    }
-
     &-card {
         --gap-horizontal: calc(var(--size-100) / 4);
         --gap-vertical: calc(var(--size-100) / 4);
@@ -33,6 +16,13 @@
         --lines: 2;
     }
 
+    &-item,
+    &-nav {
+        &:focus-visible {
+            --border-radius: var(--border-radius-200);
+        }
+    }
+
     // At rest every line shares one length; the hovered one peaks and its two neighbours either side step back down.
     // The item's states reach into its line, which holds the values.
     &-item {
@@ -40,6 +30,7 @@
         // Lines sit this far in from the rail's leading edge, inside a hit area wider than the longest line.
         --padding-horizontal: calc(var(--size-100) / 2);
         --width: 32px;
+
 
         // Touch has no hover to follow, and reduced motion keeps the lengths still; keyboard focus swells too.
         @media (hover: hover) and (prefers-reduced-motion: no-preference) {
@@ -92,9 +83,20 @@
         }
     }
 
+    // The content swap as the card and labels glide between triggers. Each layer is a 'frame--swap', which declares
+    // these on itself, so they're set on the layers here, where a minimap can retime them.
+    &-label,
+    &-preview {
+        .tooltip-shared-layer {
+            --transition-duration: 0s;
+            --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+    }
+
     &-label.tooltip-shared {
         --border-radius: var(--border-radius-500);
         --spacer: 4px;
+
 
         .tooltip-shared-layer {
             --padding-horizontal: var(--size-200);
@@ -118,6 +120,7 @@
         --transition-duration: 0.16s;
         --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 
+
         @media (prefers-reduced-motion: reduce) {
             --transition-duration: 0s;
         }
@@ -132,6 +135,7 @@
         --transition-timing-function: ease-out;
         --width: 32px;
 
+
         @media (pointer: coarse) {
             --opacity: 1;
 
@@ -139,6 +143,7 @@
                 --opacity: 0.4;
             }
         }
+
 
         &:focus-visible {
             --color: var(--color-hover);
@@ -167,6 +172,7 @@
         --font-size: var(--font-size-400);
         --spacer: var(--size-100);
         --white-space: normal;
+
 
         .tooltip-shared-layer {
             --padding-horizontal: 0px;

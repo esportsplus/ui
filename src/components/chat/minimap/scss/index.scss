@@ -15,12 +15,11 @@
     // Lines line up on the side facing the thread, and the card opens away from it.
     &--left {
         align-items: flex-end;
+    }
 
-
-        .chat-minimap-item,
-        .chat-minimap-nav {
-            justify-content: flex-end;
-        }
+    &--left &-item,
+    &--left &-nav {
+        justify-content: flex-end;
     }
 
 
@@ -57,6 +56,7 @@
         padding-inline: var(--padding-horizontal);
         width: var(--width);
 
+
         &:focus-visible {
             border-radius: var(--border-radius);
             outline: var(--focus-width) solid var(--focus-color);
@@ -81,9 +81,10 @@
         flex-shrink: 0;
         height: var(--height);
         pointer-events: none;
-        transition:
-            background-color var(--transition-duration) var(--transition-timing-function),
-            width var(--transition-duration) var(--transition-timing-function);
+        // Width rather than scale, so the rounded ends keep their shape as the line lengthens.
+        transition-duration: var(--transition-duration);
+        transition-property: background-color, width;
+        transition-timing-function: var(--transition-timing-function);
         width: var(--length);
     }
 
@@ -91,9 +92,9 @@
     &-nav {
         color: var(--color);
         opacity: var(--opacity);
-        transition:
-            color var(--transition-duration) var(--transition-timing-function),
-            opacity var(--transition-duration) var(--transition-timing-function);
+        transition-duration: var(--transition-duration);
+        transition-property: color, opacity;
+        transition-timing-function: var(--transition-timing-function);
 
 
         &:disabled {

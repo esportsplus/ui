@@ -26,15 +26,6 @@
     }
 
 
-    &--radio {
-        &::before {
-            @extend %absolute-full;
-            border-radius: calc(var(--border-radius) - (var(--height) / 2));
-            height: var(--height);
-            margin: auto;
-        }
-    }
-
     &--radio,
     &--switch {
         &::before {
@@ -43,7 +34,6 @@
             content: '';
             pointer-events: none;
             scale: var(--scale);
-            transform-origin: center;
             transition:
                 scale var(--transition-duration) var(--transition-timing-function),
                 translate var(--transition-duration) var(--transition-timing-function);
@@ -53,6 +43,15 @@
             @media (prefers-reduced-motion: reduce) {
                 transition: none;
             }
+        }
+    }
+
+    &--radio {
+        &::before {
+            @extend %absolute-full;
+            border-radius: calc(var(--border-radius) - (var(--height) / 2));
+            height: var(--height);
+            margin: auto;
         }
     }
 
@@ -74,21 +73,6 @@
         gap: var(--gap-vertical) var(--gap-horizontal);
 
 
-        &-counter {
-            color: var(--color);
-            flex: 0 0 auto;
-            font-size: var(--font-size-300);
-            font-variant-numeric: tabular-nums;
-        }
-
-        &-header {
-            align-items: center;
-            cursor: pointer;
-            display: flex;
-            gap: var(--gap-vertical) var(--gap-horizontal);
-            user-select: none;
-        }
-
         &-hint {
             color: var(--color);
             font-size: var(--font-size-300);
@@ -104,12 +88,6 @@
                 padding-block: var(--padding-vertical);
                 padding-inline: var(--padding-horizontal);
             }
-        }
-
-        &-label {
-            flex: 1;
-            font-weight: var(--font-weight-500);
-            min-width: 0;
         }
     }
 
@@ -129,10 +107,6 @@
     &:has(> .checkbox-tag:focus-visible) {
         outline: var(--focus-width) solid var(--focus-color);
         outline-offset: var(--focus-offset);
-    }
-
-    .checkbox-check {
-        left: var(--inset-horizontal);
     }
 
     // The group header's dash draws with the same variables and timing as the checkmark it replaces. Qualified by the
@@ -159,5 +133,55 @@
                 transition: none;
             }
         }
+    }
+
+    .checkbox-check {
+        left: var(--left);
+    }
+}
+
+// In a 'group--grid' the checkbox, radio or switch keeps its own size and shares the first row with the label alone, so
+// it centers on the label however long the description runs; the description and any error sit under the label, in
+// its column. The control takes whichever side it's written on. Chained through '.group' so these win over the row's
+// own layout for a described control regardless of stylesheet order.
+.group.group--grid:has(> .checkbox) {
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    justify-content: stretch;
+    user-select: none;
+
+
+    > .checkbox {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    > .error,
+    > .group-description {
+        align-self: auto;
+        grid-column: 2;
+        grid-row: auto;
+    }
+
+    > .group-label {
+        align-self: auto;
+        grid-column: 2;
+        grid-row: 1;
+    }
+}
+
+.group.group--grid:has(> .group-label + .checkbox) {
+    grid-template-columns: 1fr auto;
+
+
+    > .checkbox {
+        grid-column: 2;
+    }
+
+    > .error,
+    > .group-description,
+    > .group-label {
+        grid-column: 1;
     }
 }

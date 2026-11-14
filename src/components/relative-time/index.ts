@@ -91,7 +91,7 @@ function bind(item: Item, block: string): Attributes {
         onconnect: (element: HTMLElement) => {
             item.element = element;
         },
-        style: () => item.state.exiting && `left: ${item.state.left}px; top: ${item.state.top}px;`
+        style: () => item.state.exiting && `--leave-left: ${item.state.left}px; --leave-top: ${item.state.top}px;`
     };
 }
 
@@ -362,7 +362,7 @@ function template(this: { attributes?: Partial<A> } | void, { date, state = reac
                 <span class='relative-time-rests'>${html.reactive(rests, (item) => glyph(item, 'relative-time-rest'))}</span>
             </span>
             <span
-                class='tooltip-message tooltip-message--n relative-time-tooltip'
+                class='tooltip-message relative-time-tooltip'
                 id='${id}'
                 role='tooltip'
                 ${this?.attributes?.[RELATIVE_TIME_TOOLTIP]}

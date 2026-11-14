@@ -16,7 +16,6 @@
         --box-shadow-hover: var(--box-shadow-default);
         --box-shadow-pressed: var(--box-shadow-default);
 
-
         @include tokens.state(active) {
             --box-shadow: var(--box-shadow-active);
         }

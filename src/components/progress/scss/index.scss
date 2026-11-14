@@ -12,6 +12,12 @@
     width: 100%;
 
 
+    // The gaps are masked out of the track, so the indicator fills across them as one bar.
+    &--segmented &-track {
+        mask-image: repeating-linear-gradient(to right, #000 0 var(--segment), transparent var(--segment) calc(var(--segment) + var(--gap-horizontal)));
+    }
+
+
     &-header {
         align-items: baseline;
         display: flex;
@@ -23,6 +29,7 @@
         background: var(--background);
         height: 100%;
         transition: translate var(--transition-duration) var(--transition-timing-function);
+        translate: calc(var(--bar-value) * 1% - 100%) 0;
         width: 100%;
     }
 
@@ -49,6 +56,7 @@
         line-height: var(--part-height);
         position: relative;
 
+
         &--done &-done {
             filter: none;
             opacity: 1;
@@ -60,6 +68,7 @@
             filter: blur(var(--filter));
             opacity: 0;
         }
+
 
         // The shared check carries no stroke of its own; the dash values inherit into it, so it draws in.
         &-check {
@@ -84,24 +93,24 @@
             grid-area: 1 / 1;
             opacity: 0;
             pointer-events: none;
-            transition:
-                filter var(--transition-duration) var(--transition-timing-function) var(--transition-delay),
-                opacity var(--transition-duration) var(--transition-timing-function) var(--transition-delay),
-                translate var(--transition-duration) var(--transition-timing-function) var(--transition-delay);
+            transition-delay: var(--transition-delay);
+            transition-duration: var(--transition-duration);
+            transition-property: filter, opacity, translate;
+            transition-timing-function: var(--transition-timing-function);
             translate: var(--translate);
             white-space: nowrap;
         }
 
         &-ink {
             @extend %absolute-full;
+            clip-path: inset(0 var(--ink-inset) 0 0);
         }
 
         &-label {
             position: relative;
-            transition:
-                filter var(--transition-duration) var(--transition-timing-function),
-                opacity var(--transition-duration) var(--transition-timing-function),
-                translate var(--transition-duration) var(--transition-timing-function);
+            transition-duration: var(--transition-duration);
+            transition-property: filter, opacity, translate;
+            transition-timing-function: var(--transition-timing-function);
             translate: var(--translate);
             white-space: nowrap;
         }
@@ -110,9 +119,9 @@
             color: var(--color);
             display: flex;
             font-variant-numeric: tabular-nums;
-            transition:
-                filter var(--transition-duration) var(--transition-timing-function),
-                opacity var(--transition-duration) var(--transition-timing-function);
+            transition-duration: var(--transition-duration);
+            transition-property: filter, opacity;
+            transition-timing-function: var(--transition-timing-function);
         }
 
         &-roll {
@@ -132,7 +141,9 @@
             display: flex;
             flex-direction: column;
             transition: translate var(--transition-duration) var(--transition-timing-function);
+            translate: 0 calc(var(--roll-index) * -10%);
             white-space: pre;
+
 
             span {
                 height: 1lh;

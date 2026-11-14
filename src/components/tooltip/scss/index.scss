@@ -2,46 +2,7 @@
 @use 'css-utilities/layer';
 @use 'css-utilities/reset';
 @use 'css-utilities/text';
-@use 'sass:map';
 @use 'variables';
-
-// Each side pushes the tooltip past the trigger's edge ('edge' names the tooltip side facing the trigger), centered on
-// it along 'center' or aligned to one of its two corners; opening travels '--offset' further out.
-$sides: (
-    e: (
-        center: bottom,
-        corner-open: var(--offset) 0,
-        corners: (en: top, es: bottom),
-        edge: left,
-        open: var(--offset) 50%,
-        rest: 0 50%
-    ),
-    n: (
-        center: right,
-        corner-open: 0 calc(var(--offset) * -1),
-        corners: (ne: right, nw: left),
-        edge: bottom,
-        open: 50% calc(var(--offset) * -1),
-        rest: 50% 0
-    ),
-    s: (
-        center: right,
-        corner-open: 0 var(--offset),
-        corners: (se: right, sw: left),
-        edge: top,
-        open: 50% var(--offset),
-        rest: 50% 0
-    ),
-    w: (
-        center: bottom,
-        corner-open: calc(var(--offset) * -1) 0,
-        corners: (wn: top, ws: bottom),
-        edge: right,
-        open: calc(var(--offset) * -1) 50%,
-        rest: 0 50%
-    )
-);
-
 
 .tooltip {
     cursor: pointer;
@@ -54,20 +15,25 @@ $sides: (
         cursor: inherit;
     }
 
-    // 'tooltip.menu''s layer, which also carries '.tooltip', so an expanding root panel opens as tooltip content does.
-    // Qualified by the layer as well, keeping the specificity the panels had under the old wrapper.
+    // 'tooltip.menu''s layer. Qualified by the layer as well, keeping the specificity the panels had under the old
+    // wrapper.
     &--menu {
+        // Covers the trigger and grows out of it: 'morph()' seeds the trigger's box as the clip and the shape's insets,
+        // which spring out to the panel's own box.
         &.tooltip-menu-layer > .tooltip-menu-panel.tooltip-menu-panel--expand {
             background: transparent;
             box-shadow: none;
             clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
+            opacity: 0;
             overflow: visible;
-            // 'transform', since the placement it composes as tooltip content owns 'translate'.
-            transform: translateX(var(--shift-x));
             transition:
                 clip-path var(--expand-duration) var(--expand-timing-function),
                 opacity var(--expand-fade-duration) var(--expand-fade-timing-function) var(--expand-fade-delay);
+            z-index: 9;
 
+
+            // The shape's fill and shadow; its box resizes with the clip, rather than being clipped itself, so the
+            // shadow follows the shape instead of being cut off by it.
             &::before {
                 background: var(--background);
                 border-radius: var(--morph-radius);
@@ -75,9 +41,9 @@ $sides: (
                 content: '';
                 inset: var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left);
                 position: absolute;
-                transition:
-                    border-radius var(--expand-duration) var(--expand-timing-function),
-                    inset var(--expand-duration) var(--expand-timing-function);
+                transition-duration: var(--expand-duration);
+                transition-property: border-radius, inset;
+                transition-timing-function: var(--expand-timing-function);
                 z-index: -1;
             }
 
@@ -85,13 +51,15 @@ $sides: (
             // never move, only fade, so a 'highlight' measures them where they land even mid-cascade; it places itself
             // with 'translate', so it arrives with the panel instead. Closing fades them out together; the shrinking
             // shape carries the motion.
-            > :not(.highlight) {
+            > .tooltip-menu-scroller > :not(.highlight) {
                 animation: tooltip-menu-expand-out var(--expand-content-duration) var(--expand-content-timing-function);
                 opacity: 0;
             }
 
+
             @include tokens.state(active) {
                 clip-path: inset(calc(var(--expand-bleed) * -1) round calc(var(--border-radius) + var(--expand-bleed)));
+                opacity: 1;
 
                 &::before {
                     border-radius: var(--border-radius);
@@ -103,7 +71,7 @@ $sides: (
                     clip-path: none;
                 }
 
-                > :not(.highlight) {
+                > .tooltip-menu-scroller > :not(.highlight) {
                     animation: tooltip-menu-expand-in var(--expand-content-duration) var(--expand-content-timing-function) calc(var(--expand-content-delay) + var(--index) * var(--expand-stagger)) backwards;
                     opacity: 1;
 
@@ -115,7 +83,7 @@ $sides: (
             }
         }
 
-        // Root panel
+        // Root panel, under the trigger until 'tooltip.menu' places it on the side with room.
         &.tooltip-menu-layer > .tooltip-menu-panel:not(.tooltip-menu-panel--expand) {
             left: 0;
             opacity: 0;
@@ -123,9 +91,9 @@ $sides: (
             transition:
                 opacity var(--close-duration) var(--close-timing-function),
                 visibility 0s linear var(--close-duration);
-            translate: var(--shift-x) 0;
             visibility: hidden;
             z-index: 9;
+
 
             // Fades in as quickly as it fades out.
             @include tokens.state(active) {
@@ -156,6 +124,7 @@ $sides: (
         min-width: var(--min-width);
         opacity: 0;
         overflow: hidden;
+        position: absolute;
         scale: var(--scale);
         transition:
             opacity var(--transition-duration) var(--transition-timing-function),
@@ -176,44 +145,17 @@ $sides: (
         }
 
 
-        &--c {
-            bottom: 50%;
-            position: absolute;
-            right: 50%;
-            transform-origin: center center;
-            translate: 50% 50%;
-        }
+        // Covers the trigger and grows out of it toward the corner with room: 'morph()' seeds the trigger's box as the
+        // clip, which springs out to the content's own box as it fades in, and closes back onto the trigger.
+        &--expand {
+            clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
+            transition:
+                clip-path var(--expand-duration) var(--expand-timing-function),
+                opacity var(--expand-fade-duration) var(--expand-fade-timing-function) var(--expand-fade-delay);
 
-        &--context {
-            position: absolute;
-        }
-
-        @each $side, $placement in $sides {
-            $edge: map.get($placement, edge);
-
-            &--#{$side} {
-                #{map.get($placement, center)}: 50%;
-                #{$edge}: calc(100% + var(--spacer) - var(--offset));
-                position: absolute;
-                transform-origin: center $edge;
-                translate: map.get($placement, rest);
-
-                #{$active} {
-                    translate: map.get($placement, open);
-                }
-            }
-
-            @each $corner, $align in map.get($placement, corners) {
-                &--#{$corner} {
-                    #{$align}: 0;
-                    #{$edge}: calc(100% + var(--spacer) - var(--offset));
-                    position: absolute;
-                    transform-origin: $align $edge;
-
-                    #{$active} {
-                        translate: map.get($placement, corner-open);
-                    }
-                }
+            // Open, the clip overhangs the box so the shadow isn't cut off.
+            #{$active} {
+                clip-path: inset(calc(var(--expand-bleed) * -1) round calc(var(--border-radius) + var(--expand-bleed)));
             }
         }
 
@@ -274,6 +216,33 @@ $sides: (
         }
 
 
+        // Placed by 'tooltip.onclick' and 'tooltip.onhover' as it opens: beside the trigger on the side with room, or
+        // over it with '--expand', sized as measured and capped to the room it has. It travels out from the trigger
+        // and scales from it. Content they don't open places itself.
+        &.--placed {
+            left: var(--place-x);
+            max-height: var(--place-max-height);
+            max-width: min(var(--max-width), var(--place-max-width));
+            top: var(--place-y);
+            transform-origin: var(--place-origin);
+            translate:
+                calc(var(--offset) * var(--place-travel-x) * -1)
+                calc(var(--offset) * var(--place-travel-y) * -1);
+            // Its own width while it is measured.
+            width: var(--place-width, var(--width));
+
+            #{$active} {
+                translate: 0 0;
+            }
+        }
+
+        // Scrolls past the room it was capped to. A morph keeps its overflow visible for the shape to reach back to the
+        // trigger.
+        &.--placed:not(.tooltip-content--morph, .tooltip-message--morph) {
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+
         #{$active} {
             opacity: 1;
             scale: 1;
@@ -287,79 +256,16 @@ $sides: (
     }
 
     &-menu {
-        &-chevron {
-            border-color: currentColor;
-            border-style: solid;
-            border-width: 0 var(--border-width) var(--border-width) 0;
-            flex-shrink: 0;
-            height: var(--size);
-            margin-inline: var(--margin-horizontal);
+        // The path is a quarter of the box wide on either side of its centre, which it turns about, so the box's
+        // empty sides are taken back out of the row.
+        &-chevron.icon {
+            margin-inline: calc(var(--margin-horizontal) - var(--size) / 4);
             opacity: var(--opacity);
-            rotate: var(--rotate);
-            transition: rotate var(--transition-duration) var(--transition-timing-function);
-            width: var(--size);
         }
 
-        &-entry {
-            position: relative;
-
-
-            // Sub-panels start clipped to the row that opened them, so the row reads as the panel's header, then the
-            // clip grows downward.
-            > .tooltip-menu-panel {
-                clip-path: inset(
-                    var(--padding-vertical)
-                    var(--padding-horizontal)
-                    calc(100% - var(--padding-vertical) - var(--item-height))
-                    var(--padding-horizontal)
-                    round var(--item-border-radius)
-                );
-                inset-inline: calc(var(--padding-horizontal) * -1);
-                pointer-events: none;
-                top: calc(var(--padding-vertical) * -1);
-                transition:
-                    clip-path var(--close-duration) var(--close-timing-function),
-                    visibility 0s linear var(--close-duration);
-                visibility: hidden;
-                width: auto;
-                z-index: 2;
-
-                // Sub-panels snap open and closed; the scrim and title fades keep their timing.
-                @media (prefers-reduced-motion: reduce) {
-                    transition-duration: 0s;
-                }
-
-                @include tokens.state(active) {
-                    clip-path: inset(calc(var(--bleed) * -1) round calc(var(--border-radius) + var(--bleed)));
-                    pointer-events: auto;
-                    transition: clip-path var(--open-duration) var(--open-timing-function);
-                    visibility: visible;
-
-                    @media (prefers-reduced-motion: reduce) {
-                        transition-duration: 0s;
-                    }
-
-                    &.tooltip-menu-panel--settled {
-                        clip-path: none;
-                    }
-                }
-            }
-
-
-            // Above the parent's scrim, so the open child panel stays undimmed.
-            &--open {
-                z-index: 2;
-            }
-
-
-            // An item's 'hidden' takes its whole row out; the item's own 'display' would outrank the attribute.
-            &:has(> [hidden]) {
-                display: none;
-            }
-        }
-
-        &-header {
-            cursor: pointer;
+        // An item's 'hidden' takes its whole row out; the item's own 'display' would outrank the attribute.
+        &-entry:has(> [hidden]) {
+            display: none;
         }
 
         &-header,
@@ -370,6 +276,13 @@ $sides: (
             gap: var(--gap-vertical) var(--gap-horizontal);
             min-height: var(--height);
             padding-inline: var(--padding-horizontal);
+        }
+
+        // Clear of the panel's edges as the rows are, the scroller's padding insetting those.
+        &-header {
+            cursor: pointer;
+            flex-shrink: 0;
+            margin: var(--inset-vertical) var(--inset-horizontal) 0;
         }
 
         &-hint {
@@ -432,15 +345,17 @@ $sides: (
             }
         }
 
+        // Capped to the room 'tooltip.menu' finds for it, past which its rows scroll.
         &-panel {
             background: var(--background);
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             color: var(--color);
+            display: flex;
+            flex-direction: column;
             font-size: var(--font-size);
             isolation: isolate;
-            padding-block: var(--padding-vertical);
-            padding-inline: var(--padding-horizontal);
+            max-height: var(--max-height);
             position: absolute;
             width: var(--width);
 
@@ -455,10 +370,45 @@ $sides: (
                 z-index: 1;
             }
 
-            // The highlight writes the row's own rounding to '--border-radius'; rows are measured whole, so the layer
-            // takes the items' rounding instead.
-            > .highlight {
-                border-radius: var(--item-border-radius);
+            // Sub-panels cover their parent, above its scrim, from the row that opened them ('tooltip.menu' writes
+            // '--lift' when it has to rise to stay on screen). They start clipped to that row, so the row reads as the
+            // panel's header, then the clip grows.
+            > .tooltip-menu-panel {
+                clip-path: inset(
+                    calc(var(--inset-vertical) + var(--lift))
+                    var(--inset-horizontal)
+                    calc(100% - var(--inset-vertical) - var(--item-height) - var(--lift))
+                    var(--inset-horizontal)
+                    round var(--item-border-radius)
+                );
+                inset-inline: 0;
+                pointer-events: none;
+                transition:
+                    clip-path var(--close-duration) var(--close-timing-function),
+                    visibility 0s linear var(--close-duration);
+                visibility: hidden;
+                width: auto;
+                z-index: 2;
+
+                // Sub-panels snap open and closed; the scrim and title fades keep their timing.
+                @media (prefers-reduced-motion: reduce) {
+                    transition-duration: 0s;
+                }
+
+                @include tokens.state(active) {
+                    clip-path: inset(calc(var(--bleed) * -1) round calc(var(--border-radius) + var(--bleed)));
+                    pointer-events: auto;
+                    transition: clip-path var(--open-duration) var(--open-timing-function);
+                    visibility: visible;
+
+                    @media (prefers-reduced-motion: reduce) {
+                        transition-duration: 0s;
+                    }
+
+                    &.tooltip-menu-panel--settled {
+                        clip-path: none;
+                    }
+                }
             }
 
 
@@ -469,16 +419,31 @@ $sides: (
             }
         }
 
+        // Its padding is the panel's inset, so a row scrolled to by keyboard stops clear of the edge it scrolls under.
+        &-scroller {
+            min-height: 0;
+            overscroll-behavior: contain;
+            padding: var(--inset-vertical) var(--inset-horizontal);
+            position: relative;
+            scroll-padding-block: var(--inset-vertical);
+
+            // A branch panel's rows start right under its header.
+            .tooltip-menu-header + & {
+                padding-top: 0;
+            }
+
+            // The highlight writes the row's own rounding to '--border-radius'; rows are measured whole, so the layer
+            // takes the items' rounding instead.
+            > .highlight {
+                border-radius: var(--item-border-radius);
+            }
+        }
+
         // Regular and bold copies of the title are stacked; crossfading them morphs the weight without reflowing the
         // label.
         &-title {
             display: grid;
 
-
-            &-bold {
-                font-weight: var(--font-weight);
-                opacity: var(--title-bold-opacity);
-            }
 
             &-bold,
             &-regular {
@@ -486,6 +451,11 @@ $sides: (
                 overflow: hidden;
                 text-overflow: ellipsis;
                 transition: opacity var(--open-duration) var(--open-timing-function);
+            }
+
+            &-bold {
+                font-weight: var(--font-weight);
+                opacity: var(--title-bold-opacity);
             }
 
             &-regular {
@@ -512,7 +482,7 @@ $sides: (
 
     // A popover, so it sits in the top layer; the UA popover styles are undone here. The padding on the anchor side is
     // the gap to the trigger, which also carries the pointer across to interactive content. 'tooltip.shared' sets the
-    // '--shared-*' size and position.
+    // '--shared-*' size and position, and the point its box scales from.
     &-shared {
         @extend %reset-popover;
         box-sizing: content-box;
@@ -532,12 +502,12 @@ $sides: (
             }
         }
 
-        // Only while moving between triggers; a fresh open appears in place.
+        // Only while moving between triggers; a fresh open appears in place. Its size eases as well as its place: the
+        // box resizes to the next trigger's content, which a scale would distort.
         &--gliding {
-            transition:
-                height var(--glide-duration) var(--glide-timing-function),
-                translate var(--glide-duration) var(--glide-timing-function),
-                width var(--glide-duration) var(--glide-timing-function);
+            transition-duration: var(--glide-duration);
+            transition-property: height, translate, width;
+            transition-timing-function: var(--glide-timing-function);
         }
 
         &--interactive {
@@ -558,6 +528,7 @@ $sides: (
             overflow: hidden;
             position: relative;
             scale: var(--scale);
+            transform-origin: var(--shared-origin);
             transition:
                 filter var(--close-duration) var(--close-timing-function),
                 opacity var(--close-duration) var(--close-timing-function),
@@ -675,28 +646,24 @@ $sides: (
 // every side, holds there, then settles into the trigger's exact box. The hold matters: without it, edges still
 // arriving (the travel differs per direction) overlap with the final shrink, so it never reads as having landed.
 @keyframes tooltip-morph-close {
+    $landed: inset(
+        calc(var(--morph-top) - var(--morph-land))
+        calc(var(--morph-right) - var(--morph-land))
+        calc(var(--morph-bottom) - var(--morph-land))
+        calc(var(--morph-left) - var(--morph-land))
+        round calc(var(--morph-radius) + var(--morph-land))
+    );
+
     0% {
         animation-timing-function: var(--morph-shrink-timing-function);
         clip-path: inset(0 round var(--border-radius));
     }
     55% {
-        clip-path: inset(
-            calc(var(--morph-top) - var(--morph-land))
-            calc(var(--morph-right) - var(--morph-land))
-            calc(var(--morph-bottom) - var(--morph-land))
-            calc(var(--morph-left) - var(--morph-land))
-            round calc(var(--morph-radius) + var(--morph-land))
-        );
+        clip-path: $landed;
     }
     80% {
         animation-timing-function: var(--morph-settle-timing-function);
-        clip-path: inset(
-            calc(var(--morph-top) - var(--morph-land))
-            calc(var(--morph-right) - var(--morph-land))
-            calc(var(--morph-bottom) - var(--morph-land))
-            calc(var(--morph-left) - var(--morph-land))
-            round calc(var(--morph-radius) + var(--morph-land))
-        );
+        clip-path: $landed;
     }
     100% {
         clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));

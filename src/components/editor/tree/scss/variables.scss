@@ -185,6 +185,7 @@ $icons: (
         --gap-horizontal: calc(var(--size-300) / 2);
         --gap-vertical: calc(var(--size-300) / 2);
 
+
         &-part--staged {
             --border-radius: var(--border-radius-100);
             --padding-horizontal: calc(var(--size-300) / 4);
@@ -237,17 +238,17 @@ $icons: (
         --inset-horizontal: var(--size-300);
 
 
+        &-bar,
+        &-note {
+            --border-width: 1px;
+        }
+
         &-bar {
             @extend %surface-raise;
             --gap-horizontal: calc(var(--size-100) / 4);
             --gap-vertical: calc(var(--size-100) / 4);
             --padding-horizontal: calc(var(--size-300) / 4);
             --padding-vertical: calc(var(--size-300) / 4);
-        }
-
-        &-bar,
-        &-note {
-            --border-width: 1px;
         }
 
         // Chained through '.button' so it wins over the button's own defaults regardless of stylesheet order.
@@ -426,18 +427,16 @@ $icons: (
         --size: var(--size-400);
     }
 
-    &-sticky {
-        &-rows {
-            @extend %surface-raise;
-        }
+    &-sticky-rows {
+        @extend %surface-raise;
     }
 
     &-toggle {
         --background-hover: inherit;
+        --bottom: 4px;
         --color-default: var(--toggle-color);
+        --end: var(--size-100);
         --height: 32px;
-        --inset-horizontal: var(--size-100);
-        --inset-vertical: 4px;
         --padding-horizontal: var(--size-100);
         --padding-vertical: 0px;
     }

@@ -1,34 +1,49 @@
-@use 'sass:meta';
-@use 'filter';
+@use '/tokens';
+@use 'css-utilities/disabled';
+@use 'sass:list';
+@use 'sass:math';
 @use 'variables';
+
+
+// '$count' evenly spaced marks across the box, the first and last on its edges.
+@function ticks($count, $color, $height) {
+    $layers: ();
+
+    @for $i from 0 through $count {
+        $layers: list.append($layers, linear-gradient($color, $color) math.percentage(math.div($i, $count)) 50% / var(--tick-width) $height no-repeat, comma);
+    }
+
+    @return $layers;
+}
 
 @mixin thumb {
     appearance: none;
     background: var(--thumb-background);
-    border: var(--border-width) solid var(--border-color);
-    border-radius: 100%;
-    cursor: pointer;
+    border: var(--thumb-border-width) solid var(--thumb-border-color);
+    border-radius: 50%;
+    box-shadow: var(--thumb-shadow);
+    cursor: var(--thumb-cursor);
     height: var(--thumb-size);
     outline: none;
+    scale: var(--thumb-scale);
+    transition-duration: var(--thumb-transition-duration);
+    transition-property: box-shadow, scale;
+    transition-timing-function: var(--thumb-transition-timing-function);
     width: var(--thumb-size);
 }
 
 .range {
     appearance: none;
     background: var(--background);
-    border: 0px;
+    border: 0;
     border-radius: var(--border-radius);
     height: var(--height);
     margin-block: calc(var(--margin-vertical) + ((var(--thumb-size) - var(--height)) / 2));
     margin-inline: var(--margin-horizontal);
     outline: none;
-    transition:
-        background var(--transition-duration) var(--transition-timing-function),
-        border-color var(--transition-duration) var(--transition-timing-function),
-        box-shadow var(--transition-duration) var(--transition-timing-function),
-        opacity var(--transition-duration) var(--transition-timing-function),
-        transform var(--transition-duration) var(--transition-timing-function);
+    transition: opacity var(--transition-duration) var(--transition-timing-function);
     width: var(--width);
+
 
     // Keep browser pseudo-elements separate: an unknown pseudo invalidates a selector list.
     &::-moz-range-thumb {
@@ -38,7 +53,447 @@
     &::-webkit-slider-thumb {
         @include thumb;
     }
-}
 
-@include meta.load-css('slider');
-@include meta.load-css('vertical');
+
+    &--vertical {
+        direction: rtl;
+        height: var(--vertical-size);
+        margin-block: var(--margin-vertical);
+        margin-inline: calc(var(--margin-horizontal) + ((var(--thumb-size) - var(--height)) / 2));
+        width: var(--height);
+        writing-mode: vertical-lr;
+    }
+
+
+    // A value edited in place, as wide as the value it replaces, since a native input would otherwise widen the cell to
+    // its own default width. No pencil: the track or the ticks sit where it would.
+    &-edit {
+        &.inline-edit > .inline-edit-field {
+            min-width: 100%;
+            width: 0;
+        }
+
+        & > .inline-edit-icon {
+            display: none;
+        }
+    }
+
+    // The selection, placed by its edges so each variant only says where they fall.
+    &-fill {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        inset: var(--top) var(--right) var(--bottom) var(--left);
+        pointer-events: none;
+        position: absolute;
+        width: var(--width);
+    }
+
+    // A group whose parts take named areas, so each variant only rearranges the grid: the label, the reset, the body
+    // holding the track, and the fields, which take a row of their own only when there are any.
+    &-filter {
+        color: var(--color);
+        font-size: var(--font-size);
+        margin-inline: auto;
+        max-width: 100%;
+        width: var(--width);
+
+
+        // Chained through '.group' so the grid wins over the group's own flex layout regardless of stylesheet order.
+        &.group {
+            display: grid;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            grid-template-areas: var(--areas);
+            grid-template-columns: var(--columns);
+        }
+
+
+        // Upright: the track stands beside its ticks, each part sliding along the height instead.
+        &--vertical {
+            .range-filter-body {
+                flex-direction: row;
+            }
+
+            .range-filter-root {
+                height: var(--height);
+                justify-content: center;
+                width: var(--thumb-size);
+            }
+
+            .range-filter-thumb {
+                bottom: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
+                left: 50%;
+                top: auto;
+                translate: -50% 50%;
+            }
+
+            .range-filter-ticks {
+                flex-direction: column-reverse;
+            }
+
+            // In the ticks' column beside the track.
+            .range-filter-tip {
+                bottom: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
+                left: calc(100% + var(--offset));
+                top: auto;
+                translate: 0 50%;
+            }
+
+            .range-filter-track {
+                height: calc(100% - var(--margin-vertical) * 2);
+                margin-block: var(--margin-vertical);
+                margin-inline: 0;
+                width: var(--thickness);
+            }
+        }
+
+
+        &-body {
+            display: flex;
+            flex-direction: column;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            grid-area: body;
+            justify-self: var(--justify-self);
+        }
+
+        // Shares the row equally with its sibling however long either value runs.
+        &-field {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+
+        &-fields {
+            align-items: center;
+            display: flex;
+            gap: var(--gap-vertical) var(--gap-horizontal);
+            grid-column: 1 / -1;
+            margin-block-start: var(--margin-vertical);
+            pointer-events: var(--pointer-events);
+        }
+
+        &-label {
+            align-self: center;
+            grid-area: label;
+        }
+
+        // Chained through '.button' so it wins over the button's own display regardless of stylesheet order; the button
+        // brings no disabled look or focus ring of its own.
+        &-reset.button {
+            align-self: center;
+            grid-area: reset;
+            outline: 0 solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+
+
+            &:disabled {
+                @extend %disabled;
+            }
+
+            &:focus-visible {
+                outline-width: var(--focus-width);
+            }
+        }
+
+        // A container, so the values riding under its thumbs can keep inside its width.
+        &-root {
+            align-items: center;
+            container-type: inline-size;
+            cursor: var(--cursor);
+            display: flex;
+            height: var(--thumb-size);
+            position: relative;
+            touch-action: none;
+            user-select: none;
+            width: 100%;
+        }
+
+        &-separator {
+            background: var(--background);
+            flex-shrink: 0;
+            height: var(--height);
+            width: var(--width);
+        }
+
+        // Held inside the track like Radix does it: the centre travels from half a thumb in at each end.
+        &-thumb {
+            background: var(--background);
+            border: var(--border-width) solid var(--border-color);
+            border-radius: 50%;
+            box-shadow: var(--box-shadow);
+            cursor: var(--cursor);
+            height: var(--thumb-size);
+            left: calc(var(--thumb-size) / 2 + var(--position) * (100% - var(--thumb-size)));
+            outline: var(--outline);
+            outline-offset: var(--focus-offset);
+            position: absolute;
+            scale: var(--scale-default);
+            top: 50%;
+            transition:
+                box-shadow var(--shadow-duration) var(--shadow-timing-function),
+                scale var(--transition-duration) var(--transition-timing-function);
+            translate: -50% -50%;
+            width: var(--thumb-size);
+            z-index: 2;
+
+
+            &--stacked,
+            #{tokens.state(active)} {
+                z-index: 3;
+            }
+
+
+            &:focus-visible {
+                outline-width: var(--focus-width);
+            }
+
+            &:hover {
+                scale: var(--scale-hover);
+            }
+
+            // Last, so a held thumb keeps its press look while hovered or focused, its growth standing in for the ring.
+            @include tokens.state(active) {
+                cursor: var(--cursor-active);
+                outline-width: 0;
+                scale: var(--scale-active);
+            }
+        }
+
+        // Fades out while a thumb's value rides over it.
+        &-tick {
+            opacity: var(--opacity);
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+        }
+
+        // Holds its line even with no ticks, since the thumbs' values ride in it.
+        &-ticks {
+            color: var(--color);
+            display: flex;
+            font-size: var(--font-size);
+            font-weight: var(--font-weight);
+            justify-content: space-between;
+            min-height: 1lh;
+            user-select: none;
+        }
+
+        // Each thumb's value in the ticks' row, riding along under it as the thumb does, and edited in place. Beside
+        // the thumb rather than in it, so the thumb's scale never resizes it. Centred on its thumb until that would run
+        // past the track, then held at the track's edge, which near an end lines it up with the thumb's own outer side.
+        &-tip {
+            color: var(--color);
+            font-size: var(--font-size);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight);
+            left: var(--center);
+            top: calc(100% + var(--offset));
+            // Clamped so the text, inset by the box's own padding, meets the track's edges.
+            translate: clamp(calc((var(--center) + var(--box-padding-start)) * -1), -50%, calc(100cqi - var(--center) - 100% + var(--box-padding-start))) 0;
+            white-space: nowrap;
+            // Its own width wherever it sits; positioned near the end, the room left before the track's edge would
+            // otherwise squeeze it and the display would clip the value.
+            width: max-content;
+
+
+            // Chained through the inline edit's own parts so these win over them regardless of stylesheet order.
+            // Its box isn't pulled out by its padding as the inline edit's is, so centring lands on the text.
+            &.inline-edit {
+                margin-inline: 0;
+                position: absolute;
+            }
+        }
+
+        &-track {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            height: var(--thickness);
+            margin-inline: var(--margin-horizontal);
+            overflow: var(--overflow);
+            position: relative;
+            width: calc(100% - var(--margin-horizontal) * 2);
+        }
+
+
+        @include tokens.state(disabled) {
+            @extend %disabled;
+        }
+    }
+
+    // How far the selection would stretch to reach the pointer, placed by its edges and size so each variant only says
+    // where they fall. It keeps up with the pointer quickly and fades in while hovering past the selection; every edge
+    // transitions, since the ones a variant leaves alone never change.
+    &-ghost {
+        background: var(--background);
+        border-radius: var(--border-radius);
+        bottom: var(--bottom);
+        display: var(--display);
+        height: var(--height);
+        left: var(--left);
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        top: var(--top);
+        transition:
+            bottom var(--transition-duration) var(--transition-timing-function),
+            height var(--transition-duration) var(--transition-timing-function),
+            left var(--transition-duration) var(--transition-timing-function),
+            opacity var(--fade-duration) var(--fade-timing-function),
+            width var(--transition-duration) var(--transition-timing-function);
+        translate: var(--translate);
+        width: var(--width);
+
+
+        @include tokens.state(active) {
+            opacity: 1;
+        }
+    }
+
+    // A group holding a native range under a painted track, its label before it and its value after: above the track
+    // in flow, or floating over it as overlay items. The input stays on top for pointer and keyboard, and the fill,
+    // handle and text follow '--fraction' across the travel its thumb has. A container, so the text can paint itself
+    // against the whole track's width.
+    &-surface {
+        align-items: baseline;
+        container-type: inline-size;
+        margin-inline: auto;
+        max-width: 100%;
+        width: var(--width);
+
+
+        // Last in flow and a row of its own, so the label and value share the line above it.
+        &-control {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            box-shadow: inset 0 0 0 var(--border-width) var(--border-color);
+            flex-basis: 100%;
+            height: var(--height);
+            isolation: isolate;
+            order: 1;
+            outline: 0 solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+            position: relative;
+
+
+            // Spans the thumb's travel, so each mark sits where the thumb's centre lands on that value.
+            &--ticks::before {
+                background: ticks(10, var(--tick-major-color), var(--tick-major-height));
+                content: '';
+                inset: 0 auto 0 calc(var(--thumb-size) / 2 - var(--tick-width) / 2);
+                pointer-events: none;
+                position: absolute;
+                width: calc(var(--travel) + var(--tick-width));
+            }
+
+            &--ticks-all::before {
+                background:
+                    ticks(10, var(--tick-major-color), var(--tick-major-height)),
+                    ticks(50, var(--tick-minor-color), var(--tick-minor-height));
+            }
+
+
+            // On the painted track rather than the transparent input over it.
+            &:has(> .range-surface-input:focus-visible) {
+                outline-width: var(--focus-width);
+            }
+        }
+
+        // Fades toward '--opacity-behind' while it sits behind the text, and stays whole everywhere else.
+        &-handle {
+            background: var(--background);
+            border-radius: var(--border-radius);
+            display: var(--display);
+            height: var(--height);
+            left: var(--center);
+            opacity: calc(1 - var(--behind) * (1 - var(--opacity-behind)));
+            pointer-events: none;
+            position: absolute;
+            top: 50%;
+            transition: opacity var(--transition-duration) var(--transition-timing-function);
+            translate: -50% -50%;
+            width: var(--width);
+            z-index: 1;
+        }
+
+        &-input {
+            appearance: none;
+            background: transparent;
+            border-radius: inherit;
+            cursor: var(--cursor);
+            height: 100%;
+            inset: 0;
+            margin: 0;
+            outline: none;
+            position: absolute;
+            width: 100%;
+            z-index: 2;
+
+
+            // Keep browser pseudo-elements separate: an unknown pseudo invalidates a selector list.
+            &::-moz-range-thumb {
+                background: transparent;
+                border: 0;
+                height: var(--height);
+                width: var(--thumb-size);
+            }
+
+            &::-webkit-slider-thumb {
+                appearance: none;
+                background: transparent;
+                border: 0;
+                height: var(--height);
+                width: var(--thumb-size);
+            }
+        }
+
+        // Inked through a gradient as wide as the track, shifted back by the text box's own offset from the track's
+        // edge, so its stop lands on the fill's edge however wide the text runs; one ink above the track, two over it.
+        // The value's ink is on its display, which would otherwise paint its own background over the text.
+        &-label,
+        &-value > .inline-edit-display {
+            background: linear-gradient(to right, var(--ink-fill) var(--fill-width), var(--ink) var(--fill-width)) 0 0 / 100cqi 100% no-repeat;
+            background-clip: text;
+        }
+
+        // Read only, so a press on it lands on the track under it.
+        &-label {
+            background-position-x: calc(var(--start-inset, 0px) * -1);
+            height: var(--height);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        &-unit {
+            font-weight: var(--font-weight);
+            margin-inline-start: var(--margin-horizontal);
+        }
+
+        // Edited in place. Chained through the inline edit's own parts so these win over them regardless of stylesheet
+        // order.
+        &-value {
+            font-size: var(--font-size);
+            font-variant-numeric: tabular-nums;
+            font-weight: var(--font-weight);
+
+
+            // Pushed to the line's end beside the label in flow; a floating item sits by its inset alone.
+            &.inline-edit {
+                height: var(--height);
+                margin-block: var(--margin-vertical);
+                margin-inline: var(--margin-start) var(--margin-end);
+            }
+
+            // Its text centred in whatever height the variant gives the box. Transparent, so the text shows only its
+            // ink; on the display alone, so the field editing it reads in the value's own color.
+            & > .inline-edit-display {
+                align-items: center;
+                background-position-x: right calc(var(--end-inset, 0px) * -1);
+                color: transparent;
+                display: flex;
+            }
+        }
+    }
+
+
+    &:disabled {
+        @extend %disabled;
+    }
+}

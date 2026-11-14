@@ -12,7 +12,6 @@
         // Inline-edit lays its status out under the field; here it sits on the toolbar's line instead.
         .inline-edit-status {
             grid-area: auto;
-            margin-top: 0;
             padding-inline-start: 0;
         }
     }

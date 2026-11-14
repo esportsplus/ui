@@ -1,9 +1,10 @@
-import { peek, read, signal, write, type Signal } from '@esportsplus/reactivity';
+import { peek, read, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
+import layout, { allGroups, findGroup, findSurfaceGroup, fixed, type Node, type Surface } from '~/components/shell/model';
 import { clamp } from '~/shared/clamp';
 import type { Command } from '../code/keymap';
 import { sanitize } from './keybindings';
 import type { FileTreeExport, FileTreeImportEntry } from '../tree';
-import { closable, compareKey, compareTab, order, place, WorkspaceTab } from './tabs';
+import { closable, compareKey, compareTab, WorkspaceTab } from './tabs';
 
 
 type FileOperation = {
@@ -83,6 +84,8 @@ type WorkspacePreferences = {
 type WorkspaceSession = {
     active: string | null;
     explorer: { expanded: string[]; scroll: number };
+    // Where the tabs sit: the layout's tree, each file's surface named by its path.
+    layout: Node | null;
     tabs: WorkspaceSessionTab[];
 };
 
@@ -132,6 +135,9 @@ const DEFAULTS: WorkspacePreferences = {
 };
 
 const ERROR_PREFIX = /^Workspace: /;
+
+// The explorer's place in the layout: a static sidebar on the side the preferences name.
+const EXPLORER: Surface = { id: 'explorer', kind: 'explorer', sortable: false };
 
 const PREFERENCES = Object.keys(DEFAULTS) as (keyof WorkspacePreferences)[];
 
@@ -189,12 +195,18 @@ function workspacePath(value: string, cwd = '') {
 
 const containsPath = (parent: string, path: string) => path === parent || path.startsWith(`${parent}/`);
 
+// A tab's surface in the layout, by its id, which outlives renames.
+const surfaceOf = (tab: WorkspaceTab): Surface => ({ id: `file-${tab.id}`, kind: 'file' });
+
 
 /** UI-independent workspace coordinator. One document per tab; all file mutations are serialized. Each field of
  * 'state', each preference and each tab flag is a signal of its own, so a reader re-runs only for what it read.
+ * 'layout' is where the tabs are: their groups, their order and which one shows, beside the explorer's sidebar;
+ * 'state.tabs' holds the documents those tabs show, and 'state.active' is the focused group's tab.
  */
 class EditorWorkspaceModel {
     readonly host: WorkspaceHost;
+    readonly layout: ReturnType<typeof layout>;
     readonly state: WorkspaceState;
     private closed = new Map<string, number>();
     private confirm: WorkspaceHost['confirm'];
@@ -215,7 +227,6 @@ class EditorWorkspaceModel {
     private revealRequest = 0;
     private running = false;
     private signals = {
-        active: signal<WorkspaceTab | undefined>(undefined),
         busy: signal(0),
         cwd: signal(''),
         entries: signal<readonly WorkspaceEntry[]>([]),
@@ -237,13 +248,19 @@ class EditorWorkspaceModel {
 
 
     constructor(host: WorkspaceHost, cwd = '', preferences: Partial<WorkspacePreferences> = {}) {
-        let signals = this.signals;
+        let model = this,
+            signals = this.signals;
 
         this.cwd = cwd;
         this.host = host;
+        this.layout = layout({
+            closing: (surfaces) => this.closing(surfaces),
+            open: { left: DEFAULTS.explorerSide === 'left', right: DEFAULTS.explorerSide === 'right' },
+            root: { active: EXPLORER.id, id: 'explorer', kind: 'group', placement: DEFAULTS.explorerSide, surfaces: [EXPLORER] }
+        });
         this.state = {
             get active() {
-                return read(signals.active);
+                return model.current();
             },
             get busy() {
                 return read(signals.busy);
@@ -289,11 +306,7 @@ class EditorWorkspaceModel {
 
     // The model's own reads never track, so a method an effect calls never subscribes that effect to the model.
     private get active() {
-        return peek(this.signals.active);
-    }
-
-    private set active(value: WorkspaceTab | undefined) {
-        write(this.signals.active, value);
+        return untrack(() => this.current());
     }
 
     private get busy() {
@@ -407,6 +420,11 @@ class EditorWorkspaceModel {
         if (preferences.keybindings !== undefined) {
             this.preferences.keybindings = sanitize(preferences.keybindings);
         }
+
+        let side = this.preferences.explorerSide;
+
+        this.layout.dock(EXPLORER.id, side);
+        this.layout.toggle(side, this.preferences.explorerOpen);
     }
 
     private async authorize(kind: WorkspaceConfirmation['kind'], tabs: readonly WorkspaceTab[], paths: readonly string[]) {
@@ -479,6 +497,48 @@ class EditorWorkspaceModel {
         return true;
     }
 
+    // A close from the layout, as a tab's close button or menu makes: the documents it takes go once their drafts are
+    // settled, or keep their tabs. Tabs the model already let go pass straight through.
+    private closing(surfaces: Surface[]) {
+        let tabs = surfaces.flatMap((surface) => this.find(surface.id) ?? []);
+
+        if (!tabs.length) {
+            return true;
+        }
+
+        let paths = tabs.map((tab) => tab.path);
+
+        for (let path of paths) {
+            this.closed.set(path, (this.closed.get(path) ?? 0) + 1);
+        }
+
+        return this.authorize('close', tabs, paths).then((revisions) => {
+            if (!revisions) {
+                return false;
+            }
+
+            for (let tab of tabs) {
+                this.removeTab(tab, false);
+            }
+
+            return true;
+        });
+    }
+
+    // The focused group's tab, or with the explorer focused, the tab of the main group focused last.
+    private current() {
+        let layout = this.layout.layout,
+            group = findGroup(layout.root, layout.active ?? '');
+
+        if (!group || fixed(group)) {
+            group = findGroup(layout.root, layout.main ?? '');
+        }
+
+        let id = group?.active;
+
+        return id ? read(this.signals.tabs).find((tab) => surfaceOf(tab).id === id) : undefined;
+    }
+
     private desire(before: readonly WorkspaceEntry[], after: readonly WorkspaceEntry[]) {
         for (let entry of before) {
             this.overlay.set(entry.path, null);
@@ -494,9 +554,27 @@ class EditorWorkspaceModel {
         this.mutation++;
     }
 
+    // The tabs of the group holding 'path' in their order there, or every tab in the layout's order without one.
+    private ordered(path?: string) {
+        let tab = path === undefined ? undefined : this.tabs.find((item) => item.path === path),
+            root = untrack(() => this.layout.layout.root),
+            group = tab && findSurfaceGroup(root, surfaceOf(tab).id),
+            groups = group ? [group] : allGroups(root);
+
+        return groups.flatMap((entry) => entry.surfaces.flatMap((surface) => this.find(surface.id) ?? []));
+    }
+
     // A path that started or stopped opening; 'state.opening' lists the paths still on their way.
     private pending() {
         write(this.signals.opening, [...this.opening.keys()]);
+    }
+
+    // The preview tab a new preview takes the place of: the one in the active tab's group, or anywhere with none.
+    private previewed() {
+        let active = this.active,
+            group = active && findSurfaceGroup(untrack(() => this.layout.layout.root), surfaceOf(active).id);
+
+        return this.tabs.find((tab) => tab.preview && (!group || group.surfaces.some((surface) => surface.id === surfaceOf(tab).id)));
     }
 
     private queue<T>(label: string, task: () => Promise<T>) {
@@ -528,20 +606,29 @@ class EditorWorkspaceModel {
         return result;
     }
 
-    private removeTab(tab: WorkspaceTab) {
-        let at = this.tabs.indexOf(tab);
-
-        if (at < 0) {
+    // Lets the document go, then its tab, unless the layout is the one closing it; the layout hands its group's
+    // focus on to a neighbour.
+    private removeTab(tab: WorkspaceTab, layout = true) {
+        if (!this.tabs.includes(tab)) {
             return;
         }
 
-        let tabs = this.tabs.filter((item) => item !== tab);
-
-        this.tabs = tabs;
+        this.tabs = this.tabs.filter((item) => item !== tab);
         tab.dispose();
 
-        if (this.active === tab) {
-            this.active = tabs[at] ?? tabs[at - 1];
+        if (layout) {
+            void this.layout.close(surfaceOf(tab).id);
+        }
+    }
+
+    // Shows the tab in the layout: in place of 'replaced', or where the layout opens new tabs.
+    private show(tab: WorkspaceTab, replaced?: WorkspaceTab) {
+        if (replaced) {
+            this.layout.replace(surfaceOf(replaced).id, surfaceOf(tab));
+            this.removeTab(replaced);
+        }
+        else {
+            this.layout.open(surfaceOf(tab));
         }
     }
 
@@ -555,7 +642,7 @@ class EditorWorkspaceModel {
 
         this.openIntent++;
         this.requestedPath = found.path;
-        this.active = found;
+        this.layout.activate(surfaceOf(found).id);
     }
 
     /** Adds a tab whose text came from elsewhere, like a restored draft; undefined when the path is open or opening. */
@@ -567,6 +654,7 @@ class EditorWorkspaceModel {
         let tab = new WorkspaceTab(++this.tabId, content, { missing, path, saved });
 
         this.tabs = [...this.tabs, tab];
+        this.show(tab);
 
         return tab;
     }
@@ -593,16 +681,18 @@ class EditorWorkspaceModel {
         return true;
     }
 
+    // Within the group holding the tab.
     closeOthers(path = this.active?.path) {
-        return this.closeTabs(closable(this.tabs, 'others', path));
+        return this.closeTabs(closable(this.ordered(path), 'others', path));
     }
 
+    // Within the group holding the tab.
     closeRight(path = this.active?.path) {
-        return this.closeTabs(closable(this.tabs, 'right', path));
+        return this.closeTabs(closable(this.ordered(path), 'right', path));
     }
 
     closeSaved() {
-        return this.closeTabs(closable(this.tabs, 'saved'));
+        return this.closeTabs(closable(this.ordered(), 'saved'));
     }
 
     /** Opens a read-only diff of two files in a tab of its own, or shows the one already open for them. */
@@ -645,6 +735,7 @@ class EditorWorkspaceModel {
             if (!tab) {
                 tab = compareTab(++this.tabId, { modified: texts[1], original: texts[0], paths });
                 this.tabs = [...this.tabs, tab];
+                this.show(tab);
             }
         }
 
@@ -734,6 +825,11 @@ class EditorWorkspaceModel {
         }
     }
 
+    /** The tab a layout surface shows; undefined for the explorer or a surface the model let go. */
+    find(surface: string) {
+        return this.tabs.find((tab) => surfaceOf(tab).id === surface);
+    }
+
     /** Hears each event the host's watcher reports, once its refresh has started. */
     onWatch(listener: (event: WorkspaceChange) => void) {
         this.watchers.add(listener);
@@ -743,7 +839,8 @@ class EditorWorkspaceModel {
         };
     }
 
-    // A preview opens in place of the last preview tab; opening the file again without 'preview' keeps its tab.
+    // A preview opens in place of the preview tab in the active tab's group; opening the file again without 'preview'
+    // keeps its tab.
     async open(value: string, line?: number, column = 1, preview = false) {
         if (this.disposed) {
             return;
@@ -780,14 +877,10 @@ class EditorWorkspaceModel {
                     }
 
                     let tab = new WorkspaceTab(++this.tabId, content, { path, preview }),
-                        tabs = [...this.tabs],
-                        replaced = place(tabs, tab);
+                        replaced = preview ? this.previewed() : undefined;
 
-                    this.tabs = tabs;
-
-                    if (replaced) {
-                        this.removeTab(replaced);
-                    }
+                    this.tabs = [...this.tabs, tab];
+                    this.show(tab, replaced);
 
                     return tab;
                 }
@@ -818,7 +911,7 @@ class EditorWorkspaceModel {
         }
 
         if (intent === this.openIntent) {
-            this.active = tab;
+            this.layout.activate(surfaceOf(tab).id);
 
             if (line !== undefined) {
                 let safeColumn = Number.isFinite(column) ? Math.max(1, Math.trunc(column)) : 1,
@@ -853,12 +946,17 @@ class EditorWorkspaceModel {
             return;
         }
 
-        let tabs = [...this.tabs];
+        let group = findSurfaceGroup(untrack(() => this.layout.layout.root), surfaceOf(tab).id);
 
         tab.pinned = pinned;
         tab.preview = false;
-        order(tabs);
-        this.tabs = tabs;
+
+        // Pinned tabs lead their group: pinning moves the tab after the others, unpinning to just after them.
+        if (group) {
+            let leading = group.surfaces.filter((surface) => surface.id !== surfaceOf(tab).id && this.find(surface.id)?.pinned).length;
+
+            this.layout.move(surfaceOf(tab).id, group.id, leading);
+        }
     }
 
     async refresh(_paths?: readonly string[]) {
@@ -1276,7 +1374,7 @@ class EditorWorkspaceModel {
 }
 
 
-export { containsPath, DEFAULTS, EditorWorkspaceModel, workspacePath };
+export { containsPath, DEFAULTS, EditorWorkspaceModel, EXPLORER, surfaceOf, workspacePath };
 export type {
     WorkspaceAction,
     WorkspaceChange,

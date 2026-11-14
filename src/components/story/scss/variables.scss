@@ -9,29 +9,77 @@
     --max-width: 320px;
 
 
-    &--paused &-fill {
-        --play-state: paused;
+    // Bars become dots: the story playing stretches into a pill its fill counts down in, and the rest, played or not,
+    // are the same faint dot.
+    &--dots &-bar {
+        --background: oklch(from var(--color) l c h / 0.2);
+        --fill-background: var(--color);
+        --flex: none;
+        --height: 8px;
+        --width: var(--height);
+
+        &--done {
+            --fill-inset: 100%;
+        }
+
+        @include tokens.state(active) {
+            --background: oklch(from var(--color) l c h / 0.4);
+            --width: var(--size-500);
+        }
+    }
+
+    &--dots &-bars {
+        --gap-horizontal: calc(var(--size-300) / 2);
+    }
+
+    // The gap between the card and the row of bars beneath it.
+    &--float {
+        --gap-horizontal: 0px;
+        --gap-vertical: var(--size-400);
+    }
+
+    &--float &-bars {
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: 0px;
+    }
+
+    &--paused &-bar {
+        --fill-play-state: paused;
     }
 
 
+    // '--hit-vertical' is how far the hit area reaches above and below the line. The fill is hidden by its right inset;
+    // a finished story's bar shows it whole.
     &-bar {
         --background: oklch(from var(--color-primary-400) l c h / 0.15);
         --border-radius: 999px;
-        --height: 3px;
+        --fill-animation: none;
+        --fill-background: var(--color-primary-500);
+        --fill-inset: 100%;
+        --fill-play-state: running;
+        --flex: 1;
+        --height: 4px;
+        --hit-vertical: var(--size-100);
+        --transition-duration: 0.3s;
+        --transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+        --width: auto;
 
-        &--done .story-fill {
-            --scale: 1;
+        @media (prefers-reduced-motion: reduce) {
+            --transition-duration: 0s;
+        }
+
+        &--done {
+            --fill-inset: 0%;
         }
 
         // The fill is the timer: its 'animationend' advances the story, so the bar and the content can't drift.
         @include tokens.state(active) {
-            .story-fill {
-                --animation: story-fill var(--duration) linear forwards var(--play-state);
-            }
+            --fill-animation: story-bar-fill var(--duration) linear forwards var(--fill-play-state);
         }
     }
 
-    // Overlays the story content, which runs the full height of the card beneath it.
+    // Overlays the story content, which runs the full height of the card beneath it. The spacing around the row of
+    // bars.
     &-bars {
         --gap-horizontal: calc(var(--size-100) / 2);
         --gap-vertical: 0px;
@@ -39,21 +87,14 @@
         --padding-vertical: 12px;
     }
 
-    &-fill {
-        --animation: none;
-        --background: var(--color-primary-500);
-        --border-radius: 999px;
-        --play-state: running;
-        --scale: 0;
-    }
-
     // Neighbours dragged into view read at full strength, like the story they are about to become.
     &-slide.frame {
         --opacity: 1;
     }
 
-    // Only a fade, so it plays under reduced motion too.
+    // Only a fade, so it plays under reduced motion too. Its rounding only clips once '--float' moves the bars out.
     &-track {
+        --border-radius: 0px;
         --opacity: 1;
         --transition-duration: 0.2s;
         --transition-timing-function: ease-out;

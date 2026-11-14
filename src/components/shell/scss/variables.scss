@@ -1,23 +1,35 @@
+@use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/color';
 @use 'css-utilities/surface';
 
 .shell {
-    @extend %surface-root;
-    // How far the card stands from the window.
-    --gap-horizontal: 0px;
-    --gap-vertical: 0px;
-    --height: calc(100dvh - var(--gap-vertical) * 2);
-    // How far the card's surface stands from each side of the window. It matches the laid-out card until hover or a drag
-    // moves it on its own, ahead of the layout.
-    --left-edge: calc(var(--left-space) + var(--left-gap-horizontal));
-    --left-gap-horizontal: 0px;
-    --left-space: 0px;
-    --right-edge: calc(var(--right-space) + var(--right-gap-horizontal));
-    --right-gap-horizontal: 0px;
-    --right-space: 0px;
+    // Light every target a dragged tab can land on outside a tab strip, and the groups picked to zoom to.
+    --drop-background: oklch(from var(--color-primary-400) l c h / 0.12);
+    --drop-ring: oklch(from var(--color-primary-400) l c h / 0.5);
+    --header-height: 36px;
+    // The room each sidebar makes beside the main area: none while it is closed.
+    --left: 0px;
+    // Each sidebar's width: '--space' until a resize sets '--{side}-size', held between the bounds and short of leaving
+    // the main area less than '--main-min-width'. The left yields to the right's claim and the right takes what
+    // remains, so neither depends on the other in a cycle.
+    --left-width: clamp(var(--sidebar-min-width), var(--left-size, var(--space)), min(var(--sidebar-max-width), 100% - var(--main-min-width) - var(--right-claim)));
+    --main-min-width: 320px;
+    --right: 0px;
+    // The right sidebar's width before the left's, which the left makes room for: none while it is closed.
+    --right-claim: 0px;
+    --right-width: clamp(var(--sidebar-min-width), var(--right-size, var(--space)), min(var(--sidebar-max-width), 100% - var(--main-min-width) - var(--left)));
+    --sidebar-max-width: calc(100% - 88px);
+    --sidebar-min-width: 200px;
     --slide-duration: 300ms;
     --slide-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
-    // How wide an open sidebar is, and so the room it makes beside the card.
-    --space: min(280px, calc(100vw - 88px));
+    --space: 280px;
+    // Where the sidebar toggles sit in the top corners, and their size, which the corner groups' headers clear. Centred
+    // on the header by default, so they line up with its tabs.
+    --toggle-left: var(--size-100);
+    --toggle-right: var(--size-100);
+    --toggle-size: 28px;
+    --toggle-top: calc((var(--header-height) - var(--toggle-size)) / 2);
 
     @media (prefers-reduced-motion: reduce) {
         --slide-duration: 0s;
@@ -25,52 +37,264 @@
 
 
     &--left-open {
-        --left-gap-horizontal: 0px;
-        --left-space: var(--space);
+        --left: var(--left-width);
+    }
+
+    // An open sidebar pushes the main area aside here rather than narrowing it.
+    &--narrow {
+        --main-min-width: 0px;
     }
 
     &--right-open {
-        --right-gap-horizontal: 0px;
-        --right-space: var(--space);
+        --right: var(--right-width);
+        --right-claim: clamp(var(--sidebar-min-width), var(--right-size, var(--space)), var(--sidebar-max-width));
     }
 
 
-    &-edge {
+    &-action,
+    &-add {
+        @extend %color-text;
+        --background-default: transparent;
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
+        --border-radius: var(--border-radius-300);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+    }
+
+    &-action {
+        --background-active: var(--surface-background-active);
+        --size: 28px;
+    }
+
+    &-add {
+        --size: 24px;
+    }
+
+    // A scrollbar scope, so whatever a panel's content scrolls takes the modifier's bar. Only scrollers that opt in
+    // with 'scrollbar()' scroll smoothly; the rest keep scrolling as they did.
+    &-body {
+        --min-width: 200px;
+        --scrollbar-behavior: auto;
+
+
+        .--scrollbar {
+            --scrollbar-behavior: smooth;
+        }
+    }
+
+    &-dock {
+        --background: var(--surface-background-default);
+        --min-height: 80px;
+        --z-index: 3;
+    }
+
+    &-dock-target,
+    &-edge,
+    &-group--picked {
+        --background: var(--drop-background);
+        --ring-color: var(--drop-ring);
+        --ring-width: var(--border-width-500);
+    }
+
+    // Over the sidebars and their toggles.
+    &-dock-target {
+        --size: 48px;
+        --z-index: 45;
+    }
+
+    &-edge,
+    &-expand {
+        --z-index: 2;
+    }
+
+    &-edge-grip {
         --width: 24px;
+        --z-index: 30;
     }
 
-    &-edge:hover &-handle {
+    &-edge-grip:is(:active, :hover) &-edge-handle {
         --color: var(--color-primary-400);
+        // Just inside the main area's edge.
+        --inset: 3px;
     }
 
-    &-handle {
+    &-edge-handle {
         --border-radius: var(--border-radius-200);
         --color: var(--surface-border-hover);
         --height: 10svh;
-        // How far inside the card's edge the handle comes to rest.
-        --inset-horizontal: 3px;
+        // Off the layout's edge until the pointer is on the strip.
+        --inset: calc(var(--width) * -1);
         --width: 3px;
     }
 
-    &-main {
-        @extend %surface-raise;
-        --border-radius: var(--border-radius-500);
-        --box-shadow: none;
+    &-handle {
+        @extend %background-state, %surface-lower;
+        --background-default: var(--surface-border-default);
+        --background-hover: var(--surface-border-hover);
+        --background-pressed: var(--surface-border-pressed);
+        --line-width: 1px;
+        --size: 8px;
+        --z-index: 1;
     }
 
-    // Steps a sidebar a level below or above the shell's root surface; raised, it matches the card.
+    &-handle:is(:active, :hover) &-handle-pill {
+        --opacity: 1;
+        --scale: 1;
+    }
+
+    &-handle-pill {
+        --border-radius: var(--border-radius-200);
+        --color: var(--surface-border-pressed);
+        --length: 10svh;
+        --opacity: 0;
+        --scale: 0.8;
+        --thickness: 3px;
+    }
+
+    &-header {
+        --gap-horizontal: calc(var(--size-300) / 4);
+        --gap-vertical: calc(var(--size-300) / 4);
+        --height: var(--header-height);
+        --left: calc(var(--toggle-left) * 1.5 + var(--toggle-size));
+        --padding-horizontal: calc(var(--size-300) / 2);
+        --right: calc(var(--toggle-right) * 1.5 + var(--toggle-size));
+    }
+
+    &-launcher {
+        --padding-horizontal: var(--size-600);
+        --padding-vertical: var(--size-600);
+
+        &-card {
+            @extend %color-text;
+            --background-active: var(--surface-background-hover);
+            --background-default: transparent;
+            --background-hover: var(--surface-background-hover);
+            --background-pressed: var(--surface-background-pressed);
+            --border-color-default: var(--surface-border-default);
+            --border-radius: var(--border-radius-400);
+            --border-width: var(--border-width-400);
+            --gap-vertical: calc(var(--size-100) / 2);
+            --padding-horizontal: var(--size-400);
+            --padding-vertical: var(--size-400);
+
+            &-description {
+                --color: var(--color-text-300);
+                --font-size: var(--font-size-300);
+                --line-height: 1.5;
+            }
+
+            // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+            &-icon.icon {
+                --size: 16px;
+            }
+
+            // Pinned to the card's corner, clear of its title.
+            &-key {
+                --inset: var(--size-300);
+            }
+
+            &-title {
+                --font-size: var(--font-size-300);
+                --gap-horizontal: var(--size-200);
+                --gap-vertical: 0px;
+                --padding-end: var(--size-700);
+            }
+        }
+
+        &-cards {
+            --column-width: 180px;
+            --gap-horizontal: var(--size-200);
+            --gap-vertical: var(--size-200);
+        }
+
+        &-content {
+            --max-width: 512px;
+        }
+
+        &-description {
+            --color: var(--color-text-300);
+            --font-size: var(--font-size-300);
+        }
+
+        &-header {
+            --gap-horizontal: 0px;
+            --gap-vertical: calc(var(--size-100) / 2);
+            --spacer: var(--size-500);
+        }
+
+        &-title {
+            --font-size: var(--font-size-300);
+        }
+    }
+
     &-sidebar {
-        &--lower {
-            @extend %surface-lower;
-        }
+        --background: var(--surface-background-default);
+        --z-index: 31;
 
-        &--raise {
-            @extend %surface-raise;
+        // A separator without a line, wider to grab, over the sidebar it resizes.
+        &-resize {
+            --line-width: 0px;
+            --size: 12px;
+            --z-index: 32;
         }
     }
 
-    &-surface {
-        @extend %surface-root;
+    // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
+    &-tab {
+        @extend %color-text;
+        --background-active: transparent;
+        --background-default: transparent;
+        --background-hover: transparent;
+        --background-pressed: transparent;
+        --border-radius: var(--border-radius-300);
+        --font-size: var(--font-size-300);
+        --gap-horizontal: calc(var(--size-300) / 4);
+        --gap-vertical: calc(var(--size-300) / 4);
+        --height: 24px;
+        --max-width: 144px;
+        --padding-horizontal: calc(var(--size-300) / 2);
+        --padding-vertical: 0px;
+
+        &-close {
+            @extend %color-text;
+            --border-radius: var(--border-radius-300);
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
+            --size: 16px;
+
+            .icon {
+                --size: 12px;
+            }
+        }
+
+        // Clear at rest, without the fill or its shadow, so only hovering or pressing it shows its surface primary.
+        // Chained through '.button' so it wins over the modifier regardless of stylesheet order.
+        &-close.button {
+            --background-default: transparent;
+            --box-shadow-default: none;
+        }
+
+        // Chained through '.icon' so it wins over the icon's own size regardless of stylesheet order.
+        &-icon.icon {
+            --size: 12px;
+        }
+
+        // Room above and below the letters it trims to, so the truncation's clip leaves descenders whole.
+        &-label {
+            --padding-vertical: 0.25em;
+        }
+    }
+
+    &-tabs {
+        --gap-horizontal: calc(var(--size-300) / 4);
+        --gap-vertical: calc(var(--size-300) / 4);
+    }
+
+    &-tabs-highlight {
+        --background-active: var(--surface-background-active);
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
     }
 
     &-toggle {
@@ -79,11 +303,12 @@
         --color-default: var(--color-text-400);
         --color-hover: var(--color-text-400);
         --color-pressed: var(--color-text-500);
-        --inset-horizontal: var(--size-300);
-        --inset-vertical: var(--size-300);
+        --left: var(--toggle-left);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
-        --size: 32px;
-        --width: var(--size);
+        --right: var(--toggle-right);
+        --size: var(--toggle-size);
+        --top: var(--toggle-top);
+        --z-index: 40;
     }
 }

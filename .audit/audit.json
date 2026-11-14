@@ -476,7 +476,7 @@
     "file": "src/components/inline-edit/scss/variables.scss",
     "line": 86,
     "rule": "Variables: live on the consuming selector, not on a parent with a prefix",
-    "issue": "&-status sets --check-color, --check-delay, --check-duration, --check-stroke-width, and --dot-size, but only &-status-check and &-status-dot read them. The block-level --icon-swap-duration/--icon-swap-timing-function (line 23) also reach down into the icons.",
+    "issue": "&-status sets --check-color, --check-delay, --check-duration, --check-stroke-width, and --dot-size, but only &-status-check and &-status-dot read them. The block-level --swap-duration/--swap-timing-function (line 23) also reach down into the icons.",
     "severity": "medium"
   },
   {
@@ -964,7 +964,7 @@
     "file": "src/components/select/scss/variables.scss",
     "line": 52,
     "rule": "Variables live on the selector that consumes them, not on a parent",
-    "issue": "Several variables live on a parent instead of the selector that uses them. On &-panel: --fade, --pad and --highlight/--highlight-pressed, used by the scroller and option. On .select: --item-height, --trigger-border-radius, --focus-width and --color-muted (19-24), used by option, scroller, trigger, detail and scroll. On &-option: --icon-swap-* (43-44), used by the child .select-menu-check.",
+    "issue": "Several variables live on a parent instead of the selector that uses them. On &-panel: --fade, --pad and --highlight/--highlight-pressed, used by the scroller and option. On .select: --item-height, --trigger-border-radius, --focus-width and --color-muted (19-24), used by option, scroller, trigger, detail and scroll. On &-option: --swap-* (43-44), used by the child .select-menu-check.",
     "severity": "medium"
   },
   {

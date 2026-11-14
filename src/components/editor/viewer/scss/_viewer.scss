@@ -62,7 +62,6 @@
         width: var(--fold-width);
 
         &-icon.icon {
-            rotate: var(--rotate);
             transition: rotate var(--transition-duration) var(--transition-timing-function);
         }
 
@@ -219,14 +218,14 @@
     }
 
     &-token {
+        &--color {
+            color: var(--literal-color);
+        }
+
         @each $kind in comment, function, keyword, number, operator, property, regexp, selector, string, tag, type, variable {
             &--#{$kind} {
                 color: var(--#{$kind}-color);
             }
-        }
-
-        &--color {
-            color: var(--literal-color);
         }
 
         &--comment {

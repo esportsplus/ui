@@ -1,14 +1,14 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { flush, reactive, ReactiveArray } from '@esportsplus/reactivity';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { finished, measure, slides, timing } from '~/shared/animation';
 import checkbox from '~/components/checkbox';
 import sortable from '~/components/sortable';
+import '~/components/group/scss/index.scss';
 import './scss/index.scss';
 
 
 type A = Attributes & {
     [TASKLIST_CHECKBOX]?: CheckboxAttributes;
-    [TASKLIST_CONTENT]?: Attributes;
     [TASKLIST_DESCRIPTION]?: Attributes;
     [TASKLIST_ITEM]?: Attributes;
     [TASKLIST_LABEL]?: Attributes;
@@ -35,8 +35,6 @@ type Task = {
 
 
 const TASKLIST_CHECKBOX = Symbol.for('@esportsplus/ui/tasklist.checkbox');
-
-const TASKLIST_CONTENT = Symbol.for('@esportsplus/ui/tasklist.content');
 
 const TASKLIST_DESCRIPTION = Symbol.for('@esportsplus/ui/tasklist.description');
 
@@ -200,7 +198,7 @@ export default component(
                         }
                     }}
                 >
-                    <label class='tasklist-row ${sorts && 'tasklist-row--sortable'}' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
+                    <label class='group group--grid tasklist-row ${sorts && 'tasklist-row--sortable'}' ${context?.[TASKLIST_ROW]} ${attributes[TASKLIST_ROW]}>
                         ${checkbox.call(
                             { attributes: context?.[TASKLIST_CHECKBOX] },
                             {
@@ -209,15 +207,14 @@ export default component(
                                 [checkbox.input]: { ...box?.[checkbox.input], checked: !!task.checked }
                             }
                         )}
-
-                        <span class='tasklist-content' ${context?.[TASKLIST_CONTENT]} ${attributes[TASKLIST_CONTENT]}>
-                            <span class='tasklist-label' ${context?.[TASKLIST_LABEL]} ${attributes[TASKLIST_LABEL]}>${task.label}</span>
-                            ${task.description && html`
-                                <span class='tasklist-description' ${context?.[TASKLIST_DESCRIPTION]} ${attributes[TASKLIST_DESCRIPTION]}>
-                                    ${task.description}
-                                </span>
-                            `}
+                        <span class='group-label tasklist-label' ${context?.[TASKLIST_LABEL]} ${attributes[TASKLIST_LABEL]}>
+                            <span class='tasklist-text'>${task.label}</span>
                         </span>
+                        ${task.description && html`
+                            <small class='group-description tasklist-description' ${context?.[TASKLIST_DESCRIPTION]} ${attributes[TASKLIST_DESCRIPTION]}>
+                                ${task.description}
+                            </small>
+                        `}
                     </label>
                 </li>
             `;
@@ -241,7 +238,6 @@ export default component(
     },
     {
         checkbox: TASKLIST_CHECKBOX,
-        content: TASKLIST_CONTENT,
         description: TASKLIST_DESCRIPTION,
         item: TASKLIST_ITEM,
         label: TASKLIST_LABEL,

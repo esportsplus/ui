@@ -1,12 +1,11 @@
 import { effect, onCleanup, reactive, ReactiveArray, untrack } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import { lead, step, type Range } from './model';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import { clamp } from '~/shared/clamp';
 import subscribe from '~/shared/subscribe';
-import down from '@esportsplus/ui/svg/chevron-down.svg';
-import up from '@esportsplus/ui/svg/chevron-up.svg';
+import { lead, step, type Range } from './model';
 import spy from './spy';
 import './scss/index.scss';
 
@@ -80,13 +79,13 @@ function itemFrom(target: EventTarget | null) {
 }
 
 function template({ label = 'Conversation turns', next = 'Next turn', onnavigate, previous = 'Previous turn', side = 'right', state = reactive({ end: 0, start: 0 }), turns, ...attributes }: ChatMinimapAttributes) {
-    let card = tooltip.shared({ 'aria-hidden': 'true', ...attributes[CHAT_MINIMAP_PREVIEW], class: ['chat-minimap-preview', attributes[CHAT_MINIMAP_PREVIEW]?.class ?? []].flat(), delay: DELAY, direction: side === 'left' ? 'w' : 'e' }),
+    let card = tooltip.shared({ 'aria-hidden': 'true', ...attributes[CHAT_MINIMAP_PREVIEW], class: ['chat-minimap-preview', attributes[CHAT_MINIMAP_PREVIEW]?.class ?? []].flat(), axis: 'x', delay: DELAY }),
         id = `chat-minimap-${++uid}`,
         items = new Map<Turn, Item>(),
         list = turns instanceof ReactiveArray ? turns : new ReactiveArray(turns),
         local = reactive({ focus: -1, total: 0, version: 0 }),
         positions = new Map<Turn, number>(),
-        tips = { next: tooltip.shared({ ...bubble(), direction: 's' }), previous: tooltip.shared({ ...bubble(), direction: 'n' }) };
+        tips = { next: tooltip.shared({ ...bubble(), axis: 'y' }), previous: tooltip.shared({ ...bubble(), axis: 'y' }) };
 
     function bubble() {
         return { 'aria-hidden': 'true', ...attributes[CHAT_MINIMAP_LABEL], class: ['chat-minimap-label', attributes[CHAT_MINIMAP_LABEL]?.class ?? []].flat() };
@@ -133,7 +132,7 @@ function template({ label = 'Conversation turns', next = 'Next turn', onnavigate
                     }
                 }}
             >
-                ${icon({ 'aria-hidden': 'true', class: 'chat-minimap-nav-icon' }, direction === -1 ? up : down)}
+                ${icon({ 'aria-hidden': 'true', class: ['chat-minimap-nav-icon', direction === -1 ? 'icon--up' : 'icon--down'] }, chevron)}
             </button>
         `;
     }

@@ -11,6 +11,17 @@
     position: relative;
 
 
+    &#{&}--saved &-icon {
+        &-check {
+            @extend %icon-swap-active;
+        }
+
+        &-pencil {
+            @extend %icon-swap;
+        }
+    }
+
+
     &-display,
     &-editor,
     & > #{&}-field {
@@ -31,17 +42,6 @@
         white-space: var(--white-space);
     }
 
-    // On one line the field is a native input, which centers its text with its own rounding rather than the line box's,
-    // so the display centers its text the same way within a row held at the line height; swapping them never moves it.
-    &:not(#{&}--multiline) {
-        grid-template-rows: minmax(var(--row-height), auto);
-    }
-
-    &:not(#{&}--multiline) > #{&}-display,
-    &:not(#{&}--multiline) > #{&}-field {
-        line-height: var(--line-height);
-    }
-
     // Stays in the cell while editing (hidden), so the field inherits its exact width and starting height.
     &-display {
         background: var(--background);
@@ -54,6 +54,7 @@
         line-height: inherit;
         outline: none;
         transition: background-color var(--transition-duration) var(--transition-timing-function);
+
 
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
@@ -74,6 +75,7 @@
         background: var(--background);
         transition: background-color var(--transition-duration) var(--transition-timing-function);
 
+
         #{tokens.state(active, '.inline-edit')} > & {
             box-shadow: var(--ring);
         }
@@ -93,6 +95,7 @@
         resize: none;
         transition: none;
 
+
         &::placeholder {
             color: var(--placeholder-color);
         }
@@ -103,11 +106,12 @@
         display: grid;
         height: var(--size);
         inset-block-start: var(--inset-top);
-        inset-inline-end: var(--inset-end);
+        inset-inline-end: var(--end);
         place-items: center;
         pointer-events: none;
         position: absolute;
         width: var(--size);
+
 
         &-check,
         &-pencil {
@@ -122,18 +126,6 @@
             opacity: 0;
         }
 
-        .inline-edit.inline-edit--saved &-check {
-            @extend %icon-swap-active;
-        }
-
-        .inline-edit.inline-edit--saved &-pencil {
-            @extend %icon-swap;
-        }
-
-        // Not while saved: the saved pencil is hidden by the shared swap rules, which come first, so they'd lose a tie.
-        .inline-edit:not(.inline-edit--saved):is(:hover, :has(:focus-visible)) &-pencil {
-            opacity: 1;
-        }
 
         #{tokens.state(active, '.inline-edit')} > & {
             visibility: hidden;
@@ -158,6 +150,7 @@
         white-space: nowrap;
         width: var(--width);
 
+
         &--saved &-check.icon {
             opacity: 1;
             stroke-dashoffset: 0;
@@ -178,25 +171,23 @@
             scale: 1.5;
         }
 
+
         &-announcement {
             @extend %hidden-visually;
         }
 
         // Chained through '.icon' so it wins over the icon's own position regardless of stylesheet order.
         &-check.icon {
-            fill: none;
+            @extend %icon-stroke, %icon-stroke-draw;
             inset: 0;
             opacity: 0;
             position: absolute;
             stroke: var(--stroke);
-            stroke-dasharray: 1;
-            stroke-dashoffset: 1;
-            stroke-linecap: round;
-            stroke-linejoin: round;
             stroke-width: var(--stroke-width);
-            transition:
-                opacity var(--transition-duration) var(--transition-timing-function) var(--transition-delay),
-                stroke-dashoffset var(--transition-duration) var(--transition-timing-function) var(--transition-delay);
+            transition-delay: var(--transition-delay);
+            transition-duration: var(--transition-duration);
+            transition-property: opacity, stroke-dashoffset;
+            transition-timing-function: var(--transition-timing-function);
         }
 
         &-dot {
@@ -204,11 +195,11 @@
             opacity: 0;
             position: absolute;
             scale: 0.5;
-            transition:
-                opacity var(--transition-duration) var(--transition-timing-function),
-                scale var(--transition-duration) var(--transition-timing-function),
-                translate var(--transition-duration) var(--transition-timing-function);
+            transition-duration: var(--transition-duration);
+            transition-property: opacity, scale, translate;
+            transition-timing-function: var(--transition-timing-function);
             width: var(--size);
+
 
             &::before {
                 background: currentColor;
@@ -244,8 +235,10 @@
             flex: 1;
             min-width: 0;
 
+
             &-text {
                 grid-area: 1 / 1;
+
 
                 &--enter {
                     animation: inline-edit-status-label-text--enter var(--animation-duration) var(--animation-timing-function) both;
@@ -277,5 +270,22 @@
                 }
             }
         }
+    }
+
+
+    // On one line the field is a native input, which centers its text with its own rounding rather than the line box's,
+    // so the display centers its text the same way within a row held at the line height; swapping them never moves it.
+    &:not(#{&}--multiline) {
+        grid-template-rows: minmax(var(--row-height), auto);
+    }
+
+    &:not(#{&}--multiline) > #{&}-display,
+    &:not(#{&}--multiline) > #{&}-field {
+        line-height: var(--line-height);
+    }
+
+    // Not while saved: the saved pencil is hidden by the shared swap rules, which come first, so they'd lose a tie.
+    &:not(#{&}--saved):is(:hover, :has(:focus-visible)) &-icon-pencil {
+        opacity: 1;
     }
 }

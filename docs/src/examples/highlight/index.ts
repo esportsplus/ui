@@ -5,8 +5,7 @@ import type { Entry } from 'docs/types';
 import 'docs/examples/highlight/scss/index.scss';
 
 
-let column = '--gap-vertical: var(--size-100); width: 240px;',
-    labels = ['Overview', 'Matches', 'Teams', 'Players', 'Settings'],
+let labels = ['Overview', 'Matches', 'Teams', 'Players', 'Settings'],
     radii = ['var(--border-radius-300)', '999px', '0px', 'var(--border-radius-500)', '999px', 'var(--border-radius-300)'],
     row = '--gap-horizontal: var(--size-200); --gap-vertical: var(--size-200);';
 
@@ -17,7 +16,7 @@ function tabs(border: 'bottom' | 'left', fill: boolean) {
     return html`
         <div
             aria-orientation='${border === 'left' ? 'vertical' : 'horizontal'}'
-            class='highlight-demo-tabs highlight-rail highlight-rail--${border} ${border === 'left' && 'highlight-demo-tabs--vertical'}'
+            class='highlight-demo-tabs --highlight-rail --highlight-rail-${border} ${border === 'left' && 'highlight-demo-tabs--vertical'}'
             role='tablist'
         >
             ${highlight({ border, class: 'highlight-demo-highlight highlight--rail', fill })}
@@ -53,7 +52,7 @@ export default {
         },
         {
             render: () => html`
-                <div class='highlight-demo-column' style='${column}'>
+                <div class='highlight-demo-column' style='--gap-vertical: var(--size-100); width: 240px;'>
                     ${highlight()}
                     ${labels.map((label) => html`
                         <div

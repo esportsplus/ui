@@ -11,7 +11,7 @@ const trackTransition = (property: string, change: (running: boolean, element?: 
 
         frame = requestAnimationFrame(() => {
             frame = undefined;
-            change(!!element?.getAnimations().some(animation =>
+            change(!!element?.getAnimations().some((animation) =>
                 'transitionProperty' in animation && animation.transitionProperty === property &&
                 animation.playState !== 'finished' && animation.playState !== 'idle'
             ), element);

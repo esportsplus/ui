@@ -24,12 +24,15 @@
         animation: relative-time-enter var(--animation-duration) var(--animation-timing-function);
     }
 
-    // JS pins 'left' and 'top' to where it stood. After the base rules, so its 'position' wins.
+    // Pinned where it stood, which JS hands over as '--leave-left' and '--leave-top'. After the base rules, so its
+    // 'position' wins.
     &-digit--exiting,
     &-rest--exiting,
     &-slot--exiting {
         animation: relative-time-exit var(--animation-duration) var(--animation-timing-function) forwards;
+        left: var(--leave-left);
         position: absolute;
+        top: var(--leave-top);
     }
 
     &-digits,
@@ -58,7 +61,6 @@
     // Opens from slightly below, smaller and blurred; closes faster than it opens.
     &-tooltip.tooltip-message {
         filter: blur(var(--blur-300));
-        transform-origin: bottom center;
         transition:
             filter var(--transition-duration) var(--transition-timing-function),
             opacity var(--transition-duration) var(--transition-timing-function),

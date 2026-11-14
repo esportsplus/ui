@@ -3,7 +3,7 @@ import { component, html, type Attributes, type Element } from '@esportsplus/tem
 import form from '~/components/form';
 import { observeSize } from '~/shared/resize';
 import { trackTransition } from '~/shared/transition';
-import './scss/index.scss';
+import '~/components/input/scss/index.scss';
 
 
 type Autoresize = { height: { max: `${number}px`, min: `${number}px` } };
@@ -13,10 +13,7 @@ export default component(function(
     this: { attributes?: Attributes },
     {
         autoresize: resize,
-        state = reactive({
-            active: false,
-            error: ''
-        }),
+        state = reactive({ active: false, error: '' }),
         ...attributes
     }: Attributes & {
         autoresize?: Autoresize,
@@ -63,45 +60,45 @@ export default component(function(
         return current || String((typeof placeholder === 'function' ? placeholder(element) : placeholder) ?? '');
     }
 
-    let observation = observeSize((size) => {
+    let content = html`
+            <textarea
+                class='input input--textarea'
+                ${this?.attributes}
+                ${attributes}
+                ${resize && [motion.attributes, {
+                    class: ['input--autoresize', () => measured.scrollable && 'input--scrollbar'],
+                    onconnect: (element: Element<HTMLTextAreaElement>, on) => {
+                        field = element;
+
+                        // A form's reset never reaches the field's own bindings, so it is heard on the form.
+                        if (element.form) {
+                            on(element.form, 'reset', reset);
+                        }
+                    },
+                    ondisconnect: () => {
+                        if (resetFrame !== undefined) {
+                            cancelAnimationFrame(resetFrame);
+                            resetFrame = undefined;
+                        }
+
+                        field = undefined;
+                    },
+                    oninput: function(this: HTMLElement, event: InputEvent, dispose: VoidFunction) {
+                        measured.revision++;
+                        caller?.call(this, event, dispose);
+                    },
+                    style: [limits, () => measured.height && `--height: ${measured.height}px;`]
+                }]}
+                ${form.input.attributes(state)}
+            ></textarea>
+        `,
+        observation = observeSize((size) => {
             if (measured.height !== size.height) {
                 measured.scrollable = false;
                 measured.height = size.height;
                 motion.settle();
             }
-        }),
-        content = html`
-        <textarea
-            class='textarea'
-            ${this?.attributes}
-            ${attributes}
-            ${resize && [motion.attributes, {
-                class: ['textarea--autoresize', () => measured.scrollable && 'textarea--scrollable'],
-                onconnect: (element: Element<HTMLTextAreaElement>, on) => {
-                    field = element;
-
-                    // A form's reset never reaches the field's own bindings, so it is heard on the form.
-                    if (element.form) {
-                        on(element.form, 'reset', reset);
-                    }
-                },
-                ondisconnect: () => {
-                    if (resetFrame !== undefined) {
-                        cancelAnimationFrame(resetFrame);
-                        resetFrame = undefined;
-                    }
-
-                    field = undefined;
-                },
-                oninput: function(this: HTMLElement, event: InputEvent, dispose: VoidFunction) {
-                    measured.revision++;
-                    caller?.call(this, event, dispose);
-                },
-                style: [limits, () => measured.height && `--height: ${measured.height}px;`]
-            }]}
-            ${form.input.attributes(state)}
-        ></textarea>
-    `;
+        });
 
     if (!resize) {
         return content;
@@ -110,18 +107,18 @@ export default component(function(
     // The mirror holds the field's text in its own box, sized as the field would be to fit it; the field animates to
     // the height observed on it. Mirrors only what sizes the text: no name, id, validation or caller listeners.
     return html`
-        <div class='textarea-resize'>
+        <div class='input-resize'>
             ${content}
             <div
                 aria-hidden='true'
-                class='textarea textarea--measure'
+                class='input input--measure input--textarea'
                 inert
                 ${observation}
                 ${{
                     class: [
                         this?.attributes?.class,
                         attributes.class,
-                        (attributes.wrap ?? this?.attributes?.wrap) === 'off' && 'textarea--measure-nowrap',
+                        (attributes.wrap ?? this?.attributes?.wrap) === 'off' && 'input--measure-nowrap',
                         () => state.active && '--active'
                     ].flat(),
                     'data-value': text,

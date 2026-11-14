@@ -6,6 +6,7 @@
     flex: 0 0 var(--width);
     height: var(--height);
     position: relative;
+    rotate: var(--rotate);
     width: var(--width);
 
     // On the box rather than the <svg>, which inherits it, and at zero specificity, so a stroked icon's 'fill: none' set
@@ -15,9 +16,8 @@
     }
 
 
-    // Turns by '--rotate', easing between turns, so a chevron can follow its control's state.
+    // Eases between turns of '--rotate', so a chevron can follow its control's state.
     &--rotate {
-        rotate: var(--rotate);
         transition: rotate var(--transition-duration) var(--transition-timing-function);
 
 

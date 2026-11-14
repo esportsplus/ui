@@ -1,11 +1,9 @@
 import { html, type Attributes } from '@esportsplus/template';
 import { effect, reactive } from '@esportsplus/reactivity';
 import icon from '~/components/icon';
-import next from '@esportsplus/ui/svg/arrow-right.svg';
-import previous from '@esportsplus/ui/svg/arrow-left.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import arrows from './arrows';
 import cards from './cards';
-import dots from './dots';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
 
@@ -43,7 +41,9 @@ function pages(page: number, siblings: number, total: number) {
 }
 
 
-const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), total, ...attributes }: Attributes & {
+const plain = ({ caption = false, onchange, siblings = 1, state: api = reactive({ page: 1 }), total, ...attributes }: Attributes & {
+    // A 'Page n of total' line under the controls.
+    caption?: boolean;
     onchange?: (page: number) => void;
     siblings?: number;
     state?: { page: number };
@@ -72,11 +72,11 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
         <nav aria-label='Pagination' class='pagination' ${attributes}>
             <button
                 aria-disabled='${() => String(api.page <= 1)}'
-                class='button pagination-control ${() => api.page <= 1 && '--disabled'}'
+                class='button pagination-control pagination-control--previous ${() => api.page <= 1 && '--disabled'}'
                 onclick='${() => go(api.page - 1)}'
                 type='button'
             >
-                ${icon({ 'aria-hidden': 'true', class: 'pagination-control-icon' }, previous)}
+                ${icon({ 'aria-hidden': 'true', class: 'pagination-control-icon icon--left' }, arrow)}
                 Previous
             </button>
 
@@ -97,18 +97,20 @@ const plain = ({ onchange, siblings = 1, state: api = reactive({ page: 1 }), tot
 
             <button
                 aria-disabled='${() => String(api.page >= total)}'
-                class='button pagination-control ${() => api.page >= total && '--disabled'}'
+                class='button pagination-control pagination-control--next ${() => api.page >= total && '--disabled'}'
                 onclick='${() => go(api.page + 1)}'
                 type='button'
             >
                 Next
-                ${icon({ 'aria-hidden': 'true', class: 'pagination-control-icon' }, next)}
+                ${icon({ 'aria-hidden': 'true', class: 'pagination-control-icon' }, arrow)}
             </button>
+
+            ${caption && html`<span class='pagination-caption'>Page ${() => api.page} of ${total}</span>`}
         </nav>
     `;
 };
 
-const pagination: typeof plain & { arrows: typeof arrows, cards: typeof cards, dots: typeof dots } = Object.assign(plain, { arrows, cards, dots });
+const pagination: typeof plain & { arrows: typeof arrows, cards: typeof cards } = Object.assign(plain, { arrows, cards });
 
 
 export default pagination;

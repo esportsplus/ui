@@ -1,13 +1,26 @@
 .icon {
     --color: inherit;
     --height: var(--size);
+    --rotate: 0deg;
     --size: var(--size-400);
     --width: var(--size);
 
 
+    // The directional sprites ('arrow.svg', 'chevron.svg') point right; these turn them to the other three.
+    &--down {
+        --rotate: 90deg;
+    }
+
+    &--left {
+        --rotate: 180deg;
+    }
+
     &--rotate {
-        --rotate: 0deg;
         --transition-duration: 130ms;
         --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    &--up {
+        --rotate: -90deg;
     }
 }

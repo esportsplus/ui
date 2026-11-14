@@ -9,9 +9,6 @@ import page from '@esportsplus/ui/svg/document.svg';
 import 'docs/examples/button/scss/index.scss';
 
 
-let row = 'display: flex; flex-wrap: wrap; gap: var(--size-400); align-items: center;';
-
-
 let modifiers = [
         ['black', 'Black'],
         ['primary', 'Primary'],
@@ -19,9 +16,7 @@ let modifiers = [
         ['surface-primary', 'Surface primary'],
         ['white', 'White']
     ],
-    round = `--border-radius: 999px; --padding-horizontal: 0; --padding-vertical: 0; height: var(--size-600); width: var(--size-600);`,
-    surface = 'button--surface',
-    trigger = `button ${surface}`,
+    row = 'display: flex; flex-wrap: wrap; gap: var(--size-400); align-items: center;',
     views = [
         { glyph: eye, label: 'Preview' },
         { glyph: code, label: 'Code' },
@@ -29,25 +24,25 @@ let modifiers = [
     ];
 
 
-function segmented(glide: boolean, track = false) {
+function segmented(glide: boolean, track = false, reveal = false) {
     let state = reactive({ active: 0 });
 
     return group(
         {
-            [group.highlight]: glide ? { class: 'button-demo-group-highlight' } : undefined,
+            [group.highlight]: glide ? { class: track ? 'highlight--surface' : 'highlight--surface-primary' } : undefined,
             'aria-label': 'View',
-            class: ['button-demo-group', !glide && 'button-demo-group--static', track && 'button-demo-group--track'],
+            class: [track && 'group--surface', !glide && 'button-demo-group--static'],
             role: 'group'
         },
         views.map(({ glyph, label }, index) => html`
             <button
-                class='button button--group button-demo-group-button ${() => state.active === index && '--active'}'
+                class='button button--group ${reveal && 'button--reveal'} ${() => state.active === index && '--active'}'
                 onclick='${() => state.active = index}'
                 type='button'
                 ${{ 'aria-pressed': () => String(state.active === index) }}
             >
-                ${icon({ 'aria-hidden': 'true', class: 'button-demo-group-icon' }, glyph)}
-                ${label}
+                ${icon({ 'aria-hidden': 'true' }, glyph)}
+                ${reveal ? html`<span class='button-reveal'><span class='button-reveal-text'>${label}</span></span>` : label}
             </button>
         `)
     );
@@ -156,6 +151,10 @@ export default {
             title: 'group with background'
         },
         {
+            render: () => segmented(true, true, true),
+            title: 'group · reveal'
+        },
+        {
             render: () => {
                 let saves = 0;
 
@@ -246,11 +245,11 @@ export default {
                     <div style='${row}'>
                         ${(['left', 'right'] as const).map((side) => button.sidebar({
                             'aria-label': () => `${state[side] ? 'Hide' : 'Show'} ${side} panel`,
-                            class: trigger,
+                            class: 'button button--surface',
                             onclick: () => state[side] = !state[side],
                             open: () => state[side],
                             side,
-                            style: round
+                            style: '--border-radius: 999px; --padding-horizontal: 0; --padding-vertical: 0; height: var(--size-600); width: var(--size-600);'
                         }))}
                     </div>
                 `;

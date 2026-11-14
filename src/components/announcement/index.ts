@@ -1,6 +1,6 @@
 import { reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import overlay from '../overlay';
+import overlay from '~/components/overlay';
 import './scss/index.scss';
 
 

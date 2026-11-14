@@ -33,9 +33,9 @@
         text-decoration-color: transparent;
         text-underline-offset: var(--underline-offset);
         touch-action: manipulation;
-        transition:
-            color var(--transition-duration) var(--transition-timing-function),
-            text-decoration-color var(--transition-duration) var(--transition-timing-function);
+        transition-duration: var(--transition-duration);
+        transition-property: color, text-decoration-color;
+        transition-timing-function: var(--transition-timing-function);
         user-select: none;
         white-space: nowrap;
 
@@ -148,9 +148,9 @@
         outline: none;
         padding: 0;
         touch-action: manipulation;
-        transition:
-            background-color var(--transition-duration) var(--transition-timing-function),
-            color var(--transition-duration) var(--transition-timing-function);
+        transition-duration: var(--transition-duration);
+        transition-property: background-color, color;
+        transition-timing-function: var(--transition-timing-function);
         user-select: none;
         width: var(--width);
 

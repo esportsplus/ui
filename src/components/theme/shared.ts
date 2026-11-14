@@ -1,7 +1,7 @@
-import icon from '~/components/icon';
 import monitor from '@esportsplus/ui/svg/monitor.svg';
 import moon from '@esportsplus/ui/svg/moon.svg';
 import sun from '@esportsplus/ui/svg/sun.svg';
+import icon from '~/components/icon';
 import type { Attributes } from '@esportsplus/template';
 import type { Mode, Preference } from './index';
 
@@ -31,10 +31,6 @@ const CHOICES: Choice[] = [
 ];
 
 
-function choice(mode: Theme) {
-    return CHOICES.find((choice) => choice.value === mode.preference) ?? CHOICES[2];
-}
-
 function glyph(id: string) {
     return icon({ 'aria-hidden': 'true', class: 'theme-icon' }, id);
 }
@@ -44,7 +40,7 @@ function glyph(id: string) {
 function radio(mode: Theme, choice: Choice, origin: string) {
     return {
         'aria-checked': () => mode.preference === choice.value ? 'true' : 'false',
-        onclick: function (this: HTMLElement) {
+        onclick: function(this: HTMLElement) {
             mode.set(choice.value, this.querySelector(origin) ?? this);
         },
         role: 'radio',
@@ -53,5 +49,5 @@ function radio(mode: Theme, choice: Choice, origin: string) {
 }
 
 
-export { CHOICES, choice, glyph, radio };
+export { CHOICES, glyph, radio };
 export type { A, Choice, Theme };

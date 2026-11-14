@@ -1,7 +1,15 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { select } from '@esportsplus/ui/components';
+import monitor from '@esportsplus/ui/svg/monitor.svg';
+import moon from '@esportsplus/ui/svg/moon.svg';
+import sun from '@esportsplus/ui/svg/sun.svg';
 import 'docs/examples/select/scss/index.scss';
+import type { Style, Variant } from 'docs/types';
+
+
+// Every example is edged by default, with the plain select a pick away; the edge adds to any fill.
+const STYLES: Style[] = [{ class: 'select--border', label: 'Border' }, { class: '', label: 'Default' }];
 
 
 let fonts = [
@@ -24,6 +32,12 @@ let fonts = [
         { detail: 'UTC+5:30', label: 'Kolkata', value: 'kolkata' },
         { detail: 'UTC+9', label: 'Tokyo', value: 'tokyo' }
     ],
+    // The closed select's fills, which match the input's.
+    modifiers = [
+        ['', 'Default'],
+        ['select--surface', 'Surface'],
+        ['select--surface-primary', 'Surface Primary']
+    ],
     weekStarts = [
         { label: 'Saturday', value: 'saturday' },
         { label: 'Sunday', value: 'sunday' },
@@ -33,22 +47,52 @@ let fonts = [
 
 export default {
     name: 'select',
-    variants: [
+    variants: ([
         {
-            render: () => select({
-                options: { apples: 'Apples', bananas: 'Bananas', cherries: 'Cherries' }
-            }),
+            render: (style: string) => html`
+                <div class='select-menu-demo select-menu-demo--stack'>
+                    ${modifiers.map(([modifier, label]) => html`
+                        <div class='group group--column'>
+                            <span aria-hidden='true' class='group-label'>${label}</span>
+                            ${select({
+                                class: `${modifier} ${style}`.trim(),
+                                label,
+                                options: { apples: 'Apples', bananas: 'Bananas', cherries: 'Cherries' }
+                            })}
+                        </div>
+                    `)}
+                </div>
+            `,
             title: 'options'
         },
         {
-            render: () => select({
+            render: (style: string) => html`
+                <div class='select-menu-demo select-menu-demo--stack'>
+                    ${modifiers.map(([modifier, label]) => html`
+                        <div class='group group--column'>
+                            <span aria-hidden='true' class='group-label'>${label}</span>
+                            ${select({
+                                class: `${modifier} ${style} select--compact`.trim(),
+                                label,
+                                options: { apples: 'Apples', bananas: 'Bananas', cherries: 'Cherries' }
+                            })}
+                        </div>
+                    `)}
+                </div>
+            `,
+            title: 'compact'
+        },
+        {
+            render: (style: string) => select({
+                class: style,
                 options: { eur: 'EUR', gbp: 'GBP', usd: 'USD' },
                 selected: 'gbp'
             }),
             title: 'pre-selected'
         },
         {
-            render: () => select({
+            render: (style: string) => select({
+                class: style,
                 label: 'Language',
                 options: {
                     de: { content: 'Deutsch (Deutschland)', selected: 'DE' },
@@ -60,7 +104,22 @@ export default {
             title: 'short label in the trigger'
         },
         {
-            render: () => select({
+            render: (style: string) => select({
+                class: style,
+                label: 'Theme',
+                options: [
+                    { icon: sun, label: 'Light', value: 'light' },
+                    { icon: moon, label: 'Dark', value: 'dark' },
+                    { icon: monitor, label: 'System', value: 'system' },
+                    { label: 'Custom', value: 'custom' }
+                ],
+                selected: 'system'
+            }),
+            title: 'icons'
+        },
+        {
+            render: (style: string) => select({
+                class: style,
                 disabled: true,
                 options: { eur: 'EUR', gbp: 'GBP', usd: 'USD' },
                 selected: 'usd'
@@ -68,7 +127,8 @@ export default {
             title: 'disabled'
         },
         {
-            render: () => select({
+            render: (style: string) => select({
+                class: style,
                 label: 'Choose font',
                 options: fonts,
                 selected: 'inter'
@@ -76,15 +136,15 @@ export default {
             title: 'font picker'
         },
         {
-            render: () => html`
+            render: (style: string) => html`
                 <div class='select-menu-demo'>
                     ${[
                         { label: 'Time zone', options: timeZones, selected: 'kolkata' },
                         { label: 'Week starts on', options: weekStarts, selected: 'monday' }
                     ].map((row) => html`
-                        <div class='select-menu-demo-row'>
-                            <span aria-hidden='true'>${row.label}</span>
-                            ${select(row)}
+                        <div class='group group--grid select-menu-demo-row'>
+                            <span aria-hidden='true' class='group-label'>${row.label}</span>
+                            ${select({ ...row, class: style })}
                         </div>
                     `)}
                 </div>
@@ -92,14 +152,14 @@ export default {
             title: 'settings'
         },
         {
-            render: () => {
+            render: (style: string) => {
                 let state = reactive({ active: false, error: '', selected: 'montserrat' });
 
                 return html`
                     <div class='select-menu-demo'>
-                        <div class='select-menu-demo-row'>
-                            <span aria-hidden='true'>Font</span>
-                            ${select({ label: 'Font', name: 'font', options: fonts, state })}
+                        <div class='group group--grid select-menu-demo-row'>
+                            <span aria-hidden='true' class='group-label'>Font</span>
+                            ${select({ class: style, label: 'Font', name: 'font', options: fonts, state })}
                         </div>
                         <span class='select-menu-demo-status'>
                             selected: ${() => state.selected}${() => state.active && ' (open)'}
@@ -121,5 +181,5 @@ export default {
             }),
             title: 'expand'
         }
-    ]
+    ] as Variant[]).map((variant) => variant.title === 'expand' ? variant : { ...variant, styles: STYLES })
 };

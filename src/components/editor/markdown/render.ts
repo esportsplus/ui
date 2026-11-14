@@ -6,7 +6,7 @@ import { sanitizeHtml, type SafeNode } from './html';
 import { clipInline, type Inline } from './inline';
 import type { Unit } from './layout';
 import type { MarkdownBlock, Row } from './model';
-import chevron from '@esportsplus/ui/svg/chevron-down.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 
 
 // A run of source text drawn as one text node, 'from' relative to its block so it survives the block shifting.

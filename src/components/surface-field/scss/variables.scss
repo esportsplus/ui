@@ -18,10 +18,10 @@
     &-surface {
         @extend %surface-raise;
         --border-color: var(--surface-border-default);
-        // Its own name: the global per-element reset would swallow '--border-radius' on the corners its parts round.
         --border-radius: 14px;
         --border-width: 1px;
         --box-shadow: 0 1px 2px #{surface.shadow-color(0.6)}, 0 8px 24px -8px #{surface.shadow-color(1.55)};
+        --cursor: grab;
         --scale: 1;
         --transition-duration: 200ms;
         --transition-timing-function: ease;
@@ -30,9 +30,15 @@
             --transition-duration: 0s;
         }
 
+
+        &--selected &-frame {
+            --display: block;
+        }
+
+
         &-body {
             --color: var(--color-text-300);
-            --font-size: calc(var(--font-size-400) * 0.8125);
+            --font-size: var(--font-size-300);
             --line-height: 1.5;
         }
 
@@ -41,29 +47,65 @@
             --gap-vertical: var(--size-100);
             --padding-bottom: var(--size-400);
             --padding-horizontal: var(--size-400);
+            --padding-top: var(--size-400);
         }
 
-        &-handle {
-            --width: 32px;
+        &-corner,
+        &-port,
+        &-rotate {
+            --background: var(--surface-background-default);
+            --border-color: var(--color-primary-300);
+            --border-width: 1px;
+        }
 
-            &::before {
-                --height: 2px;
-                --opacity: 0.7;
-                --width: 18px;
+        &-corner {
+            --border-radius: 2px;
+            --size: 8px;
+
+            @each $side, $left, $top, $cursor in (ne, 100%, 0%, nesw-resize), (nw, 0%, 0%, nwse-resize), (se, 100%, 100%, nwse-resize), (sw, 0%, 100%, nesw-resize) {
+                &[data-side='#{$side}'] {
+                    --cursor: #{$cursor};
+                    --left: #{$left};
+                    --top: #{$top};
+                }
             }
         }
 
-        &-handle,
-        &-resize {
-            --color: var(--color-primary-300);
+        // Strips along each side, between the corners, that resize it one way.
+        &-edge {
+            --corner: 8px;
+            --hit: 8px;
+
+            @each $side, $cursor, $height, $inset, $width in
+                (e, ew-resize, auto, var(--corner) calc(var(--hit) / -2) var(--corner) auto, var(--hit)),
+                (n, ns-resize, var(--hit), calc(var(--hit) / -2) var(--corner) auto, auto),
+                (s, ns-resize, var(--hit), auto var(--corner) calc(var(--hit) / -2), auto),
+                (w, ew-resize, auto, var(--corner) auto var(--corner) calc(var(--hit) / -2), var(--hit))
+            {
+                &[data-side='#{$side}'] {
+                    --cursor: #{$cursor};
+                    --height: #{$height};
+                    --inset: #{$inset};
+                    --width: #{$width};
+                }
+            }
+        }
+
+        &-frame {
+            --border-color: var(--color-primary-300);
+            --border-radius: calc(14px + var(--offset));
+            --border-width: 1px;
+            --display: none;
+            --offset: 3px;
         }
 
         &-header {
-            --cursor: grab;
-            --gap-horizontal: calc(var(--size-100) / 2);
-            --gap-vertical: 0px;
             --height: 28px;
-            --padding-start: var(--size-400);
+            --padding-horizontal: var(--size-400);
+
+            & + .surface-field-surface-content {
+                --padding-top: 0px;
+            }
         }
 
         &-lift {
@@ -71,9 +113,27 @@
             --opacity: 0;
         }
 
-        &-resize {
-            --opacity: 0.7;
-            --size: 22px;
+        &-port {
+            --border-radius: 50%;
+            --cursor: default;
+            --size: 9px;
+            --z-index: 1;
+
+            &--in {
+                --left: 0%;
+            }
+
+            &--out {
+                --cursor: crosshair;
+                --left: 100%;
+            }
+        }
+
+        &-rotate {
+            --border-radius: 50%;
+            --cursor: grab;
+            --size: 10px;
+            --stem: 16px;
         }
 
         &-title {
@@ -81,14 +141,11 @@
         }
 
         @include tokens.state(active) {
+            --cursor: grabbing;
             --scale: 1.01;
 
             @media (prefers-reduced-motion: reduce) {
                 --scale: 1;
-            }
-
-            .surface-field-surface-header {
-                --cursor: grabbing;
             }
 
             .surface-field-surface-lift {

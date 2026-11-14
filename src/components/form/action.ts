@@ -1,5 +1,5 @@
-import response, { Response } from '@esportsplus/action';
-import { html, Attributes, Element, Renderable } from '@esportsplus/template';
+import response, { type Response } from '@esportsplus/action';
+import { html, type Attributes, type Element, type Renderable } from '@esportsplus/template';
 import input from './input';
 
 
@@ -14,7 +14,7 @@ function parse(input: ReturnType<FormData['entries']>) {
             segments = path.indexOf('.') !== -1 ? path.split('.') : [path];
 
         for (let i = 0; i < segments.length - 1; i++) {
-            bucket = bucket[ segments[i] ] = bucket[ segments[i] ] || {};
+            bucket = bucket[segments[i]] ||= {};
         }
 
         let key = segments.at(-1)!;
@@ -24,7 +24,7 @@ function parse(input: ReturnType<FormData['entries']>) {
                 continue;
             }
 
-            bucket = bucket[ key.substring(0, key.length - 2) ] ??= [];
+            bucket = bucket[key.slice(0, -2)] ??= [];
             bucket.push(value);
         }
         else {
@@ -70,13 +70,13 @@ export default <T extends Record<string, any>>(
                     }
 
                     let { errors } = await action({
-                        input: parse( new FormData(this).entries() ) as T,
+                        input: parse(new FormData(this).entries()) as T,
                         response
                     });
 
                     for (let i = 0, n = errors.length; i < n; i++) {
                         let { message, path } = errors[i],
-                            reactive = input.get( this[path!] as Element | undefined );
+                            reactive = input.get(this[path!] as Element | undefined);
 
                         if (!reactive) {
                             continue;

@@ -1,17 +1,15 @@
 import { computed, effect, reactive, read, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type On, type Renderable } from '@esportsplus/template';
-import highlight from '~/components/highlight';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
+import enter from '@esportsplus/ui/svg/enter.svg';
+import button from '~/components/button';
+import group from '~/components/group';
 import icon from '~/components/icon';
-import input from '~/components/input';
 import nav from '~/components/nav';
 import overlay from '~/components/overlay';
+import search from '~/components/search';
 import scrollbar from '~/modifiers/scrollbar';
 import { mac } from '~/shared/platform';
-import down from '@esportsplus/ui/svg/arrow-down.svg';
-import up from '@esportsplus/ui/svg/arrow-up.svg';
-import cmd from '@esportsplus/ui/svg/command.svg';
-import enter from '@esportsplus/ui/svg/enter.svg';
-import magnifier from '@esportsplus/ui/svg/search.svg';
 import '~/components/frame/scss/index.scss';
 
 
@@ -22,13 +20,13 @@ type A = Attributes & {
     [COMMAND_LIST]?: Attributes;
     [COMMAND_OPTION]?: Attributes;
     [COMMAND_TAB]?: Attributes;
-    [COMMAND_TRIGGER]?: Attributes;
+    [COMMAND_TRIGGER]?: Field;
     // A getter re-lists whenever the reactive state it reads changes; group tabs come from the first list.
     commands: Command[] | (() => Command[]);
     // Toggles the palette from anywhere on the page, written like a shortcut's keys. Mod+K with the trigger, none
     // without; an empty list turns it off.
     hotkey?: string[];
-    label?: Renderable<unknown>;
+    label?: string;
     // Caps each view's results, after ranking, so thousands of entries never render at once.
     limit?: number;
     // Replaces the built-in substring-then-subsequence matcher; results rank by score, highest first.
@@ -50,8 +48,7 @@ type A = Attributes & {
 
 type Command = {
     group: string;
-    // Sprite id, as imported from '@esportsplus/ui/svg/*.svg'.
-    icon?: string;
+    icon?: Sprite;
     id: string;
     label: string;
     // 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere.
@@ -75,9 +72,9 @@ type Dialog = Attributes<HTMLDialogElement> & {
 type Entry = {
     command?: Command;
     group: string;
-    icon?: string;
+    icon?: Sprite;
     id: string;
-    keys?: Renderable<unknown>[];
+    keys?: string[];
     label: string;
     // 'label' lowercased once, for the built-in matcher.
     lower: string;
@@ -119,13 +116,15 @@ type ResultGroup = {
 
 type Shortcut = {
     group: string;
-    // Sprite id, as imported from '@esportsplus/ui/svg/*.svg'.
-    icon?: string;
+    icon?: Sprite;
     id: string;
     // 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere.
     keys: string[];
     label: string;
 };
+
+// A sprite id, as imported from '@esportsplus/ui/svg/*.svg', or one with a class to add, such as 'icon--left'.
+type Sprite = string | { class: string; href: string };
 
 type State = {
     active: boolean;
@@ -143,6 +142,8 @@ type Store = {
 
 // A command group's name opens that group's tab.
 type Tab = 'all' | 'shortcuts' | (string & {});
+
+type Trigger = Parameters<typeof search.button>[0];
 
 type View = {
     empty: string;
@@ -170,11 +171,6 @@ const COMMAND_OPTION = Symbol.for('@esportsplus/ui/command.option');
 const COMMAND_TAB = Symbol.for('@esportsplus/ui/command.tab');
 
 const COMMAND_TRIGGER = Symbol.for('@esportsplus/ui/command.trigger');
-
-const GLYPHS: Record<string, string> = {
-    Alt: '⌥',
-    Shift: '⇧'
-};
 
 const RECENT_KEY = 'recent';
 
@@ -251,20 +247,10 @@ function filter(entries: Entry[], query: string, matcher?: Matcher, limit = Infi
     return { flat, groups };
 }
 
-// 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere; other modifiers only get symbols on Apple keyboards. ⌘ is an icon,
-// since most fonts lack the glyph and fall back to one that sits wrong in the keycap.
-function glyph(key: string, apple: boolean): Renderable<unknown> {
-    if (key === 'Mod') {
-        return apple ? sprite(cmd, 'command-kbd-icon') : 'Ctrl';
-    }
-
-    return (apple && GLYPHS[key]) || key;
-}
-
-function hint(keys: Renderable<unknown>[], label: string) {
+function hint(content: Renderable<unknown>[], label: string) {
     return html`
         <span class='command-footer-hint'>
-            ${kbd(keys)}
+            ${keycaps(content)}
             ${label}
         </span>
     `;
@@ -277,10 +263,15 @@ function keep(e: MouseEvent) {
     }
 }
 
-function kbd(keys: Renderable<unknown>[]) {
+// 'Mod' is ⌘ on Apple platforms and Ctrl elsewhere.
+function kbd(keys: string[]) {
+    return keycaps(keys.map((key) => button.kbd({ key })));
+}
+
+function keycaps(content: Renderable<unknown>[]) {
     return html`
         <span aria-hidden='true' class='command-keys'>
-            ${keys.map((key) => html`<kbd class='button button--kbd'>${key}</kbd>`)}
+            ${content}
         </span>
     `;
 }
@@ -348,6 +339,21 @@ function match(hay: string, needle: string): [number, number][] | null {
     return ranges;
 }
 
+// A 'search.button' standing in for the palette's field: pressing it opens the palette. The keycaps only show the
+// hotkey; the palette binds it. 'command-trigger' marks it as declaring the hotkey on the palette's behalf.
+function opener({ kbd: keys = [], label = 'Search', ...attributes }: Trigger, state: State, open: () => void) {
+    return search.button({
+        'aria-haspopup': 'dialog',
+        ...(keys.length > 0 ? { 'aria-keyshortcuts': aria(keys, mac() ? 'Meta' : 'Control') } : {}),
+        ...attributes,
+        'aria-expanded': () => state.active ? 'true' : 'false',
+        class: ['command-trigger', attributes.class].flat(),
+        kbd: keys,
+        label,
+        onclick: open
+    });
+}
+
 function spans(indices: number[]) {
     let ranges: [number, number][] = [];
 
@@ -365,8 +371,12 @@ function spans(indices: number[]) {
     return ranges;
 }
 
-function sprite(href: string, name: Attributes['class'] = '') {
-    return icon({ 'aria-hidden': 'true', class: name }, href);
+function sprite(target: Sprite, name: Attributes['class'] = '') {
+    if (typeof target === 'string') {
+        return icon({ 'aria-hidden': 'true', class: name }, target);
+    }
+
+    return icon({ 'aria-hidden': 'true', class: [name, target.class].flat() }, target.href);
 }
 
 
@@ -390,18 +400,13 @@ export default component(
             ...attributes
         }: A
     ) {
-        let apple = mac(),
-            id = `command-${++uid}`,
-            keys = hotkey ?? (trigger ? ['Mod', 'K'] : []),
-            groupAttributes = this?.attributes?.[COMMAND_GROUP],
-            optionAttributes = this?.attributes?.[COMMAND_OPTION],
-            // The active option's id; options select on it, so moving it restyles two rows rather than every one.
-            active = signal<string | undefined>(undefined),
+        // The active option's id; options select on it, so moving it restyles two rows rather than every one.
+        let active = signal<string | undefined>(undefined),
             bindings = (shortcuts ?? []).map((shortcut): Entry => ({
                 group: shortcut.group,
                 icon: shortcut.icon,
                 id: shortcut.id,
-                keys: shortcut.keys.map((key) => glyph(key, apple)),
+                keys: shortcut.keys,
                 label: shortcut.label,
                 lower: shortcut.label.toLowerCase()
             })),
@@ -410,11 +415,15 @@ export default component(
                 group: command.group,
                 icon: command.icon,
                 id: command.id,
-                keys: command.shortcut?.map((key) => glyph(key, apple)),
+                keys: command.shortcut,
                 label: command.label,
                 lower: command.label.toLowerCase()
             }))),
+            groupAttributes = this?.attributes?.[COMMAND_GROUP],
+            id = `command-${++uid}`,
+            keys = hotkey ?? (trigger ? ['Mod', 'K'] : []),
             lookup = computed(() => new Map(read(entries).map((entry) => [entry.id, entry]))),
+            optionAttributes = this?.attributes?.[COMMAND_OPTION],
             // A Set keeps insertion order, most recent first, and replacing it is what re-runs the list.
             ui = reactive({ moving: false, recent: new Set<string>() }),
             views: View[] = ([
@@ -529,7 +538,6 @@ export default component(
         function results(view: View) {
             let groups = read(view.results).groups.map(({ group, items }, g): ResultGroup => ({
                 id: `${view.key}-group-${g}`,
-                label: group,
                 items: items.map(({ entry, index, ranges }) => {
                     let key = `${view.key}-${index}`;
 
@@ -537,8 +545,6 @@ export default component(
                         attributes: {
                             ...optionAttributes,
                             ...attributes[COMMAND_OPTION],
-                            id: key,
-                            role: 'option',
                             'aria-selected': () => signal.selector(active, key) ? 'true' : 'false',
                             class: [
                                 optionAttributes?.class,
@@ -546,10 +552,12 @@ export default component(
                                 !entry.command && 'command-option--inert',
                                 () => signal.selector(active, key) && '--active'
                             ].flat(),
+                            id: key,
                             onclick: (event: Event) => {
                                 event.preventDefault();
                                 run(entry);
-                            }
+                            },
+                            role: 'option'
                         },
                         command: entry.command,
                         content: html`
@@ -560,7 +568,8 @@ export default component(
                         id: entry.id,
                         label: entry.label
                     };
-                })
+                }),
+                label: group
             }));
 
             return render ? render(groups) : nav.tree({
@@ -576,7 +585,7 @@ export default component(
                     }],
                     label: group.label
                 })),
-                [nav.tree.highlight]: {}
+                [nav.tree.highlight]: true
             });
         }
 
@@ -607,7 +616,7 @@ export default component(
             }
 
             // Another palette on the page already claimed it; inert copies stay quiet. 'host' is the trigger, or the
-            // panel without one.
+            // palette itself without one: never the panel, which the closed overlay holds inert.
             if (e.defaultPrevented || host.closest('[inert]')) {
                 return;
             }
@@ -659,26 +668,19 @@ export default component(
         }
 
         return html`
-            <div class='command' ${this?.attributes} ${attributes}>
-                ${trigger && html`
-                    <button
-                        aria-haspopup='dialog'
-                        class='button command-trigger'
-                        type='button'
-                        ${keys.length > 0 && { 'aria-keyshortcuts': aria(keys, apple ? 'Meta' : 'Control') }}
-                        ${this?.attributes?.[COMMAND_TRIGGER]}
-                        ${attributes[COMMAND_TRIGGER]}
-                        ${{
-                            'aria-expanded': () => state.active ? 'true' : 'false',
-                            onclick: show,
-                            onconnect: listen
-                        }}
-                    >
-                        ${sprite(magnifier, 'command-trigger-icon command-trigger-icon--search')}
-                        <span class='command-trigger-label'>${label}</span>
-                        ${keys.length > 0 && kbd(keys.map((key) => glyph(key, apple)))}
-                    </button>
-                `}
+            <div class='command' ${this?.attributes} ${attributes} ${!trigger && { onconnect: listen }}>
+                ${trigger && opener(
+                    {
+                        kbd: keys,
+                        label,
+                        ...this?.attributes?.[COMMAND_TRIGGER],
+                        ...attributes[COMMAND_TRIGGER],
+                        class: [this?.attributes?.[COMMAND_TRIGGER]?.class, attributes[COMMAND_TRIGGER]?.class].flat(),
+                        onconnect: listen
+                    },
+                    state,
+                    show
+                )}
 
                 ${overlay(
                     {
@@ -692,109 +694,112 @@ export default component(
                         <div
                             class='command-panel'
                             ${{ onmousedown: keep }}
-                            ${!trigger && { onconnect: listen }}
                         >
                             <div class='command-body'>
                                 <div class='command-search'>
-                                    ${sprite(magnifier)}
-                                    ${input({
-                                        'aria-activedescendant': () => read(active),
-                                        'aria-autocomplete': 'list',
-                                        'aria-controls': () => `${current().key}-listbox`,
-                                        'aria-expanded': 'true',
-                                        'aria-label': () => current().search,
-                                        autocomplete: 'off',
-                                        autofocus: true,
-                                        oninput: (e: Event) => {
-                                            state.index = -1;
-                                            state.query = (e.target as HTMLInputElement).value;
-                                        },
-                                        onkeydown: (e: KeyboardEvent) => {
-                                            if (e.isComposing) {
-                                                return;
-                                            }
-
-                                            let view = current(),
-                                                items = read(view.results).flat;
-
-                                            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                                                e.preventDefault();
-
-                                                if (!items.length) {
+                                    ${search.input(
+                                        {
+                                            'aria-activedescendant': () => read(active),
+                                            'aria-autocomplete': 'list',
+                                            'aria-controls': () => `${current().key}-listbox`,
+                                            'aria-expanded': 'true',
+                                            'aria-label': () => current().search,
+                                            autofocus: true,
+                                            kbd: keys,
+                                            oninput: (e: Event) => {
+                                                state.index = -1;
+                                                state.query = (e.target as HTMLInputElement).value;
+                                            },
+                                            onkeydown: (e: KeyboardEvent) => {
+                                                if (e.isComposing) {
                                                     return;
                                                 }
 
-                                                let index = selected();
+                                                let view = current(),
+                                                    items = read(view.results).flat;
 
-                                                state.index = index < 0 ? 0 : (index + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+                                                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                                                    e.preventDefault();
 
-                                                // 'nearest' only scrolls when the item is out of view.
-                                                document.getElementById(option(view, state.index) ?? '')?.scrollIntoView({ block: 'nearest' });
-                                            }
-                                            else if (e.key === 'Enter') {
-                                                e.preventDefault();
+                                                    if (!items.length) {
+                                                        return;
+                                                    }
 
-                                                let item = items[selected()];
+                                                    let index = selected();
 
-                                                if (item) {
-                                                    run(item.entry);
+                                                    state.index = index < 0 ? 0 : (index + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+
+                                                    // 'nearest' only scrolls when the item is out of view.
+                                                    document.getElementById(option(view, state.index) ?? '')?.scrollIntoView({ block: 'nearest' });
                                                 }
-                                            }
-                                            else if (e.key === 'Escape') {
-                                                e.preventDefault();
-                                                close();
-                                            }
-                                            else if (e.key === 'Tab') {
-                                                // The input is the dialog's only tab stop, so Tab moves between views instead.
-                                                e.preventDefault();
-                                                step(e.shiftKey ? -1 : 1);
-                                            }
-                                        },
-                                        placeholder: () => current().placeholder,
-                                        role: 'combobox',
-                                        spellcheck: false,
-                                        value: () => state.query,
-                                        ...this?.attributes?.[COMMAND_INPUT],
-                                        ...attributes[COMMAND_INPUT],
-                                        class: ['command-input', this?.attributes?.[COMMAND_INPUT]?.class, attributes[COMMAND_INPUT]?.class].flat()
-                                    })}
-                                    ${() => state.query.trim() && html`
-                                        <span aria-hidden='true' class='command-count'>
-                                            ${() => {
-                                                let count = read(current().results).flat.length;
+                                                else if (e.key === 'Enter') {
+                                                    e.preventDefault();
 
-                                                return `${count} ${count === 1 ? 'result' : 'results'}`;
-                                            }}
-                                        </span>
-                                    `}
+                                                    let item = items[selected()];
+
+                                                    if (item) {
+                                                        run(item.entry);
+                                                    }
+                                                }
+                                                else if (e.key === 'Escape') {
+                                                    e.preventDefault();
+                                                    close();
+                                                }
+                                                else if (e.key === 'Tab') {
+                                                    // The input is the dialog's only tab stop, so Tab moves between views instead.
+                                                    e.preventDefault();
+                                                    step(e.shiftKey ? -1 : 1);
+                                                }
+                                            },
+                                            placeholder: () => current().placeholder,
+                                            role: 'combobox',
+                                            spellcheck: false,
+                                            value: () => state.query,
+                                            ...this?.attributes?.[COMMAND_INPUT],
+                                            ...attributes[COMMAND_INPUT],
+                                            class: ['command-input', this?.attributes?.[COMMAND_INPUT]?.class, attributes[COMMAND_INPUT]?.class].flat()
+                                        },
+                                        () => state.query.trim() && html`
+                                            <span class='command-count'>
+                                                ${() => {
+                                                    let count = read(current().results).flat.length;
+
+                                                    return `${count} ${count === 1 ? 'result' : 'results'}`;
+                                                }}
+                                            </span>
+                                        `
+                                    )}
                                 </div>
 
-                                ${views.length > 1 && html`
-                                    <div aria-label='Views' class='command-tabs' role='tablist'>
-                                        ${highlight({ class: 'command-tabs-highlight' })}
-                                        ${views.map((view) => html`
-                                            <button
-                                                aria-controls='${view.key}'
-                                                class='button command-tab'
-                                                id='${view.key}-tab'
-                                                role='tab'
-                                                tabindex='-1'
-                                                type='button'
-                                                ${this?.attributes?.[COMMAND_TAB]}
-                                                ${attributes[COMMAND_TAB]}
-                                                ${{
-                                                    'aria-selected': () => current() === view ? 'true' : 'false',
-                                                    class: () => current() === view && '--active',
-                                                    onclick: () => {
-                                                        state.tab = view.id;
-                                                    }
-                                                }}
-                                            >
-                                                ${view.label}
-                                            </button>
-                                        `)}
-                                    </div>
-                                `}
+                                ${views.length > 1 && group(
+                                    {
+                                        [group.highlight]: { class: 'highlight--surface' },
+                                        'aria-label': 'Views',
+                                        class: 'group--surface command-tabs',
+                                        role: 'tablist'
+                                    },
+                                    views.map((view) => html`
+                                        <button
+                                            aria-controls='${view.key}'
+                                            class='button button--group command-tab'
+                                            id='${view.key}-tab'
+                                            role='tab'
+                                            tabindex='-1'
+                                            type='button'
+                                            ${this?.attributes?.[COMMAND_TAB]}
+                                            ${attributes[COMMAND_TAB]}
+                                            ${{
+                                                'aria-selected': () => current() === view ? 'true' : 'false',
+                                                class: () => current() === view && '--active',
+                                                onclick: () => {
+                                                    state.tab = view.id;
+                                                }
+                                            }}
+                                        >
+                                            ${view.label}
+                                        </button>
+                                    `)
+                                )}
 
                                 <div
                                     class='command-views'
@@ -840,10 +845,13 @@ export default component(
                             </div>
 
                             <div aria-hidden='true' class='command-footer'>
-                                ${hint(['esc'], 'Close')}
-                                ${views.length > 1 && hint(['tab'], 'Switch')}
-                                ${hint([sprite(up, 'command-kbd-icon'), sprite(down, 'command-kbd-icon')], 'Navigate')}
-                                ${hint([sprite(enter, 'command-kbd-icon')], 'Select')}
+                                ${hint([button.kbd({ key: 'escape' })], 'Close')}
+                                ${views.length > 1 && hint([button.kbd({ key: 'tab' })], 'Switch')}
+                                ${hint([
+                                    button.kbd({ key: 'up' }, sprite(arrow, 'button-kbd-icon icon--up')),
+                                    button.kbd({ key: 'down' }, sprite(arrow, 'button-kbd-icon icon--down'))
+                                ], 'Navigate')}
+                                ${hint([button.kbd({ key: 'enter' }, sprite(enter, 'button-kbd-icon'))], 'Select')}
                             </div>
                         </div>
                     `
@@ -861,5 +869,5 @@ export default component(
         trigger: COMMAND_TRIGGER
     }
 );
-export { glyph, kbd, sprite };
-export type { Command, Matcher, Result, ResultGroup, Shortcut, State, Store, Tab };
+export { opener };
+export type { Command, Matcher, Result, ResultGroup, Shortcut, Sprite, State, Store, Tab };

@@ -3,15 +3,12 @@ import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 
 
-let trigger = 'button';
-
-
 function controls(state: { count: number }) {
     return html`
-        <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => state.count++}'>add</button>
-        <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => state.count += 25}'>add 25</button>
-        <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => state.count = Math.max(0, state.count - 1)}'>read one</button>
-        <button class='${trigger}' style='--width: auto;' type='button' onclick='${() => state.count = 0}'>mark all read</button>
+        <button class='button' type='button' onclick='${() => state.count++}'>add</button>
+        <button class='button' type='button' onclick='${() => state.count += 25}'>add 25</button>
+        <button class='button' type='button' onclick='${() => state.count = Math.max(0, state.count - 1)}'>read one</button>
+        <button class='button' type='button' onclick='${() => state.count = 0}'>mark all read</button>
     `;
 }
 

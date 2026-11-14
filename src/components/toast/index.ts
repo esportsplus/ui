@@ -1,19 +1,12 @@
 import { computed, reactive, read } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import close from '@esportsplus/ui/svg/close.svg';
 import icon from '~/components/icon';
 import { edge, type Edge } from '~/shared/anchor';
 import { drag, fling, toward, type Fling } from '~/shared/drag';
 import { observeSize } from '~/shared/resize';
-import close from '@esportsplus/ui/svg/close.svg';
 import '~/components/button/scss/index.scss';
 import './scss/index.scss';
-
-
-const TOAST_CLOSE = Symbol.for('@esportsplus/ui/toast.close');
-
-const TOAST_CONTENT = Symbol.for('@esportsplus/ui/toast.content');
-
-const TOASTER_OVERFLOW = Symbol.for('@esportsplus/ui/toaster.overflow');
 
 
 type A = Attributes & {
@@ -73,6 +66,12 @@ const DURATION = 4000;
 
 // Toasts shown while the stack is collapsed; the rest wait behind a count of them.
 const LIMIT = 3;
+
+const TOAST_CLOSE = Symbol.for('@esportsplus/ui/toast.close');
+
+const TOAST_CONTENT = Symbol.for('@esportsplus/ui/toast.content');
+
+const TOASTER_OVERFLOW = Symbol.for('@esportsplus/ui/toaster.overflow');
 
 // Where a toaster sits without a placement: top right.
 const UNPLACED: Edge = { x: 1, y: -1 };

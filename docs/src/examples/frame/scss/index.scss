@@ -1,7 +1,6 @@
 @use 'css-utilities/surface';
 
 
-
 .frame-demo-panel {
     @extend %surface-lower;
     background: var(--surface-background-default);

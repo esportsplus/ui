@@ -4,8 +4,7 @@ import icon from '~/components/icon';
 import input from '~/components/input';
 import { nextMatch, replaceMatches, searchDocument, type Match, type SearchOptions, type SearchResult } from './search';
 import type { EditorDocument, Selection } from './document';
-import down from '@esportsplus/ui/svg/arrow-down.svg';
-import up from '@esportsplus/ui/svg/arrow-up.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import close from '@esportsplus/ui/svg/close.svg';
 
 
@@ -55,10 +54,10 @@ function matchAt(matches: readonly Match[], offset: number) {
 }
 
 // An icon button labelled for assistive technology, with the label as its native tooltip.
-function action(label: string, href: string, onclick: VoidFunction) {
+function action(label: string, href: string, onclick: VoidFunction, direction = '') {
     return html`
         <button aria-label='${label}' class='button code-editor-find-button' title='${label}' type='button' ${{ onclick }}>
-            ${icon({ 'aria-hidden': 'true', class: 'code-editor-find-icon' }, href)}
+            ${icon({ 'aria-hidden': 'true', class: ['code-editor-find-icon', direction] }, href)}
         </button>
     `;
 }
@@ -290,8 +289,8 @@ const find = (host: Host) => {
                     })}
                     ${TOGGLES.map(toggle)}
                     <span aria-live='polite' class='code-editor-find-status'>${() => state.status}</span>
-                    ${action('Previous match', up, () => navigate(true))}
-                    ${action('Next match', down, () => navigate(false))}
+                    ${action('Previous match', arrow, () => navigate(true), 'icon--up')}
+                    ${action('Next match', arrow, () => navigate(false), 'icon--down')}
                     ${action('Close find', close, () => api.close())}
                 </div>
                 <div class='code-editor-find-row code-editor-find-row--replace' ${{ class: () => state.replace && '--active' }}>

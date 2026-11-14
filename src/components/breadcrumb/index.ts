@@ -3,7 +3,7 @@ import { component, html, type Attributes, type Element } from '@esportsplus/tem
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import { observer } from '~/shared/resize';
-import chevron from '@esportsplus/ui/svg/chevron-right.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
 import dots from '@esportsplus/ui/svg/dots.svg';
 import folder from '@esportsplus/ui/svg/folder.svg';
 import slash from '@esportsplus/ui/svg/slash.svg';
@@ -22,6 +22,7 @@ type A = Attributes & {
 
 type Crumb = {
     href: string;
+    icon?: string;
     label: string;
 };
 
@@ -42,6 +43,10 @@ const SEPARATORS: Record<Separator, string> = { chevron, slash };
 
 let uid = 0;
 
+
+function glyph(item: Crumb, active: boolean) {
+    return item.icon && icon({ 'aria-hidden': 'true', class: `breadcrumb-icon ${active ? '--active' : ''}` }, item.icon);
+}
 
 function separator(kind: Separator) {
     return icon({ 'aria-hidden': 'true', class: 'breadcrumb-separator' }, SEPARATORS[kind]);
@@ -153,6 +158,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                 ${items.map((item, index) => html`
                     <li class='breadcrumb-ruler-segment'>
                         ${index > 0 && separator(kind)}
+                        ${glyph(item, index === last)}
                         <span class='breadcrumb-label ${index === last && '--active'}'>${item.label}</span>
                     </li>
                 `)}
@@ -168,7 +174,10 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                         <div class='breadcrumb-segment-body'>
                             ${index > 0 && separator(kind)}
                             ${index === last
-                                ? html`<span aria-current='page' class='breadcrumb-label --active'>${item.label}</span>`
+                                ? html`
+                                    ${glyph(item, true)}
+                                    <span aria-current='page' class='breadcrumb-label --active'>${item.label}</span>
+                                `
                                 : html`
                                     <a
                                         class='breadcrumb-link'
@@ -180,6 +189,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                             }
                                         }}
                                     >
+                                        ${glyph(item, false)}
                                         <span class='breadcrumb-label'>${item.label}</span>
                                     </a>
                                 `}
@@ -194,7 +204,7 @@ const breadcrumb = ({ items, label = 'Breadcrumb', onnavigate, separator: kind =
                                         items: items.slice(1, last).map((item, i) => ({
                                             hidden: () => i >= s.hidden,
                                             href: item.href,
-                                            icon: () => icon({ 'aria-hidden': 'true' }, folder),
+                                            icon: () => icon({ 'aria-hidden': 'true' }, item.icon ?? folder),
                                             label: item.label,
                                             onselect: (_item, event) => navigate(event, item, i + 1),
                                             target: '_self'

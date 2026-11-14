@@ -1,33 +1,21 @@
-// Prefixed where the wrapper sets them, unlike most components: the wrapper's custom properties inherit into the control
-// it wraps, and a plain '--color' or '--duration' there would restyle it.
+// Prefixed where the error sets them, unlike most components: they inherit into the accordions and text inside it, and a
+// plain '--duration' there would restyle them.
 .error {
-    // How far the shake swings each way; the fill behind the control is pulled in by as much.
-    --error-reach: 4px;
-    --error-shake-duration: 320ms;
-    --error-shake-timing-function: ease-out;
+    --error-duration: 240ms;
+    // How far the description and the message travel as they swap.
+    --error-slide: var(--size-100);
+    --error-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 
-
-    // The control draws its edge from '--border-color', as the form controls do. Doubled, so it outranks the control's
-    // own hover and active states whatever order the sheets load in.
-    &#{&}--invalid#{&}--invalid > :not(.error-live, .error-message) {
-        --border-color: var(--color-red-400);
+    @media (prefers-reduced-motion: reduce) {
+        --error-duration: 0s;
+        --error-slide: 0px;
     }
 
 
-    // Chained through '.tooltip-content' so it wins over the tooltip's own surface regardless of stylesheet order.
-    &-message.tooltip-content {
-        --background-default: var(--color-primary-400);
-        --color: var(--surface-background-default);
-        --font-size: var(--font-size-300);
-        --max-width: 240px;
-        --padding-horizontal: var(--size-400);
-        --padding-vertical: var(--size-300);
-        --spacer: 4px;
-        --width: max-content;
-    }
-
-
-    &.tooltip:has(> .tooltip-content--morph)::after {
-        --background: var(--color-primary-400);
+    // Both accordions take one timing whichever way they move, so a swap of equal heights holds everything still.
+    // Qualified past the accordion's own open and closed timings.
+    > .accordion.accordion {
+        --transition-duration: var(--error-duration);
+        --transition-timing-function: var(--error-timing-function);
     }
 }

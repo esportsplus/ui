@@ -12,7 +12,7 @@
     &--rail {
         isolation: isolate;
 
-        .nav-tree-links {
+        .--highlight-rail {
             border-color: transparent;
 
             &::before {
@@ -23,7 +23,7 @@
             }
 
             @each $side, $length, $axis in (bottom height inline, left width block, right width block, top height inline) {
-                &.highlight-rail--#{$side}::before {
+                &.--highlight-rail-#{$side}::before {
                     #{$length}: var(--rail-width);
                     #{$side}: calc(var(--rail-width) * -1);
                     inset-#{$axis}: 0;
@@ -32,28 +32,11 @@
         }
     }
 
-    &--truncate {
-        .nav-tree-link {
-            @extend %text-truncate;
-            display: block;
-        }
+    &--truncate &-link {
+        @extend %text-truncate;
+        display: block;
     }
 
-
-    // Hidden by a filter; their own display would otherwise outrank the attribute's.
-    &-group,
-    &-link,
-    &-links {
-        &[hidden] {
-            display: none;
-        }
-    }
-
-    &-group,
-    &-links {
-        display: flex;
-        flex-direction: column;
-    }
 
     // A link holds an icon, label and keys on one line, and keeps its label's case (file paths, commands).
     &-link {
@@ -71,14 +54,15 @@
             color var(--transition-duration) var(--transition-timing-function);
         user-select: none;
 
+        // Hidden by a filter; its own display would otherwise outrank the attribute's.
+        &[hidden] {
+            display: none;
+        }
+
         &:focus-visible {
             outline: var(--focus-width) solid var(--focus-color);
             outline-offset: calc(var(--focus-width) * -1);
         }
-    }
-
-    &-links {
-        position: relative;
     }
 
     &-title {

@@ -26,11 +26,20 @@ type Modifier = {
 };
 
 
+// The class a preview's style select hands its example to put on its fields, such as 'input--border'.
+type Style = {
+    class: string;
+    label: string;
+};
+
+
 type Variant = {
     id?: string;
     options?: PreviewOption[];
-    render: () => Renderable<unknown>;
+    render: (style: string) => Renderable<unknown>;
     source?: () => Promise<string>;
+    // Offered in a second select beside the variant's, the first chosen by default; its class reaches 'render'.
+    styles?: Style[];
     title: string;
 };
 
@@ -38,9 +47,9 @@ type Variant = {
 type PreviewOption = {
     id: string;
     label: string;
-    render: () => Renderable<unknown>;
+    render: (style: string) => Renderable<unknown>;
     source?: () => Promise<string>;
 };
 
 
-export type { Entry, Modifier, Page, PreviewOption, TocItem, Variant };
+export type { Entry, Modifier, Page, Style, TocItem, Variant };

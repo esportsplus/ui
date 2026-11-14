@@ -3,14 +3,14 @@
     flex-direction: column;
     width: min(440px, 100%);
 
+
+    // One labelled select per fill, spaced as the input's showcase.
+    &--stack {
+        gap: var(--size-500);
+        width: min(320px, 100%);
+    }
+
     &-row {
-        align-items: center;
-        display: flex;
-        flex-wrap: wrap;
-        font-size: calc(var(--font-size-400) * 0.875);
-        font-weight: var(--font-weight-400);
-        gap: var(--size-200) var(--size-400);
-        justify-content: space-between;
         padding-block: var(--size-300);
 
         &:not(:last-child) {

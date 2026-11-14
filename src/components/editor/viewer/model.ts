@@ -114,4 +114,4 @@ const hidden = (lines: readonly Line[], folded: ReadonlySet<number>) => {
 
 
 export { hidden, outline };
-export type { Line, Options };
+export type { Line };

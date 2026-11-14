@@ -1,12 +1,12 @@
 import { effect, reactive, read, signal, write } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
+import checkSvg from '@esportsplus/ui/svg/check.svg';
+import pencilSvg from '@esportsplus/ui/svg/pencil.svg';
 import markdown, { type MarkdownController, type MarkdownOptions } from '~/components/editor/markdown';
 import icon from '~/components/icon';
 import { mac } from '~/shared/platform';
 import status, { INLINE_EDIT_STATUS, type Status } from './status';
 import type { Tool } from '~/components/editor/markdown/toolbar';
-import checkSvg from '@esportsplus/ui/svg/check.svg';
-import pencilSvg from '@esportsplus/ui/svg/pencil.svg';
 import './scss/index.scss';
 
 
@@ -65,12 +65,7 @@ export default component(
         let apple = mac(),
             controller: MarkdownController | undefined,
             current = signal(state.value),
-            // The saved value as this field holds it: what an edit differs from.
-            pristine = signal(state.value),
-            root: HTMLElement | undefined,
-            saving = status.saver(state, indicator, () => clean(read(current)) !== read(pristine), onsave),
             defaults = this?.attributes?.[INLINE_EDIT_RICH_EDITOR],
-            own = attributes[INLINE_EDIT_RICH_EDITOR],
             options: MarkdownOptions = {
                 inline: true,
                 keybindings: KEYBINDINGS,
@@ -78,7 +73,12 @@ export default component(
                 placeholder,
                 singleLine: !multiline,
                 toolbar: features
-            };
+            },
+            own = attributes[INLINE_EDIT_RICH_EDITOR],
+            // The saved value as this field holds it: what an edit differs from.
+            pristine = signal(state.value),
+            root: HTMLElement | undefined,
+            saving = status.saver(state, indicator, () => clean(read(current)) !== read(pristine), onsave);
 
         // A value set from outside while the field rests shows at once.
         effect(() => state.value, (next, previous) => {

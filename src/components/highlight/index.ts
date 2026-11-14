@@ -76,85 +76,6 @@ const pending = new Set<() => VoidFunction | undefined>();
 let frame = 0;
 
 
-function dequeue(measure: () => VoidFunction | undefined) {
-    pending.delete(measure);
-
-    if (!pending.size) {
-        cancelAnimationFrame(frame);
-        frame = 0;
-    }
-}
-
-// Bound a sampled spring's bounce in pixels, keeping its approach and the shape of its settling motion.
-// Short glides and timing functions without sampled overshoot keep their original easing.
-function easing(value: string, distance: number, limit = 8) {
-    if (!value.startsWith('linear(') || !distance) {
-        return value;
-    }
-
-    let peak = 0,
-        stops = value.slice(7, -1).split(',');
-
-    for (let i = 0, n = stops.length; i < n; i++) {
-        let progress = parseFloat(stops[i]);
-
-        peak = Math.max(peak, progress - 1, -progress);
-    }
-
-    let scale = Math.min(1, Math.max(0, limit) / (distance * peak));
-
-    if (!peak || scale === 1) {
-        return value;
-    }
-
-    return `linear(${stops.map((stop) => {
-        let progress = parseFloat(stop),
-            bounded = Math.max(0, Math.min(1, progress));
-
-        // Only change the output value; retain any explicit percentage positions on the stop.
-        return stop.replace(/[^\s]+/, String(bounded + (progress - bounded) * scale));
-    }).join(',')})`;
-}
-
-function enqueue(measure: () => VoidFunction | undefined) {
-    pending.add(measure);
-    frame ||= requestAnimationFrame(() => {
-        frame = 0;
-
-        let writes: (VoidFunction | undefined)[] = [];
-
-        // Measuring never enqueues, so the set holds still while it is walked.
-        for (let read of pending) {
-            writes.push(read());
-        }
-
-        pending.clear();
-
-        for (let i = 0, n = writes.length; i < n; i++) {
-            writes[i]?.();
-        }
-    });
-}
-
-
-function active(parent: Element, self: Element[], target?: string) {
-    if (target) {
-        return parent.querySelector(`${target}.--active`);
-    }
-
-    let children = parent.children;
-
-    for (let i = 0, n = children.length; i < n; i++) {
-        let child = children[i];
-
-        if (!self.includes(child) && child.classList.contains('--active')) {
-            return child;
-        }
-    }
-
-    return null;
-}
-
 // Laid out from the start, a change past an item can't shift it; centered, end-aligned or reversed, it can.
 function anchored(parent: Element) {
     let value = ANCHORED.get(parent);
@@ -204,8 +125,68 @@ function concealed(item: Element, parent: Element) {
     return false;
 }
 
+function dequeue(measure: () => VoidFunction | undefined) {
+    pending.delete(measure);
+
+    if (!pending.size) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+    }
+}
+
+// Bound a sampled spring's bounce in pixels, keeping its approach and the shape of its settling motion.
+// Short glides and timing functions without sampled overshoot keep their original easing.
+function easing(value: string, distance: number, limit = 8) {
+    if (!value.startsWith('linear(') || !distance) {
+        return value;
+    }
+
+    let peak = 0,
+        stops = value.slice(7, -1).split(',');
+
+    for (let i = 0, n = stops.length; i < n; i++) {
+        let progress = parseFloat(stops[i]);
+
+        peak = Math.max(peak, progress - 1, -progress);
+    }
+
+    let scale = Math.min(1, Math.max(0, limit) / (distance * peak));
+
+    if (!peak || scale === 1) {
+        return value;
+    }
+
+    return `linear(${stops.map((stop) => {
+        let progress = parseFloat(stop),
+            bounded = Math.max(0, Math.min(1, progress));
+
+        // Only change the output value; retain any explicit percentage positions on the stop.
+        return stop.replace(/[^\s]+/, String(bounded + (progress - bounded) * scale));
+    }).join(',')})`;
+}
+
 function empty(): Layer {
     return { height: 0, radius: '0px', variant: '', visible: false, width: 0, x: 0, y: 0 };
+}
+
+function enqueue(measure: () => VoidFunction | undefined) {
+    pending.add(measure);
+    frame ||= requestAnimationFrame(() => {
+        frame = 0;
+
+        let writes: (VoidFunction | undefined)[] = [];
+
+        // Measuring never enqueues, so the set holds still while it is walked.
+        for (let read of pending) {
+            writes.push(read());
+        }
+
+        pending.clear();
+
+        for (let i = 0, n = writes.length; i < n; i++) {
+            writes[i]?.();
+        }
+    });
 }
 
 function geometry(layer: Layer) {
@@ -222,6 +203,26 @@ function halt(glide: Glide) {
     }
 
     glide.slides = [];
+}
+
+// The item a state class marks: '--active' for the selection, '--hover' for what a script points at in place of the
+// pointer, such as a listbox's keyboard highlight while focus stays on its combobox.
+function marked(parent: Element, self: Element[], state: '--active' | '--hover', target?: string) {
+    if (target) {
+        return parent.querySelector(`${target}.${state}`);
+    }
+
+    let children = parent.children;
+
+    for (let i = 0, n = children.length; i < n; i++) {
+        let child = children[i];
+
+        if (!self.includes(child) && child.classList.contains(state)) {
+            return child;
+        }
+    }
+
+    return null;
 }
 
 // What is left of a glide's offset, eased: the layer shows at its target plus this.
@@ -524,7 +525,14 @@ export default component<A>(
 
         // What a change has to reach to matter: the items the layers rest on or are headed for, and the active one.
         function tracked() {
-            let items = [glides.active.item, glides.pointer.item, hovered, focused, parent && active(parent, self, target)];
+            let items = [
+                glides.active.item,
+                glides.pointer.item,
+                hovered,
+                focused,
+                parent && marked(parent, self, '--active', target),
+                parent && marked(parent, self, '--hover', target)
+            ];
 
             return items.filter((item): item is Element => !!item);
         }
@@ -546,12 +554,12 @@ export default component<A>(
             // Animation inspection and both layers' geometry belong to the read phase too.
             following = following && moving();
 
-            let container = parent,
-                box = parent.getBoundingClientRect(),
-                current = active(parent, self, target),
-                item = hovered || focused,
-                selected = measure('active', current, box, '--active'),
-                pointer = measure('pointer', item, box, 'highlight--hover');
+            let box = parent.getBoundingClientRect(),
+                container = parent,
+                current = marked(parent, self, '--active', target),
+                item = hovered || focused || marked(parent, self, '--hover', target),
+                pointer = measure('pointer', item, box, 'highlight--hover'),
+                selected = measure('active', current, box, '--active');
 
             return () => {
                 if (parent !== container) {

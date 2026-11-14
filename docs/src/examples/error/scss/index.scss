@@ -1,37 +1,12 @@
 .error-demo {
-    align-items: center;
     display: flex;
+    flex-direction: column;
     gap: var(--size-400);
-    justify-content: space-between;
-    padding: var(--size-400) 0;
-    width: min(100%, 420px);
+    max-width: 100%;
+    width: 320px;
 
-    &-hint {
-        color: var(--color-text-300);
-        display: block;
-        font-size: var(--font-size-300);
-    }
 
-    &-input {
-        width: 200px;
-    }
-
-    // The error reddens a control's edge through '--border-color'; these draw none by default, so give them one. The
-    // plain select defines the variables without drawing an edge at all, so it draws one here from them.
-    &-input,
-    &-select {
-        --border-color-default: var(--surface-border-hover);
-        --border-width: var(--border-width-400);
-    }
-
-    &-label {
-        color: var(--color-text-500);
-        flex: 1 1 auto;
-        font-size: var(--font-size-400);
-        min-width: 0;
-    }
-
-    &-select {
-        box-shadow: inset 0 0 0 var(--border-width) var(--border-color);
+    &--row {
+        width: 440px;
     }
 }

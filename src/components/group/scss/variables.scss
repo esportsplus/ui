@@ -1,4 +1,112 @@
+@use 'css-utilities/surface';
+
 .group {
-    --gap-horizontal: calc(var(--size-100) / 4);
-    --gap-vertical: calc(var(--size-100) / 4);
+    --gap-horizontal: var(--size-400);
+    --gap-vertical: var(--size-200);
+
+
+    &--grid {
+        --gap-vertical: var(--size-100);
+    }
+
+    // One width for every row's control, so a column of rows lines its controls up whatever their labels say. Prefixed,
+    // since the control's own '--width' would otherwise be overwritten.
+    &--grid > :not(#{&}-description, #{&}-label) {
+        --control-width: min(260px, 100%);
+    }
+
+    &--invalid &-description {
+        --color: var(--color-red-400);
+    }
+
+    // Qualified through the group so the buttons' sizes win over their own, whatever order the stylesheets load in. Its
+    // highlight takes 'highlight--surface'.
+    &--surface {
+        --background: var(--surface-background-default);
+        --border-radius: var(--border-radius-600);
+        --padding-horizontal: calc(var(--size-100) / 4);
+        --padding-vertical: calc(var(--size-100) / 4);
+
+        :where([data-theme='dark']) & {
+            @include surface.step(-3);
+        }
+
+        :where([data-theme='light']) & {
+            @include surface.step(-2);
+        }
+
+        & > .button {
+            --border-radius: var(--border-radius-400);
+            --font-size: var(--font-size-300);
+            --padding-vertical: var(--size-100);
+        }
+    }
+
+
+    &-description,
+    &-error {
+        --color: var(--color-text-300);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-400);
+        --line-height: var(--size-400);
+        --padding-top: 1px;
+    }
+
+    &-error {
+        --color: var(--color-red-400);
+    }
+
+    &-footer {
+        --gap-horizontal: 0px;
+        --gap-vertical: calc(var(--size-100) / 2);
+    }
+
+    &-item--prefix {
+        --color: var(--color-text-300);
+        --font-size: var(--font-size-400);
+    }
+
+    &-label {
+        --color: var(--color-text-400);
+        --font-size: var(--font-size-400);
+        --font-weight: var(--font-weight-400);
+        --gap-horizontal: calc(var(--size-100) / 2);
+        --line-height: 1;
+
+        &--small {
+            --font-size: var(--font-size-300);
+        }
+
+        &-counter {
+            --color: var(--color-text-300);
+            --font-size: var(--font-size-300);
+            --font-weight: var(--font-weight-400);
+        }
+
+        &-required {
+            --color: var(--color-red-400);
+        }
+
+        .group-header & {
+            --font-weight: var(--font-weight-600);
+        }
+    }
+
+    &-progress {
+        --margin-top: calc(var(--size-100) / 2);
+    }
+
+    // Written inline once measured: each side's widest item and the gap above and below its tallest. Qualified by the
+    // group so the icon's size wins over the icon's own regardless of order.
+    &:has(> #{&}-item--overlay) {
+        --end-inset: 0px;
+        --end-width: 0px;
+        --start-inset: 0px;
+        --start-width: 0px;
+
+
+        & > .group-item--overlay.icon {
+            --color: var(--color-text-300);
+        }
+    }
 }

@@ -1,7 +1,8 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
-import { inlineEdit } from '@esportsplus/ui/components';
+import { icon, inlineEdit } from '@esportsplus/ui/components';
 import type { Status } from '@esportsplus/ui/components/inline-edit';
+import check from '@esportsplus/ui/svg/check.svg';
 import 'docs/examples/inline-edit/scss/index.scss';
 
 
@@ -37,9 +38,7 @@ export default {
                         <div class='inline-edit-demo-header'>
                             <span aria-hidden='true' class='inline-edit-demo-avatar'>AM</span>
                             <span aria-hidden='true' class='inline-edit-demo-saved ${() => status.saved && '--active'}'>
-                                <svg class='inline-edit-demo-saved-icon' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 16 16'>
-                                    <path d='m3.5 8.5 3 3 6-7' />
-                                </svg>
+                                ${icon({ class: 'inline-edit-demo-saved-icon' }, check)}
                                 Saved
                             </span>
                             <span aria-live='polite' class='inline-edit-demo-live'>${() => status.saved && 'Saved'}</span>

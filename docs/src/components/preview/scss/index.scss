@@ -1,0 +1,143 @@
+@use 'css-utilities/text';
+@use 'variables';
+
+.preview {
+    margin: 0;
+    min-width: 0;
+    scroll-margin-top: var(--scroll-margin-vertical);
+
+
+    &-anchor {
+        position: absolute;
+        scroll-margin-top: var(--scroll-margin-vertical);
+    }
+
+    // A zero-minimum column, so long lines scroll inside the viewer instead of widening the card.
+    &-code {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        min-width: 0;
+        position: relative;
+    }
+
+    // Floats over the top-right corner of whichever pane is showing.
+    &-copy {
+        position: absolute;
+        right: var(--right);
+        top: var(--top);
+        z-index: 1;
+    }
+
+    // The strip itself is the card's 'card-header'; these are the controls an example puts in it.
+    &-header {
+        &-select {
+            max-width: 100%;
+            text-transform: none;
+
+
+            &.select {
+                background: transparent;
+                border: var(--border-width-400) solid var(--border-color);
+                border-radius: var(--border-radius-400);
+            }
+
+            // The select exposes no trigger width, so its trigger is capped directly.
+            .select-menu-trigger {
+                max-width: 100%;
+            }
+        }
+    }
+
+    &-index {
+        color: var(--color);
+        font-variant-numeric: tabular-nums;
+        margin-inline-end: var(--gap-horizontal);
+    }
+
+    &-source {
+        min-width: 0;
+
+
+        &-message {
+            color: var(--color);
+            padding-block: var(--padding-vertical);
+            padding-inline: var(--padding-horizontal);
+        }
+    }
+
+    &-source[hidden],
+    &-stage[hidden] {
+        display: none;
+    }
+
+    &-stage {
+        align-content: center;
+        background: var(--background);
+        // The card can't clip (an open selector paints past it), so the stage rounds its own corners.
+        border-radius: var(--border-radius);
+        display: grid;
+        gap: var(--gap-vertical) var(--gap-horizontal);
+        // One column held to the stage. An implicit 'auto' column grows to an example's min-content (a scroller's
+        // whole track, say), spilling past the padding and centring the example in the overflow instead.
+        grid-template-columns: minmax(0, 1fr);
+        justify-items: center;
+        min-height: var(--min-height);
+        padding-block: var(--padding-vertical);
+        padding-inline: var(--padding-horizontal);
+        position: relative;
+
+
+        .card-header ~ & {
+            border-start-end-radius: 0;
+            border-start-start-radius: 0;
+        }
+
+        > * {
+            max-width: 100%;
+        }
+    }
+
+    // Plain labels inside examples, set in the text styles components extend.
+    &-text {
+        @extend %text;
+    }
+
+    &-title {
+        color: var(--color);
+        font-size: var(--font-size);
+        font-weight: var(--font-weight);
+        margin-inline-end: auto;
+    }
+
+    // Sits on the card that follows it, pulled up from the page's gap; that card's scroll margin clears it, so
+    // scrolling to the example still shows the buttons.
+    &-view {
+        align-self: flex-start;
+        width: fit-content;
+
+
+        &-button {
+            &:focus-visible {
+                outline: var(--focus-width) solid var(--focus-color);
+                outline-offset: var(--focus-offset);
+            }
+        }
+
+
+        &:has(+ .preview) {
+            margin-bottom: var(--overlap);
+        }
+    }
+
+    // The viewer shows the card through it, so its pinned line numbers take the card's fill to hide the code
+    // scrolling under them.
+    &-viewer .code-viewer-gutter {
+        background: var(--preview-background);
+    }
+
+
+    // An open selector must paint beyond this card and above the following preview.
+    &:has(.preview-header-select.--active) {
+        z-index: 10;
+    }
+}

@@ -1,0 +1,555 @@
+@use '/tokens';
+@use 'css-utilities/background';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/color';
+@use 'css-utilities/surface';
+
+// A bar of flat buttons on a raised surface, floating at the shadow of a popover, as the inline editor's formatting
+// toolbar does.
+.toolbar {
+    @extend %surface-raise;
+    @include surface.shadow(4);
+    --background: var(--surface-background-default);
+    --border-radius: var(--border-radius-600);
+    --box-shadow: var(--surface-shadow-default);
+    // The bar's buttons; its arrows match their length across it, and a copy dragged out of the drawer settles to it.
+    --button-size: 36px;
+    // The bar's buttons fade out as it grows into the drawer, and back in partway through it shrinking onto them.
+    --fade-delay: calc(var(--morph-duration) / 2);
+    --fade-duration: 0.08s;
+    --fade-timing-function: linear;
+    // A launch's hop, which its running light also times its landing by.
+    --hop-duration: 0.7s;
+    // Bar space around the buttons. Its own name: the global per-element reset would swallow '--padding-*'.
+    --inset-horizontal: calc(var(--size-100) / 2);
+    --inset-vertical: calc(var(--size-100) / 2);
+    // The bar's own size and rounding moving between its own box and the drawer's.
+    --morph-duration: 0.24s;
+    --morph-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+    // The bar snaps to and from the drawer; the fades remain. A zero-length hop still ends, so a launch clears itself.
+    @media (prefers-reduced-motion: reduce) {
+        --hop-duration: 0s;
+        --morph-duration: 0s;
+    }
+
+
+    // Upright, against a screen's left edge.
+    &--e &-button {
+        --hop-x: 1;
+        --hop-y: 0;
+        --origin: 0 50%;
+        --squash: toolbar-button-squash-upright;
+    }
+
+    // Upright, its dividers lie across it.
+    &--e &-divider,
+    &--w &-divider {
+        --height: var(--border-width-400);
+        --margin-horizontal: 0px;
+        --margin-vertical: calc(var(--size-100) / 2);
+        --width: var(--size-500);
+    }
+
+    &--e &-drawer.tooltip-content,
+    &--w &-drawer.tooltip-content {
+        --min-height: 100%;
+    }
+
+    // The frame's colour, only while the bar is grown to the drawer: it fades in on the way out, and leaves at once on
+    // the way back, since only the opening transition carries it.
+    &--expanded > &-drawer.tooltip-content {
+        --background-default: var(--surface-background-default);
+    }
+
+    &--labels &-item {
+        --gap-horizontal: 0px;
+        --gap-vertical: 2px;
+    }
+
+    // Against a screen's top edge.
+    &--s &-button {
+        --hop-y: 1;
+        --origin: 50% 0;
+    }
+
+    // Upright, against a screen's right edge.
+    &--w &-button {
+        --hop-x: -1;
+        --hop-y: 0;
+        --origin: 100% 50%;
+        --squash: toolbar-button-squash-upright;
+    }
+
+
+    // Each button a cell of the drawer's surface. The primary fill's own active and hover steps lighten it, which in
+    // light lands back on the surface it sits in, so both take the fill itself, as a menu item's highlight does.
+    &-app {
+        @extend %background-state, %background-surface-primary, %box-shadow-surface, %color-state, %color-text, %surface-raise;
+        --background-active: var(--surface-primary-default);
+        --background-default: transparent;
+        --background-hover: var(--surface-primary-default);
+        --border-radius: var(--border-radius-400);
+        --gap-horizontal: 0px;
+        --gap-vertical: calc(var(--size-100) / 2);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: var(--size-200);
+
+
+        &-label {
+            --font-size: var(--font-size-200);
+            --font-weight: var(--font-weight-400);
+        }
+    }
+
+    // Tiles here, ringed on the drawer's card, their glyphs scaled to the tile; the cell carries the hover.
+    &-app > &-button {
+        --background-hover: var(--background-default);
+        --background-pressed: var(--background-default);
+        --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-border-default);
+        --size: var(--tile-size);
+    }
+
+    &-app > &-button:not(#{&}-button--thumbnail) {
+        --background-default: var(--surface-background-default);
+    }
+
+    &-app > &-button > .icon,
+    &-app > &-button > svg {
+        --size: 45%;
+    }
+
+    // Held over, ringed in the primary colour as it swells.
+    &-app.sortable-item--target > &-button,
+    &-item.sortable-item--target > &-button {
+        --outline-color: var(--color-primary-400);
+        --outline-offset: 2px;
+        --outline-width: var(--border-width-500);
+        --target-scale: 1.12;
+    }
+
+    &-arrow {
+        --color: var(--color-text-400);
+        --height: var(--button-size);
+        --opacity: 1;
+        --transition-duration: 0.3s;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+        --width: 24px;
+
+
+        &:disabled {
+            --opacity: 0.3;
+        }
+
+        > .icon {
+            --size: 16px;
+        }
+    }
+
+    // Flat until hovered, as the editor's formatting buttons are, and the same reused there. A launch hops away from
+    // the screen edge the bar sits on, and lands on its base, so the squash spreads along the bar. Long on purpose: it
+    // is the "starting up" signal itself, it plays once per app, and input is never blocked while it plays.
+    &-button {
+        @extend %color-text;
+        --background-default: transparent;
+        --background-hover: color-mix(in oklab, var(--color-text-500) 6%, transparent);
+        --background-pressed: color-mix(in oklab, var(--color-text-500) 10%, transparent);
+        --border-radius: var(--border-radius-400);
+        --hop-distance: calc(var(--size) / 2);
+        --hop-rebound: calc(var(--size) / 4);
+        --hop-timing-function: ease;
+        --hop-x: 0;
+        --hop-y: -1;
+        --origin: 50% 100%;
+        // The button would pad by the global default, leaving the icon a sliver of itself to size against.
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        --size: var(--button-size);
+        --squash: toolbar-button-squash;
+        --squash-timing-function: ease-in-out;
+
+
+        // A tinted square around its preview, so a group reads as one among the flat buttons.
+        &--group {
+            --background-default: color-mix(in oklab, var(--color-text-500) 6%, transparent);
+            --background-hover: color-mix(in oklab, var(--color-text-500) 10%, transparent);
+            --padding-horizontal: calc(var(--size-100) / 2);
+            --padding-vertical: calc(var(--size-100) / 2);
+        }
+
+        // Covers the button, over the surface it shows until the image loads; the image is its own edge, and keeps
+        // showing through hover and press.
+        &--thumbnail {
+            --background-default: var(--thumbnail) center / cover no-repeat, var(--surface-background-default);
+            --background-hover: var(--background-default);
+            --background-pressed: var(--background-default);
+        }
+
+
+        // A toggle that is on.
+        &[aria-pressed='true'] {
+            --background-default: color-mix(in oklab, var(--color-text-500) 8%, transparent);
+            --background-hover: color-mix(in oklab, var(--color-text-500) 10%, transparent);
+            --color-default: var(--color-text-500);
+        }
+
+        // Glyphs drawn as outlines on a 24 unit grid take the bar's stroke.
+        > .icon,
+        > svg {
+            --size: var(--size-400);
+            --stroke-width: 2.25;
+        }
+    }
+
+    &-divider {
+        --background: var(--surface-border-default);
+        --height: var(--size-500);
+        --margin-horizontal: calc(var(--size-100) / 2);
+        --margin-vertical: 0px;
+        --width: var(--border-width-400);
+    }
+
+    // A floating frame over the page, a level below what it opens from, as the command palette's dialog is.
+    &-drawer {
+        // '--toolbar-drawer-inset' is where the search's magnifier starts, from the apps' edge: written inline once
+        // measured, this until then, or without a search. '--toolbar-rail-max-height' is shared with the apps beside it.
+        &--alphabetical {
+            --toolbar-drawer-inset: var(--size-300);
+            --toolbar-rail-max-height: min(calc(27 * var(--toolbar-rail-letter-height)), 60vh);
+            --toolbar-rail-letter-height: 16px;
+        }
+
+        // How far a tile sits in from its column's edge, which the headings line up with.
+        &--alphabetical &-apps {
+            --tile-offset: calc((var(--column-width) - var(--tile-size)) / 2);
+        }
+
+        // Tall enough for the rail's letters at their own height, which it shares.
+        &--alphabetical &-view {
+            --max-height: var(--toolbar-rail-max-height);
+        }
+
+
+        &-apps {
+            --column-width: 80px;
+            --gap-horizontal: var(--size-200);
+            --gap-vertical: var(--size-200);
+            --padding-horizontal: var(--size-300);
+            --padding-vertical: var(--size-300);
+            --tile-size: 48px;
+        }
+
+        // Come in once the bar has opened enough to hold them.
+        &-body,
+        &-footer {
+            --enter-delay: 0.08s;
+            --enter-duration: 0.12s;
+            --enter-timing-function: ease-out;
+
+            @media (prefers-reduced-motion: reduce) {
+                --enter-delay: 0s;
+            }
+        }
+
+        // A level above the bar framing it, so it reads lighter in dark mode while the footer stays on the frame. Its
+        // radius nests inside the frame's across the margin.
+        &-body {
+            @extend %surface-raise;
+            --background: var(--surface-background-default);
+            --border-radius: calc(var(--border-radius-600) - var(--margin-horizontal));
+            --margin-horizontal: 1px;
+            --margin-vertical: 1px;
+        }
+
+        &-empty {
+            --color: var(--color-text-300);
+            --font-weight: var(--font-weight-400);
+        }
+
+        &-footer {
+            --color: var(--color-text-300);
+            --font-size: var(--font-size-200);
+            --gap-horizontal: var(--size-400);
+            --gap-vertical: 0px;
+            --height: 44px;
+            --padding-horizontal: var(--size-400);
+
+            &-hint {
+                --gap-horizontal: var(--size-100);
+                --gap-vertical: 0px;
+            }
+        }
+
+        &-heading {
+            --color: var(--color-text-400);
+            --font-size: var(--font-size-300);
+            --font-weight: var(--font-weight-500);
+            --padding-horizontal: var(--size-100);
+            --padding-vertical: var(--size-200);
+        }
+
+        // On the card's own surface, 44px tall, as the command palette's search is. 'inherit' passes the drawer's
+        // '--font-size' through the input's own, which would otherwise refer to itself.
+        &-input.input {
+            --background-default: var(--surface-background-default);
+            --border-radius: var(--border-radius-500);
+            --font-size: inherit;
+            --padding-vertical: calc((44px - var(--size)) / 2);
+        }
+
+        &-kbd-icon.icon {
+            --size: 12px;
+        }
+
+        // Keycaps a level above the frame they rest on.
+        &-keys {
+            @extend %surface-raise;
+            --gap-horizontal: calc(var(--size-100) / 2);
+            --gap-vertical: 0px;
+        }
+
+        &-search {
+            --margin-horizontal: var(--size-300);
+            --margin-vertical: var(--size-300);
+        }
+
+        &-view {
+            --max-height: min(320px, 50vh);
+        }
+
+
+        // Chained through '.tooltip-content' so it wins over the tooltip's own surface regardless of stylesheet order.
+        // A level below the bar, as the command palette's dialog is below the page; the bar clips it and casts its
+        // shadow. It is never narrower than the bar, and doesn't move or scale as it opens: the bar grows into it.
+        // '--border-radius' is the rounding the bar eases into.
+        &.tooltip-content {
+            @extend %surface-lower;
+            --border-radius: var(--border-radius-600);
+            --box-shadow-default: none;
+            --color: var(--color-text-500);
+            --font-size: var(--font-size-300);
+            --min-height: auto;
+            --min-width: 100%;
+            --scale: 1;
+            --width: 480px;
+        }
+    }
+
+    &-drawer-apps > .sortable-drag &-button {
+        --size-rest: var(--button-size);
+    }
+
+    // A group's panel: its cards on the bar's own surface and shadow, with the drawer's tiles. '--column-width' and
+    // '--tile-size' are the tiles', which the name lines up with, '--tile-offset' in from a column's edge.
+    &-group {
+        --column-width: 80px;
+        // The cards' inline padding, which the trail's names start the same way in from.
+        --edge: var(--size-200);
+        --scale: 0.94;
+        --spacer: var(--size-200);
+        --tile-offset: calc((var(--column-width) - var(--tile-size)) / 2);
+        --tile-size: 48px;
+        --transition-duration: 0.16s;
+        --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+        @media (prefers-reduced-motion: reduce) {
+            --scale: 1;
+        }
+
+
+        &-apps {
+            --gap-horizontal: var(--size-100);
+            --gap-vertical: var(--size-100);
+        }
+
+        &-card {
+            --background: var(--surface-background-default);
+            --border-radius: var(--border-radius-400);
+            --box-shadow: var(--surface-shadow-default);
+            --gap-horizontal: 0px;
+            --gap-vertical: var(--size-100);
+            --padding-horizontal: var(--edge);
+            --padding-vertical: var(--size-200);
+
+            &--nested {
+                @extend %surface-raise;
+            }
+        }
+
+        &-face {
+            --background: var(--surface-background-default);
+            --border-radius: calc(var(--border-radius-400) / 2);
+            --color: var(--color-text-400);
+            --padding: 1px;
+
+            // A group inside a group is tinted as the group button is.
+            &--group {
+                --background: color-mix(in oklab, var(--color-text-500) 8%, transparent);
+            }
+        }
+
+        &-header {
+            --height: 28px;
+        }
+
+        &-preview {
+            --gap: 2px;
+        }
+
+        // The groups on the way to the one shown, as rows of a menu panel under its open sub-panel: on the bar's
+        // surface, behind the menu's scrim.
+        &-trail {
+            --background: var(--surface-background-default);
+            --border-radius: var(--border-radius-400);
+            --box-shadow: var(--surface-shadow-default);
+            --inset-horizontal: calc(var(--size-100) / 2);
+            --inset-vertical: calc(var(--size-100) / 2);
+            --scrim: oklch(from #{surface.shadow-color(0.9)} 0 0 0 / alpha);
+
+            &-item {
+                @extend %background-state;
+                --background-default: transparent;
+                --background-hover: var(--surface-primary-default);
+                --background-pressed: var(--surface-primary-pressed);
+                --border-radius: var(--border-radius-400);
+                --color: var(--color-text-500);
+                --font-size: var(--font-size-300);
+                --font-weight: var(--font-weight-400);
+                --height: 32px;
+                --transition-duration: 130ms;
+                --transition-timing-function: ease-out;
+
+                &:focus-visible {
+                    --background: var(--background-hover);
+                }
+            }
+        }
+    }
+
+    // Spaced as the editor's formatting buttons are; the shared label keeps open across the gaps.
+    &-item-label {
+        --color: var(--color-text-400);
+        --font-size: var(--font-size-100);
+        --font-weight: var(--font-weight-500);
+        --max-width: calc(var(--button-size) + var(--size-300));
+    }
+
+    // The dashed outline a held slot shows in its place. Its fill leaves, so only the outline does.
+    &-item.sortable-item--held > &-button {
+        --background-default: transparent;
+        --outline-color: var(--surface-border-pressed);
+        --outline-width: var(--border-width-500);
+    }
+
+    &-items {
+        --gap-horizontal: calc(var(--size-100) / 4);
+        --gap-vertical: calc(var(--size-100) / 4);
+    }
+
+    // Anchors to the bar's edge.
+    &-label.tooltip-shared {
+        --border-radius: var(--border-radius-300);
+        --box-shadow-default: none;
+        --font-weight: var(--font-weight-500);
+        --spacer: var(--size-100);
+
+
+        .frame {
+            --transition-duration: 0.16s;
+        }
+
+        .tooltip-shared-layer {
+            --padding-horizontal: var(--size-200);
+            --padding-vertical: calc(var(--padding-horizontal) / 2);
+        }
+    }
+
+    // A dock's running light, inside the button between its glyph and its screen-edge side, lit as the icon first
+    // lands: 55% into the hop, not on click. '--offset' is from the button's screen-edge side.
+    &-light {
+        --background: var(--color-primary-500);
+        --border-radius: 50%;
+        --delay: calc(var(--hop-duration) * 0.55);
+        --offset: 3px;
+        --scale: 0.5;
+        --size: 4px;
+        --transition-duration: 0.15s;
+        --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
+
+        @include tokens.state(active) {
+            --scale: 1;
+            --transition-duration: 0.2s;
+        }
+    }
+
+
+    &-rail {
+        --max-height: var(--toolbar-rail-max-height);
+        --padding-horizontal: var(--size-100);
+        --padding-vertical: var(--size-200);
+
+
+        // At rest every letter is the same; the pointed one peaks and its two neighbours either side step back down, as
+        // the chat minimap's lines do. A letter with nothing under it fades, and still swells as it is passed.
+        &-letter {
+            --color: var(--color-text-300);
+            --font-size: var(--font-size-100);
+            --font-weight: var(--font-weight-500);
+            --height: var(--toolbar-rail-letter-height);
+            --opacity: 1;
+            --scale: 1;
+            --scale-far: 1.2;
+            --scale-near: 1.45;
+            --scale-peak: 1.9;
+            --transition-duration: 0.16s;
+            --transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            --width: 20px;
+
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
+            }
+
+
+            &--empty {
+                --opacity: 0.35;
+            }
+
+            &:has(+ .toolbar-rail-letter + .toolbar-rail-letter.--active),
+            &.--active + .toolbar-rail-letter + & {
+                --color: var(--color-text-400);
+                --scale: var(--scale-far);
+            }
+
+            &:has(+ .toolbar-rail-letter.--active),
+            &.--active + & {
+                --color: var(--color-text-400);
+                --scale: var(--scale-near);
+            }
+
+            &.--active {
+                --color: var(--color-text-500);
+                --opacity: 1;
+                --scale: var(--scale-peak);
+            }
+
+            // The swell is motion, so it stays still; the colors still follow the pointer.
+            @media (prefers-reduced-motion: reduce) {
+                &:has(+ .toolbar-rail-letter + .toolbar-rail-letter.--active),
+                &.--active + .toolbar-rail-letter + &,
+                &:has(+ .toolbar-rail-letter.--active),
+                &.--active + &,
+                &.--active {
+                    --scale: 1;
+                }
+            }
+        }
+    }
+
+
+    // A dragged button lifts off the bar as a tile of its own.
+    .sortable-drag &-button:not(#{&}-button--thumbnail) {
+        --background-default: var(--surface-background-default);
+        --box-shadow-default: 0 0 0 var(--border-width-400) var(--surface-border-default), var(--surface-shadow-default);
+    }
+}

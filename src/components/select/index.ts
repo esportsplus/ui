@@ -1,15 +1,16 @@
-import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
 import { effect, onCleanup, reactive, signal, write } from '@esportsplus/reactivity';
-import { clamp } from '~/shared/clamp';
+import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import check from '@esportsplus/ui/svg/check.svg';
+import chevron from '@esportsplus/ui/svg/chevron.svg';
+import chevrons from '@esportsplus/ui/svg/chevrons-up-down.svg';
 import form from '~/components/form';
+import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import overlay from '~/components/overlay';
+import scrollbar from '~/modifiers/scrollbar';
+import { clamp } from '~/shared/clamp';
 import expand from './expand';
 import place, { ROWS } from './placement';
-import check from '@esportsplus/ui/svg/check.svg';
-import chevronDown from '@esportsplus/ui/svg/chevron-down.svg';
-import chevronUp from '@esportsplus/ui/svg/chevron-up.svg';
-import chevrons from '@esportsplus/ui/svg/chevrons-up-down.svg';
 import './scss/index.scss';
 
 
@@ -24,18 +25,20 @@ type A = Attributes & {
     ontransitionrun?: never;
     [SELECT_ARROW]?: Attributes;
     [SELECT_OPTION]?: Attributes;
-    [SELECT_TOOLTIP_CONTENT]?: Attributes & { direction?: string };
+    [SELECT_PANEL]?: Attributes;
     [SELECT_TRIGGER]?: Attributes;
     label?: string;
     name?: string;
-    options: Option[] | Record<number | string, Renderable<unknown> | { content: Renderable<unknown>, selected: Renderable<unknown> }>;
+    options: Option[] | Record<number | string, Renderable<unknown> | { content: Renderable<unknown>, icon?: string, selected?: Renderable<unknown> }>;
 } & ({ selected?: number | string; state?: never } | { selected?: never; state: State });
 
 type Option = {
-    // Replaces the whole row (check, label and detail); a '.select-menu-option-label' inside it keeps the open panel's
-    // text aligned with the trigger's, and a '.select-menu-check' still shows on the chosen row.
+    // Replaces the whole row (check, icon, label and detail); a '.select-menu-option-label' inside it keeps the open
+    // panel's text aligned with the trigger's, and a '.select-menu-check' still shows on the chosen row.
     content?: Renderable<unknown>;
     detail?: string;
+    // A sprite href, as 'icon' takes, shown before the label in its row and in the trigger while chosen.
+    icon?: string;
     label: Renderable<unknown>;
     selected?: Renderable<unknown>;
     text?: string;
@@ -68,7 +71,7 @@ const SELECT_ARROW = Symbol.for('@esportsplus/ui/select.arrow');
 
 const SELECT_OPTION = Symbol.for('@esportsplus/ui/select.option');
 
-const SELECT_TOOLTIP_CONTENT = Symbol.for('@esportsplus/ui/select.tooltip-content');
+const SELECT_PANEL = Symbol.for('@esportsplus/ui/select.panel');
 
 const SELECT_TRIGGER = Symbol.for('@esportsplus/ui/select.trigger');
 
@@ -100,13 +103,13 @@ function template(
         ariaLabel = attributes['aria-label'] ?? defaults?.['aria-label'],
         options: Option[] = Array.isArray(choices) ? choices : Object.entries(choices).map(([value, choice]) => {
             if (choice !== null && typeof choice === 'object' && 'content' in choice) {
-                return { value, label: choice.content, selected: choice.selected, text: typeof choice.content === 'string' ? choice.content : value };
+                return { value, icon: choice.icon, label: choice.content, selected: choice.selected, text: typeof choice.content === 'string' ? choice.content : value };
             }
 
             return { value, label: choice, text: typeof choice === 'string' ? choice : value };
         }),
-        { direction: _defaultDirection, ...defaultPanel } = defaults?.[SELECT_TOOLTIP_CONTENT] ?? {},
-        { direction: _direction, ...panelAttributes } = attributes[SELECT_TOOLTIP_CONTENT] ?? {},
+        // Once any option has an icon every row and the trigger hold its slot, so the text lines up across them.
+        iconic = options.some((option) => option.icon),
         // Private mirrors the options select on, so a move or a pick restyles two options rather than every one.
         chosen = signal(''),
         frame = 0,
@@ -129,12 +132,25 @@ function template(
     }
 
     function close() {
-        cancelAnimationFrame(frame);
         state.active = false;
     }
 
+    // Placed before the text in both the rows and the trigger, which share one gap, so lining up their text, as the
+    // panel's placement does, lines up the icons too. An option without one keeps an empty box of the same size.
+    function glyph(option?: Option) {
+        if (!iconic) {
+            return;
+        }
+
+        if (option?.icon) {
+            return icon({ 'aria-hidden': 'true', class: 'select-menu-icon' }, option.icon);
+        }
+
+        return html`<span aria-hidden='true' class='icon select-menu-icon'></span>`;
+    }
+
     // Keyboard moves keep the highlight in view; pointer moves never scroll.
-    function highlight(index: number) {
+    function move(index: number) {
         if (!options.length) {
             return;
         }
@@ -190,7 +206,7 @@ function template(
 
             if (e.key in moves) {
                 e.preventDefault();
-                highlight(moves[e.key]);
+                move(moves[e.key]);
                 return;
             }
 
@@ -250,7 +266,7 @@ function template(
 
         let previous = performance.now();
 
-        cancelAnimationFrame(frame);
+        stop();
 
         function tick(now: number) {
             if (!parts.scroller) {
@@ -297,7 +313,7 @@ function template(
 
             // Closed, it changes the value directly, like a native select.
             if (state.active) {
-                highlight(index);
+                move(index);
             }
             else {
                 state.selected = options[index].value;
@@ -337,8 +353,8 @@ function template(
             return;
         }
 
-        // The arrows overlay the list as siblings, so their wheel events cannot
-        // reach its native scroll container. Forward only those surface events.
+        // The arrows overlay the list as siblings, so their wheel events cannot reach its native scroll container. Forward
+        // only those surface events.
         let unit = e.deltaMode === WheelEvent.DOM_DELTA_PAGE
             ? scroller.clientHeight
             : e.deltaMode === WheelEvent.DOM_DELTA_LINE
@@ -350,8 +366,8 @@ function template(
     }
 
     onCleanup(() => {
-        cancelAnimationFrame(frame);
         clearTimeout(timer);
+        stop();
     });
 
     effect(() => state.active, (active) => {
@@ -386,7 +402,7 @@ function template(
                 type='button'
                 disabled='${attributes.disabled === true || defaults?.disabled === true}'
                 aria-label='${ariaLabel === undefined ? undefined : String(ariaLabel)}'
-                ${this?.attributes?.[SELECT_TRIGGER]}
+                ${defaults?.[SELECT_TRIGGER]}
                 ${attributes[SELECT_TRIGGER]}
                 ${{
                     'aria-activedescendant': () => state.active && `${id}-option-${menu.highlight}`,
@@ -407,6 +423,7 @@ function template(
                     onkeydown
                 }}
             >
+                ${!content && (() => glyph(options[selected()]))}
                 <span
                     class='select-menu-value'
                     id='${id}-value'
@@ -424,16 +441,15 @@ function template(
                 </span>
                 ${icon(
                     {
-                        ...this?.attributes?.[SELECT_ARROW],
+                        ...defaults?.[SELECT_ARROW],
                         ...attributes[SELECT_ARROW],
                         'aria-hidden': 'true',
-                        class: ['select-menu-chevron', this?.attributes?.[SELECT_ARROW]?.class ?? [], attributes[SELECT_ARROW]?.class ?? []].flat()
+                        class: ['select-menu-chevron', defaults?.[SELECT_ARROW]?.class ?? [], attributes[SELECT_ARROW]?.class ?? []].flat()
                     },
                     chevrons
                 )}
             </button>
             <input
-                class='select-menu-tag'
                 type='hidden'
                 ${{
                     name: name ?? defaults?.name,
@@ -453,8 +469,8 @@ function template(
             >
                 <div
                     class='select-menu-panel'
-                    ${defaultPanel}
-                    ${panelAttributes}
+                    ${defaults?.[SELECT_PANEL]}
+                    ${attributes[SELECT_PANEL]}
                     ${{
                         class: () => state.active && '--active',
                         inert: () => !state.active,
@@ -480,26 +496,23 @@ function template(
                 >
                     <div
                         class='select-menu-scroller'
+                        ${scrollbar({ fade: true })}
                         ${{
-                            class: [
-                                () => menu.up && 'select-menu-scroller--up',
-                                () => menu.down && 'select-menu-scroller--down'
-                            ],
-                            onconnect: (element: HTMLElement) => {
+                            // Bound rather than an 'onscroll' key, which would replace the fade's own fallback listener.
+                            onconnect: (element: HTMLElement, on) => {
+                                on(element, 'scroll', () => edges(menu, element), { direct: true, passive: true });
                                 parts.scroller = element;
-                            },
-                            onscroll: function(this: HTMLElement) {
-                                edges(menu, this);
                             }
                         }}
                     >
+                        ${highlight({ class: 'highlight--surface-primary', hover: false, target: '.select-menu-option' })}
                         <div aria-labelledby='${id}-label' id='${id}-list' role='listbox'>
                             ${options.map((option, index) => html`
                                 <div
                                     class='select-menu-option'
                                     id='${id}-option-${index}'
                                     role='option'
-                                    ${this?.attributes?.[SELECT_OPTION]}
+                                    ${defaults?.[SELECT_OPTION]}
                                     ${attributes[SELECT_OPTION]}
                                     ${index === 0 && {
                                         // The first option, and its label once connected ahead of it, stand in for every
@@ -511,7 +524,7 @@ function template(
                                     }}
                                     ${{
                                         'aria-selected': () => signal.selector(chosen, option.value) ? 'true' : 'false',
-                                        class: () => signal.selector(highlighted, index) && 'select-menu-option--highlighted',
+                                        class: () => signal.selector(highlighted, index) && '--hover',
                                         onclick: () => choose(index),
                                         onpointermove: (e: PointerEvent) => {
                                             // Scrolling under a still cursor can fire synthetic moves; only real movement
@@ -530,6 +543,7 @@ function template(
                                 >
                                     ${option.content ?? html`
                                         ${icon({ 'aria-hidden': 'true', class: 'select-menu-check' }, check)}
+                                        ${glyph(option)}
                                         <span
                                             class='select-menu-option-label'
                                             ${index === 0 && {
@@ -555,7 +569,7 @@ function template(
                             onpointerleave: stop
                         }}
                     >
-                        ${icon({ class: 'select-menu-scroll-icon' }, chevronUp)}
+                        ${icon({ class: 'select-menu-scroll-icon icon--up' }, chevron)}
                     </div>
                     <div
                         aria-hidden='true'
@@ -566,7 +580,7 @@ function template(
                             onpointerleave: stop
                         }}
                     >
-                        ${icon({ class: 'select-menu-scroll-icon' }, chevronDown)}
+                        ${icon({ class: 'select-menu-scroll-icon icon--down' }, chevron)}
                     </div>
                 </div>
             </div>
@@ -575,7 +589,7 @@ function template(
 }
 
 
-const plain = component(template, { arrow: SELECT_ARROW, option: SELECT_OPTION, tooltipContent: SELECT_TOOLTIP_CONTENT, trigger: SELECT_TRIGGER });
+const plain = component(template, { arrow: SELECT_ARROW, option: SELECT_OPTION, panel: SELECT_PANEL, trigger: SELECT_TRIGGER });
 
 const select: typeof plain & { expand: typeof expand } = Object.assign(plain, { expand });
 

@@ -23,11 +23,6 @@
                 cursor: default;
                 opacity: var(--disabled-opacity);
             }
-
-            &:focus-visible {
-                outline: var(--focus-width) solid var(--focus-color);
-                outline-offset: var(--border-width-400);
-            }
         }
 
         &-command {
@@ -57,7 +52,7 @@
             display: flex;
             gap: var(--gap-vertical) var(--gap-horizontal);
             justify-content: space-between;
-            margin-bottom: var(--size-300);
+            margin-block-end: var(--size-300);
         }
 
         &-hidden {
@@ -111,7 +106,7 @@
 
         &-row {
             align-items: center;
-            border-bottom: var(--divider);
+            border-block-end: var(--divider);
             display: grid;
             gap: var(--gap-vertical) var(--gap-horizontal);
             grid-template-columns: var(--columns);
@@ -137,7 +132,7 @@
         }
 
         &-search.input {
-            margin-bottom: var(--size-200);
+            margin-block-end: var(--size-200);
             width: 100%;
         }
 
@@ -148,18 +143,6 @@
         &-table {
             max-height: min(60vh, 32rem);
             overflow: auto;
-        }
-
-        &-title {
-            font-size: var(--font-size-400);
-            margin: 0;
-        }
-
-
-        // Background and shadow come from the card's surface.
-        &.card {
-            color: var(--color);
-            font-size: var(--font-size-300);
         }
     }
 }

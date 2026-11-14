@@ -1,0 +1,64 @@
+@use 'css-utilities/background';
+@use 'css-utilities/color';
+
+
+// Headroom for icons that swell above the shelf and the labels over them.
+.toolbar-demo {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-500);
+    padding-top: 80px;
+
+    // Room beside the bar for the drawer to open into.
+    &--e,
+    &--w {
+        flex-direction: row;
+        height: 480px;
+        padding-top: 0;
+        width: 100%;
+    }
+
+    // Held to the bottom, as a dock on a screen's bottom edge is, so it grows upward into the drawer.
+    &--drawer {
+        height: 540px;
+        justify-content: flex-end;
+        padding-top: 0;
+
+        // An alphabetical drawer is as tall as its rail of letters.
+        &.toolbar-demo--alphabetical {
+            height: 660px;
+        }
+    }
+
+    &--narrow {
+        margin-inline: auto;
+        max-width: 360px;
+    }
+
+    &--s {
+        padding-bottom: 440px;
+        padding-top: 0;
+    }
+
+    &--w {
+        justify-content: flex-end;
+    }
+
+    &-button {
+        @extend %background-blue, %color-white;
+    }
+
+    // Outline glyphs: their sprites carry no stroke once inlined; the bar sets its width.
+    &-glyph {
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    &-status {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+    }
+}

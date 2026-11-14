@@ -1,0 +1,300 @@
+#!/usr/bin/env node
+// Agent CLI: terse subcommands replacing shell commands agents repeat in this repo.
+// Dependency-free Node ESM; node: builtins only.
+import { execFileSync } from 'node:child_process';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
+
+
+const COMMANDS = {
+    log: {
+        help: 'log [<repo>...] [--n <n>] [--status <n>] [--no-status] [--json]\n  Branch, last <n> commits (oneline, default 15) and short status (first 30) per repo in one call.',
+        replaces: 'git log --oneline -<n> (17 threads/73 calls), git log --oneline -<n> + git status --short (17 back-to-back calls)',
+        run(args) {
+            let { flags, paths } = parse(args, ['n', 'status']),
+                limit = Number(flags.n) || 15,
+                max = flags.status === undefined ? 30 : Number(flags.status),
+                out = [];
+
+            if (!paths.length) {
+                paths.push('.');
+            }
+
+            for (let i = 0, n = paths.length; i < n; i++) {
+                out.push(repo(paths[i], limit, flags['no-status'] ? 0 : max, !flags['no-status']));
+            }
+
+            if (flags.json) {
+                print(JSON.stringify(out));
+                return out.some((o) => o.error) ? 1 : 0;
+            }
+
+            for (let i = 0, n = out.length; i < n; i++) {
+                let o = out[i];
+
+                if (o.error) {
+                    print(`${o.path}: ERROR ${o.error}`);
+                    continue;
+                }
+
+                if (n > 1 || o.path !== '.') {
+                    print(`== ${o.path}`);
+                }
+
+                print(`[${o.branch}]`);
+
+                for (let j = 0, m = o.commits.length; j < m; j++) {
+                    print(`${o.commits[j].hash} ${o.commits[j].subject}`);
+                }
+
+                if (!o.status) {
+                    continue;
+                }
+
+                if (!o.status.total) {
+                    print('-- clean');
+                    continue;
+                }
+
+                print(`-- status (${o.status.total})`);
+
+                for (let j = 0, m = o.status.files.length; j < m; j++) {
+                    print(o.status.files[j]);
+                }
+
+                if (o.status.total > o.status.files.length) {
+                    print(`+${o.status.total - o.status.files.length} more`);
+                }
+            }
+
+            return out.some((o) => o.error) ? 1 : 0;
+        }
+    },
+    peek: {
+        help: 'peek <path>... [--head <n>] [--lines <a>,<b>] [--json]\n  List dirs (files with line counts) and print files (optionally a line range) in one call.',
+        replaces: 'ls <path> (10 threads/98 calls)',
+        run(args) {
+            let { flags, paths } = parse(args, ['head', 'lines']),
+                out = [];
+
+            if (!paths.length) {
+                paths.push('.');
+            }
+
+            let range = window(flags);
+
+            for (let i = 0, n = paths.length; i < n; i++) {
+                out.push(inspect(paths[i], range));
+            }
+
+            if (flags.json) {
+                print(JSON.stringify(out));
+                return out.some((o) => o.error) ? 1 : 0;
+            }
+
+            for (let i = 0, n = out.length; i < n; i++) {
+                let o = out[i];
+
+                if (o.error) {
+                    print(`${o.path}: ERROR ${o.error}`);
+                }
+                else if (o.binary) {
+                    print(`== ${o.path} [binary, ${o.bytes} bytes]`);
+                }
+                else if (o.type === 'dir') {
+                    print(`${o.path}/ (${o.entries.length})`);
+
+                    for (let j = 0, m = o.entries.length; j < m; j++) {
+                        let e = o.entries[j];
+
+                        print(e.type === 'dir' ? `  ${e.name}/` : `  ${e.name} ${e.lines}`);
+                    }
+                }
+                else {
+                    print(`== ${o.path} [${o.from}-${o.to}/${o.lines}]`);
+                    print(o.content);
+                }
+            }
+
+            return out.some((o) => o.error) ? 1 : 0;
+        }
+    }
+};
+
+
+function countLines(file) {
+    try {
+        let buf = readFileSync(file),
+            n = 0;
+
+        if (isBinary(buf)) {
+            return 'bin';
+        }
+
+        for (let i = 0, len = buf.length; i < len; i++) {
+            if (buf[i] === 10) {
+                n++;
+            }
+        }
+
+        return buf.length && buf[buf.length - 1] !== 10 ? n + 1 : n;
+    }
+    catch {
+        return '?';
+    }
+}
+
+function git(cwd, args) {
+    return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+}
+
+function inspect(path, range) {
+    let abs = resolve(path),
+        rel = relative(process.cwd(), abs).replace(/\\/g, '/') || '.',
+        stat;
+
+    try {
+        stat = statSync(abs);
+    }
+    catch (e) {
+        return { error: e.code || String(e), path: rel };
+    }
+
+    if (stat.isDirectory()) {
+        let entries = readdirSync(abs, { withFileTypes: true })
+            .filter((d) => d.name !== '.git' && d.name !== 'node_modules')
+            .map((d) => d.isDirectory()
+                ? { name: d.name, type: 'dir' }
+                : { lines: countLines(join(abs, d.name)), name: d.name, type: 'file' }
+            )
+            .sort((a, b) => (a.type === b.type ? 0 : a.type === 'dir' ? -1 : 1) || a.name.localeCompare(b.name));
+
+        return { entries, path: rel, type: 'dir' };
+    }
+
+    let buf = readFileSync(abs);
+
+    if (isBinary(buf)) {
+        return { binary: true, bytes: buf.length, path: rel, type: 'file' };
+    }
+
+    let all = buf.toString('utf8').split(/\r?\n/);
+
+    if (all.length && all[all.length - 1] === '') {
+        all.pop();
+    }
+
+    let from = Math.max(1, range.from),
+        to = Math.min(all.length, range.to);
+
+    return { content: all.slice(from - 1, to).join('\n'), from, lines: all.length, path: rel, to, type: 'file' };
+}
+
+function isBinary(buf) {
+    return buf.includes(0);
+}
+
+function main(argv) {
+    let [name, ...rest] = argv;
+
+    if (!name || name === '--help' || name === '-h') {
+        print('agent-cli <command> [--json] [--help]');
+
+        for (let key of Object.keys(COMMANDS)) {
+            print(`  ${key} — ${COMMANDS[key].help.split('\n')[1].trim()}`);
+        }
+
+        return 0;
+    }
+
+    if (!COMMANDS[name]) {
+        print(`unknown command: ${name} (try --help)`);
+        return 2;
+    }
+
+    if (rest.includes('--help') || rest.includes('-h')) {
+        usage(name);
+        return 0;
+    }
+
+    return COMMANDS[name].run(rest) || 0;
+}
+
+function parse(args, valued) {
+    let flags = {},
+        paths = [];
+
+    for (let i = 0, n = args.length; i < n; i++) {
+        let a = args[i];
+
+        if (a.startsWith('--')) {
+            let key = a.slice(2);
+
+            flags[key] = valued.includes(key) ? args[++i] : true;
+        }
+        else {
+            paths.push(a);
+        }
+    }
+
+    return { flags, paths };
+}
+
+function print(s) {
+    process.stdout.write(s + '\n');
+}
+
+function repo(path, limit, max, status) {
+    let abs = resolve(path),
+        rel = relative(process.cwd(), abs).replace(/\\/g, '/') || '.';
+
+    try {
+        let branch = git(abs, ['rev-parse', '--abbrev-ref', 'HEAD']).trim(),
+            commits = git(abs, ['log', '--oneline', '--no-decorate', `-${limit}`])
+                .split(/\r?\n/)
+                .filter(Boolean)
+                .map((l) => {
+                    let k = l.indexOf(' ');
+
+                    return { hash: l.slice(0, k), subject: l.slice(k + 1) };
+                }),
+            o = { branch, commits, path: rel };
+
+        if (status) {
+            let files = git(abs, ['status', '--short']).split(/\r?\n/).filter(Boolean);
+
+            o.status = { files: files.slice(0, max), total: files.length };
+        }
+
+        return o;
+    }
+    catch (e) {
+        let msg = String(e.stderr || e.message || e).trim().split(/\r?\n/)[0];
+
+        return { error: msg, path: rel };
+    }
+}
+
+function usage(name) {
+    let c = COMMANDS[name];
+
+    print(`${c.help}\n  replaces: ${c.replaces}`);
+}
+
+function window(flags) {
+    if (flags.lines) {
+        let [a, b] = String(flags.lines).split(',').map(Number);
+
+        return { from: a || 1, to: b || Infinity };
+    }
+
+    if (flags.head) {
+        return { from: 1, to: Number(flags.head) || Infinity };
+    }
+
+    return { from: 1, to: Infinity };
+}
+
+
+// Set exitCode instead of process.exit() so piped stdout (async on Windows) fully flushes.
+process.exitCode = main(process.argv.slice(2));

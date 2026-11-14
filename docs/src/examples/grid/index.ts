@@ -2,9 +2,6 @@ import { html } from '@esportsplus/template';
 import 'docs/examples/grid/scss/index.scss';
 
 
-let cell = 'padding: var(--size-500); border-radius: var(--border-radius-300); text-align: center;';
-
-
 export default {
     name: 'grid',
     variants: [
@@ -12,7 +9,7 @@ export default {
             render: () => html`
                 <div class='grid'>
                     ${Array.from({ length: 6 }).map((_, i) => html`
-                        <div class='grid-demo-item grid-item preview-text' style='${cell}'>Item ${i + 1}</div>
+                        <div class='grid-demo-item grid-item preview-text'>Item ${i + 1}</div>
                     `)}
                 </div>
             `,
@@ -22,7 +19,7 @@ export default {
             render: () => html`
                 <div class='grid' style='--min-width: 120px;'>
                     ${Array.from({ length: 6 }).map((_, i) => html`
-                        <div class='grid-demo-item grid-item preview-text' style='${cell}'>${i + 1}</div>
+                        <div class='grid-demo-item grid-item preview-text'>${i + 1}</div>
                     `)}
                 </div>
             `,

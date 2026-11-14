@@ -1,6 +1,7 @@
-import { marquee } from '@esportsplus/ui/components';
+import { icon, marquee } from '@esportsplus/ui/components';
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
+import circle from '@esportsplus/ui/svg/circle-filled.svg';
 import 'docs/examples/marquee/scss/index.scss';
 
 
@@ -15,9 +16,7 @@ let customers = [
 let marks = customers.map(({ label }) => ({
     label,
     mark: () => html`
-        <svg fill='currentColor' height='16' viewBox='0 0 16 16' width='16'>
-            <circle cx='8' cy='8' r='7' />
-        </svg>
+        ${icon({ 'aria-hidden': 'true' }, circle)}
         ${label}
     `
 }));
@@ -31,7 +30,7 @@ function toggle() {
 
         <button
             class='button'
-            style='--width: auto; margin-top: var(--size-400);'
+            style='margin-top: var(--size-400);'
             onclick='${() => state.paused = !state.paused}'
             type='button'
         >

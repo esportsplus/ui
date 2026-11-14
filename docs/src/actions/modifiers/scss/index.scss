@@ -1,7 +1,6 @@
 @use 'css-utilities/surface';
 
 
-
 .modifiers-scrollbar {
     @extend %surface-lower;
     background: var(--surface-background-default);

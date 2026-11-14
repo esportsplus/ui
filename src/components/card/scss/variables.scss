@@ -35,11 +35,29 @@
         }
     }
 
-    // The fill follows its states, stepping on hover and press like any other surface.
-    &--surface {
+    // The fill follows its states, stepping on hover and press like any other surface. Chained through '.card': the
+    // extended placeholders are written before the card's own defaults, which would otherwise win the tie.
+    &#{&}--surface {
         @extend %background-surface, %border-surface;
     }
 
+    &#{&}--surface-primary {
+        @extend %background-surface-primary, %border-surface, %box-shadow-surface;
+    }
+
+
+    // Its '--border-radius' is the card's less the card's border, so set both together on a bordered card.
+    &-header {
+        @extend %surface-raise;
+        --background: var(--surface-background-default);
+        --border-color: var(--surface-border-active);
+        --border-width: var(--border-width-400);
+        --gap-horizontal: var(--size-300);
+        --gap-vertical: var(--size-200);
+        --min-height: 44px;
+        --padding-horizontal: var(--size-400);
+        --padding-vertical: var(--size-200);
+    }
 
     // Chained through '.frame' so it wins over the frame's own swap regardless of stylesheet order. The outgoing layer
     // clears out faster than the incoming one arrives, so the two never read as overlapping text.

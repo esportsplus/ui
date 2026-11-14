@@ -15,6 +15,7 @@
         width: fit-content;
     }
 
+
     &-breakdown,
     &-cost,
     &-count {
@@ -36,15 +37,16 @@
         font-size: var(--font-size);
     }
 
-    // Full width and slid in from the left, so it moves on the compositor instead of re-laying out
+    // Full width and slid in from the left by the share used, so it moves on the compositor instead of re-laying out
     &-fill {
         background: var(--background);
         border-radius: inherit;
         display: block;
         height: 100%;
-        transition:
-            background-color var(--transition-duration) var(--transition-timing-function),
-            translate var(--transition-duration) var(--transition-timing-function);
+        transition-duration: var(--transition-duration);
+        transition-property: background-color, translate;
+        transition-timing-function: var(--transition-timing-function);
+        translate: calc((var(--fill-ratio) - 1) * 100%) 0;
         width: 100%;
     }
 

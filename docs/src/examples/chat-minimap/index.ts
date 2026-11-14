@@ -12,7 +12,7 @@ function rail(data: ChatMinimapTurn[], start: number, side: ChatMinimapSide = 'r
     let state = reactive({ end: start + 3, start });
 
     return html`
-        <div class='chat-minimap-demo ${`chat-minimap-demo--${side}`}'>
+        <div class='chat-minimap-demo chat-minimap-demo--${side}'>
             ${chat.minimap({ side, state, turns: data })}
             <span class='chat-minimap-demo-status'>
                 ${() => `turns ${state.start + 1}–${state.end} of ${data.length} in view`}

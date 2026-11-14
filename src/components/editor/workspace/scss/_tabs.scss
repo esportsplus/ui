@@ -1,24 +1,10 @@
-@use 'css-utilities/text';
-
+// A file's tab in the layout's strip: italic while it previews, then its pin and its unsaved mark after the name.
 .code-workspace {
-    // The tab strip's highlight paints the hover and active fills, so tabs stay transparent themselves.
     &-tab {
-        flex: none;
-        height: var(--tab-height);
-        max-width: var(--tab-max-width);
-        user-select: none;
-
-
-        &--preview &-name {
+        &--preview .shell-tab-label {
             font-style: italic;
         }
 
-
-        &-close {
-            flex: none;
-            height: var(--close-size);
-            width: var(--close-size);
-        }
 
         &-dirty {
             background: currentColor;
@@ -28,33 +14,8 @@
             width: var(--dirty-size);
         }
 
-        &-name {
-            @extend %text-truncate;
-            flex: 1;
-            min-width: 0;
-        }
-
         &-pin.icon {
             flex: none;
         }
-
-
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: calc(var(--focus-width) * -1);
-        }
-    }
-
-    &-tabs {
-        align-items: center;
-        border-bottom: var(--divider);
-        display: flex;
-        flex: none;
-        gap: var(--gap-vertical) var(--gap-horizontal);
-        height: var(--tabs-height);
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding-inline: var(--padding-horizontal);
-        position: relative;
     }
 }

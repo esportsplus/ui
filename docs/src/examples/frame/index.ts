@@ -20,11 +20,10 @@ function demo(option: typeof options[number]) {
 
     return html`
         <section aria-label='${option.title}' style='display: grid; gap: var(--size-400); grid-template-columns: minmax(0, 1fr); width: 100%;'>
-            <div class='frame-triggers' role='tablist' aria-label='${option.title}' style='display: flex; gap: var(--size-300);'>
+            <div role='tablist' aria-label='${option.title}' style='display: flex; gap: var(--size-300);'>
                 ${labels.map((label, index) => html`
                     <div
-                        type='button'
-                        class='frame-trigger button ${() => state.active === index && '--active'}'
+                        class='button ${() => state.active === index && '--active'}'
                         id='${id}-tab-${index}'
                         role='tab'
                         aria-controls='${id}-panel-${index}'
@@ -60,7 +59,7 @@ function demo(option: typeof options[number]) {
 export default {
     name: 'frame',
     variants: options.map(option => ({
-        title: option.title,
-        render: () => demo(option)
+        render: () => demo(option),
+        title: option.title
     }))
 } satisfies Entry;

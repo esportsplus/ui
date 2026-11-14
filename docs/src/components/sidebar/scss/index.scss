@@ -1,15 +1,17 @@
 @use 'css-utilities/border';
 @use 'css-utilities/color';
-@use 'css-utilities/surface';
-@use '../../../../../tokens.scss';
 
 
-// The navigation inside the shell's left sidebar, which owns the frame and its surface.
+// The navigation filling the layout's static left sidebar, which owns the frame and its surface.
 .sidebar {
     --content-padding-horizontal: var(--size-600);
     --scrollbar-color-default: var(--surface-border-hover);
     --scrollbar-color-hover: var(--surface-border-pressed);
     --scrollbar-color-pressed: var(--color-primary-300);
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
 
 
     @media (max-width: 720px) {
@@ -40,7 +42,7 @@
     // Keep the scrollport unpadded so its blur edges span the entire navigation surface. The tree's pills pad around
     // their text, so it steps out by their padding to keep the text on the content edge.
     &-content {
-        padding: var(--size-100) calc(var(--content-padding-horizontal) - var(--size-300)) var(--size-400);
+        padding: var(--size-200) calc(var(--content-padding-horizontal) - var(--size-300)) var(--size-400);
 
         // Page names are lowercase slugs, capitalized as the sidebar shows them.
         .nav-tree-link:not(.nav-tree-title) {
@@ -56,6 +58,13 @@
         padding: var(--size-400) var(--size-200) 0 46px;
     }
 
+    &-empty {
+        color: var(--color-text-300);
+        font-size: var(--font-size-300);
+        margin: 0;
+        padding-inline: var(--size-300);
+    }
+
     .nav-tree {
         --gap-vertical: var(--size-400);
     }
@@ -66,9 +75,10 @@
         overflow: hidden auto;
     }
 
+    // Flush on the scrollport, as the command palette's field is on its list, so the links fade out right under it.
     &-tools {
         flex-shrink: 0;
-        padding: var(--size-400) calc(var(--content-padding-horizontal) - var(--size-300));
+        padding: var(--size-400) calc(var(--content-padding-horizontal) - var(--size-300)) 0;
     }
 
     &-version {

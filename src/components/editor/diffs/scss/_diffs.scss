@@ -22,8 +22,8 @@
     &-actions {
         display: flex;
         gap: var(--gap-vertical) var(--gap-horizontal);
-        inset-block-start: var(--inset-vertical);
-        inset-inline-end: var(--inset-horizontal);
+        inset-block-start: var(--top);
+        inset-inline-end: var(--end);
         opacity: 0;
         position: absolute;
         z-index: 1;
@@ -54,17 +54,14 @@
         grid-template-columns: var(--number-width) minmax(0, 1fr);
         min-width: 0;
 
-        &--delete {
-            background: var(--delete-background);
+        @each $kind in delete, empty, insert {
+            &--#{$kind} {
+                background: var(--#{$kind}-background);
+            }
         }
 
         &--empty {
-            background: var(--empty-background);
             background-size: var(--empty-size) var(--empty-size);
-        }
-
-        &--insert {
-            background: var(--insert-background);
         }
 
         & + & {
@@ -154,19 +151,13 @@
         min-height: round(var(--line-height), 1px);
         position: relative;
 
-        &--delete {
-            background: var(--delete-background);
+        @each $kind in delete, insert {
+            &--#{$kind} {
+                background: var(--#{$kind}-background);
 
-            .diffs-sign {
-                color: var(--delete-color);
-            }
-        }
-
-        &--insert {
-            background: var(--insert-background);
-
-            .diffs-sign {
-                color: var(--insert-color);
+                .diffs-sign {
+                    color: var(--#{$kind}-color);
+                }
             }
         }
 
@@ -218,12 +209,10 @@
     &-stat {
         font-family: var(--font-family);
 
-        &--additions {
-            color: var(--insert-color);
-        }
-
-        &--deletions {
-            color: var(--delete-color);
+        @each $stat, $kind in (additions: insert, deletions: delete) {
+            &--#{$stat} {
+                color: var(--#{$kind}-color);
+            }
         }
     }
 
@@ -233,14 +222,14 @@
     }
 
     &-token {
+        &--color {
+            color: var(--literal-color);
+        }
+
         @each $kind in comment, function, keyword, number, operator, property, regexp, selector, string, tag, type, variable {
             &--#{$kind} {
                 color: var(--#{$kind}-color);
             }
-        }
-
-        &--color {
-            color: var(--literal-color);
         }
 
         &--comment {
@@ -251,12 +240,10 @@
     &-word {
         border-radius: var(--border-radius);
 
-        &--delete {
-            background: var(--delete-word-background);
-        }
-
-        &--insert {
-            background: var(--insert-word-background);
+        @each $kind in delete, insert {
+            &--#{$kind} {
+                background: var(--#{$kind}-word-background);
+            }
         }
     }
 }

@@ -1,11 +1,30 @@
-import { reactive, root } from '@esportsplus/reactivity';
+import { flush, reactive, root } from '@esportsplus/reactivity';
 import { html, render, setProperties, type Element as Bound } from '@esportsplus/template';
+import { expand, margin, place, type Axis, type Corner, type Side } from '~/shared/placement';
+import { viewport } from '~/shared/viewport';
 
 
 // Milliseconds the pointer rests on a trigger before it opens, and is away before it closes; either left out is instant.
 type Delay = {
     close?: number,
     open?: number
+};
+
+// Where 'position()' put in-flow content, in its trigger's box: its corner, the width it measured at, the room it has,
+// and the point it scales from. 'side' (it travels in from there) and an expanding one's 'corner' are where it last
+// opened, which it keeps while it still fits.
+type Placed = {
+    corner: Corner | undefined;
+    maxHeight: number | undefined;
+    maxWidth: number | undefined;
+    origin: string | undefined;
+    placed: boolean;
+    // Transitions are off while it moves, so it never slides between places.
+    placing: boolean;
+    side: Side | undefined;
+    width: number | undefined;
+    x: number;
+    y: number;
 };
 
 // The shape a morph grows out of and closes onto, as insets on the tooltip's own box, and whether its transitions are
@@ -20,10 +39,17 @@ type Shape = {
 };
 
 
+// Surfaces that cover their trigger and grow out of it.
+const EXPANDING = '.tooltip-content--expand, .tooltip-menu-panel--expand, .tooltip-message--expand';
+
 // Referenced by '.tooltip.tooltip--morphing' in CSS; a missing reference is ignored until this exists.
 const GOO = 'tooltip-morph-goo';
 
 const MORPH_STATE = Symbol('tooltip.morph');
+
+const PLACED_STATE = Symbol('tooltip.placed');
+
+const TRAVEL: Record<Side, [number, number]> = { e: [1, 0], n: [0, -1], s: [0, 1], w: [-1, 0] };
 
 // Just after a delayed tooltip closes, the next one skips its delay: the reader is browsing, not passing through.
 const WARM_FOR = 500;
@@ -33,11 +59,6 @@ const WARM_FOR = 500;
 let closedAt = 0;
 
 
-// Called when a delayed tooltip closes while open; starts the window 'warm()' reads.
-function cool() {
-    closedAt = Date.now();
-}
-
 function content(element: HTMLElement) {
     let candidates = element.querySelectorAll<HTMLElement>('.tooltip-content, .tooltip-message');
 
@@ -46,6 +67,11 @@ function content(element: HTMLElement) {
             return candidates[i];
         }
     }
+}
+
+// Called when a delayed tooltip closes while open; starts the window 'warm()' reads.
+function cool() {
+    closedAt = Date.now();
 }
 
 // Blur then threshold the alpha so nearby shapes melt into one blob (the neck between trigger
@@ -70,15 +96,15 @@ function goo() {
     `);
 }
 
-// Seeds expanding menus and '--morph' tooltips with the trigger's box, then calls 'open' once
+// Seeds expanding surfaces and '--morph' tooltips with the trigger's box, then calls 'open' once
 // that start shape has been painted; the returned function cancels a pending open.
 function morph(element: HTMLElement, open: VoidFunction, tooltip = content(element), anchor = element) {
-    if (!tooltip?.matches('.tooltip-menu-panel--expand, .tooltip-content--morph, .tooltip-message--morph')) {
+    if (!tooltip?.matches(`${EXPANDING}, .tooltip-content--morph, .tooltip-message--morph`)) {
         open();
         return;
     }
 
-    // Expanding menus overlap the trigger, so only morph tooltips need the goo bridge.
+    // Expanding surfaces overlap the trigger, so only morph tooltips need the goo bridge.
     if (tooltip.matches('.tooltip-content--morph, .tooltip-message--morph')) {
         goo();
     }
@@ -158,6 +184,121 @@ function morphs(state: { morphing: boolean }) {
     };
 }
 
+// Bound to the content's class and style once, the first time 'position()' places it.
+function placed(tooltip: HTMLElement) {
+    let store = tooltip as HTMLElement & { [PLACED_STATE]?: Placed };
+
+    return store[PLACED_STATE] ??= root(() => {
+        let state: Placed = reactive({
+                corner: undefined as Corner | undefined,
+                maxHeight: undefined as number | undefined,
+                maxWidth: undefined as number | undefined,
+                origin: undefined as string | undefined,
+                placed: false,
+                placing: false,
+                side: undefined as Side | undefined,
+                width: undefined as number | undefined,
+                x: 0,
+                y: 0
+            });
+
+        setProperties(tooltip as Bound, {
+            class: () => state.placed && '--placed',
+            style: () => state.placed && {
+                '--place-max-height': px(state.maxHeight),
+                '--place-max-width': px(state.maxWidth),
+                '--place-origin': state.origin,
+                '--place-travel-x': state.side ? TRAVEL[state.side][0] : 0,
+                '--place-travel-y': state.side ? TRAVEL[state.side][1] : 0,
+                '--place-width': px(state.width),
+                '--place-x': `${state.x}px`,
+                '--place-y': `${state.y}px`,
+                transition: state.placing ? 'none' : undefined
+            }
+        });
+
+        return state;
+    });
+}
+
+// Places in-flow content beside its trigger on the side it last opened on while it still fits there, else where there's
+// room; '--expand' content covers the trigger instead, growing out of it toward the corner it last grew toward, or one
+// with room. Either way it is capped to the room it has and kept off the viewport's edges. Measured at its natural
+// width at the trigger's corner, which it then keeps wherever it lands; nothing paints in between. 'axis' keeps it beside
+// the trigger ('x') or above and below it ('y').
+function position(element: HTMLElement, axis?: Axis, tooltip = content(element)) {
+    if (!tooltip) {
+        return;
+    }
+
+    let state = placed(tooltip);
+
+    state.maxHeight = undefined;
+    state.maxWidth = undefined;
+    state.placed = true;
+    state.placing = true;
+    state.width = undefined;
+    state.x = 0;
+    state.y = 0;
+    flush();
+
+    let anchor = element.getBoundingClientRect(),
+        // A transformed ancestor (a dialog scaling open) skews client rects; scale back to layout pixels.
+        scale = anchor.width / element.offsetWidth || 1,
+        height = tooltip.offsetHeight * scale,
+        space = margin(tooltip),
+        width = tooltip.offsetWidth;
+
+    if (tooltip.matches(EXPANDING)) {
+        let grown = expand({ anchor, corner: state.corner, height, margin: space, width: width * scale });
+
+        state.corner = grown.corner;
+        state.maxHeight = grown.maxHeight / scale;
+        state.maxWidth = (viewport().width - space * 2) / scale;
+        // Grows from the trigger's corner it covers.
+        state.origin = `${grown.corner[1] === 'e' ? 'left' : 'right'} ${grown.corner[0] === 's' ? 'top' : 'bottom'}`;
+        state.x = (grown.x - anchor.left) / scale - element.clientLeft;
+        state.y = (grown.y - anchor.top) / scale - element.clientTop;
+    }
+    else {
+        let { maxHeight, maxWidth, side, x, y } = place({
+                anchor,
+                axis,
+                gap: (parseFloat(getComputedStyle(tooltip).getPropertyValue('--spacer')) || 0) * scale,
+                height,
+                margin: space,
+                side: state.side,
+                width: width * scale
+            });
+
+        x = (x - anchor.left) / scale - element.clientLeft;
+        y = (y - anchor.top) / scale - element.clientTop;
+
+        state.maxHeight = maxHeight / scale;
+        state.maxWidth = maxWidth / scale;
+        // Scales out of the trigger itself, even when the content is pushed sideways.
+        state.origin = side === 'n' || side === 's'
+            ? `${(anchor.width / 2) / scale - element.clientLeft - x}px ${side === 'n' ? '100%' : '0%'}`
+            : `${side === 'e' ? '0%' : '100%'} ${(anchor.height / 2) / scale - element.clientTop - y}px`;
+        state.side = side;
+        state.x = x;
+        state.y = y;
+    }
+
+    state.width = width;
+    flush();
+
+    // The closed state at its new place commits with transitions off, so the open travels out from the trigger rather
+    // than sliding over from wherever the content last rested.
+    tooltip.getBoundingClientRect();
+    state.placing = false;
+    flush();
+}
+
+function px(value: number | undefined) {
+    return value === undefined ? undefined : `${value}px`;
+}
+
 // The tooltip's morph shape, bound to its style once, the first time anything shapes it; 'morph()' seeds it and a
 // closing owner may move it.
 function shape(tooltip: HTMLElement) {
@@ -205,5 +346,5 @@ function warm() {
 }
 
 
-export { content, cool, morph, morphs, shape, wait, warm };
+export { content, cool, morph, morphs, position, px, shape, wait, warm };
 export type { Delay };

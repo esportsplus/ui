@@ -2,8 +2,8 @@ import { effect, flush, reactive, ReactiveArray, root, untrack } from '@esportsp
 import { html, setProperties, type Attributes, type Element as Bindable, type Renderable } from '@esportsplus/template';
 import overlay from '~/components/overlay';
 import { finished } from '~/shared/animation';
+import { margin, place, type Axis, type Side } from '~/shared/placement';
 import { observe } from '~/shared/resize';
-import { fit, viewport } from '~/shared/viewport';
 import { cool, wait, warm, type Delay } from './utilities';
 import '~/components/frame/scss/index.scss';
 
@@ -26,8 +26,8 @@ type Content = (() => Renderable<unknown>) | number | string;
 type Delegate = {
     // A trigger's content, rendered on every open; defaults to its 'data-tooltip'.
     content?: (trigger: HTMLElement) => Renderable<unknown>,
-    // Sits past the container's own edge, in line with the trigger, so every tooltip along a row or column lines up;
-    // otherwise it anchors on the trigger itself.
+    // Sits past the container's own edge, in line with the trigger, so every tooltip along a row or column lines up:
+    // beside the container on the 'x' axis, else above or below it. Otherwise it anchors on the trigger itself.
     edge?: boolean,
     selector?: string
 };
@@ -39,8 +39,6 @@ type Described = {
     expanded: string | undefined
 };
 
-type Direction = 'e' | 'n' | 's' | 'w';
-
 // 'travel' is the way it slides in or out; left unset, the frame's own default applies.
 type Layer = {
     content: Content,
@@ -51,9 +49,10 @@ type Layer = {
 };
 
 type Options = {
+    // Keeps it on that axis: beside its triggers ('x') or above and below them ('y'); left out, either. Within it, the
+    // tooltip reopens on the side it last opened on while that still fits, else on the side with more room.
+    axis?: Axis,
     delay?: Delay,
-    // The preferred side; it flips to the opposite one when that has more room.
-    direction?: Direction,
     // Clicking anything inside that matches this selector closes it; 'a[href]', so following a link leaves nothing
     // open behind it.
     dismiss?: string,
@@ -82,12 +81,7 @@ type Target = {
 };
 
 
-// Keeps the tooltip this far from the viewport edges.
-const EDGE = 12;
-
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-const OPPOSITE: Record<Direction, Direction> = { e: 'w', n: 's', s: 'n', w: 'e' };
 
 const TRIGGER_STATE = Symbol('tooltip.shared.trigger');
 
@@ -117,41 +111,11 @@ function described(trigger: HTMLElement) {
     });
 }
 
-// 'gap' is the surface's padding on the anchor side; x and y place the surface, padding included.
-function place(anchor: DOMRect, direction: Direction, gap: number, height: number, width: number) {
-    let view = viewport(),
-        room = {
-            e: view.width - anchor.right,
-            n: anchor.top,
-            s: view.height - anchor.bottom,
-            w: anchor.left
-        },
-        side = direction;
-
-    if (room[side] < (side === 'n' || side === 's' ? height : width) + gap + EDGE && room[OPPOSITE[side]] > room[side]) {
-        side = OPPOSITE[side];
-    }
-
-    if (side === 'n' || side === 's') {
-        return {
-            side,
-            x: fit(anchor.left + anchor.width / 2 - width / 2, width, view.width, EDGE),
-            y: side === 'n' ? anchor.top - gap - height : anchor.bottom
-        };
-    }
-
-    return {
-        side,
-        x: side === 'w' ? anchor.left - gap - width : anchor.right,
-        y: fit(anchor.top + anchor.height / 2 - height / 2, height, view.height, EDGE)
-    };
-}
-
 // One tooltip shared by every trigger bound to it: it opens on the first after the open delay, then glides between
 // them while its content slides over. 'bind()' makes one element a trigger, 'delegate()' every matching descendant of
 // a container. 'render()' places the surface, carrying the remaining attributes; it lives in the top layer, so no
 // ancestor clips it, but still inherits custom properties from wherever it is rendered.
-const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, direction = 'n', dismiss, interactive = false, keep = false, state = reactive({ active: false, index: -1 }), swap: swapping = true, ...attributes }: A = {}) => {
+const shared = ({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, dismiss, interactive = false, keep = false, state = reactive({ active: false, index: -1 }), swap: swapping = true, ...attributes }: A = {}) => {
     let active: Layer | null = null,
         bound = new Map<HTMLElement, Bound>(),
         box: HTMLElement | undefined,
@@ -160,8 +124,8 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         element: HTMLElement | undefined,
         id = `tooltip-shared-${++uid}`,
         last: Target | null = null,
-        leaving: Layer | null = null,
         layers = new ReactiveArray<Layer>(),
+        leaving: Layer | null = null,
         next: Target | null = null,
         pointer = 'mouse',
         presentation = reactive({ active: false }),
@@ -169,13 +133,13 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         shown = false,
         timer: ReturnType<typeof setTimeout> | undefined,
         unobserve: VoidFunction | undefined,
-        // Where the surface sits and how it moves, bound on it and its box; undefined leaves each to the stylesheet.
+        // Where the surface sits and how it moves, bound on it; undefined leaves each to the stylesheet.
         view = reactive({
             gliding: false,
             height: undefined as string | undefined,
             instant: false,
             origin: undefined as string | undefined,
-            side: undefined as Direction | undefined,
+            side: undefined as Side | undefined,
             width: undefined as string | undefined,
             x: undefined as string | undefined,
             y: undefined as string | undefined
@@ -194,7 +158,6 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                             () => layer.state.leaving && 'frame--swap-leaving'
                         ],
                         style: () => layer.state.travel && `--translate-x: ${layer.state.travel.x}; --translate-y: ${layer.state.travel.y};`
-
                     }
                     : {
                         class: () => layer.state.active && '--active'
@@ -364,7 +327,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
                     let box = container.getBoundingClientRect();
 
-                    return direction === 'n' || direction === 's'
+                    return axis !== 'x'
                         ? new DOMRect(rect.left, box.top, rect.width, box.height)
                         : new DOMRect(box.left, rect.top, box.width, rect.height);
                 },
@@ -444,10 +407,6 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         }
     }
 
-    function indexOf(trigger: HTMLElement) {
-        return bound.get(trigger)?.index ?? -1;
-    }
-
     // Once the close has played out: drops the content and leaves the top layer.
     function hide() {
         drop(active);
@@ -456,6 +415,10 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         leaving = null;
         unwatch();
         shown = false;
+    }
+
+    function indexOf(trigger: HTMLElement) {
+        return bound.get(trigger)?.index ?? -1;
     }
 
     function inside(node: Node | null) {
@@ -470,11 +433,20 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         }
 
         let anchor = current.anchor(),
-            padding = getComputedStyle(element),
-            gap = parseFloat(padding.paddingBottom) + parseFloat(padding.paddingLeft) + parseFloat(padding.paddingRight) + parseFloat(padding.paddingTop),
+            // The side it lands on takes this as its padding, so it's read from the spacer rather than the padding the
+            // last side left.
+            gap = parseFloat(getComputedStyle(element).getPropertyValue('--spacer')) || 0,
             height = active.element.offsetHeight,
             width = active.element.offsetWidth,
-            { side, x, y } = place(anchor, direction, gap, height, width);
+            { side, x, y } = place({ anchor, axis, gap, height, margin: margin(element), side: view.side, width });
+
+        // The surface carries the gap as its padding on the anchor side, so it starts at the anchor.
+        if (side === 'e') {
+            x -= gap;
+        }
+        else if (side === 's') {
+            y -= gap;
+        }
 
         view.height = `${height}px`;
         // Scales out of the anchor itself, even when the box is pushed sideways.
@@ -518,21 +490,6 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         }
 
         timer = setTimeout(close, closing);
-    }
-
-    function reposition() {
-        if (!current || !element) {
-            return;
-        }
-
-        if (!current.trigger.isConnected) {
-            close();
-            return;
-        }
-
-        // Follows the trigger exactly; a glide would trail behind the scroll.
-        measure();
-        view.gliding = false;
     }
 
     // Spans, so it can be rendered inside running text.
@@ -598,7 +555,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
         return html`
             <span
-                class='tooltip-shared ${`tooltip-shared--${direction}`} ${interactive && 'tooltip-shared--interactive'}'
+                class='tooltip-shared ${interactive && 'tooltip-shared--interactive'}'
                 id='${id}'
                 popover='manual'
                 ${attributes}
@@ -636,6 +593,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                     },
                     style: () => ({
                         '--shared-height': view.height,
+                        '--shared-origin': view.origin,
                         '--shared-width': view.width,
                         '--shared-x': view.x,
                         '--shared-y': view.y
@@ -659,12 +617,26 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
                     ${{
                         onconnect: (el: HTMLElement) => {
                             box = el;
-                        },
-                        style: () => ({ 'transform-origin': view.origin })
+                        }
                     }}
                 >${stack}</span>
             </span>
         `;
+    }
+
+    function reposition() {
+        if (!current || !element) {
+            return;
+        }
+
+        if (!current.trigger.isConnected) {
+            close();
+            return;
+        }
+
+        // Follows the trigger exactly; a glide would trail behind the scroll.
+        measure();
+        view.gliding = false;
     }
 
     // Opens on 'trigger' after the open delay. While showing, or still closing, it moves over at once; while a wait
@@ -728,6 +700,7 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
         else {
             measure();
         }
+
         state.index = indexOf(target.trigger);
         state.active = true;
         describe(target.trigger, true);
@@ -860,4 +833,4 @@ const shared = ({ delay: { close: closing = 0, open: opening = 0 } = {}, directi
 
 
 export default shared;
-export type { Content, Delegate, Direction, Options, State };
+export type { Content, Delegate, Options, State };

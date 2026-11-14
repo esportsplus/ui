@@ -11,7 +11,7 @@ function live(variant?: string) {
 
         <button
             class='button'
-            style='--width: auto; margin-top: var(--size-400);'
+            style='margin-top: var(--size-400);'
             type='button'
             onclick='${() => {
                 if (usage.prompt + usage.completion >= usage.context) {

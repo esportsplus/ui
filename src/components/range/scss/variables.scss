@@ -2,102 +2,150 @@
 @use 'css-utilities/background';
 @use 'css-utilities/border';
 @use 'css-utilities/box-shadow';
-@use 'css-utilities/color';
 @use 'css-utilities/surface';
 
-// The native thumb is the range's own pseudo element, so its '--thumb-*' values sit beside the track's.
+
+// The native thumb is the range's own pseudo element, so its '--thumb-*' values sit beside the track's and its states
+// resolve on the range itself.
 .range {
     @extend %background-state, %border-primary, %border-state;
-    --background-default: linear-gradient(to right, var(--thumb-background) var(--thumb-position), var(--color-primary-300) var(--thumb-position));
+    --background-default: linear-gradient(var(--fill-direction), var(--fill-color) var(--thumb-position), var(--track-color) var(--thumb-position));
     --border-radius: 240px;
-    --border-width: var(--border-width-700);
+    --fill-color: var(--thumb-background);
+    --fill-direction: to right;
     --height: var(--size-200);
     --margin-horizontal: 0px;
     --margin-vertical: 0px;
     --thumb-background: var(--surface-background-default);
+    --thumb-border-color: var(--border-color);
+    --thumb-border-width: var(--border-width-700);
+    --thumb-cursor: var(--thumb-cursor-default);
+    --thumb-cursor-active: var(--thumb-cursor-default);
+    --thumb-cursor-default: pointer;
+    --thumb-cursor-disabled: not-allowed;
+    --thumb-scale: var(--thumb-scale-default);
+    --thumb-scale-active: var(--thumb-scale-default);
+    --thumb-scale-default: 1;
+    --thumb-shadow: var(--thumb-shadow-default);
+    --thumb-shadow-active: var(--thumb-shadow-default);
+    --thumb-shadow-default: none;
+    --thumb-shadow-focus: var(--thumb-shadow-default);
     --thumb-size: var(--size-400);
+    --thumb-transition-duration: 150ms;
+    --thumb-transition-timing-function: ease-out;
+    --track-color: var(--color-primary-300);
+    --transition-duration: 150ms;
+    --transition-timing-function: ease-out;
     --width: 100%;
 
 
-    // A physical knob that stays white in both modes, over a track a level below what holds it. The track is painted
-    // in the range's own background beside the fill, so it takes the level's color rather than the range counting as a
-    // surface, which would flatten the thumb's shadow. The thumb grows while held and rings while focused.
+    // A physical knob that stays white in both modes, over a track in the level's pressed border color; a level-below
+    // track is too faint at 4px. The track is painted in the range's own background beside the fill, so the range never
+    // counts as a surface, which would flatten the thumb's shadow. The thumb grows while held and rings while focused.
     &--slider {
-        --background-default: linear-gradient(to right, var(--fill-color) var(--thumb-position), var(--track-color) var(--thumb-position));
         --fill-color: var(--color-primary-500);
         --height: 4px;
         --thumb-background: var(--color-white-300);
-        --thumb-border-color: var(--surface-border-default);
-        --thumb-border-width: 1px;
+        --thumb-border-color: oklch(from var(--color-primary-500) l c h / 0.24);
+        --thumb-border-width: var(--border-width-400);
+        --thumb-cursor-active: grabbing;
+        --thumb-cursor-default: grab;
         --thumb-scale-active: 1.2;
-        --thumb-shadow: var(--surface-shadow-default);
         --thumb-shadow-active: none;
+        --thumb-shadow-default: var(--surface-shadow-default);
         --thumb-shadow-focus: 0 0 0 3px var(--focus-color);
-        --thumb-size: var(--size-400);
-        --thumb-transition-duration: 150ms;
-        --thumb-transition-timing-function: ease-out;
-        --track-color: #{surface.background('calc(var(--surface-level) - 1)')};
+        --track-color: var(--surface-border-pressed);
 
         @media (pointer: coarse) {
             --thumb-size: var(--size-500);
         }
 
         @media (prefers-reduced-motion: reduce) {
-            --thumb-scale-active: 1;
+            --thumb-scale-active: var(--thumb-scale-default);
         }
     }
 
     &--vertical {
-        --background-default: linear-gradient(to top, var(--thumb-background) var(--thumb-position), var(--color-primary-300) var(--thumb-position));
+        --fill-direction: to top;
         --vertical-size: 176px;
-
-        &.range--slider {
-            --background-default: linear-gradient(to top, var(--fill-color) var(--thumb-position), var(--track-color) var(--thumb-position));
-        }
     }
 
 
-    // Its parts' values are retuned by '--slider', which joins the heading's label and value onto the header row and
-    // draws the selection as a pill between grabbable knobs.
+    // Chained through '.inline-edit' so these win over the inline edit's own regardless of stylesheet order.
+    &-edit.inline-edit > .inline-edit-display,
+    &-edit.inline-edit > .inline-edit-field {
+        --border-radius: var(--border-radius-300);
+        --padding-end: var(--padding-start);
+    }
+
+    // Filling its box from the start edge by default.
+    &-fill {
+        --background: var(--color-primary-500);
+        --border-radius: var(--border-radius-400);
+        --bottom: 0px;
+        --left: 0px;
+        --right: auto;
+        --top: 0px;
+        --width: auto;
+    }
+
+    // The label and reset share the top row above the track, each thumb's value riding under it in the ticks' row.
+    // '--slider' draws the selection as a pill between grabbable knobs; '--vertical' centers the label and reset above an
+    // upright track.
     &-filter {
         @extend %surface-raise;
+        --areas: "label reset" "body body";
         --color: var(--color-text-500);
+        --columns: 1fr auto;
         --font-size: inherit;
-        --gap-horizontal: 0px;
-        --gap-vertical: var(--size-500);
-        --muted-color: var(--color-text-300);
         --width: 384px;
 
 
+        // Chained through '.group', as is each variant's gap, so they win over the group's own regardless of
+        // stylesheet order.
+        &.group {
+            --gap-horizontal: var(--size-400);
+            --gap-vertical: var(--size-200);
+        }
+
+        // Between the thumbs, clipped square by the track's own rounding.
+        .range-fill {
+            --border-radius: 0px;
+            --left: calc(var(--low) * 100%);
+            --right: calc((1 - var(--high)) * 100%);
+        }
+
+        // A bar across the track from the selection's nearer edge to the pointer, on whichever side it hovers.
+        .range-ghost {
+            --border-radius: 999px;
+            --end: max(var(--preview), var(--low));
+            --height: var(--thickness);
+            --left: calc(var(--start) * 100%);
+            --start: min(var(--preview), var(--high));
+            --thickness: var(--size-100);
+            --top: 50%;
+            --translate: 0 -50%;
+            --width: calc((var(--end) - var(--start)) * 100%);
+        }
+
+
         &--slider {
-            --font-size: calc(var(--font-size-400) * 0.875);
-            --gap-vertical: var(--size-100);
+            --font-size: var(--font-size-400);
             --width: 100%;
 
-            .range-filter-clear,
-            .range-filter-ghost {
-                --display: none;
-            }
 
-            .range-filter-header {
-                --align: center;
+            &.group {
                 --gap-horizontal: var(--size-100);
                 --gap-vertical: var(--size-100);
             }
 
-            .range-filter-heading {
-                --display: contents;
-            }
 
-            .range-filter-label {
-                --color: currentColor;
-                --font-size: 1em;
-                --margin-vertical: 0px;
-                --text-transform: none;
-            }
-
-            .range-filter-range {
+            .range-fill {
                 --border-radius: 999px;
+            }
+
+            .range-ghost {
+                --display: none;
             }
 
             .range-filter-root {
@@ -110,196 +158,140 @@
 
             .range-filter-thumb {
                 --background: var(--color-white-300);
-                --border-color: var(--surface-border-default);
+                --border-color: oklch(from var(--color-primary-500) l c h / 0.24);
                 --border-width: var(--border-width-400);
                 --box-shadow-active: none;
                 --cursor: grab;
                 --cursor-active: grabbing;
                 --focus-shadow: 0 0 0 3px var(--focus-color);
                 --outline: none;
-                --scale-active: 1.2;
-                --scale-hover: 1;
                 --shadow-duration: 150ms;
-
-                @media (prefers-reduced-motion: reduce) {
-                    --scale-active: 1;
-                }
             }
 
             // Matches the fill to the thumb's travel without changing how the range behaves.
             .range-filter-track {
-                --background: #{surface.background('calc(var(--surface-level) - 1)')};
+                --background: var(--surface-border-pressed);
                 --margin-horizontal: calc(var(--thumb-size) / 2);
                 --margin-vertical: calc(var(--thumb-size) / 2);
                 --overflow: visible;
                 --thickness: 4px;
             }
 
-            // Unset, so the value takes the weight around it.
-            .range-filter-value {
-                --font-size: calc(var(--font-size-400) * 0.875);
-                --font-weight: initial;
-            }
-
             @include tokens.state(disabled) {
                 .range-filter-thumb {
                     --cursor: not-allowed;
                     --cursor-active: not-allowed;
-                    --scale-active: 1;
                 }
             }
         }
 
-        // The parts take their vertical layout from their own '--vertical' modifiers.
+        // The empty outer columns center the label and reset between them; the parts measure along the height instead.
         &--vertical {
+            --areas: ". label reset ." "body body body body";
+            --columns: 1fr auto auto 1fr;
             --width: max-content;
+
+
+            &.group {
+                --gap-horizontal: var(--size-200);
+                --gap-vertical: var(--size-400);
+            }
+
+            .range-fill {
+                --bottom: calc(var(--low) * 100%);
+                --left: 0px;
+                --right: 0px;
+                --top: calc((1 - var(--high)) * 100%);
+            }
+
+            .range-ghost {
+                --bottom: calc(var(--start) * 100%);
+                --height: calc((var(--end) - var(--start)) * 100%);
+                --left: 50%;
+                --top: auto;
+                --translate: -50% 0;
+                --width: var(--thickness);
+            }
+
+            // Clears the ticks of a thumb grown on hover.
+            .range-filter-body {
+                --gap-horizontal: var(--size-200);
+                --justify-self: center;
+            }
+
+            .range-filter-root {
+                --height: 176px;
+            }
+
+            // The body's gap beside the track, less the box's own padding, so the text starts where the ticks' does.
+            .range-filter-tip {
+                --offset: calc(var(--ticks-gap-horizontal) - var(--box-padding-start));
+            }
+
+
+            // Without a reset, the label alone is centred, clear of the gap an empty column would leave beside it.
+            &:not(:has(> .range-filter-reset)) {
+                --areas: ". label ." "body body body";
+                --columns: 1fr auto 1fr;
+            }
         }
+
 
         &-body {
             --gap-horizontal: 0px;
-            --gap-vertical: var(--size-100);
+            --gap-vertical: calc(var(--size-100) / 2);
+            --justify-self: stretch;
         }
 
-        &-clear {
-            @extend %background-state, %color-state, %color-text;
-            --background-default: var(--surface-background-default);
-            --background-hover: var(--surface-background-hover);
-            --background-pressed: var(--background-hover);
-            --border-color: var(--surface-border-default);
-            --border-radius: var(--border-radius-300);
-            --border-width: 1px;
-            --display: inline-flex;
-            --font-size: var(--font-size-300);
-            --gap-horizontal: calc(var(--size-100) / 2);
+        &-fields {
+            --gap-horizontal: 12px;
             --gap-vertical: 0px;
-            --height: 24px;
-            --padding-horizontal: var(--size-100);
-            --padding-vertical: 0px;
+            --margin-vertical: var(--size-200);
+            --pointer-events: auto;
+        }
+
+        // A compact surface button showing only its icon until pointed at or focused, still while disabled. Chained
+        // through '.button' so it wins over the button's own values regardless of stylesheet order.
+        &-reset.button {
+            --box-shadow-default: var(--surface-shadow-default);
+            --font-size: var(--font-size-300);
+            --font-weight: var(--font-weight-500);
+            --gap-vertical: 0px;
+            --padding-horizontal: var(--size-200);
+            --padding-vertical: var(--size-100);
             --transition-duration: 150ms;
             --transition-timing-function: ease-out;
 
             &:disabled {
                 --background-hover: var(--background-default);
                 --background-pressed: var(--background-default);
+                --border-color-hover: var(--border-color-default);
+                --border-color-pressed: var(--border-color-default);
+                --box-shadow-hover: var(--box-shadow-default);
+                --box-shadow-pressed: var(--box-shadow-default);
                 --color-hover: var(--color-default);
                 --color-pressed: var(--color-default);
             }
-
-            // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
-            &-icon.icon {
-                --color: currentColor;
-                --size: 12px;
-            }
         }
 
-        // Folds to nothing when the number is too short to need it, and rolls its digit strip to the new one; a symbol
-        // column shows its character in place of the strip.
-        &-column,
-        &-strip {
-            --transition-duration: 500ms;
-            --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-
-            @media (prefers-reduced-motion: reduce) {
-                --transition-duration: 0s;
-            }
+        // The space the label opens beside the icon. Qualified by the button so it wins over the reveal's own values
+        // regardless of stylesheet order.
+        &-reset > .button-reveal {
+            --gap-horizontal: calc(var(--size-100) / 2);
         }
 
-        &-column--symbol {
-            .range-filter-strip {
-                --display: none;
-            }
-
-            .range-filter-symbol {
-                --display: inline;
-            }
+        // Chained through '.icon' so it wins over the icon's own size and color regardless of stylesheet order.
+        &-reset-icon.icon {
+            --size: 12px;
         }
 
-        &-dash {
-            --color: var(--muted-color);
-        }
-
-        &-field {
-            --background: var(--surface-background-default);
-            --border-color: var(--surface-border-default);
-            --border-radius: var(--border-radius-400);
-            --border-width: 1px;
-            --cursor: text;
-            --gap-horizontal: calc(var(--size-300) / 2);
-            --gap-vertical: 0px;
-            --height: 40px;
-            --padding-horizontal: 12px;
-
-            &-label {
-                --color: var(--muted-color);
-                --font-size: var(--font-size-300);
-            }
-
-            &-prefix {
-                --color: var(--muted-color);
-            }
-
-            // Qualified by the field so it wins over the reused input styles regardless of stylesheet order.
-            .range-filter-input {
-                --background-default: transparent;
-                --color-default: currentColor;
-                --font-size: inherit;
-                --padding-horizontal: 0px;
-                --padding-vertical: 0px;
-                --width: 72px;
-            }
-        }
-
-        &-fields {
-            --gap-horizontal: 12px;
-            --gap-vertical: 0px;
-        }
-
-        // Shows how far the selection would stretch to reach the pointer, keeping up with it quickly.
-        &-ghost {
-            --background: oklch(from var(--color-primary-500) l c h / 0.3);
-            --border-radius: 999px;
-            --display: block;
-            --fade-duration: 100ms;
-            --thickness: var(--size-100);
-            --transition-duration: 75ms;
-            --transition-timing-function: ease-out;
-
-            @media (prefers-reduced-motion: reduce) {
-                --fade-duration: 0s;
-                --transition-duration: 0s;
-            }
-        }
-
-        &-header {
-            --align: flex-start;
-            --gap-horizontal: var(--size-400);
-            --gap-vertical: var(--size-400);
-        }
-
-        &-heading {
-            --display: block;
-        }
-
-        &-label {
-            --color: var(--muted-color);
-            --font-size: var(--font-size-300);
-            --margin-vertical: calc(var(--size-100) / 2);
-            --text-transform: uppercase;
-        }
-
-        &-range {
-            --background: var(--color-primary-500);
-            --border-radius: 0px;
-        }
-
-        // Sized by its thumbs, which travel from half a thumb in at each end.
+        // Sized by its thumbs, which travel from half a thumb in at each end. Keeps the body's gaps to the ticks, read
+        // here before the inline edit's own gaps shadow them, so its thumbs' values can sit in the ticks' row.
         &-root {
             --cursor: pointer;
+            --ticks-gap-horizontal: var(--gap-horizontal);
+            --ticks-gap-vertical: var(--gap-vertical);
             --thumb-size: var(--size-500);
-
-            &--vertical {
-                --height: 176px;
-            }
         }
 
         &-separator {
@@ -308,15 +300,8 @@
             --width: 12px;
         }
 
-        &-strip {
-            --display: flex;
-        }
-
-        &-symbol {
-            --display: none;
-        }
-
-        // Grows on hover and while held, and its shadow eases only where a variant asks; still under reduced motion.
+        // Rests a touch small and grows on hover and while held, matching the switch's knob; its shadow eases only where
+        // a variant asks. Still under reduced motion.
         &-thumb {
             @extend %box-shadow-state;
             --background: var(--surface-background-default);
@@ -329,17 +314,20 @@
             --cursor-active: initial;
             --focus-shadow: var(--box-shadow-default);
             --outline: 0 solid var(--focus-color);
-            --scale-active: 1.25;
-            --scale-hover: 1.25;
+            --scale-active: 1;
+            --scale-default: 0.92;
+            --scale-hover: 0.96;
             --shadow-duration: 0s;
+            --shadow-timing-function: ease-out;
             --transition-duration: 150ms;
             --transition-timing-function: ease-out;
 
             @media (prefers-reduced-motion: reduce) {
-                --scale-active: 1;
-                --scale-hover: 1;
+                --scale-active: var(--scale-default);
+                --scale-hover: var(--scale-default);
                 --transition-duration: 0s;
             }
+
 
             // The default, so a held thumb still takes its press shadow.
             &:focus-visible {
@@ -347,9 +335,47 @@
             }
         }
 
+        &-tick {
+            --opacity: 1;
+            --transition-duration: 150ms;
+            --transition-timing-function: ease-out;
+
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
+            }
+
+
+            &--covered {
+                --opacity: 0;
+            }
+        }
+
         &-ticks {
-            --color: oklch(from var(--color-primary-300) l c h / 0.6);
-            --font-size: var(--font-size-200);
+            --color: oklch(from var(--color-primary-300) l c h / 0.5);
+            --font-size: var(--font-size-300);
+            --font-weight: var(--font-weight-500);
+        }
+
+        // Its text the body's gap below the track as the ticks' is, so a thumb's value sits in their row. Its text is
+        // centred in a row a line plus '--size-100' tall, so it starts half of that below the box's top. A slim box
+        // either side, room enough for the hover tint, with no space kept for a pencil.
+        &-tip {
+            // Its thumb's centre, as the thumb's own travel places it, in the track's width.
+            --center: calc(var(--thumb-size) / 2 + var(--position) * (100cqi - var(--thumb-size)));
+            --font-size: var(--font-size-300);
+            --font-weight: var(--font-weight-500);
+            --offset: calc(var(--ticks-gap-vertical) - var(--size-100));
+
+            // Chained through '.inline-edit' so these win over the inline edit's own regardless of stylesheet order.
+            &.inline-edit {
+                --color: var(--color-primary-300);
+            }
+
+            // The ticks' own line height rather than the inline edit's 'normal', so its text sits on their line.
+            &.inline-edit > .inline-edit-display,
+            &.inline-edit > .inline-edit-field {
+                --line-height: 1lh;
+            }
         }
 
         &-track {
@@ -361,19 +387,11 @@
             --thickness: var(--size-100);
         }
 
-        &-value {
-            --font-size: var(--font-size-500);
-            --font-weight: var(--font-weight-700, 700);
-        }
-
-        &-values {
-            --gap-horizontal: calc(var(--size-300) / 2);
-            --gap-vertical: 0px;
-        }
 
         @include tokens.state(disabled) {
-            .range-filter-field {
-                --cursor: not-allowed;
+            // The scrub has no disabled state of its own, so its label and tape stop taking the pointer here.
+            .range-filter-fields {
+                --pointer-events: none;
             }
 
             .range-filter-root {
@@ -381,9 +399,195 @@
             }
 
             .range-filter-thumb {
-                --scale-active: 1;
-                --scale-hover: 1;
+                --scale-active: var(--scale-default);
+                --scale-hover: var(--scale-default);
             }
         }
+    }
+
+    // Filling its box from the start edge by default.
+    &-ghost {
+        --background: var(--border-color);
+        --bottom: auto;
+        --display: block;
+        --fade-duration: 100ms;
+        --fade-timing-function: ease-out;
+        --height: 100%;
+        --left: 0px;
+        --top: 0px;
+        --transition-duration: 75ms;
+        --transition-timing-function: ease-out;
+        --translate: none;
+        --width: 0px;
+
+        @media (prefers-reduced-motion: reduce) {
+            --fade-duration: 0s;
+            --transition-duration: 0s;
+        }
+    }
+
+    // The fill's width and the thumb's travel are shared by the track's parts and the text beside it, so they sit on
+    // the root. Percentages resolve where they're read: against the track for its parts, and against the gradient the
+    // text paints through, as wide as the track. 'inline' floats the text over a taller track and inks it in two colors
+    // split at the fill.
+    &-surface {
+        --fill-width: calc(var(--thumb-size) + var(--travel) * var(--fraction));
+        --thumb-size: var(--size-400);
+        --travel: calc(100% - var(--thumb-size));
+        --width: 384px;
+
+
+        .range-fill {
+            --width: var(--fill-width);
+        }
+
+        // As far as the fill would reach to the hovered value, under the fill so only the stretch past it shows.
+        .range-ghost {
+            --border-radius: var(--border-radius-400);
+            --width: calc(var(--thumb-size) + var(--travel) * var(--preview));
+        }
+
+
+        &--inline {
+            // 1 while its centre, a handle's width either side, falls in the label's or the value's box as the group
+            // measures them, else 0.
+            .range-surface-handle {
+                --behind: max(
+                    max(0, sign(var(--center) - var(--start-inset) + var(--width))) * max(0, sign(var(--start-inset) + var(--start-width) + var(--width) - var(--center))),
+                    max(0, sign(var(--center) - 100cqi + var(--end-inset) + var(--end-width) + var(--width))) * max(0, sign(100cqi - var(--end-inset) + var(--width) - var(--center)))
+                );
+            }
+
+            // Chained like the text's own values, so these outrank them.
+            .range-surface-label.group-label,
+            .range-surface-value.inline-edit {
+                --ink-fill: var(--color-surface);
+            }
+
+            // One box for both, so the overlay insets them alike: the same height, and the value's padding either side.
+            .range-surface-label.group-label {
+                --height: var(--size-600);
+                --padding-horizontal: var(--size-100);
+            }
+
+            .range-surface-unit {
+                --font-weight: var(--font-weight-400);
+                --margin-horizontal: calc(var(--size-100) / 2);
+            }
+
+            .range-surface-value {
+                --font-size: var(--font-size-400);
+            }
+
+            // Its row sized by the box rather than the inline edit's own line height.
+            .range-surface-value.inline-edit {
+                --height: var(--size-600);
+                --margin-end: 0px;
+                --margin-start: 0px;
+                --margin-vertical: 0px;
+                --row-height: 0px;
+            }
+        }
+
+
+        &-control {
+            @extend %surface-lower;
+            --background: var(--surface-background-default);
+            --border-color: var(--surface-border-default);
+            --border-radius: var(--border-radius-400);
+            --border-width: var(--border-width-400);
+            --height: 40px;
+            --tick-major-color: color-mix(in srgb, var(--color-text-400) 40%, transparent);
+            --tick-major-height: 10px;
+            --tick-minor-color: color-mix(in srgb, var(--color-text-400) 20%, transparent);
+            --tick-minor-height: 5px;
+            --tick-width: 1px;
+
+
+            &:has(> .range-surface-input:hover) > .range-surface-handle {
+                --opacity-behind: 0.6;
+            }
+
+            // Last, so held outranks pointed at.
+            &:has(> .range-surface-input:active) > .range-surface-handle {
+                --opacity-behind: 1;
+            }
+        }
+
+        // Surface-colored, so it reads against the primary fill it rides on. Clear of any text above the track, so whole;
+        // behind it, faint at rest, stronger while the track is pointed at, whole again while held. Its centre is in the
+        // container's width, the track's, so 'sign()' can read it as a length.
+        &-handle {
+            --background: var(--color-surface);
+            --behind: 0;
+            --border-radius: var(--border-radius-200);
+            --center: calc(var(--thumb-size) / 2 + (100cqi - var(--thumb-size)) * var(--fraction));
+            --display: block;
+            --height: 40%;
+            --opacity-behind: 0.25;
+            --transition-duration: 150ms;
+            --transition-timing-function: ease-out;
+            --width: 3px;
+
+            @media (prefers-reduced-motion: reduce) {
+                --transition-duration: 0s;
+            }
+        }
+
+        &-input {
+            --cursor: ew-resize;
+        }
+
+        // The inks its gradient paints; the label keeps the group label's own size and weight. Chained through
+        // '.group-label' and '.inline-edit' so they win over those components' own values regardless of stylesheet
+        // order.
+        &-label.group-label,
+        &-value.inline-edit {
+            --ink: var(--color-text-400);
+            --ink-fill: var(--ink);
+        }
+
+        // Transparent, so the text shows only its ink. The value's own color stays, for the field that edits it.
+        &-label.group-label {
+            --color: transparent;
+            --height: auto;
+            --padding-horizontal: 0px;
+            --padding-vertical: 0px;
+        }
+
+        // Takes the value's weight unless a variant sets its own.
+        &-unit {
+            --font-weight: inherit;
+            --margin-horizontal: 0px;
+        }
+
+        &-value {
+            --font-weight: var(--font-weight-500);
+        }
+
+        // Pushed to the line's end, its end pulled out by the box's own padding so the text sits flush with the track.
+        // Pulled in above and below to a single line, so its taller box overhangs the label's row instead of growing it.
+        &-value.inline-edit {
+            --height: auto;
+            --margin-end: calc(var(--box-padding-start) * -1);
+            --margin-start: auto;
+            --margin-vertical: calc((1em - var(--row-height)) / 2);
+        }
+    }
+
+
+    // Held outranks focused, so a dragged thumb keeps its press shadow.
+    &:active:not(:disabled) {
+        --thumb-cursor: var(--thumb-cursor-active);
+        --thumb-scale: var(--thumb-scale-active);
+        --thumb-shadow: var(--thumb-shadow-active);
+    }
+
+    &:disabled {
+        --thumb-cursor: var(--thumb-cursor-disabled);
+    }
+
+    &:focus-visible {
+        --thumb-shadow: var(--thumb-shadow-focus);
     }
 }

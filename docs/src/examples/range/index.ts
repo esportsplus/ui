@@ -1,8 +1,8 @@
 import { reactive } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { range } from '@esportsplus/ui/components';
-import { rangeVariations } from 'docs/examples/range/prototypes';
 import sliders from 'docs/examples/range/sliders';
+import surface from 'docs/examples/range/surface';
 import 'docs/examples/range/scss/index.scss';
 
 
@@ -10,7 +10,7 @@ export default {
     name: 'range',
     variants: [
         ...sliders,
-        ...rangeVariations(),
+        ...surface,
         {
             render: () => range.filter({ label: 'Price', max: 1000, min: 0, step: 50, value: [200, 800] }),
             title: 'stepped price range'
@@ -22,46 +22,6 @@ export default {
         {
             render: () => range.filter({ disabled: true, label: 'Allocation', max: 100, min: 0, prefix: '', step: 1, value: [20, 70] }),
             title: 'disabled'
-        },
-        {
-            render: () => range.filter({ fields: true, label: 'Price', max: 1000, min: 0, step: 10, value: [200, 750] }),
-            title: 'min and max fields'
-        },
-        {
-            render: () => {
-                let state = reactive({ high: 32, low: 18 });
-
-                return html`
-                    <div class='range-demo'>
-                        ${range.filter({
-                            fields: true,
-                            format: (value: number) => `${value}°C`,
-                            label: 'Temperature',
-                            max: 40,
-                            min: -10,
-                            prefix: '',
-                            state,
-                            step: 0.5,
-                            ticks: 6
-                        })}
-                        <code class='range-demo-status'>${() => `state: { low: ${state.low}, high: ${state.high} }`}</code>
-                    </div>
-                `;
-            },
-            title: 'fields, controlled state, fractional step'
-        },
-        {
-            render: () => range.filter({
-                fields: true,
-                label: 'Volume',
-                max: 100,
-                min: 0,
-                prefix: '',
-                step: 1,
-                style: '--range-color: var(--color-blue-400); --thumb-border: var(--color-blue-400); --focus-color: oklch(from var(--color-blue-400) l c h / 0.3);',
-                value: [0, 100]
-            }),
-            title: 'fields, custom colors'
         },
         {
             render: () => range.filter({}),

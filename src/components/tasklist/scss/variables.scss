@@ -1,13 +1,11 @@
 @use '/tokens';
-@use 'css-utilities/background';
 @use 'css-utilities/font/geist';
-@use 'css-utilities/surface';
 
 // Shared by every part so the check, strike, and fade stay in sequence
 .tasklist {
     --check-duration: 150ms;
-    --gap-horizontal: calc(var(--size-100) / 4);
-    --gap-vertical: calc(var(--size-100) / 4);
+    --gap-horizontal: 0px;
+    --gap-vertical: var(--size-300);
     --strike-duration: 200ms;
     --strike-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
 
@@ -17,7 +15,7 @@
     }
 
 
-    &--plan &-label::before {
+    &--plan &-text::before {
         @extend %font-geist-mono;
         --color: var(--color-text-300);
         --font-size: var(--font-size-200);
@@ -26,23 +24,14 @@
     }
 
 
-    &-content {
+    &-description,
+    &-label {
         --opacity: var(--opacity-default);
         --opacity-active: 0.65;
         --opacity-default: 1;
     }
 
-    &-description {
-        --color: var(--color-text-300);
-        --font-size: var(--font-size-300);
-    }
-
     &-item {
-        @extend %background-state, %background-surface;
-        // Tints the default instead of replacing it, so an opaque row stays opaque while hovered
-        // --background-hover: var(--background-surface-hover);
-        // --background-pressed: var(--background-hover);
-        --border-radius: var(--border-radius-400);
         // Read by JS: the slide that carries a row to its new place. Spring with stiffness 320 and damping 30,
         // sampled across its 500ms settle
         --move-duration: 500ms;
@@ -50,8 +39,6 @@
         // The strike and fade wait on the check while it draws
         --strike-delay: 0s;
         --strike-length: 0%;
-        --transition-duration: 0.16s;
-        --transition-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
 
         @media (prefers-reduced-motion: reduce) {
             --move-duration: 0ms;
@@ -66,25 +53,16 @@
         }
     }
 
-    &-item:has(.checkbox-tag:checked) &-content {
+    &-item:has(.checkbox-tag:checked) &-description,
+    &-item:has(.checkbox-tag:checked) &-label {
         --opacity: var(--opacity-active);
     }
 
     &-label {
-        --color: var(--color-text-500);
         --font-weight: var(--font-weight-500);
-        --strike-color: var(--color-text-300);
-        --strike-width: 2px;
     }
 
     &-row {
-        --font-size: var(--font-size-400);
-        --gap-horizontal: var(--size-200);
-        --gap-vertical: var(--size-200);
-        --line-height: var(--size-500);
-        --padding-horizontal: var(--size-300);
-        --padding-vertical: var(--size-200);
-
         &--sortable {
             &::after {
                 --background: var(--color-text-400);
@@ -102,5 +80,10 @@
                 }
             }
         }
+    }
+
+    &-text {
+        --strike-color: var(--color-text-300);
+        --strike-width: 2px;
     }
 }

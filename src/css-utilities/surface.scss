@@ -60,36 +60,46 @@ $shadow-weight-max: list.length($shadow-steps) - 1;
 
 // The background at a level in one mode, for colors that read a different level in each.
 @function background-in($level, $mode) {
-    @if $mode == light {
-        $light: 'clamp(0, l + #{level-offset($level, light)}, 1)';
+    @return surface-at(level-lightness($level, $mode), $mode);
+}
 
-        @return 'oklch(from var(--color-surface) #{$light} #{light-chroma($light)} h)';
+// The lightness of a level in one mode, held where the ladder stops: white in light, the top level in dark.
+@function level-lightness($level, $mode) {
+    @if $mode == light {
+        @return 'clamp(0, l + #{level-offset($level, light)}, 1)';
     }
 
-    $dark: 'clamp(0, l + #{level-offset($level, dark)}, l + #{$level-max * ladder-step(dark, raised)})';
-
-    @return 'oklch(from var(--color-surface) #{$dark} calc(c * #{$dark} / max(l, 0.01)) h)';
+    @return 'clamp(0, l + #{level-offset($level, dark)}, l + #{$level-max * ladder-step(dark, raised)})';
 }
 
-// A primary fill on the surface it sits on, at its offset level, so it reads as a quiet fill set into the light page
-// and lifted off the dark one.
+// A primary fill on the surface it sits on, so it reads as a quiet fill set into the light page and lifted off the
+// dark one.
 @function primary() {
-    @return light-dark(
-        #{background-in('calc(var(--surface-level) + #{primary-offset(light)})', light)},
-        #{background-in('calc(var(--surface-level) + #{primary-offset(dark)})', dark)}
-    );
+    @return light-dark(#{primary-in(light)}, #{primary-in(dark)});
 }
 
-// The levels a primary fill sits from its surface in a mode: the mode's 'primary', below it in light and above it in
-// dark.
-@function primary-offset($mode) {
+// The mode's 'primary' levels from its surface, below it in light and above it in dark: as far as the ladder puts that
+// level from the surface's, measured from the surface's own lightness. Where the ladder stops, a surface and the level
+// past it read alike, so the fill keeps its distance from what the surface shows rather than meeting it.
+@function primary-in($mode) {
     $levels: map.get(tokens.$themes, $mode, surface, primary);
 
     @if $mode == light {
-        @return -$levels;
+        $levels: -$levels;
     }
 
-    @return $levels;
+    $distance: '(#{level-offset('calc(var(--surface-level) + #{$levels})', $mode)}) - (#{level-offset('var(--surface-level)', $mode)})';
+
+    @return surface-at('clamp(0, #{level-lightness('var(--surface-level)', $mode)} + #{$distance}, 1)', $mode);
+}
+
+// The theme's surface at a lightness, its chroma scaled with the distance from white in light and from black in dark.
+@function surface-at($lightness, $mode) {
+    @if $mode == light {
+        @return 'oklch(from var(--color-surface) #{$lightness} #{light-chroma($lightness)} h)';
+    }
+
+    @return 'oklch(from var(--color-surface) #{$lightness} calc(c * #{$lightness} / max(l, 0.01)) h)';
 }
 
 // A default background moved for a state, so it follows any background a component sets in its place: active and

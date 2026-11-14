@@ -1,5 +1,4 @@
 @use '/tokens';
-@use 'css-utilities/absolute';
 @use 'css-utilities/disabled';
 @use 'variables';
 
@@ -27,17 +26,14 @@
         }
     }
 
-    // Geometry is derived from '--progress' alone, so a scroll or drag only rewrites one custom property per frame.
-    &--dots {
-        contain: layout;
-        display: block;
-        flex: none;
-        height: var(--height);
-        position: relative;
-        // Never changes width: the active slot is always one pill wide, whichever dot owns it.
-        width: calc((var(--count) - 1) * var(--step) + var(--pill-width));
-    }
 
+    &-arrow,
+    &-card {
+        &:focus-visible {
+            outline: var(--focus-width) solid var(--focus-color);
+            outline-offset: var(--focus-offset);
+        }
+    }
 
     &-arrow {
         align-items: center;
@@ -52,31 +48,23 @@
         justify-content: center;
         outline: none;
         padding: 0;
-        transition:
-            background-color var(--transition-duration) var(--transition-timing-function),
-            color var(--transition-duration) var(--transition-timing-function);
+        transition-duration: var(--transition-duration);
+        transition-property: background-color, color;
+        transition-timing-function: var(--transition-timing-function);
         width: var(--size);
 
-        // The arrow glyphs sit a quarter of their box off centre, toward their tail; pulling that back centres them.
-        &--next &-icon {
-            margin-right: calc(var(--size) / -4);
-        }
-
-        &--previous &-icon {
-            margin-left: calc(var(--size) / -4);
-        }
 
         @include tokens.state(disabled) {
             @extend %disabled;
         }
     }
 
-    &-arrow,
-    &-card {
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
-            outline-offset: var(--focus-offset);
-        }
+    &-caption {
+        color: var(--color);
+        flex-basis: 100%;
+        font-size: var(--font-size);
+        font-variant-numeric: tabular-nums;
+        text-align: center;
     }
 
     &-card {
@@ -119,46 +107,32 @@
                 translate var(--transition-duration) var(--transition-timing-function);
             translate: var(--offset) -50%;
 
-            &:first-child {
-                left: var(--inset-horizontal);
-            }
 
-            &:last-child {
-                right: var(--inset-horizontal);
+            @each $child, $side in (first-child: left, last-child: right) {
+                &:#{$child} {
+                    #{$side}: var(--inset-horizontal);
+                }
             }
         }
 
-        &-subtitle {
+        &-subtitle,
+        &-title {
             color: var(--color);
             font-size: var(--font-size);
             transition: color var(--transition-duration) var(--transition-timing-function);
         }
 
         &-title {
-            color: var(--color);
-            font-size: var(--font-size);
             font-weight: var(--font-weight);
             overflow-wrap: anywhere;
             text-transform: capitalize;
-            transition: color var(--transition-duration) var(--transition-timing-function);
         }
 
         // Clears the text from whichever edge holds the arrow, on top of the card's own padding.
-        &:has(> #{&}-arrow:first-child) {
-            padding-left: calc(var(--inset-horizontal) + var(--arrow-size) + var(--gap-horizontal));
-        }
-
-        &:has(> #{&}-arrow:last-child) {
-            padding-right: calc(var(--inset-horizontal) + var(--arrow-size) + var(--gap-horizontal));
-        }
-    }
-
-    &-control {
-        gap: var(--gap-vertical) var(--gap-horizontal);
-
-        @include tokens.state(disabled) {
-            @extend %disabled;
-            pointer-events: none;
+        @each $child, $side in (first-child: left, last-child: right) {
+            &:has(> #{&}-arrow:#{$child}) {
+                padding-#{$side}: calc(var(--inset-horizontal) + var(--arrow-size) + var(--gap-horizontal));
+            }
         }
     }
 
@@ -168,50 +142,22 @@
         height: var(--size);
     }
 
-    // Each dot swells toward pill width as its page approaches, so the row makes room for the pill and every gap stays even mid-scroll.
-    &-dot {
-        align-items: center;
-        background: none;
-        border: 0;
-        border-radius: var(--border-radius);
-        box-sizing: content-box;
-        cursor: pointer;
-        display: flex;
-        inset-block: 0;
-        left: calc(var(--index) * var(--step) + (var(--pill-width) - var(--dot-size)) * clamp(0, var(--index) - var(--progress), 1));
-        // Reaches half the gap past each side of its dot, so the hit areas tile the row with no dead space between them.
-        margin: 0 0 0 calc(var(--gap-horizontal) / -2);
-        outline: none;
-        padding: 0 calc(var(--gap-horizontal) / 2);
-        position: absolute;
-        touch-action: manipulation;
-        width: calc(var(--dot-size) + (var(--pill-width) - var(--dot-size)) * var(--near));
+    &-control {
+        gap: var(--gap-vertical) var(--gap-horizontal);
 
-        &:focus-visible {
-            outline: var(--focus-width) solid var(--focus-color);
+
+        @include tokens.state(disabled) {
+            @extend %disabled;
+            pointer-events: none;
         }
     }
 
-    &-fill {
-        @extend %absolute-full;
-        background: var(--background);
-        transform-origin: left;
-    }
-
-    &-mark {
-        background: var(--background);
-        border-radius: var(--border-radius);
-        height: var(--dot-size);
-        transition: background-color var(--transition-duration) var(--transition-timing-function);
-        width: 100%;
-    }
-
     &-page {
-        font-variant: tabular-nums;
+        font-variant-numeric: tabular-nums;
         min-width: var(--size);
 
+
         &--dots {
-            cursor: default;
             pointer-events: none;
         }
     }
@@ -222,18 +168,9 @@
         gap: var(--gap-vertical) var(--gap-horizontal);
     }
 
-    // Spans the two pages it sits between: the leading edge travels in the first 60% of the move and the trailing edge in the
-    // last 60%, so the pill stretches toward the next dot, then pulls its tail in after it, like a worm.
-    &-pill {
-        background: var(--background);
-        border-radius: var(--border-radius);
-        height: var(--dot-size);
-        left: 0;
-        overflow: hidden;
-        pointer-events: none;
-        position: absolute;
-        top: 50%;
-        translate: calc(var(--k) * var(--step) + var(--step) * var(--trail)) -50%;
-        width: calc(var(--pill-width) + var(--step) * (var(--lead) - var(--trail)));
+
+    // The caption takes a line of its own beneath the controls.
+    &:has(> #{&}-caption) {
+        flex-wrap: wrap;
     }
 }

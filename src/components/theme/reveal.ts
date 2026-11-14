@@ -161,6 +161,7 @@ const reveal = (owner: Owner, origin: Element, write: VoidFunction) => {
         return;
     }
 
+    // Set directly: no template renders <html>, and these only last as long as the transition.
     element.setAttribute(ATTRIBUTE, '');
     element.style.setProperty(FROM, inset(shape, 1));
     element.style.setProperty(TO, inset(shape, scale(shape)));

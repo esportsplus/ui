@@ -1,13 +1,13 @@
 import { effect, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes } from '@esportsplus/template';
-import { measure, slides, timing } from '~/shared/animation';
-import { clamp } from '~/shared/clamp';
-import { keystep } from '~/shared/keystep';
+import contrast from '@esportsplus/ui/svg/contrast.svg';
 import copy from '~/components/button/copy';
 import icon from '~/components/icon';
 import input from '~/components/input';
 import range from '~/components/range';
-import contrast from '@esportsplus/ui/svg/contrast.svg';
+import { measure, slides, timing } from '~/shared/animation';
+import { clamp } from '~/shared/clamp';
+import { keystep } from '~/shared/keystep';
 import './scss/index.scss';
 
 
@@ -517,7 +517,7 @@ function template(
         >
             <span
                 class='color-picker-thumb'
-                style='${() => `left: ${color.s * 100}%; top: ${(1 - color.v) * 100}%;`}'
+                style='${() => `--pick-x: ${color.s * 100}%; --pick-y: ${(1 - color.v) * 100}%;`}'
             ></span>
         </div>
     `;
@@ -644,7 +644,7 @@ function template(
                             <span
                                 aria-hidden='true'
                                 class='color-picker-swatch color-picker-swatch--leaving'
-                                style='--value: ${ghost.hex}; left: ${ghost.left}px; top: ${ghost.top}px;'
+                                style='--leave-x: ${ghost.left}px; --leave-y: ${ghost.top}px; --value: ${ghost.hex};'
                                 ${{
                                     onanimationend: () => {
                                         let at = leaving.indexOf(ghost);

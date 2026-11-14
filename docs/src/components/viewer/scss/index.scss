@@ -1,5 +1,9 @@
+@use 'css-utilities/surface';
+
 .viewer {
+    // A level above the layout, as the page's surfaces are drawn for; the layout leaves its groups unstyled.
     &-content {
+        @extend %surface-raise;
         display: grid;
         gap: 0 var(--size-700);
         grid-template-columns: minmax(0, 1fr) 220px;
@@ -17,5 +21,22 @@
         @media (max-width: 720px) {
             padding-inline: var(--size-400);
         }
+    }
+
+    // The window's height, which the layout's groups share; the toggles sit where the navigation's brand row
+    // expects them.
+    &-layout {
+        --toggle-left: var(--size-300);
+        --toggle-right: var(--size-300);
+        --toggle-size: 32px;
+        --toggle-top: var(--size-300);
+        height: 100dvh;
+    }
+
+    // The page's own scroller inside its group, which the scroll spy and route changes find.
+    &-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden auto;
     }
 }

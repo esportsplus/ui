@@ -1,8 +1,7 @@
 import { reactive, ReactiveArray } from '@esportsplus/reactivity';
 import { html } from '@esportsplus/template';
 import { icon, select, sortable } from '@esportsplus/ui/components';
-import back from '@esportsplus/ui/svg/arrow-left.svg';
-import forward from '@esportsplus/ui/svg/arrow-right.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import dots from '@esportsplus/ui/svg/dots.svg';
 import redo from '@esportsplus/ui/svg/redo.svg';
 import magnifier from '@esportsplus/ui/svg/search.svg';
@@ -81,7 +80,7 @@ function picker(label: string, options: Record<string, string>, state: typeof sw
                 [select.option]: { style: 'padding: var(--size-300) var(--size-400); white-space: nowrap;' },
                 state,
                 style: '--border-width: var(--border-width-400); border: var(--border-width) solid var(--border-color); --padding-vertical: var(--size-300); width: 360px;',
-                [select.tooltipContent]: { style: '--background: var(--surface-background-default); --max-width: none; min-width: 100%;' }
+                [select.panel]: { style: '--background: var(--surface-background-default); --max-width: none; min-width: 100%;' }
             })}
         </div>
     `;
@@ -104,23 +103,23 @@ export default {
             render: () => {
                 let state = reactive({ last: 'drag any control' }),
                     tools = new ReactiveArray([
-                        { icon: back, label: 'Back', name: 'back' },
-                        { icon: forward, label: 'Fwd', name: 'forward' },
-                        { icon: magnifier, label: 'Search', name: 'search' },
-                        { icon: redo, label: 'Redo', name: 'redo' },
-                        { icon: dots, label: 'More', name: 'more' }
+                        { class: 'icon--left', icon: arrow, label: 'Back', name: 'back' },
+                        { class: '', icon: arrow, label: 'Fwd', name: 'forward' },
+                        { class: '', icon: magnifier, label: 'Search', name: 'search' },
+                        { class: '', icon: redo, label: 'Redo', name: 'redo' },
+                        { class: '', icon: dots, label: 'More', name: 'more' }
                     ]),
                     list = sortable(tools, (tool, attributes) => tool.name === 'search'
                         ? html`
                             <label class='sortable-demo-tool sortable-demo-tool--search' ${attributes}>
-                                ${icon({ 'aria-hidden': 'true' }, tool.icon)}
+                                ${icon({ 'aria-hidden': 'true', class: tool.class }, tool.icon)}
                                 <input class='sortable-demo-tool-input' placeholder='Search' type='text' />
                                 <span class='sortable-overlay sortable-demo-tool-overlay'>${tool.label}</span>
                             </label>
                         `
                         : html`
                             <button class='sortable-demo-tool' type='button' ${attributes}>
-                                ${icon({ 'aria-hidden': 'true' }, tool.icon)}
+                                ${icon({ 'aria-hidden': 'true', class: tool.class }, tool.icon)}
                                 <span class='sortable-overlay sortable-demo-tool-overlay'>${tool.label}</span>
                             </button>
                         `, {

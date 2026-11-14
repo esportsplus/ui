@@ -76,6 +76,7 @@
         --gap-horizontal: var(--size-300);
         --gap-vertical: 0px;
 
+
         &-label {
             --color: var(--color-text-300);
             --font-size: var(--font-size-200);
@@ -117,6 +118,7 @@
             --ring-width: 0px;
             --width: 64px;
 
+
             &--dark {
                 --background: var(--color-black-400);
             }
@@ -135,11 +137,6 @@
                 --background: color-mix(in oklab, var(--color-white-300), var(--color-black-400));
             }
 
-            &-bar {
-                --height: 6px;
-                --opacity: 0.8;
-                --width: 60%;
-            }
 
             // The ink a page's heading and text are drawn in; light by default.
             &-bar,
@@ -148,10 +145,17 @@
                 --border-radius: var(--border-radius-100);
             }
 
+            &-bar {
+                --height: 6px;
+                --opacity: 0.8;
+                --width: 60%;
+            }
+
             &-line {
                 --height: 4px;
                 --opacity: 0.35;
                 --width: 100%;
+
 
                 &--short {
                     --width: 70%;
@@ -169,6 +173,7 @@
         --gap-horizontal: var(--size-500);
         --gap-vertical: 0px;
 
+
         &-circle {
             --background: var(--color-white-300);
             --border-color: var(--surface-border-hover);
@@ -179,6 +184,7 @@
             --ring: 0 0 0 2px var(--surface-background-default), 0 0 0 4px var(--ring-color);
             --ring-color: var(--color-blue-400);
             --size: 36px;
+
 
             &--dark {
                 --background: var(--color-black-400);

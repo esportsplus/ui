@@ -21,9 +21,9 @@ let uid = 0;
 // The demo scrolls its own box; 'spy.navigate' brings the section into view with 'scrollIntoView', which would also
 // scroll the docs page around it.
 function spied(mode?: 'current' | 'visible') {
-    let id = `nav-demo-${++uid}`,
+    let disconnect = () => {},
+        id = `nav-demo-${++uid}`,
         ids = TOPICS.map((_, index) => `${id}-${index}`),
-        disconnect = () => {},
         scroller: HTMLElement | undefined,
         spy = nav.spy(ids, mode);
 

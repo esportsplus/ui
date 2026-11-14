@@ -34,7 +34,7 @@ $animations: (
     // Read once per drag (JS), from the item lifted: how the items around the placeholder slide when it moves, and
     // the swing spring's lean limit, velocity → lean gain (deg per px/s), pull and friction. Lower damping relative to
     // stiffness means more wobble before rest.
-    > * {
+    > .sortable-item {
         --shift-duration: 0.22s;
         --shift-timing-function: cubic-bezier(0.2, 0, 0, 1);
         --swing-angle: 8deg;
@@ -45,7 +45,7 @@ $animations: (
 
     // Doubled so it wins over every swing preset, which sets the same variables on the same items.
     @media (prefers-reduced-motion: reduce) {
-        &#{&} > * {
+        &#{&} > .sortable-item {
             --shift-duration: 0s;
             --swing-angle: 0deg;
         }
@@ -53,7 +53,7 @@ $animations: (
 
 
     @each $name, $swing in $swings {
-        &--#{$name} > * {
+        &--#{$name} > .sortable-item {
             @each $property, $value in $swing {
                 --swing-#{$property}: #{$value};
             }
@@ -78,7 +78,19 @@ $animations: (
         --fade-delay: calc(var(--drop-duration) * 0.75);
         --fade-duration: calc(var(--drop-duration) / 4);
         --fade-timing-function: ease-out;
+        // How long a thrown copy coasts on; the fade is for when it doesn't (reduced motion).
+        --fling-duration: 500ms;
         --scale: 1.06;
+        --throw-fade-duration: 0.2s;
+        --throw-fade-timing-function: ease-out;
+        --throw-scale: 0;
+
+
+        // Thrown, it fades where it was let go.
+        @media (prefers-reduced-motion: reduce) {
+            --fling-duration: 0s;
+            --throw-scale: 1;
+        }
     }
 
     // Every state too: the item stays ':active' for the whole drag, and a component's state rules can outrank this one
@@ -89,7 +101,7 @@ $animations: (
         --background-hover: transparent;
         --background-pressed: transparent;
         --border-color: var(--surface-border-pressed);
-        --border-width: var(--border-width-500);
+        --border-width: var(--border-width-400);
     }
 
     &-overlay {

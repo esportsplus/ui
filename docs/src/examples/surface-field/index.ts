@@ -125,7 +125,7 @@ function accent(settings: Settings) {
                         style='${() => `--swatch: ${settings.accent};`}'
                         type='button'
                     ></button>
-                    <div class='tooltip-content tooltip-content--se surface-field-demo-picker'>
+                    <div class='tooltip-content surface-field-demo-picker'>
                         ${colorPicker({ state: picker, value: settings.accent })}
                     </div>
                 `
@@ -142,6 +142,7 @@ function control(settings: Settings, key: keyof Settings, label: string, min: nu
         max,
         min,
         prefix: '',
+        reset: false,
         ticks: 0,
         value: settings[key] as number,
         // Reads and writes the setting itself, so a preset moves the thumb.
@@ -251,7 +252,7 @@ export default {
 
                 return html`
                     <div class='surface-field-demo'>
-                        ${panel(settings, 'Move your cursor, press the canvas, or drag and resize a surface. Click a title or note to edit it.')}
+                        ${panel(settings, 'Move your cursor, press the canvas, or drag a surface. Click one to resize or turn it from its frame, or click a title or note to edit it.')}
 
                         ${surfaceField(
                             {
@@ -264,17 +265,18 @@ export default {
                             },
                             [
                                 surfaceField.surface({
-                                    body: 'Drag the header to move me; a channel in the field runs to the pill.',
+                                    body: 'Drag to move me, or click to resize or turn me. Select text to format it; a channel runs to the pill.',
                                     editable: true,
-                                    height: 150,
+                                    height: 170,
                                     name: 'note',
+                                    rich: true,
                                     title: 'Note',
                                     width: 240,
                                     x: 32,
                                     y: 32
                                 }),
                                 surfaceField.surface(
-                                    { class: 'surface-field-demo-pill', height: 64, label: 'pill', name: 'pill', width: 190, x: 48, y: 260 },
+                                    { class: 'surface-field-demo-pill', height: 64, label: 'pill', name: 'pill', rotation: -6, width: 190, x: 48, y: 260 },
                                     html`<p class='surface-field-demo-note'>Rounded and turned: the clearing follows both.</p>`
                                 ),
                                 surfaceField.surface(
@@ -294,7 +296,7 @@ export default {
 
                 return html`
                     <div class='surface-field-demo --stacked'>
-                        ${panel(settings, 'The field as a node canvas background. Pan, zoom, move or resize a card, or rename one: the grid follows the camera as a floor below it, and the links run through the field.', true)}
+                        ${panel(settings, 'The field as a node canvas background. Pan and zoom, drag a card, select one to resize or turn it, or drag from the right-hand dot of one card onto another to link them. The grid follows the camera as a floor below it, and one wave runs along the fetch, validate, merge and cache links in turn.', true)}
                         ${editor(settings)}
                     </div>
                 `;

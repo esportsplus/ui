@@ -1,7 +1,7 @@
 import type { Variant } from 'docs/types';
 
 
-type Group = { title: string; members: (string | [string, string])[] };
+type Group = { members: (string | [string, string])[]; title: string };
 
 // Explicit families keep distinct examples separate. A tuple renames an option, not its example.
 const groups: Record<string, Group[]> = {
@@ -26,20 +26,22 @@ const groups: Record<string, Group[]> = {
         { title: 'group', members: ['group', 'group without descriptions'] }
     ],
     'color-picker': [{ title: 'color picker', members: ['default', ['compact', 'Compact'], ['recent colors', 'Recent colors'], ['recent: false', 'No recent colors'], ['controlled state', 'Controlled state']] }],
-    command: [{ title: 'command', members: [['default (⌘K / Ctrl+K)', 'Default'], ['blur', 'Blur'], 'centered + blur'] }],
+    command: [{ title: 'command', members: [['default (⌘K / Ctrl+K)', 'Default'], ['blur', 'Blur'], 'centered + blur', ['glass', 'Glass']] }],
     counter: [
         { title: 'USD (animated)', members: [['USD (animated)', 'Default'], 'shade', 'snap', 'spring'] },
         { title: 'number format', members: [['plain number', 'Plain number'], ['suffix', 'Suffix']] },
         { title: 'ticker', members: ['ticker', 'ticker with blur'] }
     ],
-    dock: [{ title: 'dock', members: ['default', ['launcher', 'Launcher'], ['direction s', 'Direction s'], ['direction e', 'Direction e'], ['direction w', 'Direction w'], ['arrows', 'Arrows'],['thumbnails', 'Thumbnails'], ['thumbnails and icons', 'Thumbnails and icons'], ['dock--square', 'Square'], ['dock--squircle', 'Squircle'], ['dock--plain', 'Plain'], ['item modifiers', 'Item modifiers'],['controlled running state + onlaunch', 'Controlled state, launch callback']] }],
     editor: [
         { title: 'file tree', members: ['default', ['locked items, natural sort, no indicator', 'Locked items, no indicator'], ['guides on hover, named folders, path tooltip, scope colors', 'Guides, tooltips and scope colors'], ['sticky scroll, three folders deep', 'Sticky scroll']] },
         { title: 'large tree', members: [['virtualized, 10,000 files', 'Default'], ['find in 10,000 files, highlight mode', 'Find and highlight']] },
         { title: 'drag and drop with the desktop', members: [['drop files and folders from the desktop', 'Drop in'], ['drag files out to the desktop or another app', 'Drag out']] },
         { title: 'diffs', members: [['split: syntax colors, accept and revert', 'Split'], 'unified', ['word diff: on and off', 'Word diff'], ['ignore whitespace: off and on', 'Ignore whitespace'], ['large file: 20,000 lines, virtualized', 'Large file']] }
     ],
-    error: [{ title: 'input', members: ['input', 'input, duration'] }],
+    error: [
+        { title: 'input', members: [['input · leave the field or press Enter', 'Default'], ['input, description', 'Description'], ['input, group--grid', 'Row'], ['input, multiple errors', 'Multiple errors'], ['input, duration · hides after 3s', 'Duration']] },
+        { title: 'select', members: [['select, description · pick a weekend day', 'Default']] }
+    ],
     filter: [{ title: 'layout', members: [['Grid · 3 columns', 'Default'], ['Rows · Single column list', 'Rows'], ['Max rows · Scrolls past 2 rows', 'Max rows']] }],
     frame: [{ title: 'transition', members: [['Default · Instant', 'Default'], ['frame--slide · Horizontal', 'Slide'], ['frame--scroll · Vertical', 'Scroll'], ['frame--swap · Crossfade in place', 'Swap']] }],
     grid: [{ title: 'auto-fit', members: [['auto-fit (min 200px)', 'Default'], 'min-width 120px'] }],
@@ -58,10 +60,11 @@ const groups: Record<string, Group[]> = {
         { title: 'save status', members: ['save status', ['save status states', 'Status states']] }
     ],
     input: [
-        { title: 'focus animation', members: [['Halo · Expanding focus ring', 'Default'], ['Underline · Draw from center', 'Underline'], ['Lift · Soft spring elevation', 'Lift'], ['Wash · Tinted focus surface', 'Wash'], ['Bracket · Growing side accents', 'Bracket']] },
-        { title: 'Board', members: [['Board · Label, icons and hint', 'Default'], ['Board · Sizes (medium, small)', 'Sizes'], ['Board · States (default, filled, disabled, invalid)', 'States'], ['Board · Compact icon fields', 'Compact icons']] },
-        { title: 'Board OTP', members: [['Board OTP · Six digits', 'Default'], ['Board OTP · Four digit PIN', 'Four digit PIN'], ['Board OTP · Grouped (000 000)', 'Grouped'], ['Board OTP · Invalid', 'Invalid'], ['Board OTP · Disabled', 'Disabled']] },
-        { title: 'tags', members: [['tag · topics', 'Default'], ['tag · paste + observed state', 'Paste and observed state']] },
+        { title: 'default', members: [['default', 'Default']] },
+        { title: 'compact', members: [['compact', 'Default']] },
+        { title: 'otp', members: [['otp', 'Default'], ['otp · four digit PIN', 'Four digit PIN'], ['otp · grouped (000 000)', 'Grouped'], ['otp · invalid', 'Invalid'], ['otp · disabled', 'Disabled']] },
+        { title: 'password', members: [['password · click to reveal', 'Click to reveal'], ['password · hover to reveal', 'Hover to reveal'], ['password strength', 'Strength']] },
+        { title: 'tags', members: [['tag · topics', 'Default'], ['tag · paste + observed state', 'Paste and observed state'], ['tag · sortable', 'Sortable'], ['tag · surface', 'Surface'], ['tag · surface primary', 'Surface primary']] },
         { title: 'scrub', members: [['scrub · transform', 'Default'], ['scrub · bounded + observed state', 'Bounds and observed state'], ['scrub · pointer lock', 'Pointer lock']] }
     ],
     link: [
@@ -70,11 +73,6 @@ const groups: Record<string, Group[]> = {
     ],
     loading: [{ title: 'loading', members: ['default', 'small', 'bar'] }],
     marquee: [{ title: 'marquee', members: ['default', 'right', 'marks', 'select', 'paused state', 'velocity (scroll the page to speed it up)'] }],
-    metric: [
-        { title: 'metric', members: ['default', ['metric--accent, currency format', 'Accent, currency format'], ['resizable container (drag the corner)', 'Resizable'], ['controlled state', 'Controlled state']] },
-        { title: 'grid', members: [['small cards in a grid', 'Default'], ['live data (push to a ReactiveArray)', 'Live data']] },
-        { title: 'flash', members: [['flash, price', 'Price'], ['flash, request rate', 'Request rate'], ['flash, large, long hold', 'Large, long hold']] }
-    ],
     nav: [
         { title: 'tree', members: ['tree'] },
         { title: 'tree: border', members: [['tree: border', 'Border'], ['tree: border + background', 'Border + background']] },
@@ -91,7 +89,6 @@ const groups: Record<string, Group[]> = {
     ],
     pagination: [
         { title: 'pages', members: [['overflow', 'Default'], ['few pages', 'Few pages'], ['two siblings', 'Two siblings']] },
-        { title: 'dots', members: [['dots: autoplay carousel', 'Autoplay carousel'], ['dots: scroll-linked', 'Scroll-linked'], ['dots: large (click to jump)', 'Large, click to jump']] },
         { title: 'cards', members: [['cards', 'Default'], ['cards: label and description', 'Label and description'], ['cards: next only', 'Next only'], ['cards: previous only', 'Previous only'], ['cards: tactile', 'Tactile'], ['cards: tactile + ring', 'Tactile + ring'], ['cards: ring', 'Ring']] },
         { title: 'arrows', members: [['arrows', 'Default'], ['arrows: first page', 'First page'], ['arrows: last page', 'Last page']] }
     ],
@@ -102,42 +99,44 @@ const groups: Record<string, Group[]> = {
     range: [
         { title: 'Heading · Value above the track', members: [['Heading · Value above the track', 'Default'], ['Heading · Value above the track · 10% ticks', '10% ticks'], ['Heading · Value above the track · 10% and 2% ticks', '10% and 2% ticks']] },
         { title: 'Inline · Label and value inside the track', members: [['Inline · Label and value inside the track', 'Default'], ['Inline · Label and value inside the track · 10% ticks', '10% ticks'], ['Inline · Label and value inside the track · 10% and 2% ticks', '10% and 2% ticks']] },
-        { title: 'vertical sliders', members: [['vertical sliders — single and dual thumb', 'Default'], ['vertical slider with label, value and ticks', 'Label, value and ticks'], ['disabled vertical slider', 'Disabled']] },
-        { title: 'slider', members: [['slider', 'Default'], ['disabled slider', 'Disabled'], ['slider with decimal steps, shared state and form field', 'Decimal steps, shared state and form field']] },
-        { title: 'slider with two thumbs', members: [['slider with two thumbs', 'Default'], ['disabled dual-thumb slider', 'Disabled']] },
-        { title: 'slider with label and value', members: [['slider with label and value', 'Default'], 'slider with reference labels', 'slider with ticks'] },
-        { title: 'min and max fields', members: [['min and max fields', 'Default'], ['fields, custom colors', 'Custom colors'], ['fields, controlled state, fractional step', 'Controlled state, fractional step']] },
+        { title: 'vertical sliders', members: [['vertical slider', 'Default'], ['vertical dual-thumb slider', 'Two thumbs'], ['disabled vertical slider', 'Disabled']] },
         { title: 'range filter', members: [['price range (hover outside the selection)', 'Default'], ['stepped price range', 'Stepped'], ['single value', 'Single value'], ['disabled', 'Disabled'], ['custom unit, shared state', 'Custom unit, shared state'], ['larger numbers', 'Larger numbers']] }
     ],
     'relative-time': [{ title: 'relative time', members: ['default', ['every unit, live seconds', 'Every unit'], ['unknown until set (placeholder)', 'Placeholder']] }],
     scrollbar: [
-        { title: 'vertical bar', members: [['default bar', 'Default'], 'visible on hover or keyboard focus', 'hidden bar', 'color states', 'rail color', 'centered growth', 'square thumb', 'width variable'] },
+        { title: 'vertical bar', members: [['default bar', 'Default'], 'visible on hover or keyboard focus', 'hidden bar', 'color states', 'rail color', 'square thumb', 'width variable'] },
         { title: 'horizontal bar', members: [['horizontal bar', 'Default'], ['auto (horizontal)', 'Platform width'], ['drag (horizontal)', 'Drag horizontally'], ['drag (both)', 'Drag both axes']] },
         { title: 'edge effects', members: [['fade', 'Fade'], ['fade (content fits)', 'Fade, content fits'], ['blur', 'Blur'], ['fade (horizontal)', 'Fade, horizontal'], ['blur (horizontal)', 'Blur, horizontal']] }
     ],
     select: [
         { title: 'options', members: [['options', 'Default'], ['pre-selected', 'Pre-selected'], ['font picker', 'Font picker'], ['settings', 'Settings'], ['controlled state', 'Controlled state']] }
     ],
-    'shortcut-recorder': [{ title: 'keyboard shortcuts', members: [['keyboard shortcuts', 'Default'], 'empty', 'limit', 'callout, whole field shakes'] }],
-    story: [{ title: 'stories', members: [['stories', 'Default'], ['any content', 'Custom content'], ['controlled, 2s per story', 'Controlled state, 2s duration']] }],
+    'shortcut-recorder': [{ title: 'keyboard shortcuts', members: [['keyboard shortcuts', 'Default'], 'empty', 'limit', 'errors'] }],
+    story: [
+        { title: 'stories', members: [['stories', 'Default'], ['any content', 'Custom content'], ['controlled, repeating, 2s per story', 'Controlled state, repeating, 2s duration']] },
+        { title: 'float', members: [['float', 'Bars'], ['float: dots', 'Dots']] }
+    ],
     switch: [{ title: 'switch', members: ['default', 'squared', 'on'] }],
     tasklist: [
         { title: 'tasks', members: ['default', ['sortable', 'Sortable']] },
         { title: 'plan', members: ['plan', ['plan with a step left open', 'Step left open']] }
     ],
     textarea: [
-        { title: 'focus animation', members: [['Halo · Expanding focus ring', 'Default'], ['Underline · Draw from center', 'Underline'], ['Lift · Soft spring elevation', 'Lift'], ['Wash · Tinted focus surface', 'Wash'], ['Bracket · Growing side accents', 'Bracket']] },
-        { title: 'Board', members: [['Board · Label, hint and resize handle', 'Default'], ['Board · Sizes (medium, small)', 'Sizes'], ['Board · Auto resize (1 to 8 lines)', 'Auto resize'], ['Board · Character count', 'Character count'], ['Board · States (default, filled, disabled, invalid)', 'States']] },
         { title: 'textarea', members: ['default', 'autoresize', 'tall'] }
+    ],
+    toolbar: [
+        { title: 'toolbar', members: ['default', ['drawer, no search', 'Drawer, no search']] },
+        { title: 'dock', members: [['dock', 'Default'], ['arrows', 'Arrows'], ['thumbnails', 'Thumbnails'], ['thumbnails and icons', 'Thumbnails and icons'], ['controlled running state + onlaunch', 'Controlled state, launch callback']] },
+        { title: 'dock drawer', members: [['dock drawer', 'Default'], ['direction s', 'Direction s'], ['direction e', 'Direction e'], ['direction w', 'Direction w']] }
     ],
     tooltip: [
         { title: 'tooltip', members: [['onhover', 'Hover'], ['onclick', 'Click'], 'scale', 'scale + spring', 'spring'] },
-        { title: 'menu', members: [['menu', 'Flat'], ['menu (drill down)', 'Nested'], ['menu (instant)', 'Nested (instant)'], ['menu (onhover)', 'Hover'], ['menu (expand, se)', 'Expand (south-east)'], ['menu (expand, sw)', 'Expand (south-west)'], ['menu (expand, ne)', 'Expand (north-east)'], ['menu (expand, es)', 'Expand (east-south)']] },
-        { title: 'morph', members: [['morph (onhover, s)', 'Hover (south)'], ['morph (onclick, n)', 'Click (north)'], ['morph message (onhover, e)', 'Message (east)']] },
+        { title: 'menu', members: [['menu', 'Flat'], ['menu (drill down)', 'Nested'], ['menu (instant)', 'Nested (instant)'], ['menu (onhover)', 'Hover'], ['menu (expand)', 'Expand']] },
+        { title: 'expand', members: [['expand (onclick)', 'Click']] },
+        { title: 'morph', members: [['morph (onhover)', 'Hover'], ['morph (onclick)', 'Click'], ['morph message (onhover)', 'Message']] },
         { title: 'shared', members: [
-            ['shared.delegate (toolbar, edge, n)', 'Toolbar (north)'],
-            ['shared.delegate (toolbar, edge, s)', 'Toolbar (south)'],
-            ['shared.delegate (vertical, edge, e)', 'Vertical toolbar'],
+            ['shared.delegate (toolbar, edge, y)', 'Toolbar'],
+            ['shared.delegate (vertical, edge, x)', 'Vertical toolbar'],
             ['shared.delegate (grid, template)', 'Color grid'],
             ['shared (labels, open delay)', 'Labels with delay'],
             ['shared (interactive cards, open + close delay)', 'Interactive cards'],
@@ -158,8 +157,8 @@ const groups: Record<string, Group[]> = {
 
 
 function groupVariants(name: string, variants: Variant[]): Variant[] {
-    let families = groups[name] ?? [],
-        consumed = new Set<string>();
+    let consumed = new Set<string>(),
+        families = groups[name] ?? [];
 
     return variants.flatMap((variant, index) => {
         if (consumed.has(variant.title)) {
@@ -185,7 +184,7 @@ function groupVariants(name: string, variants: Variant[]): Variant[] {
             return [{ id: `v-${original}`, label, render: variants[original].render, source: variants[original].source }];
         });
 
-        return [{ id: options[0].id, options, render: options[0].render, source: options[0].source, title: family.title }];
+        return [{ id: options[0].id, options, render: options[0].render, source: options[0].source, styles: variant.styles, title: family.title }];
     });
 }
 

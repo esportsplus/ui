@@ -1,4 +1,5 @@
 @use 'css-utilities/hidden';
+@use 'css-utilities/icon';
 @use 'css-utilities/surface';
 
 
@@ -84,8 +85,8 @@
         translate: 0 2px;
 
         &-icon {
-            height: 14px;
-            width: 14px;
+            @extend %icon-stroke;
+            --size: 14px;
         }
 
         &.--active {

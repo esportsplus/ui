@@ -1,6 +1,7 @@
 import { html } from 'docs/app';
 import { mode } from 'docs/data/theme';
-import { preview, theme } from '@esportsplus/ui/components';
+import { theme } from '@esportsplus/ui/components';
+import preview from 'docs/components/preview';
 import type { Renderable } from 'docs/app';
 import 'docs/actions/themes/scss/pickers.scss';
 

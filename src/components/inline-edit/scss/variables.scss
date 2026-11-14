@@ -12,24 +12,13 @@
     --gap-horizontal: 0px;
     --gap-vertical: calc(var(--size-100) / 2);
 
+
     // Wraps onto as many lines as the text needs. Chained through the root so it wins over the boxes' own values.
     &#{&}--multiline > &-display,
     &#{&}--multiline > &-field {
         --overflow-wrap: break-word;
         --text-overflow: clip;
         --white-space: pre-wrap;
-    }
-
-    // A line of the inherited height and the boxes' padding either side ('--padding-vertical', half of '--size-100'),
-    // with the text at its natural height centered in it. '1lh' resolves on the root, where the line height is still
-    // the inherited one.
-    &:not(#{&}--multiline) {
-        --row-height: calc(1lh + var(--size-100));
-    }
-
-    &:not(#{&}--multiline) > #{&}-display,
-    &:not(#{&}--multiline) > #{&}-field {
-        --line-height: normal;
     }
 
     // No field chrome while editing; only the caret shows the text is live.
@@ -91,14 +80,15 @@
     // regardless of stylesheet order; only the shared check takes their stroke, drawn on a 24 unit grid.
     &-icon {
         --color: var(--color-primary-300);
-        --inset-end: calc(var(--size-300) / 2);
+        --end: calc(var(--size-300) / 2);
         --inset-top: calc(var(--size-100) / 2);
         --size: 24px;
 
+
         &-check.icon,
         &-pencil.icon {
-            --icon-swap-duration: 300ms;
-            --icon-swap-timing-function: linear(0, 0.035, 0.118, 0.216, 0.319, 0.424, 0.515, 0.6, 0.669, 0.728, 0.781, 0.822, 0.856, 0.885, 0.908, 0.927, 0.942, 0.954, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
+            --swap-duration: 300ms;
+            --swap-timing-function: linear(0, 0.035, 0.118, 0.216, 0.319, 0.424, 0.515, 0.6, 0.669, 0.728, 0.781, 0.822, 0.856, 0.885, 0.908, 0.927, 0.942, 0.954, 0.964, 0.971, 0.977, 0.982, 0.986, 0.989, 0.991, 0.993, 0.995, 0.996, 0.997, 0.997, 1);
             --size: var(--size-400);
             --stroke-width: 2.25;
         }
@@ -123,20 +113,24 @@
         --shift: 3px;
         --width: 11em;
 
+
         @media (prefers-reduced-motion: reduce) {
             --blur: 0px;
             --shift: 0px;
         }
 
+
         &--saved &-check.icon {
             --transition-delay: 0.12s;
             --transition-duration: 0.35s;
+
 
             @media (prefers-reduced-motion: reduce) {
                 --transition-delay: 0s;
                 --transition-duration: 0s;
             }
         }
+
 
         &-check.icon {
             --height: 100%;
@@ -157,6 +151,7 @@
             --size: 25%;
             --transition-duration: 0.4s;
             --transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
 
             @media (prefers-reduced-motion: reduce) {
                 --pulse-duration: 0s;
@@ -180,5 +175,18 @@
                 --animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
             }
         }
+    }
+
+
+    // A line of the inherited height and the boxes' padding either side ('--padding-vertical', half of '--size-100'),
+    // with the text at its natural height centered in it. '1lh' resolves on the root, where the line height is still
+    // the inherited one.
+    &:not(#{&}--multiline) {
+        --row-height: calc(1lh + var(--size-100));
+    }
+
+    &:not(#{&}--multiline) > #{&}-display,
+    &:not(#{&}--multiline) > #{&}-field {
+        --line-height: normal;
     }
 }

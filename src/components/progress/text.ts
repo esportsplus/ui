@@ -33,13 +33,13 @@ function clamp(value: number) {
 }
 
 function clip(value: number) {
-    return `inset(0 ${Math.max(0, 100 - value).toFixed(2)}% 0 0)`;
+    return `${Math.max(0, 100 - value).toFixed(2)}%`;
 }
 
 function roll(strip: string[], index: () => number) {
     return html`
         <span class='progress-text-roll'>
-            <span class='progress-text-strip' style='${() => `translate: 0 ${-index() * 10}%`}'>
+            <span class='progress-text-strip' style='${() => `--roll-index: ${index()}`}'>
                 ${strip.map((digit) => html`<span>${digit}</span>`)}
             </span>
         </span>
@@ -135,7 +135,7 @@ export default ({ doneLabel = 'Done', label, state = reactive({ value: 0 }), ...
             <span aria-hidden='true' class='progress-text-content'>
                 <span class='progress-text-label'>
                     <span class='progress-text-track'>${label}</span>
-                    <span class='progress-text-ink' style='${() => `clip-path: ${clip(ink.position)}`}'>
+                    <span class='progress-text-ink' style='${() => `--ink-inset: ${clip(ink.position)}`}'>
                         ${label}
                     </span>
                 </span>

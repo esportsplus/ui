@@ -22,14 +22,6 @@
     scale: 0;
     transition: scale var(--transition-duration) var(--transition-timing-function);
 
-    @include tokens.state(active) {
-        scale: 1;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        transition: none;
-    }
-
 
     &--dot {
         min-width: 0;
@@ -69,9 +61,9 @@
         }
 
         .notification {
-            left: calc(100% - var(--inset-horizontal));
+            left: calc(100% - var(--right));
             position: absolute;
-            top: var(--inset-vertical);
+            top: var(--top);
             translate: -50% -50%;
         }
 
@@ -124,10 +116,6 @@
         &-track {
             transition: translate var(--transition-duration) var(--transition-timing-function);
             translate: 0 calc(0.5cap - var(--translateY, 0) * var(--size));
-
-            @media (prefers-reduced-motion: reduce) {
-                transition: none;
-            }
         }
 
         &-width {
@@ -135,5 +123,10 @@
             height: 0;
             visibility: hidden;
         }
+    }
+
+
+    @include tokens.state(active) {
+        scale: 1;
     }
 }

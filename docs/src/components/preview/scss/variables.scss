@@ -1,0 +1,108 @@
+@use 'css-utilities/border';
+@use 'css-utilities/box-shadow';
+@use 'css-utilities/surface';
+
+// Qualified by the class each part shares an element with (card, select, button, highlight, icon, code viewer), so
+// these win over that component's own variables whatever order the stylesheets load in.
+.preview {
+    &-anchor {
+        --scroll-margin-vertical: var(--size-500);
+    }
+
+    &-copy {
+        --background-default: transparent;
+        --right: var(--size-300);
+        --top: var(--size-300);
+    }
+
+    &-header {
+        // The preview card's radius less its border.
+        --border-radius: calc(var(--border-radius-500) - var(--border-width-400));
+
+
+        &-button {
+            --border-radius: var(--border-radius-300);
+            --font-size: var(--font-size-300);
+        }
+
+        &-select.select {
+            @extend %border-surface, %box-shadow-surface, %surface;
+            --font-size: var(--font-size-200);
+            --height: 28px;
+            --width: auto;
+
+
+            // Its height is set outright, so the trigger keeps none of an input's padding.
+            > .select-menu-trigger {
+                --padding-vertical: 0px;
+            }
+        }
+    }
+
+    &-index {
+        --color: var(--color-text-300);
+        --gap-horizontal: var(--size-300);
+    }
+
+    &-source-message {
+        --color: var(--color-text-300);
+        --padding-horizontal: var(--size-500);
+        --padding-vertical: var(--size-500);
+    }
+
+    &-stage {
+        --background: var(--surface-background-default);
+        --border-radius: calc(var(--border-radius-500) - var(--border-width-400));
+        --gap-horizontal: var(--size-400);
+        --gap-vertical: var(--size-400);
+        --min-height: 160px;
+        --padding-horizontal: var(--size-500);
+        --padding-vertical: var(--size-600);
+
+
+        // Reserve space while an offscreen example waits to mount.
+        &--pending {
+            --min-height: 320px;
+        }
+    }
+
+    &-title {
+        --color: var(--color-text-500);
+        --font-size: var(--font-size-300);
+        --font-weight: var(--font-weight-500);
+    }
+
+    &-view {
+        // Pulls the buttons down onto the card below, out of the page's gap.
+        --overlap: calc(var(--size-100) - var(--size-800));
+
+
+        // Clears the buttons above it, so scrolling to the example still shows them. Qualified so it beats the card's
+        // own scroll margin.
+        + .preview.card {
+            --scroll-margin-vertical: calc(var(--size-500) + var(--size-800) + var(--size-100));
+        }
+    }
+
+    // Sits flush on the card, which shows through the viewer's own raised level, rounding only the corners it
+    // closes off.
+    &-viewer.code-viewer {
+        --background-default: transparent;
+        --border-radius: 0 0 var(--border-radius-500) var(--border-radius-500);
+        --border-width: 0px;
+        --code-padding-horizontal: var(--size-400);
+        --code-padding-vertical: var(--size-400);
+    }
+
+
+    &.card {
+        --border-color-default: var(--surface-border-default);
+        --border-radius: var(--border-radius-500);
+        --border-width: var(--border-width-400);
+        --padding-horizontal: 0px;
+        --padding-vertical: 0px;
+        // The card's fill, resolved here, for anything inside that must cover what scrolls beneath it.
+        --preview-background: var(--background);
+        --scroll-margin-vertical: var(--size-500);
+    }
+}

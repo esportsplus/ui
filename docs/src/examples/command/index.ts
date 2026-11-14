@@ -1,13 +1,8 @@
 import { reactive, read, signal, write } from '@esportsplus/reactivity';
 import { html, type Renderable } from '@esportsplus/template';
-import { command, icon } from '@esportsplus/ui/components';
-import { mac } from '@esportsplus/ui/shared/platform';
+import { button, command } from '@esportsplus/ui/components';
 import fuzzy from '@esportsplus/ui/shared/fuzzy';
-import back from '@esportsplus/ui/svg/arrow-left.svg';
-import forward from '@esportsplus/ui/svg/arrow-right.svg';
-import next from '@esportsplus/ui/svg/arrow-down.svg';
-import previous from '@esportsplus/ui/svg/arrow-up.svg';
-import cmd from '@esportsplus/ui/svg/command.svg';
+import arrow from '@esportsplus/ui/svg/arrow.svg';
 import contrast from '@esportsplus/ui/svg/contrast.svg';
 import docs from '@esportsplus/ui/svg/document.svg';
 import duplicate from '@esportsplus/ui/svg/copy.svg';
@@ -56,10 +51,10 @@ let commands: Command[] = [
     ],
     shortcuts: Shortcut[] = [
         { group: 'Navigation', icon: magnifier, id: 'search', keys: ['Mod', 'K'], label: 'Search' },
-        { group: 'Navigation', icon: back, id: 'back', keys: ['Mod', '['], label: 'Go back' },
-        { group: 'Navigation', icon: forward, id: 'forward', keys: ['Mod', ']'], label: 'Go forward' },
-        { group: 'Navigation', icon: next, id: 'next', keys: ['J'], label: 'Next item' },
-        { group: 'Navigation', icon: previous, id: 'prev', keys: ['K'], label: 'Previous item' },
+        { group: 'Navigation', icon: { class: 'icon--left', href: arrow }, id: 'back', keys: ['Mod', '['], label: 'Go back' },
+        { group: 'Navigation', icon: arrow, id: 'forward', keys: ['Mod', ']'], label: 'Go forward' },
+        { group: 'Navigation', icon: { class: 'icon--down', href: arrow }, id: 'next', keys: ['J'], label: 'Next item' },
+        { group: 'Navigation', icon: { class: 'icon--up', href: arrow }, id: 'prev', keys: ['K'], label: 'Previous item' },
         { group: 'Editing', icon: undo, id: 'undo', keys: ['Mod', 'Z'], label: 'Undo' },
         { group: 'Editing', icon: redo, id: 'redo', keys: ['Mod', 'Shift', 'Z'], label: 'Redo' },
         { group: 'Editing', icon: duplicate, id: 'duplicate', keys: ['Mod', 'D'], label: 'Duplicate' },
@@ -152,8 +147,8 @@ function palette() {
                     }}'
                 >
                     Go to file
-                    <kbd class='button button--kbd'>${mac() ? icon({ 'aria-hidden': 'true', class: 'command-kbd-icon' }, cmd) : 'Ctrl'}</kbd>
-                    <kbd class='button button--kbd'>P</kbd>
+                    ${button.kbd({ key: 'mod' })}
+                    ${button.kbd({ key: 'p' })}
                 </button>
                 <button
                     class='button'
@@ -186,6 +181,10 @@ export default {
         {
             render: () => demo({ [command.dialog]: { class: 'overlay--blur' }, class: 'command--centered', label: 'Centered, blurred' }),
             title: 'centered + blur'
+        },
+        {
+            render: () => demo({ [command.dialog]: { class: 'command-dialog--glass' }, label: 'Glass' }),
+            title: 'glass'
         },
         {
             render: () => hub(),

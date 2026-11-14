@@ -1,11 +1,14 @@
 import { dispose, effect, onCleanup, read, root, signal, untrack, write, type Signal } from '@esportsplus/reactivity';
 import type { On } from '@esportsplus/template';
+import { allGroups, findSurfaceGroup, type Node } from '~/components/shell/model';
 import { clamp } from '~/shared/clamp';
 import Decorations, { type Decoration } from '../tree/decorations';
 import type { CodeController } from '../code/view';
 import type { FileTreeElement, FileTreeImportEntry, FileTreeSnapshot } from '../tree';
 import {
     containsPath,
+    EXPLORER,
+    surfaceOf,
     workspacePath,
     type EditorWorkspaceModel,
     type WorkspaceChange,
@@ -25,7 +28,8 @@ type Baseline = {
     text: Signal<string | null>;
 };
 
-type Shown = { controller: WorkspaceEditorController; tab: WorkspaceTab };
+// The editor showing the tab, while one does.
+type Mounted = (tab: WorkspaceTab) => WorkspaceEditorController | undefined;
 
 
 // Session writes wait this long after the last change.
@@ -38,6 +42,86 @@ function code(controller: WorkspaceEditorController): controller is CodeControll
 
 function message(error: unknown) {
     return (error instanceof Error ? error.message : String(error)).replace(/^Workspace: /, '');
+}
+
+// The layout's tree with each file surface renamed: to its path for storing, which outlasts the ids a reload hands out,
+// and back to the restored tab's id. A surface 'rename' has no name for drops, and so does a group or split left empty.
+function names(node: Node | null, rename: (id: string) => string | undefined): Node | null {
+    if (node === null) {
+        return null;
+    }
+
+    if (node.kind === 'group') {
+        let surfaces = node.surfaces.flatMap((surface) => {
+            if (surface.id === EXPLORER.id) {
+                return [EXPLORER];
+            }
+
+            let id = rename(surface.id);
+
+            return id === undefined ? [] : [{ id, kind: surface.kind }];
+        });
+
+        return surfaces.length ? { ...node, active: node.active === null ? null : (rename(node.active) ?? node.active), surfaces } : null;
+    }
+
+    let children: Node[] = [],
+        sizes: number[] = [];
+
+    for (let i = 0, n = node.children.length; i < n; i++) {
+        let child = names(node.children[i], rename);
+
+        if (child) {
+            children.push(child);
+            sizes.push(node.sizes[i] ?? 0);
+        }
+    }
+
+    return children.length ? { ...node, children, sizes } : null;
+}
+
+// Only a tree of well-formed groups and splits comes back; anything else restores the tabs without their layout.
+function node(value: unknown): Node | null {
+    let entry = value as Partial<Node> | null;
+
+    if (!entry || typeof entry !== 'object' || typeof entry.id !== 'string') {
+        return null;
+    }
+
+    if (entry.kind === 'group') {
+        let group = entry as Partial<Extract<Node, { kind: 'group' }>>;
+
+        if (!Array.isArray(group.surfaces)) {
+            return null;
+        }
+
+        return {
+            active: typeof group.active === 'string' ? group.active : null,
+            id: entry.id,
+            kind: 'group',
+            ...(group.placement === 'bottom' || group.placement === 'left' || group.placement === 'right' ? { placement: group.placement } : {}),
+            surfaces: group.surfaces.filter((surface) => typeof surface?.id === 'string' && typeof surface.kind === 'string').map((surface) => ({ id: surface.id, kind: surface.kind }))
+        };
+    }
+
+    if (entry.kind !== 'split') {
+        return null;
+    }
+
+    let split = entry as Partial<Extract<Node, { kind: 'split' }>>,
+        children = Array.isArray(split.children) ? split.children.map(node) : [];
+
+    if (!children.length || children.includes(null) || (split.direction !== 'column' && split.direction !== 'row')) {
+        return null;
+    }
+
+    return {
+        children: children as Node[],
+        direction: split.direction,
+        id: entry.id,
+        kind: 'split',
+        sizes: Array.isArray(split.sizes) ? split.sizes.map((size) => Number(size) || 0) : []
+    };
 }
 
 function numbers(value: unknown) {
@@ -80,6 +164,7 @@ function parse(value: WorkspaceSession | null | undefined): WorkspaceSession | n
             expanded: Array.isArray(value.explorer?.expanded) ? value.explorer.expanded.filter((id) => typeof id === 'string') : [],
             scroll: Math.max(0, Number(value.explorer?.scroll) || 0)
         },
+        layout: node(value.layout),
         tabs
     };
 }
@@ -93,7 +178,7 @@ function selection(tab: WorkspaceTab): WorkspaceSessionTab['selection'] {
 
 // What the workspace takes from its host beyond files: the persisted session (hot exit included), each tab's git
 // baseline, OS drag and drop, and the change and problem marks the explorer's next/previous step between.
-const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, delay = DELAY) => {
+const hosted = (model: EditorWorkspaceModel, mounted: Mounted, delay = DELAY) => {
     let baselines = new Map<string, Baseline>(),
         disposed = false,
         documents = new Map<WorkspaceTab, VoidFunction>(),
@@ -108,13 +193,13 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
         ready = signal(!host.session),
         restored = !host.session,
         restoring: Promise<void> | undefined,
-        stopProblems: VoidFunction | undefined,
+        // Each shown code editor's problem counts, followed until another editor shows the tab or the tab closes.
+        stopProblems = new Map<WorkspaceTab, VoidFunction>(),
         timer: ReturnType<typeof setTimeout> | undefined,
         waiters = new Map<WorkspaceTab, ((controller: WorkspaceEditorController | undefined) => void)[]>();
 
     function capture(): WorkspaceSession {
-        let shown = current(),
-            state = model.state,
+        let state = model.state,
             tabs: WorkspaceSessionTab[] = [];
 
         for (let i = 0, n = state.tabs.length; i < n; i++) {
@@ -125,7 +210,8 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
                 continue;
             }
 
-            let live = shown?.tab === tab && shown.controller.host?.isConnected ? shown.controller : undefined,
+            let controller = mounted(tab),
+                live = controller?.host?.isConnected ? controller : undefined,
                 item: WorkspaceSessionTab = {
                     folds: live && code(live) ? live.folds() : (folded.get(tab) ?? pending.get(tab) ?? []),
                     path: tab.path,
@@ -145,6 +231,11 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
         return {
             active: state.active && !state.active.compare ? state.active.path : null,
             explorer: { expanded: [...(explorer.expanded ?? [])], scroll: explorer.scroll ?? 0 },
+            layout: names(model.layout.layout.root, (id) => {
+                let tab = model.find(id);
+
+                return tab && !tab.compare ? tab.path : undefined;
+            }),
             tabs
         };
     }
@@ -323,8 +414,29 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
             }
         }
 
+        // The tabs go back where they were, around the explorer on its preferred side; any opened meanwhile join the
+        // main area.
+        let layout = names(session.layout, (path) => {
+            let tab = model.state.tabs.find((item) => item.path === path);
+
+            return tab && surfaceOf(tab).id;
+        });
+
+        if (layout && allGroups(layout).some((group) => group.surfaces.some((surface) => surface.id === EXPLORER.id))) {
+            let side = model.state.preferences.explorerSide;
+
+            model.layout.load(layout);
+            model.layout.dock(EXPLORER.id, side);
+
+            for (let tab of model.state.tabs) {
+                if (!findSurfaceGroup(model.layout.layout.root, surfaceOf(tab).id)) {
+                    model.layout.open(surfaceOf(tab));
+                }
+            }
+        }
+
         // Whatever the user opened meanwhile stays in front.
-        if (session.active && !model.state.active && !model.state.opening.length) {
+        if (session.active && !model.state.opening.length) {
             model.activate(session.active);
         }
     }
@@ -356,6 +468,8 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
                 stop();
                 documents.delete(tab);
                 problems.delete(tab);
+                stopProblems.get(tab)?.();
+                stopProblems.delete(tab);
                 settle(tab, undefined);
             }
         }
@@ -412,6 +526,8 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
 
                         state.active;
 
+                        model.layout.layout.root;
+
                         for (let i = 0, n = state.tabs.length; i < n; i++) {
                             let tab = state.tabs[i];
 
@@ -444,8 +560,12 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
                 release();
                 unwatch();
                 flush();
-                stopProblems?.();
-                stopProblems = undefined;
+
+                for (let stop of stopProblems.values()) {
+                    stop();
+                }
+
+                stopProblems.clear();
 
                 for (let stop of documents.values()) {
                     stop();
@@ -552,13 +672,13 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
                     controller.fold(lines![i]);
                 }
 
-                stopProblems?.();
-                stopProblems = root((dispose) => {
+                stopProblems.get(tab)?.();
+                stopProblems.set(tab, root((dispose) => {
                     effect(() => {
                         let { errors, warnings } = controller.state.problems;
 
                         untrack(() => {
-                            if (current()?.tab === tab) {
+                            if (mounted(tab) === controller) {
                                 problems.set(tab, { errors, warnings });
                                 mark();
                             }
@@ -566,17 +686,17 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
                     });
 
                     return dispose;
-                });
+                }));
             }
 
             settle(tab, controller);
         },
         // Resolves once an editor shows the tab, or with undefined when the tab closes first.
         whenShown(tab: WorkspaceTab) {
-            let shown = current();
+            let controller = mounted(tab);
 
-            if (shown?.tab === tab) {
-                return Promise.resolve(shown.controller);
+            if (controller) {
+                return Promise.resolve(controller);
             }
 
             return new Promise<WorkspaceEditorController | undefined>((resolve) => {
@@ -592,4 +712,3 @@ const hosted = (model: EditorWorkspaceModel, current: () => Shown | undefined, d
 
 export default hosted;
 export { parse };
-export type { Shown };

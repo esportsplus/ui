@@ -6,7 +6,6 @@ import { adjacent } from 'docs/data/nav';
 import info from '@esportsplus/ui/svg/info.svg';
 import type { Crumb } from '@esportsplus/ui/components/breadcrumb';
 import type { Renderable } from 'docs/app';
-import '@esportsplus/ui/components/page/scss/index.scss';
 import './scss/index.scss';
 
 
@@ -31,7 +30,7 @@ export default ({ breadcrumb: trail, description, note, title }: Header) => html
             })}
         </div>
 
-        <p class='page-subtitle page-header-subtitle'>${description}</p>
+        <p class='page-subtitle'>${description}</p>
 
         ${note && html`
             <div class='card page-note'>

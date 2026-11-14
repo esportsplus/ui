@@ -8,7 +8,7 @@ let display = 'font-size: clamp(2rem, 4vw + 1rem, 8rem);';
 
 
 function animated(variant?: string) {
-    return cycle([1234, 87654, 4200000], (state) => counter({ class: variant, currency: 'USD', state, style: display, value: 1234 }));
+    return cycle([1234, 87654, 4200000], (state) => counter({ class: variant, state, style: display, value: 1234 }));
 }
 
 function cycle(values: number[], render: (state: { value: number }) => ReturnType<typeof counter>) {
@@ -20,7 +20,7 @@ function cycle(values: number[], render: (state: { value: number }) => ReturnTyp
 
         <button
             class='button'
-            style='--width: auto; margin-top: var(--size-400);'
+            style='margin-top: var(--size-400);'
             onclick='${() => { index = (index + 1) % values.length; state.value = values[index]; }}'
             type='button'
         >

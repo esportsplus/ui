@@ -1,16 +1,19 @@
-import { effect, flush, reactive } from '@esportsplus/reactivity';
+import { effect, flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import { html, type Attributes, type Renderable } from '@esportsplus/template';
-import error, { type Direction } from '~/components/error';
+import button from '~/components/button';
+import error from '~/components/error';
 import icon from '~/components/icon';
 import { mac as apple } from '~/shared/platform';
+import { observe } from '~/shared/resize';
 import cmd from '@esportsplus/ui/svg/command.svg';
-import '~/components/button/scss/index.scss';
+import '~/components/frame/scss/index.scss';
+import '~/components/input/scss/index.scss';
 import './scss/index.scss';
 
 
 type A = Attributes & {
-    // Where the error message opens, as a tooltip direction.
-    direction?: Direction;
+    // Shown where the error opens; the error takes its place while it shows.
+    description?: Renderable<unknown>;
     limit?: number;
     state?: { error: string, value: string };
     taken?: (shortcut: string) => string | null | undefined;
@@ -106,13 +109,16 @@ function parse(value: string) {
 }
 
 
-export default ({ direction = 'ne', limit, taken, value = '', state = reactive({ error: '', value }), ...attributes }: A) => {
+export default ({ description, limit, taken, value = '', state = reactive({ error: '', value }), ...attributes }: A) => {
     let chord: string[] = [],
         connected = false,
+        // The keycaps and the placeholder, the two faces the box swaps between, and the width of the one it shows.
+        faces: [HTMLElement | undefined, HTMLElement | undefined] = [undefined, undefined],
         field: HTMLElement | undefined,
         keys = reactive([] as Key[]),
         mac = apple(),
         pressed: string[] = [],
+        size = reactive({ width: 0 }),
         status = reactive({ recording: false });
 
     function commit(held: string[]) {
@@ -140,6 +146,15 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
         }
 
         state.error = text;
+    }
+
+    // Every change of face changes the keycaps, so watching both faces' sizes catches each switch as well as each resize.
+    function measure() {
+        let face = faces[keys.length ? 0 : 1];
+
+        if (face) {
+            size.width = face.offsetWidth;
+        }
     }
 
     function onaway(e: Event) {
@@ -259,65 +274,88 @@ export default ({ direction = 'ne', limit, taken, value = '', state = reactive({
 
     effect(() => status.recording ? [] : parse(state.value), (tokens) => show(tokens, connected ? 'settle' : ''));
 
-    return error({ direction, duration: ERROR_DURATION, state }, html`
-        <button
-            aria-pressed='${() => status.recording ? 'true' : 'false'}'
-            class='shortcut-recorder'
-            type='button'
-            ${attributes}
-            ${{
-                class: [
-                    () => status.recording && '--active',
-                    () => state.error && '--invalid'
-                ],
-                onclick: () => {
-                    if (status.recording) {
-                        stop();
-                    }
-                    else {
-                        start();
-                    }
-                },
-                onconnect: (element: HTMLElement, on) => {
-                    connected = true;
-                    field = element;
-                    // Capture, so keys are taken before the page's own shortcuts see them.
-                    on(window, 'keydown', (e) => {
+    // The error slides open on a line of its own in whatever row the recorder sits in.
+    return html`
+        <div class='shortcut-recorder-field'>
+            <button
+                aria-pressed='${() => status.recording ? 'true' : 'false'}'
+                class='input shortcut-recorder'
+                type='button'
+                ${attributes}
+                ${{
+                    'aria-invalid': () => state.error ? 'true' : undefined,
+                    class: () => status.recording && '--active',
+                    onclick: () => {
                         if (status.recording) {
-                            onkeydown(e);
+                            stop();
                         }
-                    }, { capture: true });
-                    on(window, 'keyup', (e) => {
-                        if (status.recording) {
-                            onkeyup(e);
+                        else {
+                            start();
                         }
-                    }, { capture: true });
-                },
-                ondocumentpointerdown: onaway,
-                onwindowblur: onaway
-            }}
-        >
-            ${html.reactive(keys, (key) => html`
-                <kbd
-                    class='button button--kbd shortcut-recorder-key ${key.animation && `shortcut-recorder-key--${key.animation}`}'
-                    style='--index: ${key.index}'
+                    },
+                    onconnect: (element: HTMLElement, on) => {
+                        connected = true;
+                        field = element;
+                        // Capture, so keys are taken before the page's own shortcuts see them.
+                        on(window, 'keydown', (e) => {
+                            if (status.recording) {
+                                onkeydown(e);
+                            }
+                        }, { capture: true });
+                        on(window, 'keyup', (e) => {
+                            if (status.recording) {
+                                onkeyup(e);
+                            }
+                        }, { capture: true });
+                    },
+                    ondocumentpointerdown: onaway,
+                    onwindowblur: onaway
+                }}
+            >
+                <span
+                    class='shortcut-recorder-faces'
+                    ${{
+                        style: () => `--i: ${keys.length ? 0 : 1};${size.width ? ` --face-width: ${size.width}px;` : ''}`
+                    }}
                 >
-                    ${glyph(key.token, mac)}
-                </kbd>
-            `)}
-            ${() => {
-                if (keys.length) {
-                    return '';
-                }
-
-                return html`
-                    <span class='shortcut-recorder-placeholder ${connected && 'shortcut-recorder-placeholder--fade'}'>
-                        ${status.recording
-                            ? html`<span aria-hidden='true' class='shortcut-recorder-dot'></span>Press keys`
+                    <span
+                        class='frame frame--swap shortcut-recorder-face'
+                        style='--n: 0'
+                        ${{
+                            class: () => keys.length && '--active',
+                            onconnect: (element: HTMLElement) => {
+                                faces[0] = element;
+                                onCleanup(observe(element, measure));
+                            }
+                        }}
+                    >
+                        ${html.reactive(keys, (key) => html`${button.kbd(
+                            {
+                                class: ['shortcut-recorder-key', key.animation && `shortcut-recorder-key--${key.animation}`],
+                                key: key.token,
+                                style: `--index: ${key.index}`
+                            },
+                            glyph(key.token, mac)
+                        )}`)}
+                    </span>
+                    <span
+                        class='frame frame--swap shortcut-recorder-face shortcut-recorder-placeholder'
+                        style='--n: 1'
+                        ${{
+                            class: () => !keys.length && '--active',
+                            onconnect: (element: HTMLElement) => {
+                                faces[1] = element;
+                                onCleanup(observe(element, measure));
+                            }
+                        }}
+                    >
+                        ${() => status.recording
+                            ? html`<span aria-hidden='true' class='shortcut-recorder-dot'></span>Press keys...`
                             : 'None'}
                     </span>
-                `;
-            }}
-        </button>
-    `);
+                </span>
+            </button>
+            ${error({ description, duration: ERROR_DURATION, state })}
+        </div>
+    `;
 };

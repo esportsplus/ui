@@ -349,7 +349,7 @@ export default ({ direction = 'left', gap, items, label = 'Logos', select, speed
                                 motion();
                             }
                         },
-                        style: () => `transform: translate3d(${stage.x.toFixed(2)}px, 0, 0)`
+                        style: () => `--drift-x: ${stage.x.toFixed(2)}px`
                     }}
                 >
                     ${html.reactive(copies, (copy) => {
