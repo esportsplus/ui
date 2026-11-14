@@ -133,6 +133,7 @@
 
     &-number {
         color: var(--muted-color);
+        font-size: var(--font-size);
         font-variant-numeric: tabular-nums;
         padding-inline: var(--padding-horizontal);
         text-align: end;
