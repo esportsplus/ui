@@ -244,6 +244,12 @@ const shell = component(
             }
         }
 
+        // Whether the group already holds the kind, where adding it would only reselect its tab. A kind that opens a new
+        // surface on every add never is.
+        function holds(group: string, kind: string) {
+            return !catalog[kind]?.multiple && !!findGroup(state.layout.root, group)?.surfaces.some((surface) => surface.kind === kind);
+        }
+
         let context: Context = {
             add(kind: string, group?: string) {
                 let entry = catalog[kind];
@@ -301,6 +307,7 @@ const shell = component(
                 flush();
                 controller.open(e.button === 2 ? { x: e.clientX, y: e.clientY } : undefined);
             },
+            offering: (group: string) => context.addable.some(([kind]) => !holds(group, kind)),
             pick(group: string) {
                 let current = read(picks);
 
@@ -846,6 +853,7 @@ const shell = component(
                         },
                         items: context.addable.map(([kind, entry]) => ({
                             ...(entry.icon ? { icon: () => icon({ 'aria-hidden': 'true' }, entry.icon!) } : {}),
+                            hidden: () => holds(subject.group, kind),
                             label: typeof entry.title === 'function' ? entry.title({ id: '', kind }) : entry.title,
                             onselect: () => context.add(kind, subject.group)
                         })),

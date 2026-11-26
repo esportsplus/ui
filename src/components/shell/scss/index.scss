@@ -76,6 +76,11 @@
         width: var(--size);
     }
 
+    // Out of the strip once the group holds every kind it could add.
+    &-add[hidden] {
+        display: none;
+    }
+
     &-body {
         display: flex;
         flex: 1;

@@ -37,6 +37,8 @@ type Context = {
     inset: (group: string, edge: 'left' | 'right') => boolean;
     // Opens the tab context menu for the surface.
     menu: (e: MouseEvent, group: string, surface: string) => void;
+    // Whether the add menu has a kind to offer the group, one it doesn't already hold.
+    offering: (group: string) => boolean;
     // Picks or unpicks the group for the zoom made when the modifier is let go.
     pick: (group: string) => void;
     picked: (group: string) => boolean;
@@ -410,6 +412,7 @@ const group = (context: Context, live: Live) => {
                             ${{
                                 'aria-expanded': () => String(context.adding(group.id)),
                                 class: () => context.adding(group.id) && '--active',
+                                hidden: () => !context.offering(group.id),
                                 onclick: (e: MouseEvent) => context.choose(e, group.id)
                             }}
                         >
