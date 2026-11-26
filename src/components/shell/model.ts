@@ -1,6 +1,9 @@
 import { read, signal, write } from '@esportsplus/reactivity';
 
 
+// Where a group sits for sharing: either sidebar, or the main area with the bottom dock under it.
+type Area = 'left' | 'main' | 'right';
+
 type Direction = 'column' | 'row';
 
 // Whether a dock shows, and its size: a fraction of the main area for the bottom, pixels for a sidebar, which holds
@@ -38,6 +41,8 @@ type Options = {
     // Which docks start open; each does unless set false.
     open?: Partial<Record<Placement, boolean>>;
     root?: Node | null;
+    // Which areas trade surfaces with which; moves within an area are always allowed.
+    sharing?: Sharing;
     // Restores the layout's tree once it reads back, unless the tree changed first, and saves it after each change.
     store?: Store;
 };
@@ -46,6 +51,14 @@ type Placement = 'bottom' | 'left' | 'right';
 
 // What the store keeps: the tree of groups, splits and surfaces.
 type Saved = { root: Node | null };
+
+// The areas each area trades surfaces with, 'all' by default: the main area (bottom dock included) with every other
+// area or none; each sidebar with every other area, only the other sidebar, or none. A move between two areas needs
+// both to allow it.
+type Sharing = {
+    main?: 'all' | 'none';
+    sidebar?: 'all' | 'none' | 'sidebars';
+};
 
 type Side = 'after' | 'before';
 
@@ -90,6 +103,10 @@ function allGroups(node: Node | null): Group[] {
     }
 
     return node.children.flatMap(allGroups);
+}
+
+function area(placement: Placement | undefined): Area {
+    return placement === 'left' || placement === 'right' ? placement : 'main';
 }
 
 function bounded(size: number) {
@@ -380,7 +397,7 @@ function zoomed(previous: Layout, next: Layout) {
 
 // The layout's one source of truth: an immutable tree in a signal, replaced whole by each operation. Structural
 // operations restore a maximized group first, as moving panes around under it would leave it covering the wrong one.
-const state = ({ closing, open = {}, root = null, store }: Options = {}) => {
+const state = ({ closing, open = {}, root = null, sharing = {}, store }: Options = {}) => {
     let counter = 1,
         touched = false,
         layout = signal<Layout>(normalizeLayout({
@@ -417,6 +434,17 @@ const state = ({ closing, open = {}, root = null, store }: Options = {}) => {
         }
     }
 
+    // Whether 'from' lets its surfaces go to, and take them from, 'to'.
+    function allows(from: Area, to: Area) {
+        if (from === 'main') {
+            return (sharing.main ?? 'all') === 'all';
+        }
+
+        let policy = sharing.sidebar ?? 'all';
+
+        return policy === 'all' || (policy === 'sidebars' && to !== 'main');
+    }
+
     // A close applies once 'closing' allows it, against the layout as it stands then.
     function guarded(change: (current: Layout) => Layout) {
         let surfaces = removed(read(layout).root, change(read(layout)).root),
@@ -444,6 +472,13 @@ const state = ({ closing, open = {}, root = null, store }: Options = {}) => {
 
     function id(prefix: string) {
         return `${prefix}-${counter++}`;
+    }
+
+    function shared(from: Group, to: Placement | undefined) {
+        let a = area(from.placement),
+            b = area(to);
+
+        return a === b || (allows(a, b) && allows(b, a));
     }
 
     // A tree changed before the store reads back keeps its change rather than the saved one.
@@ -576,6 +611,10 @@ const state = ({ closing, open = {}, root = null, store }: Options = {}) => {
                 let source = findSurfaceGroup(current.root, surface),
                     item = source?.surfaces.find((entry) => entry.id === surface);
 
+                if (source && !shared(source, placement)) {
+                    return current;
+                }
+
                 if (source && fixed(source)) {
                     return source.placement === placement || allGroups(current.root).some((entry) => docked(entry, placement))
                         ? current
@@ -674,7 +713,12 @@ const state = ({ closing, open = {}, root = null, store }: Options = {}) => {
                     target = findGroup(current.root, group),
                     item = source?.surfaces.find((entry) => entry.id === surface);
 
-                if (!source || !target || !item || (source.id !== target.id && (item.sortable === false || fixed(target)))) {
+                if (
+                    !source ||
+                    !target ||
+                    !item ||
+                    (source.id !== target.id && (item.sortable === false || fixed(target) || !shared(source, target.placement)))
+                ) {
                     return current;
                 }
 
@@ -695,13 +739,13 @@ const state = ({ closing, open = {}, root = null, store }: Options = {}) => {
         },
 
         // Shows the surface, wherever it already is, or adds it to 'group', the focused group or a new one. A surface
-        // open elsewhere moves into the given group.
+        // open elsewhere moves into the given group, if its area shares with the group's; otherwise it shows where it is.
         open(surface: Surface, group?: string) {
             structural((current) => {
                 let existing = findSurfaceGroup(current.root, surface.id),
                     target = group ? findGroup(current.root, group) : null;
 
-                if (existing && (!target || existing.id === target.id)) {
+                if (existing && (!target || existing.id === target.id || !shared(existing, target.placement))) {
                     return {
                         ...visible(existing, current),
                         active: existing.id,
@@ -745,8 +789,13 @@ const state = ({ closing, open = {}, root = null, store }: Options = {}) => {
                     return current;
                 }
 
-                let existing = findSurfaceGroup(current.root, surface.id),
-                    root = existing ? take(current.root, existing, surface.id) : current.root;
+                let existing = findSurfaceGroup(current.root, surface.id);
+
+                if (existing && existing.id !== target.id && !shared(existing, target.placement)) {
+                    return current;
+                }
+
+                let root = existing ? take(current.root, existing, surface.id) : current.root;
 
                 return {
                     ...current,
@@ -801,6 +850,14 @@ const state = ({ closing, open = {}, root = null, store }: Options = {}) => {
             update((current) => ({ ...current, [placement]: { ...current[placement], size } }));
         },
 
+        // Whether the surface may move into a group placed at 'placement', the main area when undefined: always within
+        // its own area, otherwise as 'sharing' allows.
+        shares(surface: string, placement?: Placement) {
+            let source = findSurfaceGroup(read(layout).root, surface);
+
+            return source !== null && shared(source, placement);
+        },
+
         // Moves the surface into a new group beside 'group', splitting along 'direction' in the group's own dock.
         split(surface: string, group: string, direction: Direction, side: Side) {
             structural((current) => {
@@ -813,6 +870,7 @@ const state = ({ closing, open = {}, root = null, store }: Options = {}) => {
                     !item ||
                     !target ||
                     item.sortable === false ||
+                    !shared(source, target.placement) ||
                     (source.id === group && source.surfaces.length === 1) ||
                     (target.placement !== undefined && stationary(current.root, target.placement))
                 ) {
@@ -899,4 +957,4 @@ const state = ({ closing, open = {}, root = null, store }: Options = {}) => {
 
 export default state;
 export { allGroups, bounded, contains, docked, findGroup, findSplit, findSurfaceGroup, fixed, MIN_FRACTION, stationary };
-export type { Direction, Dock, Group, Layout, Node, Placement, Saved, Side, Split, Store, Surface, Zoom };
+export type { Area, Direction, Dock, Group, Layout, Node, Placement, Saved, Sharing, Side, Split, Store, Surface, Zoom };

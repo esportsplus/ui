@@ -7,7 +7,7 @@ import type { Options as Scrollbar } from '~/modifiers/scrollbar';
 import { mac } from '~/shared/platform';
 import { observe } from '~/shared/resize';
 import { group, launcher, title, type Catalog, type Context, type Kind } from './group';
-import state, { allGroups, bounded, contains, docked, findGroup, findSplit, findSurfaceGroup, MIN_FRACTION, stationary, type Group, type Layout, type Node, type Placement, type Saved, type Split, type Store, type Surface } from './model';
+import state, { allGroups, bounded, contains, docked, findGroup, findSplit, findSurfaceGroup, MIN_FRACTION, stationary, type Group, type Layout, type Node, type Placement, type Saved, type Sharing, type Split, type Store, type Surface } from './model';
 import { resized, separator } from './resize';
 import { frame, grip, resizer, sidebar, toggle, type Edge, type Options, type Sidebars } from './sidebar';
 import subtree from './subtree';
@@ -149,8 +149,9 @@ function structure(node: Node | null): unknown {
 }
 
 // Outside every tab strip, what a dragged tab drops onto: a dock's strip along the layout's edge, or the half of a
-// group toward its nearest edge, which splits the group there. A group's header outside its strip takes nothing.
-function target(workspace: HTMLElement, x: number, y: number) {
+// group toward its nearest edge, which splits the group there. A group's header outside its strip takes nothing, nor
+// does a group 'allowed' turns down.
+function target(workspace: HTMLElement, x: number, y: number, allowed: (group: string) => boolean) {
     let elements = document.elementsFromPoint(x, y).filter((element) => element.closest('.shell') === workspace),
         dock = elements.find((element) => element.matches('.shell-dock-target')) as HTMLElement | undefined,
         section = elements.find((element) => element.matches('.shell-group')) as HTMLElement | undefined;
@@ -159,7 +160,11 @@ function target(workspace: HTMLElement, x: number, y: number) {
         return dock;
     }
 
-    if (!section || y <= (section.querySelector(':scope > .shell-header')?.getBoundingClientRect().bottom ?? -Infinity)) {
+    if (
+        !section ||
+        !allowed(section.dataset.group ?? '') ||
+        y <= (section.querySelector(':scope > .shell-header')?.getBoundingClientRect().bottom ?? -Infinity)
+    ) {
         return null;
     }
 
@@ -199,7 +204,7 @@ const shell = component(
             added = reactive({ active: false }),
             apple = mac(),
             // A tab is being dragged, which lights the docks and group halves it can drop onto.
-            carrying = signal(false),
+            carrying = signal<Surface | null>(null),
             controller: Controller | undefined,
             frames = { left: frame(), right: frame() },
             hosts = new Map<string, Host>(),
@@ -245,6 +250,13 @@ const shell = component(
             if (group) {
                 state.split(surface.id, group, direction, side);
             }
+        }
+
+        // Whether the surface may move into the group, as the state's sharing allows.
+        function shares(surface: Surface, group: string) {
+            let found = findGroup(state.layout.root, group);
+
+            return found !== null && state.shares(surface.id, found.placement);
         }
 
         // Whether the group already holds the kind, where adding it would only reselect its tab. A kind that opens a new
@@ -338,16 +350,17 @@ const shell = component(
                 strips.set(strip, group);
 
                 return {
+                    accepts: (surface) => shares(surface, strips.get(strip) ?? ''),
                     disabled: (surface) => surface.sortable === false,
                     group: edges.id,
                     onland: () => {
                         let land = landing;
 
                         landing = null;
-                        write(carrying, false);
+                        write(carrying, null);
                         land?.();
                     },
-                    onlift: () => write(carrying, true),
+                    onlift: (surface) => write(carrying, surface),
                     onsort: (surface, _, to, __, target) => {
                         let group = strips.get(target);
 
@@ -366,7 +379,7 @@ const shell = component(
                                 }
                             };
                         },
-                        over: (_, x, y) => workspace ? target(workspace, x, y) : null
+                        over: (surface, x, y) => workspace ? target(workspace, x, y, (group) => shares(surface, group)) : null
                     }
                 };
             },
@@ -673,7 +686,8 @@ const shell = component(
             }
         }
 
-        // Strips along the layout's edges a dragged tab docks onto; a static sidebar has none.
+        // Strips along the layout's edges a dragged tab docks onto; a static sidebar has none, and a dock the tab's area
+        // doesn't share with stays hidden while it is carried.
         function targets() {
             return (['bottom', 'left', 'right'] as const)
                 .filter((placement) => placement === 'bottom' || !stationary(state.layout.root, placement))
@@ -682,6 +696,13 @@ const shell = component(
                         aria-hidden='true'
                         class='shell-dock-target shell-dock-target--${placement}'
                         data-placement='${placement}'
+                        ${{
+                            hidden: () => {
+                                let surface = read(carrying);
+
+                                return surface !== null && !state.shares(surface.id, placement);
+                            }
+                        }}
                     ></div>
                 `);
         }
@@ -779,7 +800,7 @@ const shell = component(
                 ${attributes}
                 ${{
                     class: [
-                        () => read(carrying) && 'shell--dragging',
+                        () => read(carrying) !== null && 'shell--dragging',
                         () => narrow() && 'shell--narrow',
                         () => (frames.left.dragging || frames.right.dragging) && 'shell--sliding',
                         () => open('left') && 'shell--left-open',
@@ -887,4 +908,4 @@ const layout: typeof shell & { state: typeof state } = Object.assign(shell, { st
 
 
 export default layout;
-export type { Catalog, Kind, Layout, Node, Placement, Saved, Store, Surface };
+export type { Catalog, Kind, Layout, Node, Placement, Saved, Sharing, Store, Surface };
