@@ -137,7 +137,7 @@ function tab(context: Context, live: Live, surface: Surface, attributes: Attribu
                         void context.state.close(surface.id);
                     }
                 },
-                onclick: () => context.state.activate(surface.id),
+                onclick: () => context.state.activate(surface.id, false),
                 oncontextmenu: (e: MouseEvent) => context.menu(e, group.id, surface.id),
                 onkeydown: (e: KeyboardEvent) => {
                     if (e.key === 'Delete') {
@@ -146,7 +146,7 @@ function tab(context: Context, live: Live, surface: Surface, attributes: Attribu
                     }
                     else if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        context.state.activate(surface.id);
+                        context.state.activate(surface.id, false);
                     }
                 },
                 // A middle press would start autoscroll before the auxclick closes the tab.

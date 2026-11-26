@@ -284,7 +284,8 @@ const shell = component(
                     }
                 }
 
-                state.open({ id, kind }, group);
+                // Added from a group's own strip or launcher, the group is already on screen.
+                state.open({ id, kind }, group, group === undefined);
             },
             addable: Object.entries(catalog).filter(([, entry]) => entry.addable !== false),
             adding: (group: string) => added.active && subject.group === group,

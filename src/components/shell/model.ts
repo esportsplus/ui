@@ -522,7 +522,9 @@ const state = ({ closing, open = {}, root = null, sharing = {}, store }: Options
     }
 
     return {
-        activate(surface: string) {
+        // Opens the surface's sidebar too, unless 'reveal' is false: a tab pressed in a sidebar is already on screen,
+        // peeking or not, so it leaves the sidebar's open setting as the user set it.
+        activate(surface: string, reveal = true) {
             update((current) => {
                 let group = findSurfaceGroup(current.root, surface);
 
@@ -531,7 +533,7 @@ const state = ({ closing, open = {}, root = null, sharing = {}, store }: Options
                 }
 
                 return {
-                    ...visible(group, current),
+                    ...(reveal ? visible(group, current) : current),
                     active: group.id,
                     root: updateGroup(current.root, group.id, (entry) => ({ ...entry, active: surface }))
                 };
@@ -706,7 +708,8 @@ const state = ({ closing, open = {}, root = null, sharing = {}, store }: Options
             });
         },
 
-        // Into the group at 'index' among its tabs, or at the end; within its own group it reorders.
+        // Into the group at 'index' among its tabs, or at the end; within its own group it reorders. Only a move into
+        // another dock opens it: one within a dock happens where it already shows, peeking or not.
         move(surface: string, group: string, index?: number) {
             structural((current) => {
                 let source = findSurfaceGroup(current.root, surface),
@@ -725,7 +728,7 @@ const state = ({ closing, open = {}, root = null, sharing = {}, store }: Options
                 let root = source.id === target.id ? current.root : take(current.root, source, surface);
 
                 return {
-                    ...visible(target, current),
+                    ...(source.placement === target.placement ? current : visible(target, current)),
                     active: target.id,
                     root: updateGroup(root, target.id, (entry) => {
                         let surfaces = entry.surfaces.filter((other) => other.id !== surface);
@@ -740,14 +743,15 @@ const state = ({ closing, open = {}, root = null, sharing = {}, store }: Options
 
         // Shows the surface, wherever it already is, or adds it to 'group', the focused group or a new one. A surface
         // open elsewhere moves into the given group, if its area shares with the group's; otherwise it shows where it is.
-        open(surface: Surface, group?: string) {
+        // Opens the sidebar it lands in, unless 'reveal' is false, as for an add made from a group already on screen.
+        open(surface: Surface, group?: string, reveal = true) {
             structural((current) => {
                 let existing = findSurfaceGroup(current.root, surface.id),
                     target = group ? findGroup(current.root, group) : null;
 
                 if (existing && (!target || existing.id === target.id || !shared(existing, target.placement))) {
                     return {
-                        ...visible(existing, current),
+                        ...(reveal ? visible(existing, current) : current),
                         active: existing.id,
                         root: updateGroup(current.root, existing.id, (entry) => ({ ...entry, active: surface.id }))
                     };
@@ -772,7 +776,7 @@ const state = ({ closing, open = {}, root = null, sharing = {}, store }: Options
                 let root = existing ? take(current.root, existing, surface.id) : current.root;
 
                 return {
-                    ...visible(target, current),
+                    ...(reveal ? visible(target, current) : current),
                     active: target.id,
                     root: updateGroup(root, target.id, (entry) => ({ ...entry, active: surface.id, surfaces: [...entry.surfaces, surface] }))
                 };
