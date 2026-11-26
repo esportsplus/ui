@@ -519,13 +519,16 @@
         padding-inline-end: calc(var(--padding-horizontal) / 2);
         user-select: none;
 
-        &--icon {
+        // Both are buttons, whose own 'width' sits in the same layer at the same weight and is emitted again by every
+        // component that pulls the button in, so a later copy would win. Chained through '.button' so the size here
+        // wins regardless of stylesheet order.
+        &--icon.button {
             justify-content: center;
             padding-inline: 0;
             width: var(--height);
         }
 
-        &-close {
+        &-close.button {
             flex: none;
             height: var(--size);
             width: var(--size);
