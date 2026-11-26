@@ -1,5 +1,6 @@
 import { flush, onCleanup, reactive } from '@esportsplus/reactivity';
 import { component, html, type Attributes, type Renderable } from '@esportsplus/template';
+import checkbox from '~/components/checkbox';
 import highlight, { type A as HighlightAttributes } from '~/components/highlight';
 import icon from '~/components/icon';
 import overlay from '~/components/overlay';
@@ -41,6 +42,9 @@ type Controller = {
 };
 
 type Item = {
+    // A checkable item, led by a checkbox showing whether 'checked' holds; choosing it leaves the menu open, so several
+    // can be toggled in one visit.
+    checked?: () => boolean;
     danger?: boolean;
     disabled?: boolean;
     hidden?: Attributes['hidden'];
@@ -286,14 +290,16 @@ function createMenu(context = false) {
 
             function entry(node: MenuNode): Renderable<unknown> {
                 let branch = node.children.length > 0,
-                    { danger, disabled, hint, icon: glyph, items: _items, label, onselect: _onselect, ...itemAttributes } = node.item!,
+                    { checked, danger, disabled, hint, icon: glyph, items: _items, label, onselect: _onselect, ...itemAttributes } = node.item!,
                     contents = html`
+                        ${checked && checkbox({ 'aria-hidden': 'true', class: 'tooltip-menu-check', inert: true, [checkbox.input]: { checked, tabindex: -1 } })}
                         ${glyph && html`<span class='tooltip-menu-icon'>${glyph()}</span>`}
                         <span class='tooltip-menu-label'>${label}</span>
                         ${hint && html`<span class='tooltip-menu-hint'>${hint}</span>`}
                         ${branch && icon({ 'aria-hidden': 'true', class: 'tooltip-menu-chevron icon--rotate' }, chevron)}
                     `,
                     bindings = {
+                        'aria-checked': checked && (() => String(checked())),
                         'aria-disabled': disabled === true && 'true',
                         'aria-expanded': branch && (() => String(node.state.open)),
                         'aria-haspopup': branch && 'menu',
@@ -327,7 +333,7 @@ function createMenu(context = false) {
                             ${bindings}
                         >${contents}</a>` : html`<button
                             class='tooltip-menu-item ${danger && 'tooltip-menu-item--danger'}'
-                            role='menuitem'
+                            role='${checked ? 'menuitemcheckbox' : 'menuitem'}'
                             tabindex='-1'
                             type='button'
                             ${attributes[MENU_ITEM]}
@@ -643,7 +649,10 @@ function createMenu(context = false) {
                     return;
                 }
 
-                close(true);
+                if (!item.checked) {
+                    close(true);
+                }
+
                 item.onselect?.(item, event);
                 onselect?.(item);
             }
