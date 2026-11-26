@@ -4,7 +4,7 @@ import highlight from '~/components/highlight';
 import icon from '~/components/icon';
 import sortable, { type SortableOptions } from '~/components/sortable';
 import type { Item } from '~/components/tooltip/menu';
-import scrollbar from '~/modifiers/scrollbar';
+import scrollbar, { type Options as ScrollbarOptions } from '~/modifiers/scrollbar';
 import { fixed, type Group, type Layout, type Surface } from './model';
 import type state from './model';
 import subtree from './subtree';
@@ -42,6 +42,8 @@ type Context = {
     // Picks or unpicks the group for the zoom made when the modifier is let go.
     pick: (group: string) => void;
     picked: (group: string) => boolean;
+    // Each tab strip's scrollbar.
+    scrollbar: ScrollbarOptions;
     // The slot a surface's long-lived host moves into while it shows.
     slot: (surface: string) => Renderable<unknown>;
     // How a group's tab strip sorts, shared by every strip so tabs move between them; 'strip' is the group's tabs.
@@ -392,7 +394,7 @@ const group = (context: Context, live: Live) => {
                     aria-label='Tabs'
                     class='shell-tabs'
                     role='tablist'
-                    ${scrollbar({ hidden: true })}
+                    ${scrollbar(context.scrollbar)}
                     ${list.attributes}
                     ${{
                         onconnect: (element: HTMLElement) => {

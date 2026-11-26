@@ -3,6 +3,7 @@ import { component, html, render, type Attributes, type Renderable } from '@espo
 import icon from '~/components/icon';
 import tooltip from '~/components/tooltip';
 import type { Controller, Item } from '~/components/tooltip/menu';
+import type { Options as Scrollbar } from '~/modifiers/scrollbar';
 import { mac } from '~/shared/platform';
 import { observe } from '~/shared/resize';
 import { group, launcher, title, type Catalog, type Context, type Kind } from './group';
@@ -26,6 +27,8 @@ type A = Attributes & {
     // Each sidebar's label, whether it peeks while the pointer rests on its edge, and whether it resizes.
     sidebars?: Partial<Record<Edge, Options>>;
     state: ReturnType<typeof state>;
+    // Every group's tab strip: 'scrollbar' over the strip's own hidden horizontal bar, such as 'fade' for edge shadows.
+    tabs?: { scrollbar?: Scrollbar };
 };
 
 type Host = { dispose: VoidFunction; element: HTMLElement };
@@ -190,7 +193,7 @@ function under(workspace: HTMLElement, x: number, y: number) {
 // corner, and a closed sidebar's edge holds a handle to drag it out by. A sidebar holding a single unsortable surface
 // is static: it shows the surface without tabs, takes no drops, and swipes closed toward its edge.
 const shell = component(
-    function({ catalog, empty, icons = false, narrow: breakpoint = NARROW, sidebars: options = {}, state, ...attributes }: A) {
+    function({ catalog, empty, icons = false, narrow: breakpoint = NARROW, sidebars: options = {}, state, tabs = {}, ...attributes }: A) {
         let adding: Controller | undefined,
             // The add menu shows, opened from 'subject.group''s add button.
             added = reactive({ active: false }),
@@ -314,6 +317,7 @@ const shell = component(
                 write(picks, current.includes(group) ? current.filter((id) => id !== group) : [...current, group]);
             },
             picked: (group: string) => read(picks).includes(group),
+            scrollbar: { hidden: true, ...tabs.scrollbar, horizontal: true },
             slot: (surface: string) => html`
                 <div
                     class='shell-slot'
