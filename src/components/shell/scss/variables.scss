@@ -51,8 +51,11 @@
     }
 
 
-    &-action,
-    &-add {
+    // Both are buttons, whose own state variables sit at the same weight and are emitted again by every component that
+    // pulls the button in, so a later copy would reset them. Chained through '.button' so these win regardless of
+    // stylesheet order.
+    &-action.button,
+    &-add.button {
         @extend %color-text;
         --background-default: transparent;
         --border-radius: var(--border-radius-300);
@@ -60,7 +63,7 @@
         --padding-vertical: 0px;
     }
 
-    &-action {
+    &-action.button {
         --background-active: var(--surface-background-active);
         --background-hover: var(--surface-background-hover);
         --background-pressed: var(--surface-background-pressed);
@@ -69,7 +72,7 @@
 
     // Lit by the tab strip's highlight, as the tabs are, so it stays transparent itself; the strip's active layer stays
     // on the current tab, so while its menu is open it fills itself.
-    &-add {
+    &-add.button {
         --background-active: var(--surface-background-active);
         --background-hover: transparent;
         --background-pressed: transparent;
