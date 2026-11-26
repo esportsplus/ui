@@ -67,9 +67,10 @@
         --size: 28px;
     }
 
-    // Lit by the tab strip's highlight, as the tabs are, so it stays transparent itself.
+    // Lit by the tab strip's highlight, as the tabs are, so it stays transparent itself; the strip's active layer stays
+    // on the current tab, so while its menu is open it fills itself.
     &-add {
-        --background-active: transparent;
+        --background-active: var(--surface-background-active);
         --background-hover: transparent;
         --background-pressed: transparent;
         --size: 24px;

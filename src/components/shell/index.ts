@@ -192,6 +192,8 @@ function under(workspace: HTMLElement, x: number, y: number) {
 const shell = component(
     function({ catalog, empty, icons = false, narrow: breakpoint = NARROW, sidebars: options = {}, state, ...attributes }: A) {
         let adding: Controller | undefined,
+            // The add menu shows, opened from 'subject.group''s add button.
+            added = reactive({ active: false }),
             apple = mac(),
             // A tab is being dragged, which lights the docks and group halves it can drop onto.
             carrying = signal(false),
@@ -264,6 +266,7 @@ const shell = component(
                 state.open({ id, kind }, group);
             },
             addable: Object.entries(catalog).filter(([, entry]) => entry.addable !== false),
+            adding: (group: string) => added.active && subject.group === group,
             catalog,
             choose(e: MouseEvent, group: string) {
                 if (!adding) {
@@ -846,6 +849,7 @@ const shell = component(
                             label: typeof entry.title === 'function' ? entry.title({ id: '', kind }) : entry.title,
                             onselect: () => context.add(kind, subject.group)
                         })),
+                        state: added,
                         [tooltip.context.panel]: { 'aria-label': 'Add panel' }
                     },
                     ''

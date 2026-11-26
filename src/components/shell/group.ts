@@ -22,6 +22,8 @@ type Context = {
     add: (kind: string, group?: string) => void;
     // The kinds the add menu and launcher offer.
     addable: [string, Kind][];
+    // Whether the add menu is open from the group's add button.
+    adding: (group: string) => boolean;
     catalog: Catalog;
     // Opens the add menu under the pressed button, adding to the group.
     choose: (e: MouseEvent, group: string) => void;
@@ -405,7 +407,11 @@ const group = (context: Context, live: Live) => {
                             class='button shell-add'
                             title='Add panel'
                             type='button'
-                            ${{ onclick: (e: MouseEvent) => context.choose(e, group.id) }}
+                            ${{
+                                'aria-expanded': () => String(context.adding(group.id)),
+                                class: () => context.adding(group.id) && '--active',
+                                onclick: (e: MouseEvent) => context.choose(e, group.id)
+                            }}
                         >
                             ${icon({ 'aria-hidden': 'true' }, plus)}
                         </button>
