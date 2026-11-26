@@ -18,6 +18,7 @@ type Combine<T> = {
 // One container's list. A dragged item moves through the lists live, standing in its own place; the copy that
 // follows the pointer belongs to the list it was picked up from.
 type List<T> = {
+    accepts?: (item: T) => boolean;
     combine?: Combine<T>;
     container?: HTMLElement;
     // The item dragged out of this list, shown by its copy until it has landed.
@@ -52,6 +53,9 @@ type Motion = {
 };
 
 type Options<T> = {
+    // Whether an item dragged in from another list of the group may enter this one; every item when omitted. A list
+    // that turns the item down is passed over as though it weren't there.
+    accepts?: (item: T) => boolean;
     combine?: Combine<T>;
     // Items that stay where they are: a press on one starts no drag, though others still sort past it.
     disabled?: (item: T) => boolean;
@@ -137,7 +141,7 @@ function drag(source: List<unknown>, item: HTMLElement, value: unknown, e: Point
         lastLeft = NaN,
         lastTop = NaN,
         layout: Rect[] = [],
-        lists = group ? [...(groups.get(group) ?? [source])] : [source],
+        lists = group ? [...(groups.get(group) ?? [source])].filter((list) => list === source || (list.accepts?.(value) ?? true)) : [source],
         // The target outside every list the pointer is over.
         marked: HTMLElement | null = null,
         // Combined with another item, or delivered to a target, so the press no longer ends the drag.
@@ -764,9 +768,10 @@ function page() {
 export default <T>(
     items: ReactiveArray<T>,
     template: (item: T, attributes: Attributes) => Renderable<unknown>,
-    { combine, disabled, drag: copy, group, handle, onland, onlift, onsort, onthrow, outside }: Options<T> = {}
+    { accepts, combine, disabled, drag: copy, group, handle, onland, onlift, onsort, onthrow, outside }: Options<T> = {}
 ) => {
     let list: List<T> = {
+            accepts,
             combine,
             dragging: signal<T | null>(null),
             held: signal<T | null>(null),
