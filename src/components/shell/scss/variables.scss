@@ -55,8 +55,6 @@
     &-add {
         @extend %color-text;
         --background-default: transparent;
-        --background-hover: var(--surface-background-hover);
-        --background-pressed: var(--surface-background-pressed);
         --border-radius: var(--border-radius-300);
         --padding-horizontal: 0px;
         --padding-vertical: 0px;
@@ -64,10 +62,16 @@
 
     &-action {
         --background-active: var(--surface-background-active);
+        --background-hover: var(--surface-background-hover);
+        --background-pressed: var(--surface-background-pressed);
         --size: 28px;
     }
 
+    // Lit by the tab strip's highlight, as the tabs are, so it stays transparent itself.
     &-add {
+        --background-active: transparent;
+        --background-hover: transparent;
+        --background-pressed: transparent;
         --size: 24px;
     }
 

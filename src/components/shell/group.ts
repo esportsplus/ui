@@ -396,7 +396,7 @@ const group = (context: Context, live: Live) => {
                         }
                     }}
                 >
-                    ${highlight({ class: 'shell-tabs-highlight', target: '.shell-tab' })}
+                    ${highlight({ class: 'shell-tabs-highlight', target: ':is(.shell-tab, .shell-add)' })}
                     ${list.render()}
                     ${context.addable.length > 0 && html`
                         <button
