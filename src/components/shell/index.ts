@@ -340,8 +340,17 @@ const shell = component(
                         landing = group ? () => state.move(surface.id, group, to) : null;
                     },
                     outside: {
-                        ondrop: (surface, element) => {
-                            landing = () => drop(surface, element);
+                        // The strip lets the tab go as it is dropped, before the layout takes it. A drop the layout
+                        // turns down, such as a group's only tab onto its own edge, changes nothing, so the group isn't
+                        // rebuilt; the tab goes back where it was in its strip.
+                        ondrop: (surface, element, from, source) => {
+                            landing = () => {
+                                drop(surface, element);
+
+                                if (findSurfaceGroup(state.layout.root, surface.id)?.id === strips.get(source)) {
+                                    source.splice(from, 0, surface);
+                                }
+                            };
                         },
                         over: (_, x, y) => workspace ? target(workspace, x, y) : null
                     }
