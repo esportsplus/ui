@@ -185,6 +185,25 @@
             }
         }
 
+        // A section: its heading in small muted capitals, its chevron pointing down at the rows it would unfold and up
+        // while they show, and a rule between it and the section before. Qualified past the chevron's own rotation.
+        &-section {
+            --section-border-color: var(--surface-border-default);
+            --section-heading-color: var(--color-text-300);
+            --section-heading-font-size: var(--font-size-200);
+            --section-heading-font-weight: var(--font-weight-500);
+            --section-heading-letter-spacing: 0.04em;
+
+
+            &-heading > .tooltip-menu-chevron.icon {
+                --rotate: 90deg;
+            }
+
+            &.--open > .tooltip-menu-entry > .tooltip-menu-section-heading > .tooltip-menu-chevron.icon {
+                --rotate: -90deg;
+            }
+        }
+
         // Doubled so it outranks a class paired onto the item, such as '.link'.
         &-header,
         &-item.tooltip-menu-item {

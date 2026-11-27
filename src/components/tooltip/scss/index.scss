@@ -439,6 +439,43 @@
             }
         }
 
+        // A section's rows fold away under its heading: the row track eases between none of their height and all of it,
+        // and the inner box clips them on the way. Ruled off from the section before it.
+        &-section {
+            & + & {
+                border-top: var(--border-width-400) solid var(--section-border-color);
+                margin-top: var(--inset-vertical);
+                padding-top: var(--inset-vertical);
+            }
+
+            &-heading {
+                color: var(--section-heading-color);
+                font-size: var(--section-heading-font-size);
+                font-weight: var(--section-heading-font-weight);
+                letter-spacing: var(--section-heading-letter-spacing);
+                text-transform: uppercase;
+            }
+
+            &-inner {
+                min-height: 0;
+                overflow: hidden;
+            }
+
+            &-items {
+                display: grid;
+                grid-template-rows: 0fr;
+                transition: grid-template-rows var(--open-duration) var(--open-timing-function);
+
+                @media (prefers-reduced-motion: reduce) {
+                    transition: none;
+                }
+            }
+
+            &.--open > &-items {
+                grid-template-rows: 1fr;
+            }
+        }
+
         // Regular and bold copies of the title are stacked; crossfading them morphs the weight without reflowing the
         // label.
         &-title {

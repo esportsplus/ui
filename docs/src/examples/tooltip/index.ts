@@ -334,6 +334,33 @@ export default {
             ),
             title: 'menu (highlight)'
         },
+        // Sections fold their rows away in place; checked rows stay open while several are toggled.
+        {
+            render: () => {
+                let shown = reactive({ ids: '1m,5m,1h' }),
+                    has = (id: string) => shown.ids.split(',').includes(id),
+                    row = (id: string, label: string) => ({
+                        checked: () => has(id),
+                        label,
+                        onselect: () => {
+                            shown.ids = has(id) ? shown.ids.split(',').filter((value) => value !== id).join(',') : `${shown.ids},${id}`;
+                        }
+                    });
+
+                return tooltip.menu(
+                    {
+                        items: [
+                            { items: [row('1s', '1 second'), row('15s', '15 seconds')], label: 'Seconds', section: true },
+                            { items: [row('1m', '1 minute'), row('5m', '5 minutes'), row('15m', '15 minutes')], label: 'Minutes', section: true },
+                            { collapsed: true, items: [row('1h', '1 hour'), row('4h', '4 hours')], label: 'Hours', section: true }
+                        ],
+                        [tooltip.menu.trigger]: { class: trigger }
+                    },
+                    'sections menu'
+                );
+            },
+            title: 'menu (sections)'
+        },
         {
             // The region is the only thing it acts on, so it takes focus itself; Shift+F10 opens it from the keyboard.
             render: () => tooltip.context(

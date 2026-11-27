@@ -45,6 +45,8 @@ type Item = {
     // A checkable item, led by a checkbox showing whether 'checked' holds; choosing it leaves the menu open, so several
     // can be toggled in one visit.
     checked?: () => boolean;
+    // A section that starts folded.
+    collapsed?: boolean;
     danger?: boolean;
     disabled?: boolean;
     hidden?: Attributes['hidden'];
@@ -55,6 +57,9 @@ type Item = {
     items?: Item[];
     label: Renderable<unknown>;
     onselect?: (item: Item, event: MouseEvent) => void;
+    // With 'items', a heading over them in the same panel that folds them away on a click, rather than a branch opening
+    // a panel of its own. Its items are plain rows: neither branches nor sections.
+    section?: boolean;
     target?: string;
 };
 
@@ -89,9 +94,14 @@ const SLOP = 10;
 let anchors = 0;
 
 
+// A node with items that open a panel of their own; a section's show in place instead.
+function branch(node: MenuNode) {
+    return node.children.length > 0 && !node.item?.section;
+}
+
 function covered(node: MenuNode) {
     for (let i = 0, n = node.children.length; i < n; i++) {
-        if (node.children[i].state.open) {
+        if (branch(node.children[i]) && node.children[i].state.open) {
             return true;
         }
     }
@@ -292,7 +302,7 @@ function createMenu(context = false) {
             }
 
             function drill(node: MenuNode) {
-                if (!node.children.length || node.item?.disabled) {
+                if (!branch(node) || node.item?.disabled) {
                     return;
                 }
 
@@ -316,27 +326,31 @@ function createMenu(context = false) {
             }
 
             function entry(node: MenuNode): Renderable<unknown> {
-                let branch = node.children.length > 0,
+                if (node.item!.section) {
+                    return section(node);
+                }
+
+                let nested = branch(node),
                     { checked, danger, disabled, hint, icon: glyph, items: _items, label, onselect: _onselect, ...itemAttributes } = node.item!,
                     contents = html`
                         ${checked && checkbox({ 'aria-hidden': 'true', class: 'tooltip-menu-check', inert: true, [checkbox.input]: { checked, tabindex: -1 } })}
                         ${glyph && html`<span class='tooltip-menu-icon'>${glyph()}</span>`}
                         <span class='tooltip-menu-label'>${label}</span>
                         ${hint && html`<span class='tooltip-menu-hint'>${hint}</span>`}
-                        ${branch && icon({ 'aria-hidden': 'true', class: 'tooltip-menu-chevron icon--rotate' }, chevron)}
+                        ${nested && icon({ 'aria-hidden': 'true', class: 'tooltip-menu-chevron icon--rotate' }, chevron)}
                     `,
                     bindings = {
                         'aria-checked': checked && (() => String(checked())),
                         'aria-disabled': disabled === true && 'true',
-                        'aria-expanded': branch && (() => String(node.state.open)),
-                        'aria-haspopup': branch && 'menu',
+                        'aria-expanded': nested && (() => String(node.state.open)),
+                        'aria-haspopup': nested && 'menu',
                         onclick: (event: MouseEvent) => {
                             if (disabled) {
                                 event.preventDefault();
                                 return;
                             }
 
-                            if (branch) {
+                            if (nested) {
                                 event.preventDefault();
                                 drill(node);
                             }
@@ -449,12 +463,25 @@ function createMenu(context = false) {
                     case 'ArrowUp':
                         nodes[index < 1 ? n - 1 : index - 1]?.button?.focus();
                         break;
+                    // On an open section's heading, Left folds it; anywhere else it goes back a level.
                     case 'ArrowLeft':
                     case 'Backspace':
-                        pop();
+                        if (e.key === 'ArrowLeft' && nodes[index]?.item?.section && nodes[index].state.open) {
+                            nodes[index].state.open = false;
+                        }
+                        else {
+                            pop();
+                        }
                         break;
                     case 'ArrowRight':
-                        if (index !== -1) {
+                        if (index === -1) {
+                            break;
+                        }
+
+                        if (nodes[index].item?.section) {
+                            nodes[index].state.open = true;
+                        }
+                        else {
                             drill(nodes[index]);
                         }
                         break;
@@ -646,7 +673,7 @@ function createMenu(context = false) {
                             ${highlighted && highlight({ ...(highlighted === true ? {} : highlighted), target: '.tooltip-menu-entry' })}
                         </div>
 
-                        ${node.children.map((child) => child.children.length > 0 && html`${() => child.state.render && panel(child)}`)}
+                        ${node.children.map((child) => branch(child) && html`${() => child.state.render && panel(child)}`)}
                     </div>
                 `;
             }
@@ -699,6 +726,38 @@ function createMenu(context = false) {
                     node.state.open = false;
                     node.state.settled = false;
                 }
+            }
+
+            // A heading over its items in the same panel; a click folds or unfolds them. Folded, they're inert, so
+            // neither the pointer nor the keys reach them.
+            function section(node: MenuNode): Renderable<unknown> {
+                return html`
+                    <div ${{ class: () => ['tooltip-menu-section', node.state.open && '--open'] }}>
+                        <div class='tooltip-menu-entry'>
+                            <button
+                                class='tooltip-menu-item tooltip-menu-section-heading'
+                                role='menuitem'
+                                tabindex='-1'
+                                type='button'
+                                ${{
+                                    'aria-expanded': () => String(node.state.open),
+                                    onclick: () => {
+                                        node.state.open = !node.state.open;
+                                    },
+                                    onconnect: (element: HTMLElement) => {
+                                        node.button = element;
+                                    }
+                                }}
+                            >
+                                <span class='tooltip-menu-label'>${node.item!.label}</span>
+                                ${icon({ 'aria-hidden': 'true', class: 'tooltip-menu-chevron icon--rotate' }, chevron)}
+                            </button>
+                        </div>
+                        <div class='tooltip-menu-section-items' role='group' ${{ inert: () => !node.state.open }}>
+                            <div class='tooltip-menu-section-inner'>${node.children.map(entry)}</div>
+                        </div>
+                    </div>
+                `;
             }
 
             function select(node: MenuNode, event: MouseEvent) {
@@ -815,14 +874,21 @@ function createMenu(context = false) {
     );
 }
 
+// The rows the keys move through, in order: an open section's items follow its heading.
 function enabled(node: MenuNode) {
     let nodes: MenuNode[] = [];
 
     for (let i = 0, n = node.children.length; i < n; i++) {
         let child = node.children[i];
 
-        if (child.button && !child.button.hidden && !child.item?.disabled) {
-            nodes.push(child);
+        if (!child.button || child.button.hidden || child.item?.disabled) {
+            continue;
+        }
+
+        nodes.push(child);
+
+        if (child.item?.section && child.state.open) {
+            nodes.push(...enabled(child));
         }
     }
 
@@ -837,7 +903,8 @@ function tree(items: Item[], parent?: MenuNode) {
             children: [],
             item: items[i],
             parent,
-            state: reactive({ height: undefined as number | undefined, lift: 0, open: false, render: false, settled: false, top: 0 })
+            // A section shows its items unless it starts collapsed; a branch's panel starts closed.
+            state: reactive({ height: undefined as number | undefined, lift: 0, open: items[i].section === true && items[i].collapsed !== true, render: false, settled: false, top: 0 })
         };
 
         node.children = tree(items[i].items ?? [], node);

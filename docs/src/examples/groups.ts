@@ -131,7 +131,7 @@ const groups: Record<string, Group[]> = {
     ],
     tooltip: [
         { title: 'tooltip', members: [['onhover', 'Hover'], ['onclick', 'Click'], 'scale', 'scale + spring', 'spring'] },
-        { title: 'menu', members: [['menu', 'Flat'], ['menu (drill down)', 'Nested'], ['menu (instant)', 'Nested (instant)'], ['menu (onhover)', 'Hover'], ['menu (expand)', 'Expand']] },
+        { title: 'menu', members: [['menu', 'Flat'], ['menu (drill down)', 'Nested'], ['menu (instant)', 'Nested (instant)'], ['menu (onhover)', 'Hover'], ['menu (expand)', 'Expand'], ['menu (sections)', 'Sections']] },
         { title: 'expand', members: [['expand (onclick)', 'Click']] },
         { title: 'morph', members: [['morph (onhover)', 'Hover'], ['morph (onclick)', 'Click'], ['morph message (onhover)', 'Message']] },
         { title: 'shared', members: [
