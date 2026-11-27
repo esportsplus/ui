@@ -467,6 +467,17 @@
         &-trigger:is(button) {
             cursor: pointer;
         }
+
+        // Held for its menu on touch screens, where a long-press would otherwise select text or raise the system's own
+        // callout under the finger.
+        &-trigger--context {
+            -webkit-touch-callout: none;
+
+            @media (hover: none) {
+                -webkit-user-select: none;
+                user-select: none;
+            }
+        }
     }
 
     &-message {

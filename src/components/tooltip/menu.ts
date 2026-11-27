@@ -72,11 +72,17 @@ type MenuNode = {
 type Point = { x: number, y: number };
 
 
+// How long (ms) a touch holds still on a context menu's host before it opens, as a long-press does natively.
+const HOLD = 500;
+
 const MENU_ITEM = Symbol.for('@esportsplus/ui/tooltip.menu.item');
 
 const MENU_PANEL = Symbol.for('@esportsplus/ui/tooltip.menu.panel');
 
 const MENU_TRIGGER = Symbol.for('@esportsplus/ui/tooltip.menu.trigger');
+
+// How far (px) a holding touch may drift before it counts as a scroll or drag instead.
+const SLOP = 10;
 
 
 // Names each menu's anchor, which its layer is placed over.
@@ -97,6 +103,11 @@ function createMenu(context = false) {
     return component(
         ({ align = 'start', animate = true, controller, expand: expansion = false, highlight: highlighted = false, items, onselect, openOn = 'click', state = reactive({ active: false }), ...attributes }: A, content) => {
             let hiding = 0,
+                // A touch holding on a context menu's host: where it went down, and the timer that opens the menu there.
+                holding: { point: Point, timer: ReturnType<typeof setTimeout> } | undefined,
+                // Whether the current touch's hold opened the menu, so the native long-press and the tap that ends it
+                // don't act a second time.
+                held = false,
                 host: HTMLElement | undefined,
                 // Where the root panel last opened, kept while it still fits there.
                 last: { corner?: Corner, side?: Side } = {},
@@ -122,6 +133,8 @@ function createMenu(context = false) {
 
             onCleanup(() => {
                 clearTimeout(leaving);
+                release();
+                host?.removeEventListener('click', swallow, true);
                 pending?.();
             });
 
@@ -261,6 +274,13 @@ function createMenu(context = false) {
                 }
 
                 event.preventDefault();
+                release();
+
+                // Android's own long-press, arriving after the hold already opened the menu.
+                if (held) {
+                    held = false;
+                    return;
+                }
 
                 // Synthetic events carry no point.
                 if (event.clientX === 0 && event.clientY === 0) {
@@ -286,6 +306,13 @@ function createMenu(context = false) {
                 // A panel created already open has no closed state to transition from, so it would never
                 // animate or settle; it renders closed and opens once that has painted.
                 node.state.render = true;
+            }
+
+            // A holding touch that moves past the slop is a scroll or drag, not a long-press.
+            function drift(event: PointerEvent) {
+                if (holding && Math.hypot(event.clientX - holding.point.x, event.clientY - holding.point.y) > SLOP) {
+                    release();
+                }
             }
 
             function entry(node: MenuNode): Renderable<unknown> {
@@ -353,6 +380,31 @@ function createMenu(context = false) {
                 node.state.open = true;
                 flush();
                 enabled(node)[0]?.button?.focus();
+            }
+
+            // A touch held still on a context menu's host opens it where the finger is, as a right-click does: iOS fires
+            // no 'contextmenu' on a long-press. The tap that ends the hold is swallowed, so it doesn't also press
+            // whatever the finger rests on.
+            function hold(event: PointerEvent) {
+                release();
+                held = false;
+                host?.removeEventListener('click', swallow, true);
+
+                if (event.pointerType !== 'touch' || !event.isPrimary || root.panel?.contains(event.target as Node)) {
+                    return;
+                }
+
+                let point = { x: event.clientX, y: event.clientY };
+
+                holding = {
+                    point,
+                    timer: setTimeout(() => {
+                        holding = undefined;
+                        held = true;
+                        host?.addEventListener('click', swallow, { capture: true, once: true });
+                        at(point);
+                    }, HOLD)
+                };
             }
 
             function inside(node: Node | null) {
@@ -633,6 +685,13 @@ function createMenu(context = false) {
                 }
             }
 
+            function release() {
+                if (holding) {
+                    clearTimeout(holding.timer);
+                    holding = undefined;
+                }
+            }
+
             function reset() {
                 while (stack.length > 1) {
                     let node = stack.pop()!;
@@ -655,6 +714,11 @@ function createMenu(context = false) {
 
                 item.onselect?.(item, event);
                 onselect?.(item);
+            }
+
+            function swallow(event: MouseEvent) {
+                event.preventDefault();
+                event.stopPropagation();
             }
 
             function stay() {
@@ -693,11 +757,19 @@ function createMenu(context = false) {
 
             return html`
                 ${context ? html`<div
-                    class='tooltip-menu-trigger'
+                    class='tooltip-menu-trigger tooltip-menu-trigger--context'
                     style='anchor-name: ${name};'
                     ${attributes}
                     ${spanning}
-                    ${{ oncontextmenu: contextmenu, onconnect: connect }}
+                    ${{
+                        class: () => state.active && '--active',
+                        oncontextmenu: contextmenu,
+                        onconnect: connect,
+                        onpointercancel: release,
+                        onpointerdown: hold,
+                        onpointermove: drift,
+                        onpointerup: release
+                    }}
                 >${content}</div>` : html`<button
                     aria-haspopup='menu'
                     class='tooltip-menu-trigger'
