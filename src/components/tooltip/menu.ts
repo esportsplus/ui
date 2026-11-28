@@ -765,6 +765,7 @@ function createMenu(context = false) {
                                     }
                                 }}
                             >
+                                ${node.item!.icon && html`<span class='tooltip-menu-icon'>${node.item!.icon()}</span>`}
                                 <span class='tooltip-menu-label'>${node.item!.label}</span>
                                 ${icon({ 'aria-hidden': 'true', class: 'tooltip-menu-chevron icon--rotate' }, chevron)}
                             </button>
