@@ -62,6 +62,9 @@ type Item = {
     // a panel of its own. Its items are plain rows: neither branches nor sections.
     section?: boolean;
     target?: string;
+    // A block of 'label' as prose rather than an option: it wraps, keeps the item's colour, and the keys pass over it;
+    // it's never chosen.
+    text?: boolean;
 };
 
 type MenuNode = {
@@ -335,6 +338,10 @@ function createMenu(context = false) {
             function entry(node: MenuNode): Renderable<unknown> {
                 if (node.item!.section) {
                     return section(node);
+                }
+
+                if (node.item!.text) {
+                    return html`<div class='tooltip-menu-entry'><div class='tooltip-menu-text' role='none'>${node.item!.label}</div></div>`;
                 }
 
                 let nested = branch(node),

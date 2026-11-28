@@ -357,6 +357,15 @@
             min-width: 0;
         }
 
+        // A text item: a block of prose among the rows, wrapping rather than cut to one line, padded as far above and
+        // below as at its sides, with its first line's capitals and last line's baseline trimmed so the padding alone
+        // spaces it.
+        &-text {
+            overflow-wrap: anywhere;
+            padding: var(--padding-horizontal);
+            text-box: trim-both cap alphabetic;
+        }
+
         // The root panel's popover, so an open menu stands above every stacking context around it. Laid over the
         // trigger's box, which 'tooltip.menu' writes on it and keeps current as the page scrolls, so its panels place
         // against it as they would against the trigger; it takes no clicks itself. Qualified so the popover reset
