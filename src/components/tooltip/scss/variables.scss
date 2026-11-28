@@ -156,12 +156,16 @@
     }
 
     &-menu {
-        // A checkable item's checkbox, checked in the panel's own fill rather than an accent: its border stays and its
-        // check takes the item's text colour. Chained through '.checkbox' so these win over its own regardless of
-        // stylesheet order.
+        // A checkable item's checkbox, bare: no border or shadow, so a checked item shows only its check, in the item's
+        // text colour on the panel's own fill, and an unchecked one nothing. Chained through '.checkbox' so these win over
+        // its own regardless of stylesheet order.
         &-check.checkbox {
             --background-active: var(--item-check-background);
-            --border-color-active: var(--border-color-default);
+            --border-width: 0px;
+            --box-shadow-active: none;
+            --box-shadow-default: none;
+            --box-shadow-hover: none;
+            --box-shadow-pressed: none;
             --indicator-color-default: currentColor;
             --size: var(--size-400);
         }
