@@ -63,5 +63,5 @@
         "**/*.scss"
     ],
     "type": "module",
-    "version": "0.72.3"
+    "version": "0.73.0"
 }
