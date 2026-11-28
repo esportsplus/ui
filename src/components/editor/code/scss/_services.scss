@@ -54,11 +54,6 @@
         color: var(--color);
         font-family: var(--font-family);
         font-size: var(--font-size);
-        left: anchor(left);
-        position-anchor: var(--anchor);
-        position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
-        // Hidden with the text it belongs to once that scrolls out of the editor.
-        position-visibility: anchors-visible;
     }
 
     &-completions {
@@ -67,7 +62,6 @@
         min-width: var(--width);
         overflow: auto;
         pointer-events: auto;
-        top: anchor(bottom);
     }
 
     &-diagnostic {
@@ -93,7 +87,6 @@
     }
 
     &-hover {
-        bottom: anchor(top);
         max-height: var(--max-height);
         max-width: min(90vw, var(--max-width));
         overflow: hidden;

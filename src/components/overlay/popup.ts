@@ -25,7 +25,8 @@ type Popup = {
     onclosed?: VoidFunction;
     ondismiss?: (reason: 'escape' | 'outside') => void;
     onopen?: VoidFunction;
-    // The surface 'target' returns must carry its own 'popover' attribute.
+    // Shows the surface 'target' returns in the top layer as it opens, when it carries a 'popover' attribute; one
+    // without stays in flow.
     popover?: boolean;
     state?: State;
     target?: (root: HTMLElement) => HTMLElement | undefined;
@@ -165,7 +166,7 @@ function popup({ canDismiss, contains = (root, node) => !!node && root.contains(
                     if (content) {
                         let state = surface(content, scope);
 
-                        if (popover && !content.matches(':popover-open')) {
+                        if (popover && content.hasAttribute('popover') && !content.matches(':popover-open')) {
                             content.showPopover();
                         }
 

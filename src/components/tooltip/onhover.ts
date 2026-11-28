@@ -1,7 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import overlay from '~/components/overlay';
-import { content, cool, morph, morphs, position, wait, warm, type Delay } from './utilities';
+import { content, cool, lift, morph, morphs, position, wait, warm, type Delay } from './utilities';
 import type { Axis } from '~/shared/placement';
 
 
@@ -102,7 +102,8 @@ function safe(element: HTMLElement, x: number, y: number) {
 // The hover behaviour without an element of its own: spread it on any '.tooltip' element that holds a
 // '.tooltip-content' or '.tooltip-message'.
 function trigger({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, state = reactive({ active: false }) }: Options = {}) {
-    let leaving: ReturnType<typeof setTimeout> | undefined,
+    let following: VoidFunction | undefined,
+        leaving: ReturnType<typeof setTimeout> | undefined,
         local = reactive({ instant: false, morphing: false, safe: '' }),
         morphed: VoidFunction | undefined,
         pending: VoidFunction | undefined,
@@ -126,6 +127,8 @@ function trigger({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, 
 
     function open(element: HTMLElement) {
         pending = undefined;
+        following?.();
+        following = lift(element);
         position(element, axis);
         morphed = morph(element, () => {
             morphed = undefined;
@@ -153,12 +156,24 @@ function trigger({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, 
 
     onCleanup(() => {
         clearTimeout(leaving);
+        following?.();
         morphed?.();
         pending?.();
     });
 
     let handlers = morphs(local),
-        popup = overlay.popup({ canDismiss: () => !!(pending || morphed), ondismiss: close, state, target: content });
+        popup = overlay.popup({
+            canDismiss: () => !!(pending || morphed),
+            // Stops following once the close has played out and the content has left the top layer.
+            onclosed: () => {
+                following?.();
+                following = undefined;
+            },
+            ondismiss: close,
+            popover: true,
+            state,
+            target: content
+        });
 
     return [popup, handlers, {
         class: [

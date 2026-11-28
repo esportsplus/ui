@@ -1,4 +1,4 @@
-import { reactive } from '@esportsplus/reactivity';
+import { flush, reactive } from '@esportsplus/reactivity';
 import type { Change, Edit } from '../document';
 import type { Rect } from '../layout';
 import type { Mark } from '../rows';
@@ -66,11 +66,11 @@ const session = (host: Host) => {
         applying = false,
         // Source offsets the completion list and hover card are anchored at.
         at = { completion: -1, hover: -1 },
-        card = hover(),
+        card = hover(() => targets.hover),
         // Where completion was requested; accepting anywhere else would apply a stale response.
         caret = { offset: -1, revision: -1 },
         chain: Promise<void> = Promise.resolve(),
-        complete = completion(`code-editor-completions-${id}`),
+        complete = completion(`code-editor-completions-${id}`, () => targets.completion),
         disposed = false,
         hovered: Span | null = null,
         opened: Session | null = null,
@@ -81,6 +81,8 @@ const session = (host: Host) => {
         stop = -1,
         stops: Stop[] = [],
         synced = 0,
+        // The anchors' elements in the text layer, which the completion list and hover card are pinned to.
+        targets: { completion?: HTMLElement; hover?: HTMLElement } = {},
         timers: { change?: ReturnType<typeof setTimeout>; completion?: ReturnType<typeof setTimeout>; hover?: ReturnType<typeof setTimeout> } = {},
         version = 0;
 
@@ -637,7 +639,8 @@ const session = (host: Host) => {
         // The diagnostics, sorted by offset.
         list: () => opened ? problems.all : [],
         marks: (from: number, to: number) => opened && problems.count ? problems.marks(from, to) : EMPTY,
-        // Keeps the anchors on their text through relayouts; a scroll moves them with the layer they sit in.
+        // Keeps the anchors on their text through relayouts, and the cards pinned to them; a scroll moves the anchors with
+        // the layer they sit in, and the cards follow on their own.
         paint: () => {
             if (complete.state.open) {
                 let anchor = place(at.completion);
@@ -659,6 +662,13 @@ const session = (host: Host) => {
                 else if (anchor !== anchors.hover) {
                     anchors.hover = anchor;
                 }
+            }
+
+            // The anchors move as their styles apply.
+            if (complete.state.open || card.state.open) {
+                flush();
+                complete.place();
+                card.place();
             }
         },
         // Hovers the word, or the character, under the pointer: a diagnostic there shows at once, anything else asks
@@ -707,7 +717,8 @@ const session = (host: Host) => {
         reveal: (from: number, to: number) => {
             controller.select({ end: to, start: from }, true);
             controller.focus();
-        }
+        },
+        targets
     };
 
     return api;

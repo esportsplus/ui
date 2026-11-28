@@ -1,5 +1,6 @@
 import { flush, reactive, root } from '@esportsplus/reactivity';
 import { html, render, setProperties, type Element as Bound } from '@esportsplus/template';
+import { follow } from '~/shared/follow';
 import { expand, margin, place, type Axis, type Corner, type Side } from '~/shared/placement';
 import { viewport } from '~/shared/viewport';
 
@@ -14,6 +15,9 @@ type Delay = {
 // and the point it scales from. 'side' (it travels in from there) and an expanding one's 'corner' are where it last
 // opened, which it keeps while it still fits.
 type Placed = {
+    // Lifted content's trigger, its border box's corner in the viewport, which its place is measured from.
+    anchorX: number | undefined;
+    anchorY: number | undefined;
     corner: Corner | undefined;
     maxHeight: number | undefined;
     maxWidth: number | undefined;
@@ -94,6 +98,32 @@ function goo() {
             </filter>
         </svg>
     `);
+}
+
+// Lifts the content into the top layer, where no clipping or transformed ancestor reaches it, and keeps it on its
+// trigger while it's open; 'overlay.popup' hides it again once its close has played out. A morph stays in flow, as its
+// goo bridge is a filter on the trigger that can't reach the top layer. Returns the stop, or nothing for content it
+// leaves in flow. Raw DOM, as the content is the consumer's markup.
+function lift(element: HTMLElement, tooltip = content(element)) {
+    if (!tooltip || tooltip.matches('.tooltip-content--morph, .tooltip-message--morph')) {
+        return;
+    }
+
+    if (!tooltip.hasAttribute('popover')) {
+        tooltip.setAttribute('popover', 'manual');
+    }
+
+    if (!tooltip.matches(':popover-open')) {
+        tooltip.showPopover();
+    }
+
+    return follow(element, () => {
+        let rect = element.getBoundingClientRect(),
+            state = placed(tooltip);
+
+        state.anchorX = rect.left;
+        state.anchorY = rect.top;
+    });
 }
 
 // Seeds expanding surfaces and '--morph' tooltips with the trigger's box, then calls 'open' once
@@ -190,6 +220,8 @@ function placed(tooltip: HTMLElement) {
 
     return store[PLACED_STATE] ??= root(() => {
         let state: Placed = reactive({
+                anchorX: undefined as number | undefined,
+                anchorY: undefined as number | undefined,
                 corner: undefined as Corner | undefined,
                 maxHeight: undefined as number | undefined,
                 maxWidth: undefined as number | undefined,
@@ -205,6 +237,8 @@ function placed(tooltip: HTMLElement) {
         setProperties(tooltip as Bound, {
             class: () => state.placed && '--placed',
             style: () => state.placed && {
+                '--anchor-x': px(state.anchorX),
+                '--anchor-y': px(state.anchorY),
                 '--place-max-height': px(state.maxHeight),
                 '--place-max-width': px(state.maxWidth),
                 '--place-origin': state.origin,
@@ -225,7 +259,8 @@ function placed(tooltip: HTMLElement) {
 // room; '--expand' content covers the trigger instead, growing out of it toward the corner it last grew toward, or one
 // with room. Either way it is capped to the room it has and kept off the viewport's edges. Measured at its natural
 // width at the trigger's corner, which it then keeps wherever it lands; nothing paints in between. 'axis' keeps it beside
-// the trigger ('x') or above and below it ('y').
+// the trigger ('x') or above and below it ('y'). Content lifted into the top layer is placed from the trigger's border
+// box in the viewport, which nothing scales; it moves along as 'lift()' updates that box's corner.
 function position(element: HTMLElement, axis?: Axis, tooltip = content(element)) {
     if (!tooltip) {
         return;
@@ -233,6 +268,8 @@ function position(element: HTMLElement, axis?: Axis, tooltip = content(element))
 
     let state = placed(tooltip);
 
+    state.anchorX = undefined;
+    state.anchorY = undefined;
     state.maxHeight = undefined;
     state.maxWidth = undefined;
     state.placed = true;
@@ -243,8 +280,12 @@ function position(element: HTMLElement, axis?: Axis, tooltip = content(element))
     flush();
 
     let anchor = element.getBoundingClientRect(),
+        lifted = tooltip.matches(':popover-open'),
         // A transformed ancestor (a dialog scaling open) skews client rects; scale back to layout pixels.
-        scale = anchor.width / element.offsetWidth || 1,
+        scale = lifted ? 1 : anchor.width / element.offsetWidth || 1,
+        // Where the content is placed from, in client pixels: inside the trigger's border in flow, its border box's corner
+        // when lifted.
+        edge = lifted ? { left: anchor.left, top: anchor.top } : { left: anchor.left + element.clientLeft * scale, top: anchor.top + element.clientTop * scale },
         height = tooltip.offsetHeight * scale,
         space = margin(tooltip),
         width = tooltip.offsetWidth;
@@ -257,8 +298,8 @@ function position(element: HTMLElement, axis?: Axis, tooltip = content(element))
         state.maxWidth = (viewport().width - space * 2) / scale;
         // Grows from the trigger's corner it covers.
         state.origin = `${grown.corner[1] === 'e' ? 'left' : 'right'} ${grown.corner[0] === 's' ? 'top' : 'bottom'}`;
-        state.x = (grown.x - anchor.left) / scale - element.clientLeft;
-        state.y = (grown.y - anchor.top) / scale - element.clientTop;
+        state.x = (grown.x - edge.left) / scale;
+        state.y = (grown.y - edge.top) / scale;
     }
     else {
         let { maxHeight, maxWidth, side, x, y } = place({
@@ -271,20 +312,22 @@ function position(element: HTMLElement, axis?: Axis, tooltip = content(element))
                 width: width * scale
             });
 
-        x = (x - anchor.left) / scale - element.clientLeft;
-        y = (y - anchor.top) / scale - element.clientTop;
+        x = (x - edge.left) / scale;
+        y = (y - edge.top) / scale;
 
         state.maxHeight = maxHeight / scale;
         state.maxWidth = maxWidth / scale;
         // Scales out of the trigger itself, even when the content is pushed sideways.
         state.origin = side === 'n' || side === 's'
-            ? `${(anchor.width / 2) / scale - element.clientLeft - x}px ${side === 'n' ? '100%' : '0%'}`
-            : `${side === 'e' ? '0%' : '100%'} ${(anchor.height / 2) / scale - element.clientTop - y}px`;
+            ? `${(anchor.left + anchor.width / 2 - edge.left) / scale - x}px ${side === 'n' ? '100%' : '0%'}`
+            : `${side === 'e' ? '0%' : '100%'} ${(anchor.top + anchor.height / 2 - edge.top) / scale - y}px`;
         state.side = side;
         state.x = x;
         state.y = y;
     }
 
+    state.anchorX = lifted ? anchor.left : undefined;
+    state.anchorY = lifted ? anchor.top : undefined;
     state.width = width;
     flush();
 
@@ -346,5 +389,5 @@ function warm() {
 }
 
 
-export { content, cool, morph, morphs, position, px, shape, wait, warm };
+export { content, cool, lift, morph, morphs, position, px, shape, wait, warm };
 export type { Delay };

@@ -243,6 +243,19 @@
             overscroll-behavior: contain;
         }
 
+        // Lifted into the top layer, out of reach of any clipping or transformed ancestor: placed from its trigger's
+        // corner, which 'lift()' keeps current as the page scrolls, rather than inside the trigger. After '--placed', so
+        // its 'left' and 'top' win; the rest of the browser's popover box is undone in ':where()' below, so a consumer's
+        // own padding wins.
+        &[popover] {
+            bottom: auto;
+            left: calc(var(--anchor-x, 0px) + var(--place-x));
+            margin: 0;
+            position: fixed;
+            right: auto;
+            top: calc(var(--anchor-y, 0px) + var(--place-y));
+        }
+
         #{$active} {
             opacity: 1;
             scale: 1;
@@ -329,15 +342,12 @@
             min-width: 0;
         }
 
-        // The root panel's popover, so an open menu stands above every stacking context around it. Anchored over the
-        // trigger's box, so its panels place against it as they would against the trigger; it takes no clicks itself.
-        // Qualified so the popover reset outranks the '.tooltip' it also carries.
+        // The root panel's popover, so an open menu stands above every stacking context around it. Laid over the
+        // trigger's box, which 'tooltip.menu' writes on it and keeps current as the page scrolls, so its panels place
+        // against it as they would against the trigger; it takes no clicks itself. Qualified so the popover reset
+        // outranks the '.tooltip' it also carries.
         &-layer.tooltip {
             @extend %reset-popover;
-            height: anchor-size(height);
-            left: anchor(left);
-            top: anchor(top);
-            width: anchor-size(width);
 
 
             > .tooltip-menu-panel {
@@ -717,4 +727,12 @@
     100% {
         clip-path: inset(var(--morph-top) var(--morph-right) var(--morph-bottom) var(--morph-left) round var(--morph-radius));
     }
+}
+
+
+// The browser's popover box under a lifted tooltip's content, at zero specificity so any rule of the consumer's wins.
+:where(.tooltip-content[popover], .tooltip-message[popover]) {
+    border: 0;
+    color: inherit;
+    padding: 0;
 }

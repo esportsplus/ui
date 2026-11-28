@@ -27,22 +27,33 @@ type Services = {
 
 
 // The editor's language services addon: the session's logic with its templates. 'anchors' render in the layer that
-// scrolls with the text; the popovers and problems list render in the editor itself.
+// scrolls with the text, marking where the popovers are pinned; the popovers and problems list render in the editor
+// itself.
 const services = (host: Host): Services => {
     let api = session(host),
-        { anchors, card, complete, diagnostics, id } = api;
+        { anchors, card, complete, diagnostics } = api;
 
     return {
         anchors: () => html`
             <div
                 aria-hidden='true'
                 class='code-editor-anchor'
-                ${{ style: () => `anchor-name: --code-editor-completion-${id}; ${anchors.completion}` }}
+                ${{
+                    onconnect: (element: HTMLElement) => {
+                        api.targets.completion = element;
+                    },
+                    style: () => anchors.completion
+                }}
             ></div>
             <div
                 aria-hidden='true'
                 class='code-editor-anchor'
-                ${{ style: () => `anchor-name: --code-editor-hover-${id}; ${anchors.hover}` }}
+                ${{
+                    onconnect: (element: HTMLElement) => {
+                        api.targets.hover = element;
+                    },
+                    style: () => anchors.hover
+                }}
             ></div>
         `,
         aria: api.aria,
@@ -64,7 +75,6 @@ const services = (host: Host): Services => {
                 id='${complete.id}'
                 popover='manual'
                 role='listbox'
-                style='${`--anchor: --code-editor-completion-${id};`}'
                 ${{ onconnect: complete.attach }}
             >
                 ${html.reactive(complete.rows, (row) => html`
@@ -92,7 +102,6 @@ const services = (host: Host): Services => {
                 class='code-editor-hover'
                 popover='manual'
                 role='tooltip'
-                style='${`--anchor: --code-editor-hover-${id};`}'
                 ${{ onconnect: card.attach }}
             >${() => card.state.text}</div>
             <div

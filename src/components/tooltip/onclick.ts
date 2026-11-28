@@ -1,7 +1,7 @@
 import { component, html, type Attributes } from '@esportsplus/template';
 import { onCleanup, reactive } from '@esportsplus/reactivity';
 import overlay from '~/components/overlay';
-import { content as surface, morph, morphs, position } from './utilities';
+import { content as surface, lift, morph, morphs, position } from './utilities';
 import type { Axis } from '~/shared/placement';
 
 
@@ -26,10 +26,14 @@ type A = Attributes & {
 export default component<A>(
     ({ axis, manual = false, state = reactive({ active: false }), toggle = false, ...attributes }, content) => {
         let cancel: VoidFunction | undefined,
+            following: VoidFunction | undefined,
             host: HTMLElement | undefined,
             local = reactive({ morphing: false });
 
-        onCleanup(() => cancel?.());
+        onCleanup(() => {
+            cancel?.();
+            following?.();
+        });
 
         let popup = overlay.popup({
             canDismiss: () => !!cancel,
@@ -37,12 +41,20 @@ export default component<A>(
                 cancel?.();
                 cancel = undefined;
             },
-            // A controlled trigger opens through 'state' alone, so its content is placed as it shows.
+            // Stops following once the close has played out and the content has left the top layer.
+            onclosed: () => {
+                following?.();
+                following = undefined;
+            },
+            // A controlled trigger opens through 'state' alone, so its content is lifted and placed as it shows.
             onopen: () => {
                 if (manual && host) {
+                    following?.();
+                    following = lift(host);
                     position(host, axis);
                 }
             },
+            popover: true,
             state,
             target: (element) => {
                 host = element;
@@ -65,6 +77,8 @@ export default component<A>(
                     cancel = undefined;
 
                     if (active && !state.active) {
+                        following?.();
+                        following = lift(this);
                         position(this, axis);
                         cancel = morph(this, () => {
                             cancel = undefined;

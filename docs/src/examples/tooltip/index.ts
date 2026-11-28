@@ -281,6 +281,34 @@ export default {
             ),
             title: 'onhover'
         },
+        // Inside a box that clips its overflow, and scrolls: both open in the top layer over its edges, beside the trigger
+        // and covering it as '--expand' content does, and stay on their triggers as the box scrolls.
+        {
+            render: () => html`
+                <div style='display: flex; gap: var(--size-400); max-width: 260px; overflow: auto; padding: var(--size-400); border: 1px dashed var(--surface-border-default); border-radius: var(--border-radius-400);'>
+                    ${tooltip.onhover(
+                        { class: trigger, tabindex: '0' },
+                        html`
+                            beside
+                            <div class='tooltip-message'>
+                                Over the box around its trigger
+                            </div>
+                        `
+                    )}
+                    ${tooltip.onhover(
+                        { class: trigger, tabindex: '0' },
+                        html`
+                            expand
+                            <div class='tooltip-content tooltip-content--expand' style='--background: var(--surface-background-default); --width: 240px; color: var(--color-text-500); padding: var(--size-400) var(--size-500); white-space: normal;'>
+                                In the top layer, over the box around its trigger.
+                            </div>
+                        `
+                    )}
+                    <span style='flex: none; width: 200px;'></span>
+                </div>
+            `,
+            title: 'onhover (clipping box)'
+        },
         {
             render: () => tooltip.onclick(
                 { class: trigger },

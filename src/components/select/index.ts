@@ -9,6 +9,7 @@ import icon from '~/components/icon';
 import overlay from '~/components/overlay';
 import scrollbar from '~/modifiers/scrollbar';
 import { clamp } from '~/shared/clamp';
+import { follow } from '~/shared/follow';
 import expand from './expand';
 import place, { ROWS } from './placement';
 import './scss/index.scss';
@@ -112,6 +113,7 @@ function template(
         iconic = options.some((option) => option.icon),
         // Private mirrors the options select on, so a move or a pick restyles two options rather than every one.
         chosen = signal(''),
+        following: VoidFunction | undefined,
         frame = 0,
         highlighted = signal(0),
         id = `select-menu-${++uid}`,
@@ -120,7 +122,14 @@ function template(
         parts: Parts = {},
         query = '',
         texts: string[] | undefined,
-        timer: ReturnType<typeof setTimeout> | undefined;
+        timer: ReturnType<typeof setTimeout> | undefined,
+        // The select's border box in the viewport, which the layer covers while it's in the top layer.
+        view = reactive({
+            height: undefined as number | undefined,
+            left: undefined as number | undefined,
+            top: undefined as number | undefined,
+            width: undefined as number | undefined
+        });
 
     function choose(index: number) {
         if (!options[index]) {
@@ -248,6 +257,12 @@ function template(
             layer.showPopover();
         }
 
+        track();
+
+        if (layer?.parentElement) {
+            following ??= follow(layer.parentElement, track);
+        }
+
         if (label && option && panel && scroller && trigger && value) {
             let placed = place({ label, option, panel, scroller, trigger, value }, options.length, index);
 
@@ -339,6 +354,22 @@ function template(
         cancelAnimationFrame(frame);
     }
 
+    // Lays the layer over the select's box as it stands now.
+    function track() {
+        let root = parts.layer?.parentElement;
+
+        if (!root) {
+            return;
+        }
+
+        let bounds = root.getBoundingClientRect();
+
+        view.height = bounds.height;
+        view.left = bounds.left;
+        view.top = bounds.top;
+        view.width = bounds.width;
+    }
+
     function wheel(e: WheelEvent) {
         let scroller = parts.scroller;
 
@@ -367,6 +398,7 @@ function template(
 
     onCleanup(() => {
         clearTimeout(timer);
+        following?.();
         stop();
     });
 
@@ -387,10 +419,18 @@ function template(
     return html`
         <div
             class='select select-menu'
-            style='anchor-name: --${id};'
             ${defaults}
             ${attributes}
-            ${overlay.popup({ popover: true, state, target: () => parts.layer })}
+            ${overlay.popup({
+                // Stops following once the close has played out and the layer has left the top layer.
+                onclosed: () => {
+                    following?.();
+                    following = undefined;
+                },
+                popover: true,
+                state,
+                target: () => parts.layer
+            })}
         >
             <span class='select-menu-label' id='${id}-label'>${label ?? defaults?.label ?? String(ariaLabel ?? 'Select option')}</span>
             <button
@@ -460,11 +500,16 @@ function template(
             <div
                 class='select-menu-layer'
                 popover='manual'
-                style='position-anchor: --${id};'
                 ${{
                     onconnect: (element: HTMLElement) => {
                         parts.layer = element;
-                    }
+                    },
+                    style: () => ({
+                        height: view.height === undefined ? undefined : `${view.height}px`,
+                        left: view.left === undefined ? undefined : `${view.left}px`,
+                        top: view.top === undefined ? undefined : `${view.top}px`,
+                        width: view.width === undefined ? undefined : `${view.width}px`
+                    })
                 }}
             >
                 <div

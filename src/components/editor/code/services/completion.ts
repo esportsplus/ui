@@ -1,4 +1,5 @@
 import { flush, reactive, ReactiveArray } from '@esportsplus/reactivity';
+import { pin, type Pin } from './pin';
 import type { CompletionItem } from './protocol';
 
 
@@ -9,6 +10,8 @@ type Completion = {
     id: string;
     item: (index?: number) => CompletionItem | undefined;
     move: (step: number) => void;
+    // Lays the open list at its anchor again, after a relayout moved it.
+    place: VoidFunction;
     rows: ReactiveArray<Row>;
     show: (items: CompletionItem[]) => void;
     state: { open: boolean; selected: number };
@@ -21,11 +24,12 @@ type Row = { detail: string; index: number; label: string };
 const LIMIT = 200;
 
 
-// The completion list's state: a listbox in the top layer, anchored under the word being completed. Focus stays in
-// the editor, which drives it through 'move' and reports the active option with 'aria-activedescendant'.
-const completion = (id: string): Completion => {
+// The completion list's state: a listbox in the top layer, pinned under the word being completed at 'anchor'. Focus
+// stays in the editor, which drives it through 'move' and reports the active option with 'aria-activedescendant'.
+const completion = (id: string, anchor: () => HTMLElement | undefined): Completion => {
     let items: CompletionItem[] = [],
         list: HTMLElement | undefined,
+        pinned: Pin | undefined,
         rows = new ReactiveArray<Row>(),
         state = reactive({ open: false, selected: 0 });
 
@@ -63,6 +67,8 @@ const completion = (id: string): Completion => {
             state.open = false;
             rows.splice(0, rows.length);
             items = [];
+            pinned?.stop();
+            pinned = undefined;
 
             if (list?.matches(':popover-open')) {
                 list.hidePopover();
@@ -76,6 +82,7 @@ const completion = (id: string): Completion => {
             state.selected = (state.selected + step + n) % n;
             reveal();
         },
+        place: () => pinned?.update(),
         rows,
         show: (next: CompletionItem[]) => {
             items = next
@@ -100,6 +107,15 @@ const completion = (id: string): Completion => {
 
             if (!list.matches(':popover-open')) {
                 list.showPopover();
+            }
+
+            let target = anchor();
+
+            if (pinned) {
+                pinned.update();
+            }
+            else if (target) {
+                pinned = pin(list, target, 's');
             }
 
             list.scrollTop = 0;

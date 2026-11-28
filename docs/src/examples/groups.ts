@@ -130,7 +130,7 @@ const groups: Record<string, Group[]> = {
         { title: 'dock drawer', members: [['dock drawer', 'Default'], ['direction s', 'Direction s'], ['direction e', 'Direction e'], ['direction w', 'Direction w']] }
     ],
     tooltip: [
-        { title: 'tooltip', members: [['onhover', 'Hover'], ['onclick', 'Click'], 'scale', 'scale + spring', 'spring'] },
+        { title: 'tooltip', members: [['onhover', 'Hover'], ['onclick', 'Click'], ['onhover (clipping box)', 'Clipping box'], 'scale', 'scale + spring', 'spring'] },
         { title: 'menu', members: [['menu', 'Flat'], ['menu (drill down)', 'Nested'], ['menu (instant)', 'Nested (instant)'], ['menu (onhover)', 'Hover'], ['menu (expand)', 'Expand'], ['menu (sections)', 'Sections'], ['menu (--height)', 'Capped height']] },
         { title: 'expand', members: [['expand (onclick)', 'Click']] },
         { title: 'morph', members: [['morph (onhover)', 'Hover'], ['morph (onclick)', 'Click'], ['morph message (onhover)', 'Message']] },

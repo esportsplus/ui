@@ -6,6 +6,7 @@ import icon from '~/components/icon';
 import overlay from '~/components/overlay';
 import scrollbar from '~/modifiers/scrollbar';
 import { finished } from '~/shared/animation';
+import { follow } from '~/shared/follow';
 import { expand as cover, margin, place, type Corner, type Side } from '~/shared/placement';
 import { viewport } from '~/shared/viewport';
 import { morph, px } from './utilities';
@@ -90,8 +91,6 @@ const MENU_TRIGGER = Symbol.for('@esportsplus/ui/tooltip.menu.trigger');
 const SLOP = 10;
 
 
-// Names each menu's anchor, which its layer is placed over.
-let anchors = 0;
 
 
 // A node with items that open a panel of their own; a section's show in place instead.
@@ -112,7 +111,8 @@ function covered(node: MenuNode) {
 function createMenu(context = false) {
     return component(
         ({ align = 'start', animate = true, controller, expand: expansion = false, highlight: highlighted = false, items, onselect, openOn = 'click', state = reactive({ active: false }), ...attributes }: A, content) => {
-            let hiding = 0,
+            let following: VoidFunction | undefined,
+                hiding = 0,
                 // A touch holding on a context menu's host: where it went down, and the timer that opens the menu there.
                 holding: { point: Point, timer: ReturnType<typeof setTimeout> } | undefined,
                 // Whether the current touch's hold opened the menu, so the native long-press and the tap that ends it
@@ -123,7 +123,6 @@ function createMenu(context = false) {
                 last: { corner?: Corner, side?: Side } = {},
                 layer: HTMLElement | undefined,
                 leaving: ReturnType<typeof setTimeout> | undefined,
-                name = `--tooltip-menu-${++anchors}`,
                 // Where a context menu was asked to open, as a viewport point.
                 origin: Point | undefined,
                 pending: VoidFunction | undefined,
@@ -137,12 +136,20 @@ function createMenu(context = false) {
                 }),
                 root: MenuNode = { children: [], state: reactive({ height: undefined as number | undefined, lift: 0, open: true, render: true, settled: true, top: 0 }) },
                 stack: MenuNode[] = [root],
-                trigger: HTMLElement | undefined;
+                trigger: HTMLElement | undefined,
+                // The host's border box in the viewport, which the layer covers while it's in the top layer.
+                view = reactive({
+                    height: undefined as number | undefined,
+                    left: undefined as number | undefined,
+                    top: undefined as number | undefined,
+                    width: undefined as number | undefined
+                });
 
             root.children = tree(items, root);
 
             onCleanup(() => {
                 clearTimeout(leaving);
+                following?.();
                 release();
                 host?.removeEventListener('click', swallow, true);
                 pending?.();
@@ -521,6 +528,8 @@ function createMenu(context = false) {
                 void finished(layer, { subtree: true }).then(() => {
                     if (current === hiding && !state.active && !pending && layer?.matches(':popover-open')) {
                         layer.hidePopover();
+                        following?.();
+                        following = undefined;
                     }
                 });
             }
@@ -703,12 +712,19 @@ function createMenu(context = false) {
                 }
             }
 
-            // Into the top layer before anything measures the panels, which lay out only once it shows.
+            // Into the top layer before anything measures the panels, which lay out only once it shows, over the host's
+            // box and kept there while it's shown.
             function raise() {
                 hiding++;
 
                 if (layer && !layer.matches(':popover-open')) {
                     layer.showPopover();
+                }
+
+                track();
+
+                if (host) {
+                    following ??= follow(host, track);
                 }
             }
 
@@ -785,6 +801,20 @@ function createMenu(context = false) {
                 leaving = undefined;
             }
 
+            // Lays the layer over the host's box as it stands now.
+            function track() {
+                if (!host) {
+                    return;
+                }
+
+                let bounds = host.getBoundingClientRect();
+
+                view.height = bounds.height;
+                view.left = bounds.left;
+                view.top = bounds.top;
+                view.width = bounds.width;
+            }
+
             let hover = !context && openOn === 'hover',
                 popup = overlay.popup({
                     canDismiss: () => !!pending,
@@ -794,7 +824,7 @@ function createMenu(context = false) {
                     target: (element) => element.querySelector<HTMLElement>(':scope > .tooltip-menu-panel') ?? undefined
                 }),
                 // The trigger and the layer are siblings, so whatever spans the menu listens on both: the panel sits in
-                // the layer, not in the trigger, and the trigger names itself as the anchor the layer is placed over.
+                // the layer, not in the trigger, and the layer is laid over the trigger's box.
                 spanning = {
                     onfocusout: (event: FocusEvent) => {
                         if ((state.active || pending) && !inside(event.relatedTarget as Node | null)) {
@@ -817,7 +847,6 @@ function createMenu(context = false) {
             return html`
                 ${context ? html`<div
                     class='tooltip-menu-trigger tooltip-menu-trigger--context'
-                    style='anchor-name: ${name};'
                     ${attributes}
                     ${spanning}
                     ${{
@@ -832,7 +861,6 @@ function createMenu(context = false) {
                 >${content}</div>` : html`<button
                     aria-haspopup='menu'
                     class='tooltip-menu-trigger'
-                    style='anchor-name: ${name};'
                     type='button'
                     ${attributes}
                     ${attributes[MENU_TRIGGER]}
@@ -856,12 +884,22 @@ function createMenu(context = false) {
                 <div
                     class='tooltip tooltip--menu tooltip-menu-layer ${context && 'tooltip--context'} ${!animate && 'tooltip--instant'}'
                     popover='manual'
-                    style='position-anchor: ${name};'
                     ${{
                         onconnect: (element: HTMLElement) => {
                             layer = element;
                         },
-                        onwindowresize: () => state.active && arrange()
+                        onwindowresize: () => {
+                            if (state.active) {
+                                track();
+                                arrange();
+                            }
+                        },
+                        style: () => ({
+                            height: px(view.height),
+                            left: px(view.left),
+                            top: px(view.top),
+                            width: px(view.width)
+                        })
                     }}
                     ${popup}
                     ${spanning}
