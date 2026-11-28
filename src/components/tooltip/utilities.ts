@@ -15,13 +15,17 @@ type Delay = {
 // and the point it scales from. 'side' (it travels in from there) and an expanding one's 'corner' are where it last
 // opened, which it keeps while it still fits.
 type Placed = {
-    // Lifted content's trigger, its border box's corner in the viewport, which its place is measured from.
+    // Lifted content's trigger, the point on its border box in the viewport that its place is measured from.
     anchorX: number | undefined;
     anchorY: number | undefined;
     corner: Corner | undefined;
     maxHeight: number | undefined;
     maxWidth: number | undefined;
     origin: string | undefined;
+    // Where that point sits across and down the trigger (0, 0.5 or 1): the edge the content lines up with, so it stays
+    // put when the trigger's own size changes, like a figure growing a digit.
+    pinX: number;
+    pinY: number;
     placed: boolean;
     // Transitions are off while it moves, so it never slides between places.
     placing: boolean;
@@ -121,8 +125,8 @@ function lift(element: HTMLElement, tooltip = content(element)) {
         let rect = element.getBoundingClientRect(),
             state = placed(tooltip);
 
-        state.anchorX = rect.left;
-        state.anchorY = rect.top;
+        state.anchorX = rect.left + rect.width * state.pinX;
+        state.anchorY = rect.top + rect.height * state.pinY;
     });
 }
 
@@ -214,6 +218,19 @@ function morphs(state: { morphing: boolean }) {
     };
 }
 
+// Where content is placed from, in client pixels: inside the trigger's border in flow; lifted, the point on the trigger's
+// border box at the edge it lines up with, which 'lift()' keeps current.
+function pin(anchor: DOMRect, element: HTMLElement, lifted: boolean, scale: number, x: number, y: number, state: Placed) {
+    if (!lifted) {
+        return { left: anchor.left + element.clientLeft * scale, top: anchor.top + element.clientTop * scale };
+    }
+
+    state.pinX = x;
+    state.pinY = y;
+
+    return { left: anchor.left + anchor.width * x, top: anchor.top + anchor.height * y };
+}
+
 // Bound to the content's class and style once, the first time 'position()' places it.
 function placed(tooltip: HTMLElement) {
     let store = tooltip as HTMLElement & { [PLACED_STATE]?: Placed };
@@ -226,6 +243,8 @@ function placed(tooltip: HTMLElement) {
                 maxHeight: undefined as number | undefined,
                 maxWidth: undefined as number | undefined,
                 origin: undefined as string | undefined,
+                pinX: 0,
+                pinY: 0,
                 placed: false,
                 placing: false,
                 side: undefined as Side | undefined,
@@ -283,15 +302,13 @@ function position(element: HTMLElement, axis?: Axis, tooltip = content(element))
         lifted = tooltip.matches(':popover-open'),
         // A transformed ancestor (a dialog scaling open) skews client rects; scale back to layout pixels.
         scale = lifted ? 1 : anchor.width / element.offsetWidth || 1,
-        // Where the content is placed from, in client pixels: inside the trigger's border in flow, its border box's corner
-        // when lifted.
-        edge = lifted ? { left: anchor.left, top: anchor.top } : { left: anchor.left + element.clientLeft * scale, top: anchor.top + element.clientTop * scale },
         height = tooltip.offsetHeight * scale,
         space = margin(tooltip),
         width = tooltip.offsetWidth;
 
     if (tooltip.matches(EXPANDING)) {
-        let grown = expand({ anchor, corner: state.corner, height, margin: space, width: width * scale });
+        let grown = expand({ anchor, corner: state.corner, height, margin: space, width: width * scale }),
+            edge = pin(anchor, element, lifted, scale, grown.corner[1] === 'e' ? 0 : 1, grown.corner[0] === 's' ? 0 : 1, state);
 
         state.corner = grown.corner;
         state.maxHeight = grown.maxHeight / scale;
@@ -312,6 +329,8 @@ function position(element: HTMLElement, axis?: Axis, tooltip = content(element))
                 width: width * scale
             });
 
+        let edge = pin(anchor, element, lifted, scale, side === 'e' ? 1 : side === 'w' ? 0 : 0.5, side === 's' ? 1 : side === 'n' ? 0 : 0.5, state);
+
         x = (x - edge.left) / scale;
         y = (y - edge.top) / scale;
 
@@ -326,8 +345,8 @@ function position(element: HTMLElement, axis?: Axis, tooltip = content(element))
         state.y = y;
     }
 
-    state.anchorX = lifted ? anchor.left : undefined;
-    state.anchorY = lifted ? anchor.top : undefined;
+    state.anchorX = lifted ? anchor.left + anchor.width * state.pinX : undefined;
+    state.anchorY = lifted ? anchor.top + anchor.height * state.pinY : undefined;
     state.width = width;
     flush();
 
