@@ -257,11 +257,14 @@
             --item-border-radius: var(--border-radius-400);
             // Resolved here, as the checkbox steps its own surface: a checked box takes the panel's fill.
             --item-check-background: var(--background-default);
+            // The tallest the panel grows before its rows scroll, however much room it has; set it lower to cap a long
+            // menu, e.g. 'calc(var(--item-height) * 8.5)'. The rows set their own, so a panel's never reaches them.
+            --height: 100dvh;
             --item-height: 36px;
             // Written by 'tooltip.menu': how far a sub-panel rises above its row, and the height a panel scrolls past,
-            // each to stay on screen.
+            // each to stay on screen; a viewport until written, so 'min()' with '--height' always resolves.
             --lift: 0px;
-            --max-height: none;
+            --max-height: 100dvh;
             --title-bold-opacity: 0;
             --title-regular-opacity: 1;
 

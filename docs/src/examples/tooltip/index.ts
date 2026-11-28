@@ -334,6 +334,18 @@ export default {
             ),
             title: 'menu (highlight)'
         },
+        // A long menu capped by its panel's '--height', scrolling its rows past six and a half of them.
+        {
+            render: () => tooltip.menu(
+                {
+                    items: Array.from({ length: 20 }, (_, i) => ({ label: `Row ${i + 1}` })),
+                    [tooltip.menu.panel]: { style: '--height: calc(var(--item-height) * 6.5);' },
+                    [tooltip.menu.trigger]: { class: trigger }
+                },
+                'capped menu'
+            ),
+            title: 'menu (--height)'
+        },
         // Sections fold their rows away in place; checked rows stay open while several are toggled.
         {
             render: () => {

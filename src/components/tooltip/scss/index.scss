@@ -345,7 +345,8 @@
             }
         }
 
-        // Capped to the room 'tooltip.menu' finds for it, past which its rows scroll.
+        // Capped to the room 'tooltip.menu' finds for it, or to '--height' if lower, past which its rows scroll. The cap
+        // holds while the menu measures it, so it's placed by the height it shows.
         &-panel {
             background: var(--background);
             border-radius: var(--border-radius);
@@ -355,7 +356,7 @@
             flex-direction: column;
             font-size: var(--font-size);
             isolation: isolate;
-            max-height: var(--max-height);
+            max-height: min(var(--max-height), var(--height));
             position: absolute;
             width: var(--width);
 
