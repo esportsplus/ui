@@ -243,6 +243,13 @@
             overscroll-behavior: contain;
         }
 
+        // Content a '--lift' trigger opens stays out of the layout until then: in flow, its hidden box would still stretch
+        // a scrolling ancestor. Its first open makes it a popover, which the browser keeps out of the layout while closed.
+        // A morph stays in flow, see 'lift()'.
+        &:not([popover], .tooltip-content--morph, .tooltip-message--morph):where(.tooltip--lift > *, .tooltip--lift :not(.tooltip) > *) {
+            display: none;
+        }
+
         // Lifted into the top layer, out of reach of any clipping or transformed ancestor: placed from its trigger's
         // corner, which 'lift()' keeps current as the page scrolls, rather than inside the trigger. After '--placed', so
         // its 'left' and 'top' win; the rest of the browser's popover box is undone in ':where()' below, so a consumer's

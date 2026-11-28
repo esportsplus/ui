@@ -178,7 +178,8 @@ function trigger({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, 
     return [popup, handlers, {
         class: [
             () => state.active && local.instant && 'tooltip--instant',
-            () => local.morphing && 'tooltip--morphing'
+            () => local.morphing && 'tooltip--morphing',
+            'tooltip--lift'
         ],
         onfocusin: (e: FocusEvent) => {
             stay();

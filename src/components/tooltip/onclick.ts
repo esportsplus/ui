@@ -65,7 +65,7 @@ export default component<A>(
 
         return html`
             <div
-                class='tooltip'
+                class='tooltip tooltip--lift'
                 ${attributes}
                 ${popup}
                 ${morphs(local)}
