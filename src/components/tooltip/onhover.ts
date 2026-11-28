@@ -85,6 +85,18 @@ function safe(element: HTMLElement, x: number, y: number) {
         polygon = '',
         top = Math.min(y, box.top);
 
+    // Lifted content draws the cone on its own backdrop, in viewport coordinates, from the top layer: a box on the
+    // trigger reaching out to it would stretch a scrolling ancestor, which a wheel over the trigger then scrolls.
+    if (tooltip.matches(':popover-open')) {
+        for (let i = 0, n = points.length; i < n; i++) {
+            polygon += `${i ? ', ' : ''}${points[i][0]}px ${points[i][1]}px`;
+        }
+
+        tooltip.style.setProperty('--safe-area', `polygon(${polygon})`);
+
+        return '';
+    }
+
     for (let i = 0, n = points.length; i < n; i++) {
         polygon += `${i ? ', ' : ''}${points[i][0] - left}px ${points[i][1] - top}px`;
     }
@@ -107,6 +119,7 @@ function trigger({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, 
         local = reactive({ instant: false, morphing: false, safe: '' }),
         morphed: VoidFunction | undefined,
         pending: VoidFunction | undefined,
+        surface: HTMLElement | undefined,
         x = 0,
         y = 0;
 
@@ -117,6 +130,8 @@ function trigger({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, 
         morphed = undefined;
         pending?.();
         pending = undefined;
+        surface?.style.removeProperty('--safe-area');
+        surface = undefined;
 
         if (opening && state.active) {
             cool();
@@ -129,6 +144,7 @@ function trigger({ axis, delay: { close: closing = 0, open: opening = 0 } = {}, 
         pending = undefined;
         following?.();
         following = lift(element);
+        surface = content(element);
         position(element, axis);
         morphed = morph(element, () => {
             morphed = undefined;

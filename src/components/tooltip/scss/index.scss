@@ -250,6 +250,14 @@
             display: none;
         }
 
+        // Lifted content's cone from the pointer, see '.tooltip::before': its backdrop spans the viewport, clipped to the
+        // cone 'tooltip.onhover' writes, and empty until it does. Hovering it counts as hovering the content, which sits
+        // inside the trigger, so the pointer crosses to the tooltip without closing it.
+        &[popover]::backdrop {
+            background: var(--safe-color);
+            clip-path: var(--safe-area, inset(50%));
+        }
+
         // Lifted into the top layer, out of reach of any clipping or transformed ancestor: placed from its trigger's
         // corner, which 'lift()' keeps current as the page scrolls, rather than inside the trigger. After '--placed', so
         // its 'left' and 'top' win; the rest of the browser's popover box is undone in ':where()' below, so a consumer's
