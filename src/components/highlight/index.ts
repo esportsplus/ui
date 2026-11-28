@@ -98,6 +98,37 @@ function before(node: Node, item: Element) {
     return node.contains(item) || (node.isConnected && !!(node.compareDocumentPosition(item) & Node.DOCUMENT_POSITION_FOLLOWING));
 }
 
+// Whether a point lies outside the box around every item: past the first or last of them rather than in a gap between
+// two, such as the empty end of a tab strip that runs wider than its tabs.
+function beyond(parent: Element, self: Element[], x: number, y: number, target?: string) {
+    let items = target ? parent.querySelectorAll(target) : parent.children,
+        bottom = -Infinity,
+        left = Infinity,
+        right = -Infinity,
+        top = Infinity;
+
+    for (let i = 0, n = items.length; i < n; i++) {
+        let item = items[i];
+
+        if (self.includes(item)) {
+            continue;
+        }
+
+        let box = item.getBoundingClientRect();
+
+        if (box.width === 0 && box.height === 0) {
+            continue;
+        }
+
+        bottom = Math.max(bottom, box.bottom);
+        left = Math.min(left, box.left);
+        right = Math.max(right, box.right);
+        top = Math.min(top, box.top);
+    }
+
+    return x < left || x > right || y < top || y > bottom;
+}
+
 // The highlight's own layers are siblings too; only tracked items define the group's ends.
 function boundary(parent: Element, self: Element[], item: Element, target?: string) {
     let items = target ? parent.querySelectorAll(target) : parent.children,
@@ -299,10 +330,21 @@ export default component<A>(
             resize: Observer | undefined,
             self: Element[] = [];
 
+        // Over an item, the pointer layer follows it. Off one but still within the group, it keeps the last item across a
+        // gap between two, and lets it go once the pointer is past the items' ends.
         function enter(e: PointerEvent) {
             let item = hover && parent ? sibling(parent, self, e.target, target) : null;
 
-            if (!item || item === hovered) {
+            if (!item) {
+                if (hovered && parent?.contains(e.target as Node | null) && beyond(parent, self, e.clientX, e.clientY, target)) {
+                    hovered = null;
+                    schedule();
+                }
+
+                return;
+            }
+
+            if (item === hovered) {
                 return;
             }
 
